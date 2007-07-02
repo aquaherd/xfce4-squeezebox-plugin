@@ -1,0 +1,33 @@
+Squeezebox XFce4 panel plugin.
+
+    This plugin remote controls some media players from your
+panel. It is in no way derived from the mpd plugin (although 
+inspired) or from the gnome media applet (although similar).
+
+    Its goal is to control virtually all available audio players
+as soon as they allow for remote controlling by dbus, pipe or
+bonobo. Required minimal functionality would be play/pause, skip/
+rewind and fetch track info, album/artist/title at least. Rating,
+album art display and toggling the visibility of the main UI 
+would be optional.
+
+    Track change notification is made by means of libnotify only if 
+libnotify is available during build.
+
+    Embedded album art extraction is under research (for iTunes 
+    switchers like me)
+    
+    Currently available backends:
+    - Rhythmbox 0.95 (via DBUS)
+    - Music Player Daemon (via libmpd)
+    
+    Planned backends:
+    - QuodLibet (via pipe)
+    - mplayer (via -silent -idle switches with own playlist management)
+    - Banshee (as soon as the DBUS interface comes available)
+    
+    Remotely possible backends:
+    - Older Rhythmbox (w/o DBUS via bonobo)
+    - xmms (don't know how yet)
+    - xmms2 (dito)
+    - bmpx (dito)

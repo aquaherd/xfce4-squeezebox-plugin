@@ -1,0 +1,13 @@
+Source: xfce4-squeezebox-plugin
+Section: x11
+Priority: optional
+Maintainer: Hakan Erduman <Hakan.Erduman@web.de> 
+Build-Depends: cdbs, debhelper (>= 5.0.0), libxfcegui4-dev (>= 4.2.1), libstartup-notification0-dev, libxft-dev, xfce4-panel-dev (>= 4.3), libxml-parser-perl
+Standards-Version: 3.6.2
+
+Package: xfce4-squeezebox-plugin
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: xfce4-panel plugin to control rhythmbox and MPD remotely.
+ Xfce4-rhythmbox-plugin is a simple plugin to control the rhythmbox
+ media player snd MPD by a context menu and display the current track info.

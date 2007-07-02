@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/class/xfce.mk
+
+binary-post-install/xfce4-squeezebox-plugin::
+	cp debian/applets-squeezebox.svg \
+		debian/xfce4-squeezebox-plugin/usr/share/icons/hicolor/48x48/apps/
+
