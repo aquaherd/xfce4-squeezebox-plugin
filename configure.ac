@@ -175,6 +175,16 @@ dnl Check for debugging support
 XDT_FEATURE_DEBUG()
 AC_SUBST([LIBMPD_CFLAGS])
 AC_SUBST([LIBMPD_LIBS])
+PKG_CHECK_MODULES(LIBGTK, gtk+ xfce4-panel-1.0)
+AC_SUBST(LIBGTK_CFLAGS)
+AC_SUBST(LIBGTK_LIBS)
+AM_PATH_GLIB_2_0(2.0.0,,AC_MSG_ERROR([
+*** GLib 2.0 is required to build MusicTracker; please make sure you have the
+*** GLib development headers installed. The latest version of GLib is always
+*** available at http://www.gtk.org/.]))
+AC_SUBST(GLIB_LIBS)
+AC_SUBST(GLIB_CFLAGS)
+
 AC_OUTPUT([
 Makefile
 panel-plugin/Makefile

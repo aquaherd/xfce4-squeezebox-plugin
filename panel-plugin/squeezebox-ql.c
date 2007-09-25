@@ -38,6 +38,7 @@
 #include <fcntl.h>
 
 #include <string.h>
+#include <stdio.h>
 
 #include "squeezebox.h"
 
@@ -48,16 +49,28 @@ DEFINE_BACKEND(QL, "QuodLibet (pipe)")
 typedef struct {
 	SPlayer		*parent;
 	void		*player;
+	FILE		*fp;
 }qlData;
 
 #define MKTHIS qlData *this = (qlData *)thsPtr;
+#define QL_FIFO_PATH "~/.quodlibet/control"
 
 void *QL_attach(SPlayer *player);
 
 gboolean qlAssure(gpointer thsPtr)
 {
 	MKTHIS;
-	return (this->player != NULL);
+	if(g_file_test(QL_FIFO_PATH, G_FILE_TEST_EXISTS)){
+		if( !this->fp ){
+			this->fp = (FILE*)g_fopen(QL_FIFO_PATH, "rw");
+		}
+	}
+	else if( this->fp ) {
+		LOG("Anomaly in qlAssure: FIFO disappeared!\n");
+		fclose(this->fp);
+		this->fp = NULL;
+	}
+	return (this->fp != NULL);
 }
 
 gboolean qlNext(gpointer thsPtr)
@@ -66,7 +79,7 @@ gboolean qlNext(gpointer thsPtr)
 	gboolean bRet = FALSE;
 	LOG("Enter qlNext\n");
 	if( !qlAssure(this) )
-		return FALSE;
+		bRet = (4 == g_fprintf(this->fp, "next"));
 	else
 		bRet = FALSE;
 	LOG("Leave qlNext\n");
@@ -76,17 +89,27 @@ gboolean qlNext(gpointer thsPtr)
 gboolean qlPrevious(gpointer thsPtr)
 {
 	MKTHIS;
+	gboolean bRet = FALSE;
 	LOG("Enter qlPrevious\n");
+	if( !qlAssure(this) )
+		bRet = (8 == g_fprintf(this->fp, "previous"));
+	else
+		bRet = FALSE;
 	LOG("Leave qlPrevious\n");
-	return FALSE;
+	return bRet;
 }
 
 gboolean qlPlayPause(gpointer thsPtr, gboolean newState)
 {
 	MKTHIS;
 	LOG("Enter qlPlayPause\n");
+	gboolean bRet = FALSE;
+	if( !qlAssure(this) )
+		bRet = (8 == g_fprintf(this->fp, "play-pause"));
+	else
+		bRet = FALSE;
 	LOG("LEAVE qlPlayPause\n");
-	return FALSE;
+	return bRet;
 }
 
 gboolean qlIsPlaying(gpointer thsPtr)
@@ -100,17 +123,26 @@ gboolean qlIsPlaying(gpointer thsPtr)
 gboolean qlToggle(gpointer thsPtr, gboolean *newState)
 {
 	MKTHIS;
+	gboolean bRet = FALSE;
 	LOG("Enter qlToggle\n");
+	if( !qlAssure(this) )
+		bRet = (8 == g_fprintf(this->fp, "toggle-window"));
+	else
+		bRet = FALSE;
 	LOG("Leave qlToggle\n");
-	return FALSE;
+	return bRet;
 }
 
 gboolean qlDetach(gpointer thsPtr)
 {
 	MKTHIS;
+	gboolean bRet = FALSE;
 	LOG("Enter qlDetach\n");
+	if( this->fp ) {
+		fclose(this->fp);	
+	}
 	LOG("Leave qlDetach\n");
-	return FALSE;
+	return bRet;
 }
 
 void qlPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring)
@@ -169,6 +201,7 @@ void *QL_attach(SPlayer *player)
 	
 	// we init default values 
 	this->parent = player;
+	this->fp = NULL;
 	
 	LOG("Leave QL_attach\n");
 	return this;

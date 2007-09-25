@@ -44,9 +44,11 @@
 #include "rb-shell-binding.h"
 #include "rb-shell-player-binding.h"
 
+/*
 #ifndef DBUS_TYPE_G_STRING_VALUE_HASHTABLE
 #define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
 #endif
+*/
 #define DBUS_MAP(a) player->a = dbus##a;
 
 #include "squeezebox.h"

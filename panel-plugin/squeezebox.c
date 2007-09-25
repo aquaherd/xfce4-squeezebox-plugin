@@ -151,19 +151,19 @@ squeezebox_update_playbtn(SqueezeBoxData *sd)
 	{
 	case estPlay:
 		sd->image[ebtnPlay] = gtk_image_new_from_stock(
-			GTK_STOCK_MEDIA_PLAY, GTK_ICON_SIZE_BUTTON);
+			GTK_STOCK_MEDIA_PLAY, GTK_ICON_SIZE_MENU);
 		break;
 	case estPause:
 		sd->image[ebtnPlay] = gtk_image_new_from_stock(
-			GTK_STOCK_MEDIA_PAUSE, GTK_ICON_SIZE_BUTTON);
+			GTK_STOCK_MEDIA_PAUSE, GTK_ICON_SIZE_MENU);
 		break;
 	case estStop:
 		sd->image[ebtnPlay] = gtk_image_new_from_stock(
-			GTK_STOCK_MEDIA_STOP, GTK_ICON_SIZE_BUTTON);
+			GTK_STOCK_MEDIA_STOP, GTK_ICON_SIZE_MENU);
 		break;
 	default:
 		sd->image[ebtnPlay] = gtk_image_new_from_stock(
-			GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_BUTTON);
+			GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_MENU);
 		break;
 	}		
 	
@@ -964,7 +964,7 @@ squeezebox_create (SqueezeBoxData *sd)
 	gtk_button_set_focus_on_click (GTK_BUTTON (sd->button[ebtnPrev]), FALSE);
 	gtk_tooltips_set_tip(sd->tooltips, sd->button[ebtnPrev], "previous", NULL);
 	
-	sd->image[ebtnPrev] = gtk_image_new_from_stock ("gtk-media-rewind", GTK_ICON_SIZE_BUTTON);
+	sd->image[ebtnPrev] = gtk_image_new_from_stock ("gtk-media-rewind", GTK_ICON_SIZE_MENU);
 	gtk_widget_show (sd->image[ebtnPrev]);
 	gtk_container_add (GTK_CONTAINER (sd->button[ebtnPrev]), sd->image[ebtnPrev]);
 	
@@ -976,7 +976,7 @@ squeezebox_create (SqueezeBoxData *sd)
 					(GtkAttachOptions) (0), 0, 0);
 	gtk_button_set_focus_on_click (GTK_BUTTON (sd->button[ebtnPlay]), FALSE);
 	
-	sd->image[ebtnPlay] = gtk_image_new_from_stock ("gtk-media-play", GTK_ICON_SIZE_BUTTON);
+	sd->image[ebtnPlay] = gtk_image_new_from_stock ("gtk-media-play", GTK_ICON_SIZE_MENU);
 	gtk_widget_show (sd->image[ebtnPlay]);
 	gtk_container_add (GTK_CONTAINER (sd->button[ebtnPlay]), sd->image[ebtnPlay]);
 	
@@ -988,7 +988,7 @@ squeezebox_create (SqueezeBoxData *sd)
 					(GtkAttachOptions) (0), 0, 0);
 	gtk_button_set_focus_on_click (GTK_BUTTON (sd->button[ebtnNext]), FALSE);
 	
-	sd->image[ebtnNext] = gtk_image_new_from_stock ("gtk-media-forward", GTK_ICON_SIZE_BUTTON);
+	sd->image[ebtnNext] = gtk_image_new_from_stock ("gtk-media-forward", GTK_ICON_SIZE_MENU);
 	gtk_widget_show (sd->image[ebtnNext]);
 	gtk_container_add (GTK_CONTAINER (sd->button[ebtnNext]), sd->image[ebtnNext]);
 	
