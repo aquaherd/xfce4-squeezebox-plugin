@@ -49,20 +49,25 @@ DEFINE_BACKEND(QL, "QuodLibet (pipe)")
 typedef struct {
 	SPlayer		*parent;
 	void		*player;
-	FILE		*fp;
+	FILE	    *fp;
+	char        fifo[256];
 }qlData;
 
 #define MKTHIS qlData *this = (qlData *)thsPtr;
-#define QL_FIFO_PATH "~/.quodlibet/control"
+#define QL_FIFO_PATH "/.quodlibet/control"
 
 void *QL_attach(SPlayer *player);
 
 gboolean qlAssure(gpointer thsPtr)
 {
 	MKTHIS;
-	if(g_file_test(QL_FIFO_PATH, G_FILE_TEST_EXISTS)){
+	if(g_file_test(this->fifo, G_FILE_TEST_EXISTS)){
 		if( !this->fp ){
-			this->fp = (FILE*)g_fopen(QL_FIFO_PATH, "rw");
+		    LOG("Opening ");
+		    LOG(this->fifo);
+			this->fp = (FILE*)g_fopen(this->fifo, "w");
+			LOG((this->fp)?" OK":" KO");
+		    LOG("\n");
 		}
 	}
 	else if( this->fp ) {
@@ -73,13 +78,21 @@ gboolean qlAssure(gpointer thsPtr)
 	return (this->fp != NULL);
 }
 
+gboolean qlPrintFlush(FILE* fp, const char* str) {
+    int iLen = strlen(str);
+    int iRet = fprintf(fp, str);
+    fflush(fp);
+    
+    return (iLen == iRet);
+}
+
 gboolean qlNext(gpointer thsPtr)
 {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlNext\n");
-	if( !qlAssure(this) )
-		bRet = (4 == g_fprintf(this->fp, "next"));
+	if( qlAssure(this) )
+		bRet = qlPrintFlush(this->fp, "next\n");
 	else
 		bRet = FALSE;
 	LOG("Leave qlNext\n");
@@ -91,8 +104,8 @@ gboolean qlPrevious(gpointer thsPtr)
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlPrevious\n");
-	if( !qlAssure(this) )
-		bRet = (8 == g_fprintf(this->fp, "previous"));
+	if( qlAssure(this) )
+		bRet = qlPrintFlush(this->fp, "previous\n");
 	else
 		bRet = FALSE;
 	LOG("Leave qlPrevious\n");
@@ -104,10 +117,12 @@ gboolean qlPlayPause(gpointer thsPtr, gboolean newState)
 	MKTHIS;
 	LOG("Enter qlPlayPause\n");
 	gboolean bRet = FALSE;
-	if( !qlAssure(this) )
-		bRet = (8 == g_fprintf(this->fp, "play-pause"));
+	if( qlAssure(this) )
+		bRet = qlPrintFlush(this->fp, "play-pause\n");
 	else
-		bRet = FALSE;
+		bRet = FALSE;		    
+	LOG("\n");
+
 	LOG("LEAVE qlPlayPause\n");
 	return bRet;
 }
@@ -125,8 +140,8 @@ gboolean qlToggle(gpointer thsPtr, gboolean *newState)
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlToggle\n");
-	if( !qlAssure(this) )
-		bRet = (8 == g_fprintf(this->fp, "toggle-window"));
+	if( qlAssure(this) )
+		bRet = qlPrintFlush(this->fp, "toggle-window\n");
 	else
 		bRet = FALSE;
 	LOG("Leave qlToggle\n");
@@ -140,6 +155,7 @@ gboolean qlDetach(gpointer thsPtr)
 	LOG("Enter qlDetach\n");
 	if( this->fp ) {
 		fclose(this->fp);	
+		this->fp = NULL;
 	}
 	LOG("Leave qlDetach\n");
 	return bRet;
@@ -202,6 +218,8 @@ void *QL_attach(SPlayer *player)
 	// we init default values 
 	this->parent = player;
 	this->fp = NULL;
+	strcpy(this->fifo, g_get_home_dir());
+	strcat(this->fifo, QL_FIFO_PATH);
 	
 	LOG("Leave QL_attach\n");
 	return this;
