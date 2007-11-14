@@ -41,6 +41,7 @@
 #endif
 
 #include "squeezebox.h"
+#include <libintl.h>
 
 typedef enum tag_eButtons
 {
@@ -1045,6 +1046,7 @@ squeezebox_create (SqueezeBoxData *sd)
 static void
 squeezebox_construct (XfcePanelPlugin * plugin)
 {
+	xfce_textdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
 	LOG("Enter squeezebox_construct\n");
 	
 	SqueezeBoxData *sd = g_new0 (SqueezeBoxData, 1);

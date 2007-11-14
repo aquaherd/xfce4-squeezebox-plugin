@@ -42,7 +42,7 @@
 
 #include "squeezebox.h"
 
-DEFINE_BACKEND(QL, "QuodLibet (pipe)")
+DEFINE_BACKEND(QL, _("QuodLibet (pipe)"))
 
 #define QL_MAP(a) player->a = ql##a;
 
@@ -121,8 +121,6 @@ gboolean qlPlayPause(gpointer thsPtr, gboolean newState)
 		bRet = qlPrintFlush(this->fp, "play-pause\n");
 	else
 		bRet = FALSE;		    
-	LOG("\n");
-
 	LOG("LEAVE qlPlayPause\n");
 	return bRet;
 }
@@ -141,7 +139,7 @@ gboolean qlToggle(gpointer thsPtr, gboolean *newState)
 	gboolean bRet = FALSE;
 	LOG("Enter qlToggle\n");
 	if( qlAssure(this) )
-		bRet = qlPrintFlush(this->fp, "toggle-window\n");
+		bRet = qlPrintFlush(this->fp, "play-pause\n");
 	else
 		bRet = FALSE;
 	LOG("Leave qlToggle\n");
@@ -192,6 +190,25 @@ gboolean qlSetShuffle(gpointer thsPtr, gboolean newRandom)
     return FALSE;
 }
 
+gboolean qlIsVisible(gpointer thsPtr)
+{
+    MKTHIS;
+    return FALSE;
+}
+
+gboolean qlShow(gpointer thsPtr, gboolean bShow)
+{
+    MKTHIS;
+	LOG("Enter qlShow\n");
+	gboolean bRet = FALSE;
+	if( qlAssure(this) )
+		bRet = qlPrintFlush(this->fp, "toggle-window\n");
+	else
+		bRet = FALSE;		    
+	LOG("LEAVE qlPlayPause\n");
+    return bRet;
+}
+
 void *QL_attach(SPlayer *player)
 {
 	qlData *this = g_new0(qlData, 1);
@@ -208,8 +225,8 @@ void *QL_attach(SPlayer *player)
 	QL_MAP(Detach);
 	QL_MAP(Persist);
 	//QL_MAP(Configure);
-    //QL_MAP(IsVisible);
-    //QL_MAP(Show);
+    QL_MAP(IsVisible);
+    QL_MAP(Show);
     QL_MAP(GetRepeat);
     QL_MAP(SetRepeat);
     QL_MAP(GetShuffle);

@@ -44,7 +44,7 @@
 
 #include "squeezebox.h"
 
-DEFINE_BACKEND(MPD, "Music Player Daemon (libmpd)")
+DEFINE_BACKEND(MPD, _("Music Player Daemon (libmpd)"))
 
 #define MPD_MAP(a) player->a = mpd##a;
 

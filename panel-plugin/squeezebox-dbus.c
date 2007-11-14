@@ -53,7 +53,7 @@
 
 #include "squeezebox.h"
 
-DEFINE_BACKEND(DBUS, "Rhythmbox 0.9.x (via DBUS)")
+DEFINE_BACKEND(DBUS, _("Rhythmbox 0.9.x (via DBUS)"))
 
 typedef struct 
 {
