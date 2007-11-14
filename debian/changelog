@@ -1,1 +1,6 @@
-# 2007-11-14: Pre Alpha stage
+xfce4-squeezebox-plugin (0.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Hakan Erduman <smultimeter@gmail.com>  Wed, 14 Nov 2007 22:26:56 +0100
+
