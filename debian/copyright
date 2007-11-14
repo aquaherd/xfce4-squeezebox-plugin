@@ -1,18 +1,6 @@
-This package was debianized by Gauvain Pocentek <gauvain@unknown> on
-Mon, 24 Apr 2006 17:41:35 +0200.
+Upstream Author: Hakan Erduman <smultimeter@gmail.com> 
 
-It was downloaded from http://developer.berlios.de/project/showfiles.php?group_id=910
-
-Upstream Author: Daniel Bobadilla <dbobadil@dcc.uchile.cl> 
-
-  Copyright © 2004 German Poo-Caaman~o <gpoo@ubiobio.cl>
-  Copyright © 2005,2006 Daniel Bobadilla Leal <dbobadil@dcc.uchile.cl>
-  Copyright © 2005 Jasper Huijsmans <jasper@xfce.org>
-  Copyright © 2006 Jani Monoses <jani@ubuntu.com>
-
-  Portions from the Gimp sources by
-  Copyright © 1998-2000 Sven Neumann <sven@gimp.org>
-  Copyright © 2003 Henrik Brix Andersen <brix@gimp.org>
+  Copyright © 2006,2007 Hakan Erduman <smultimeter@gmail.com> 
 
 License:
 
