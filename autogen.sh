@@ -1,20 +1,23 @@
-#! /bin/sh
-#This is only some mockup until I understand the original, really
+#!/bin/sh
+#
+# $Id: autogen.sh 4312 2005-01-27 10:10:04Z jasper $
+#
+# Copyright (c) 2002-2005
+#         The Xfce development team. All rights reserved.
+#
+# Written for Xfce by Benedikt Meurer <benny@xfce.org>.
+#
 
-echo "Running aclocal............................(1/6)"
-aclocal -I /usr/share/xfce4/dev-tools/m4macros
+(type xdt-autogen) >/dev/null 2>&1 || {
+  cat >&2 <<EOF
+autogen.sh: You don't seem to have the Xfce development tools installed on
+            your system, which are required to build this software.
+            Please install the xfce4-dev-tools package first, it is available
+            from http://www.xfce.org/.
+EOF
+  exit 1
+}
 
-echo "Running autoheader.........................(2/6)"
-autoheader -f
+exec xdt-autogen $@
 
-echo "Running libtoolize.........................(3/6)"
-libtoolize --automake
-
-echo "Running automake ..........................(4/6)"
-automake --add-missing
-
-echo "Running autoconf...........................(5/6)"
-autoconf -f
-
-echo "Running configure with no parameters.......(6/6)"
-./configure
+# vi:set ts=2 sw=2 et ai:

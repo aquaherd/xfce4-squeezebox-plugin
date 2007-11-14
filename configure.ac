@@ -35,6 +35,13 @@ XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.3.22])
 dnl check for dbus for rhythmbox 0.9.5
 XDT_CHECK_PACKAGE([DBUSGLIB], [dbus-glib-1], [0.60])
 
+GETTEXT_PACKAGE=xfce4-squuezebox-plugin
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define to the Gettext package name])
+
+AM_GLIB_GNU_GETTEXT
+
+
 dnl check for libmpd presence
 
 AC_ARG_WITH(libmpd,
@@ -169,7 +176,7 @@ fi
 
 
 dnl Translations
-XDT_I18N([])
+XDT_I18N([de fr tr])
 
 dnl Check for debugging support
 XDT_FEATURE_DEBUG()
