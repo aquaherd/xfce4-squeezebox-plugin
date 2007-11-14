@@ -1,0 +1,130 @@
+# Czech translations for xfce4-mpc-plugin package.
+# Copyright (C) 2006 THE xfce4-mpc-plugin'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the xfce4-mpc-plugin package.
+# Michal Várady  <miko.vaji@gmail.com>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: xfce4-mpc-plugin 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-11-14 21:25+0100\n"
+"PO-Revision-Date: 2007-11-14 21:36+0100\n"
+"Last-Translator: Hakan Erduman <smultimeter@gmail.com>\n"
+"Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#: ../panel-plugin/squeezebox.c:594
+msgid "This backend has no configurable properties"
+msgstr "Dieses backend hat keine konfigurierbaren Eigenschaften"
+
+#: ../panel-plugin/squeezebox.c:705
+#: ../panel-plugin/squeezebox-mpd.c:459
+msgid "Properties"
+msgstr "Eigenschaften"
+
+#: ../panel-plugin/squeezebox.c:721
+msgid "Squeezebox media player remote"
+msgstr "Squeezebox Medien Spieler Fernbedienung"
+
+#: ../panel-plugin/squeezebox.c:738
+msgid "Show _previous button"
+msgstr "Zeige Schalter _zurück"
+
+#: ../panel-plugin/squeezebox.c:747
+msgid "Show _next button"
+msgstr "Zeige Schalter _weiter"
+
+#: ../panel-plugin/squeezebox.c:759
+msgid "No _tooltips"
+msgstr "Keine Tool_tips"
+
+#: ../panel-plugin/squeezebox.c:766
+msgid "_Simple tooltips"
+msgstr "_Simple Tooltips"
+
+#: ../panel-plugin/squeezebox.c:775
+msgid "N_otification tooltips"
+msgstr "Be_nachrichtiguns- Tooltips"
+
+#: ../panel-plugin/squeezebox.c:787
+msgid "Show noti_fications (notify daemon)"
+msgstr "Zeige Benachrichtigungen (noti_fy Dämon)"
+
+#: ../panel-plugin/squeezebox.c:800
+msgid "Notification _timeout (sec)"
+msgstr "Timeout Benachrich_tigung (Sek.)"
+
+#: ../panel-plugin/squeezebox.c:823
+msgid "_Backend:"
+msgstr "_Backend:"
+
+#: ../panel-plugin/squeezebox.c:863
+msgid "_Settings..."
+msgstr "Ein_stellungen..."
+
+#: ../panel-plugin/squeezebox.c:1055
+#: ../panel-plugin/squeezebox.c:1056
+#: ../panel-plugin/squeezebox.c:1057
+msgid "(unknown)"
+msgstr "(unbekannt)"
+
+#. add menu items
+#: ../panel-plugin/squeezebox.c:1093
+msgid "Show player"
+msgstr "Player _anzeigen"
+
+#: ../panel-plugin/squeezebox.c:1100
+msgid "Shuffle"
+msgstr "Shuffle"
+
+#: ../panel-plugin/squeezebox.c:1107
+msgid "Repeat"
+msgstr "Widerholen"
+
+#: ../panel-plugin/squeezebox-dbus.c:56
+msgid "Rhythmbox 0.9.x (via DBUS)"
+msgstr "Rhythmbox 0.9.x (über DBUS)"
+
+#: ../panel-plugin/squeezebox-mpd.c:47
+msgid "Music Player Daemon (libmpd)"
+msgstr "Music Player Dämon (über libmpd)"
+
+#: ../panel-plugin/squeezebox-mpd.c:114
+msgid "Can't connect to music player daemon."
+msgstr "Kann Verbindung zum Music Player Dämon nicht herstellen."
+
+#: ../panel-plugin/squeezebox-mpd.c:475
+msgid "Music Player Daemon"
+msgstr "Musik Player Dämon"
+
+#: ../panel-plugin/squeezebox-mpd.c:488
+msgid "Use _defaults"
+msgstr "Verwen_de Vorgaben"
+
+#: ../panel-plugin/squeezebox-mpd.c:503
+msgid "_Host:"
+msgstr "_Host:"
+
+#: ../panel-plugin/squeezebox-mpd.c:513
+msgid "_Port:"
+msgstr "_Port:"
+
+#: ../panel-plugin/squeezebox-mpd.c:526
+msgid "Pass_word:"
+msgstr "Paß_wort:"
+
+#: ../panel-plugin/squeezebox-ql.c:45
+msgid "QuodLibet (pipe)"
+msgstr "QudLibet (pipe)"
+
+#: ../panel-plugin/squeezebox.desktop.in.in.h:1
+msgid " Control rhythmbox, MPD, QuodLibet; display album art"
+msgstr "Fernbedienung für Rythmbox, MPD, QudLibet; Anzeige von Album-Covern"
+
+#: ../panel-plugin/squeezebox.desktop.in.in.h:2
+msgid " SqueezeBox"
+msgstr " SqueezeBox"
+
