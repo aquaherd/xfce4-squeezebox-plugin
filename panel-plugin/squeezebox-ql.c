@@ -22,7 +22,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
- #ifdef HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
@@ -225,12 +225,12 @@ void *QL_attach(SPlayer *player)
 	QL_MAP(Detach);
 	QL_MAP(Persist);
 	//QL_MAP(Configure);
-    QL_MAP(IsVisible);
-    QL_MAP(Show);
-    QL_MAP(GetRepeat);
-    QL_MAP(SetRepeat);
-    QL_MAP(GetShuffle);
-    QL_MAP(SetShuffle);
+	QL_MAP(IsVisible);
+	//QL_MAP(Show);
+	QL_MAP(GetRepeat);
+	QL_MAP(SetRepeat);
+	QL_MAP(GetShuffle);
+	QL_MAP(SetShuffle);
 	
 	// we init default values 
 	this->parent = player;
