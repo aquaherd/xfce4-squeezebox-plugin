@@ -21,10 +21,11 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
- 
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#ifdef HAVE_BACKEND_QL
 
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
@@ -58,6 +59,7 @@ typedef struct {
 	ThunarVfsPath	*statPath;
 	ThunarVfsMonitorHandle *statMon;
 	GHashTable	*current;
+	gboolean    isPlaying;
 }qlData;
 
 #define MKTHIS qlData *this = (qlData *)thsPtr;
@@ -115,7 +117,8 @@ void qlCurrentChanged(ThunarVfsMonitor *monitor,
 			g_string_assign(this->parent->title, tmpTitle);
 		
 			this->parent->Update(
-				this->parent->sd, TRUE, estPlay, NULL);
+				this->parent->sd, TRUE, 
+				(this->isPlaying)?estPlay:estPause, NULL);
 		}
 		else
 		{
@@ -256,13 +259,36 @@ gboolean qlIsPlaying(gpointer thsPtr)
 	MKTHIS;
 	LOG("Enter qlIsPlaying\n");
 	LOG("Leave qlIsPlaying\n");
-	return TRUE;
+	return this->isPlaying;
 }
 
 void qlStatus(gpointer thsPtr)
 {
 	MKTHIS;
-	
+	gchar *outText = NULL;
+	const gchar *argv[] = {
+		"/usr/bin/quodlibet",
+		"--status",
+		NULL
+		};
+	gint exit_status = 0;
+	this->isPlaying = TRUE;
+	if(g_spawn_sync(
+		NULL, (gchar**)argv, NULL,
+		G_SPAWN_STDERR_TO_DEV_NULL,
+		NULL, NULL, &outText, NULL,
+		&exit_status, NULL) ) {
+		
+		LOG("QL says: '");
+		LOG(outText);
+		LOG("'\n");
+		
+		if(g_ascii_strncasecmp(outText, "playing", 7))
+			this->isPlaying = FALSE;
+		this->parent->Update(this->parent->sd, FALSE, 
+			(this->isPlaying)?estPlay:estPause, NULL);
+		g_free(outText);
+	}
 }
 
 gboolean qlToggle(gpointer thsPtr, gboolean *newState)
@@ -271,7 +297,10 @@ gboolean qlToggle(gpointer thsPtr, gboolean *newState)
 	gboolean bRet = FALSE;
 	LOG("Enter qlToggle\n");
 	if( qlAssure(this) )
+	{
 		bRet = qlPrintFlush(this->fp, "play-pause\n");
+		qlStatus(thsPtr);
+	}
 	else {
 		LOG("Running...");
 		xfce_exec("quodlibet", FALSE, TRUE, NULL);
@@ -396,3 +425,4 @@ void *QL_attach(SPlayer *player)
 	LOG("Leave QL_attach\n");
 	return this;
 }
+#endif

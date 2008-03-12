@@ -22,9 +22,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
  
- #ifdef HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#ifdef HAVE_BACKEND_MPD
 
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
@@ -593,3 +594,4 @@ void *MPD_attach(SPlayer *player)
 	LOG("Leave MPD_attach\n");
 	return this;
 }
+#endif

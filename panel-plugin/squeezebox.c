@@ -108,14 +108,30 @@ static void squeezebox_construct (XfcePanelPlugin * plugin);
 XFCE_PANEL_PLUGIN_REGISTER_INTERNAL (squeezebox_construct);
 
 /* Backend mapping */ 
+#ifdef HAVE_BACKEND_RHYTHMBOX
 IMPORT_BACKEND(DBUS)
+#endif
+
+#ifdef HAVE_BACKEND_MPD
 IMPORT_BACKEND(MPD)
+#endif
+
+#ifdef HAVE_BACKEND_QL
 IMPORT_BACKEND(QL)
+#endif
 
 BEGIN_BACKEND_MAP()
-    BACKEND(DBUS)
-    BACKEND(MPD)
-	BACKEND(QL)
+	#ifdef HAVE_BACKEND_RHYTHMBOX
+		BACKEND(DBUS)
+    #endif
+
+	#ifdef HAVE_BACKEND_MPD
+		BACKEND(MPD)
+    #endif
+    
+    #ifdef HAVE_BACKEND_QL
+		BACKEND(QL) 
+	#endif
 END_BACKEND_MAP()
 
 /* internal functions */
