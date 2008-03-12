@@ -72,6 +72,7 @@ typedef struct
 	#if HAVE_NOTIFY
 	gboolean  notify;
     gboolean  inEnter;
+    gboolean  inCreate;
 	NotifyNotification *note;
 	gint      notifytimeout;
     gint      timerCount;
@@ -86,7 +87,6 @@ typedef struct
     gboolean noUI;
 
 	gint        toolTipStyle;
-    GtkTooltips *tooltips;
     GString     *toolTipText;
 
 	gint backend;
@@ -179,7 +179,7 @@ squeezebox_update_playbtn(SqueezeBoxData *sd)
 
 static void 
 toaster_closed(NotifyNotification *notification, SqueezeBoxData *sd)
-{
+{	LOG("toaster_closed\n");
     sd->note = NULL;
 }
 
@@ -201,8 +201,9 @@ static gboolean
 on_timer(gpointer thsPlayer)
 {
     SqueezeBoxData *sd = (SqueezeBoxData *)thsPlayer;
-    if( NULL == sd->note )
+    if( NULL == sd->note ){
         return TRUE;
+    }
 	printf("CountDown %ld %ld\n", sd->timerCount, sd->notifytimeout);
     if( sd->inEnter )
         sd->timerCount = sd->notifytimeout;
@@ -296,9 +297,9 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
 				g_object_unref (pixbuf);
 			}
 
-			// liftoff					
-            if( ! bExisted )
-                notify_notification_show(sd->note, NULL);
+			// liftoff	
+			if( sd->inCreate == FALSE)				
+	            notify_notification_show(sd->note, NULL);
             
             sd->timerCount = sd->notifytimeout;
 		}
@@ -349,42 +350,31 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 {
 	SqueezeBoxData *sd = (SqueezeBoxData *)thsPlayer;
 	
-	if( sd->state != State )
-	{
+	if( sd->state != State ) {
 		sd->state = State;
 		squeezebox_update_playbtn(sd);		
 	}
 	
-	if( updateSong )
-	{
-		if( sd->toolTipStyle == ettSimple )
-		{
+	if( updateSong ) {
+		if( sd->toolTipStyle == ettSimple ) {
 			g_string_printf(
 				sd->toolTipText, "%s: %s - %s",
 				sd->player.artist->str,
 				sd->player.album->str,
 				sd->player.title->str);
-			
-			if( sd->show[ebtnPrev] )
-				gtk_tooltips_set_tip(
-					sd->tooltips, sd->button[ebtnPrev], 
-					sd->toolTipText->str, NULL);
-			
-			if( sd->show[ebtnPlay] )
-				gtk_tooltips_set_tip(
-					sd->tooltips, sd->button[ebtnPlay], 
-					sd->toolTipText->str, NULL);
-			
-			if( sd->show[ebtnNext] )
-				gtk_tooltips_set_tip(
-					sd->tooltips, sd->button[ebtnNext], 
-					sd->toolTipText->str, NULL);
-			
+				
+			gtk_tooltip_trigger_tooltip_query(
+				gdk_display_get_default ());
+		}
+		else {
+			g_string_printf(
+				sd->toolTipText,
+				"");
 		}
 		
+		
 		#if HAVE_NOTIFY
-		if( sd->notify )
-		{
+		if( sd->notify ) {
 			squeezebox_update_UI_show_toaster(thsPlayer);
 		}
 		#endif
@@ -396,14 +386,12 @@ squeezebox_set_size (XfcePanelPlugin *plugin, int size, SqueezeBoxData *sd)
 {
 	int items = 1;
     
-	if( sd->show[ebtnPrev] )
-	{
+	if( sd->show[ebtnPrev] ) {
 		gtk_widget_set_size_request (GTK_WIDGET (sd->button[ebtnPrev]), size, size);
 		items++;
 	}
 	
-	if( sd->show[ebtnNext] )
-	{
+	if( sd->show[ebtnNext] ) {
 		gtk_widget_set_size_request (GTK_WIDGET (sd->button[ebtnNext]), size, size);
 		items++;
 	}
@@ -418,11 +406,6 @@ static void
 squeezebox_free_data (XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 {
     LOG("Enter squeezebox_free_data\n");
-    if(sd->tooltips)
-    {
-        g_object_unref(sd->tooltips);
-        sd->tooltips = NULL;
-    }
 	if( sd->player.Detach )
 		sd->player.Detach(sd->player.db);
     if( sd->timerHandle )
@@ -486,10 +469,8 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	sd->notifytimeout = dNotifyTimeout;
 	if( toolTipStyle > ettFull )
 		toolTipStyle = ettFull;
-    if( toolTipStyle == ettFull ) {
-        sd->timerHandle = g_timeout_add(1000, on_timer, sd);
-		//printf("Attach %ld\n", sd->timerHandle);
-	}
+    sd->timerHandle = g_timeout_add(1000, on_timer, sd);
+	printf("Attach %ld\n", sd->timerHandle);
 #else
 	if( toolTipStyle > ettSimple )
 		toolTipStyle = ettSimple;
@@ -499,9 +480,9 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 #endif
 	sd->toolTipStyle = toolTipStyle;
     if( sd->toolTipStyle == ettSimple )
-        gtk_tooltips_enable(sd->tooltips);
+    	;//TODO
     else
-        gtk_tooltips_disable(sd->tooltips);
+        ;//TODO
 
 	if( rc != NULL )
 	{
@@ -561,24 +542,7 @@ squeezebox_dialog_response (GtkWidget *dlg, int reponse,
     gtk_widget_destroy (dlg);
     xfce_panel_plugin_unblock_menu (sd->plugin);
     squeezebox_write_rc_file (sd->plugin, sd);
-	
-	// have tooltips?
-	switch( sd->toolTipStyle )
-	{
-		case ettSimple:
-			if( !sd->tooltips )
-			{
-			}
-			break;
-		default:
-			if( sd->tooltips )
-			{
-			}
-			break;
-	}
-    
-    
-	
+
 }
 
 static void
@@ -616,8 +580,9 @@ config_toggle_notify (GtkToggleButton *tb, SqueezeBoxData *sd)
 {
     sd->notify = gtk_toggle_button_get_active(tb);
     #if HAVE_NOTIFY
-    if( sd->toolTipStyle == ettFull )
+    if( sd->toolTipStyle == ettFull ){
         sd->timerHandle = g_timeout_add(1000, on_timer, sd);
+    }
     else if( sd->timerHandle != 0 )
         g_source_remove(sd->timerHandle);
     #endif
@@ -630,7 +595,6 @@ config_toggle_tooltips_none (GtkToggleButton *opt, SqueezeBoxData *sd)
 {
     if( gtk_toggle_button_get_active(opt) ) {
         sd->toolTipStyle = ettNone;
-        gtk_tooltips_disable(sd->tooltips);
     }
 }
 
@@ -639,7 +603,6 @@ config_toggle_tooltips_simple (GtkToggleButton *opt, SqueezeBoxData *sd)
 {
     if( gtk_toggle_button_get_active(opt) ) {
         sd->toolTipStyle = ettSimple;
-        gtk_tooltips_enable(sd->tooltips);
     }
 }
 
@@ -648,7 +611,6 @@ config_toggle_tooltips_full (GtkToggleButton *opt, SqueezeBoxData *sd)
 {
     if( gtk_toggle_button_get_active(opt) ) {
         sd->toolTipStyle = ettFull;
-        gtk_tooltips_disable(sd->tooltips);
     }
 }
 
@@ -934,6 +896,25 @@ void on_mnuRepeatToggled(GtkCheckMenuItem *checkmenuitem, SqueezeBoxData *sd)
         sd->player.SetRepeat(sd->player.db, checkmenuitem->active);
 }
 
+gboolean on_query_tooltip(
+	GtkWidget  *widget,
+	gint        x,
+	gint        y,
+	gboolean    keyboard_mode,
+	GtkTooltip *tooltip,
+	SqueezeBoxData *sd)
+{
+	if(sd->toolTipStyle == ettSimple && 
+		sd->inCreate == FALSE && 
+		sd->toolTipText->str != NULL &&
+		sd->toolTipText->str[0] != 0) {
+		
+		gtk_tooltip_set_text(tooltip, sd->toolTipText->str);
+		return TRUE;
+	}
+	return FALSE;
+}
+
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
     gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
@@ -946,10 +927,6 @@ squeezebox_create (SqueezeBoxData *sd)
 {
 	LOG("Enter squeezebox_create\n");
   
-    sd->tooltips = gtk_tooltips_new();
-    g_object_ref(sd->tooltips);
-    gtk_object_sink(GTK_OBJECT(sd->tooltips));
-    
 	GtkContainer *window1 = GTK_CONTAINER(sd->plugin);
 	
 	sd->table = gtk_table_new(1, 3, FALSE);
@@ -963,7 +940,6 @@ squeezebox_create (SqueezeBoxData *sd)
 					(GtkAttachOptions) (GTK_FILL),
 					(GtkAttachOptions) (0), 0, 0);
 	gtk_button_set_focus_on_click (GTK_BUTTON (sd->button[ebtnPrev]), FALSE);
-	gtk_tooltips_set_tip(sd->tooltips, sd->button[ebtnPrev], "previous", NULL);
 	
 	sd->image[ebtnPrev] = gtk_image_new_from_stock ("gtk-media-rewind", GTK_ICON_SIZE_MENU);
 	gtk_widget_show (sd->image[ebtnPrev]);
@@ -1046,6 +1022,8 @@ squeezebox_create (SqueezeBoxData *sd)
 static void
 squeezebox_construct (XfcePanelPlugin * plugin)
 {
+	int i = 0;
+
 	xfce_textdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
 	LOG("Enter squeezebox_construct\n");
 	
@@ -1066,7 +1044,7 @@ squeezebox_construct (XfcePanelPlugin * plugin)
 	sd->notifytimeout = 5;
     sd->timerHandle = 0;
 #endif
-    
+    sd->inCreate = TRUE;
 	
 	squeezebox_create(sd);
 
@@ -1111,11 +1089,19 @@ squeezebox_construct (XfcePanelPlugin * plugin)
                       G_CALLBACK (on_mnuRepeatToggled), sd);
     g_object_ref(sd->mnuRepeat);
     
+    // newish tooltips
+    for(i = 0; i < 3; i++) {
+    	g_object_set(sd->button[i], "has-tooltip", TRUE);
+    	g_signal_connect(
+    		G_OBJECT(sd->button[i]), "query-tooltip", 
+    		G_CALLBACK (on_query_tooltip), sd);
+    }
+    
     squeezebox_read_rc_file (plugin, sd);
     
     // the above will init & create the actual player backend
     // and also init menu states
-					  
+    sd->inCreate = FALSE;					  
 	LOG("Leave squeezebox_construct\n");
 		
 }

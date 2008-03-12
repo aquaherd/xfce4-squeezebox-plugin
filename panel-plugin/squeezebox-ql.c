@@ -76,53 +76,66 @@ void qlCurrentChanged(ThunarVfsMonitor *monitor,
 {
 	char *fc = NULL;
 	MKTHIS;
-	LOG("CHANGEDETECT...");
-	LOG(this->stat);
-	if(g_file_get_contents(this->stat, &fc, NULL, NULL)){
-		if(!this->current)
-			this->current = g_hash_table_new(g_str_hash, g_str_equal);
-		gchar **set = g_strsplit_set(fc, "\n", -1);
-		g_free(fc);
+	switch(event) {
+	case THUNAR_VFS_MONITOR_EVENT_CHANGED:
+		LOG("CHANGEDETECT...");
+		LOG(this->stat);
+		if(g_file_get_contents(this->stat, &fc, NULL, NULL)){
+			if(!this->current)
+				this->current = g_hash_table_new(g_str_hash, g_str_equal);
+			gchar **set = g_strsplit_set(fc, "\n", -1);
+			g_free(fc);
 		
-		LOG("...OK\n");
+			LOG("...OK\n");
 		
-		gchar **ptr = set;
-		do{
-			gchar **line = g_strsplit_set(*ptr, "=", 2);
-			gchar *key = g_strdup(line[0]);
-			gchar *value = g_strdup(line[1]);
-			LOG(key); LOG("="); LOG(value); LOG("\n");
+			gchar **ptr = set;
+			do{
+				gchar **line = g_strsplit_set(*ptr, "=", 2);
+				gchar *key = g_strdup(line[0]);
+				gchar *value = g_strdup(line[1]);
+				//LOG(key); LOG("="); LOG(value); LOG("\n");
 			
-			g_hash_table_replace(this->current, key, value);
-			ptr++;
-			g_strfreev(line);
-		}while(**ptr);
-		g_strfreev(set);	
+				g_hash_table_replace(this->current, key, value);
+				ptr++;
+				g_strfreev(line);
+			}while(**ptr);
+			g_strfreev(set);	
 		
-		gchar *tmpArtist = g_hash_table_lookup(this->current, "artist");
-		gchar *tmpAlbum = g_hash_table_lookup(this->current, "album");
-		gchar *tmpTitle = g_hash_table_lookup(this->current, "title");
-		gchar *hasPic = g_hash_table_lookup(this->current, "~picture");
+			gchar *tmpArtist = g_hash_table_lookup(this->current, "artist");
+			gchar *tmpAlbum = g_hash_table_lookup(this->current, "album");
+			gchar *tmpTitle = g_hash_table_lookup(this->current, "title");
+			gchar *hasPic = g_hash_table_lookup(this->current, "~picture");
 		
-		if(hasPic && *hasPic == 'y') {
-			g_string_assign(this->parent->albumArt, this->cover);
+			if(hasPic && *hasPic == 'y') {
+				g_string_assign(this->parent->albumArt, this->cover);
+			}
+		
+			g_string_assign(this->parent->artist, tmpArtist);
+			g_string_assign(this->parent->album, tmpAlbum);
+			g_string_assign(this->parent->title, tmpTitle);
+		
+			this->parent->Update(
+				this->parent->sd, TRUE, estPlay, NULL);
 		}
-		
-		g_string_assign(this->parent->artist, tmpArtist);
-		g_string_assign(this->parent->album, tmpAlbum);
-		g_string_assign(this->parent->title, tmpTitle);
-		
-		this->parent->Update(this->parent->sd, TRUE, estPlay, NULL);
-	}
-	else
-	{
-		LOG("...KO\n");	
+		else
+		{
+			LOG("...KO\n");	
+			this->parent->Update(
+				this->parent->sd, TRUE, estStop, NULL);
+		}
+		break;
+	case THUNAR_VFS_MONITOR_EVENT_DELETED:
+		LOG("...fifo has died\n");	
+		this->parent->Update(
+			this->parent->sd, TRUE, estStop, NULL);
+		break;
 	}
 }
 
 gboolean qlAssure(gpointer thsPtr)
 {
 	MKTHIS;
+	LOG("Enter qlAssure\n");
 	if(g_file_test(this->fifo, G_FILE_TEST_EXISTS)){
 		if( !this->fp ){
 		    LOG("Opening ");
@@ -142,8 +155,11 @@ gboolean qlAssure(gpointer thsPtr)
 					LOG("'\n");
 				}
 				else {
+					ThunarVfsMonitor *monitor = 
+						thunar_vfs_monitor_get_default();
+					
 					this->statMon = thunar_vfs_monitor_add_file(
-						thunar_vfs_monitor_get_default(),
+						monitor,
 						this->statPath,
 						qlCurrentChanged,
 						thsPtr
@@ -151,17 +167,36 @@ gboolean qlAssure(gpointer thsPtr)
 					if( !this->statMon ) {
 						LOG("VFS Fail2");	
 					}
+					else {
+					/* --- this is too late for this->noUpdate
+						thunar_vfs_monitor_feed(
+							monitor,
+							THUNAR_VFS_MONITOR_EVENT_CHANGED,
+							this->statPath);
+					   --- we fake it instead.
+					*/
+						qlCurrentChanged(monitor,
+							NULL,
+							THUNAR_VFS_MONITOR_EVENT_CHANGED,
+							this->statPath,
+							this->statPath,
+							thsPtr);
+					}
+					
 				}
 			}
 			
 		}
+		LOG("Leave qlAssure OK\n");
+		return TRUE;
 	}
 	else if( this->fp ) {
 		LOG("Anomaly in qlAssure: FIFO disappeared!\n");
 		fclose(this->fp);
 		this->fp = NULL;
 	}
-	return (this->fp != NULL);
+	LOG("Leave qlAssure KO\n");
+	return FALSE;
 }
 
 gboolean qlPrintFlush(FILE* fp, const char* str) {
@@ -207,8 +242,11 @@ gboolean qlPlayPause(gpointer thsPtr, gboolean newState)
 	gboolean bRet = FALSE;
 	if( qlAssure(this) )
 		bRet = qlPrintFlush(this->fp, "play-pause\n");
-	else
+	else {
+		LOG("Running...");
+		xfce_exec("quodlibet", FALSE, TRUE, NULL);
 		bRet = FALSE;		    
+	}
 	LOG("LEAVE qlPlayPause\n");
 	return bRet;
 }
@@ -234,8 +272,11 @@ gboolean qlToggle(gpointer thsPtr, gboolean *newState)
 	LOG("Enter qlToggle\n");
 	if( qlAssure(this) )
 		bRet = qlPrintFlush(this->fp, "play-pause\n");
-	else
-		bRet = FALSE;
+	else {
+		LOG("Running...");
+		xfce_exec("quodlibet", FALSE, TRUE, NULL);
+		bRet = FALSE;		    
+	}
 	LOG("Leave qlToggle\n");
 	return bRet;
 }
@@ -312,7 +353,7 @@ gboolean qlShow(gpointer thsPtr, gboolean bShow)
 		bRet = qlPrintFlush(this->fp, "toggle-window\n");
 	else
 		bRet = FALSE;		    
-	LOG("LEAVE qlPlayPause\n");
+	LOG("Leave qlShow\n");
     return bRet;
 }
 
@@ -349,6 +390,9 @@ void *QL_attach(SPlayer *player)
 	strcpy(this->cover, g_get_home_dir());
 	strcat(this->cover, QL_ALBUM_ART_PATH);
 	thunar_vfs_init();
+	
+	// update data
+	qlAssure(this);
 	LOG("Leave QL_attach\n");
 	return this;
 }
