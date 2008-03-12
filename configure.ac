@@ -30,7 +30,7 @@ dnl Check for standard header files
 AC_HEADER_STDC
 
 dnl configure the panel plugin
-XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.3.22])
+XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.4.1])
 
 dnl check for dbus for rhythmbox 0.9.5
 XDT_CHECK_PACKAGE([DBUSGLIB], [dbus-glib-1], [0.60])
@@ -172,6 +172,10 @@ fi
 AC_ARG_ENABLE(QL,[  --disable-QL           disable QuodLibet support (default: enable)],[enable_QL=$enableval],[enable_QL=yes])
 if test x$enable_QL = xyes; then
 	AC_DEFINE(HAVE_BACKEND_QL,1,[Define to use QL])
+	dnl Checking for thunar-vfs
+	XDT_CHECK_PACKAGE([THUNARVFS], [thunar-vfs-1], [0.8.0])
+	AC_SUBST([THUNARVFS_CFLAGS])
+	AC_SUBST([THUNARVFS_LIBS])
 fi
 
 

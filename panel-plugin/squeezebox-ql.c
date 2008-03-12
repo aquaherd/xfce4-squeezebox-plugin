@@ -40,6 +40,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <thunar-vfs/thunar-vfs.h>
+
 #include "squeezebox.h"
 
 DEFINE_BACKEND(QL, _("QuodLibet (pipe)"))
@@ -51,12 +53,72 @@ typedef struct {
 	void		*player;
 	FILE	    *fp;
 	char        fifo[256];
+	char 		stat[256];
+	char 		cover[256];
+	ThunarVfsPath	*statPath;
+	ThunarVfsMonitorHandle *statMon;
+	GHashTable	*current;
 }qlData;
 
 #define MKTHIS qlData *this = (qlData *)thsPtr;
 #define QL_FIFO_PATH "/.quodlibet/control"
+#define QL_STAT_PATH "/.quodlibet/current"
+#define QL_ALBUM_ART_PATH "/.quodlibet/current.cover"
 
 void *QL_attach(SPlayer *player);
+
+void qlCurrentChanged(ThunarVfsMonitor *monitor,
+	ThunarVfsMonitorHandle *handle,
+	ThunarVfsMonitorEvent event,
+	ThunarVfsPath *handle_path,
+	ThunarVfsPath *event_path,
+	gpointer thsPtr)
+{
+	char *fc = NULL;
+	MKTHIS;
+	LOG("CHANGEDETECT...");
+	LOG(this->stat);
+	if(g_file_get_contents(this->stat, &fc, NULL, NULL)){
+		if(!this->current)
+			this->current = g_hash_table_new(g_str_hash, g_str_equal);
+		gchar **set = g_strsplit_set(fc, "\n", -1);
+		g_free(fc);
+		
+		LOG("...OK\n");
+		
+		gchar **ptr = set;
+		do{
+			gchar **line = g_strsplit_set(*ptr, "=", 2);
+			gchar *key = g_strdup(line[0]);
+			gchar *value = g_strdup(line[1]);
+			LOG(key); LOG("="); LOG(value); LOG("\n");
+			
+			g_hash_table_replace(this->current, key, value);
+			ptr++;
+			g_strfreev(line);
+		}while(**ptr);
+		g_strfreev(set);	
+		
+		gchar *tmpArtist = g_hash_table_lookup(this->current, "artist");
+		gchar *tmpAlbum = g_hash_table_lookup(this->current, "album");
+		gchar *tmpTitle = g_hash_table_lookup(this->current, "title");
+		gchar *hasPic = g_hash_table_lookup(this->current, "~picture");
+		
+		if(hasPic && *hasPic == 'y') {
+			g_string_assign(this->parent->albumArt, this->cover);
+		}
+		
+		g_string_assign(this->parent->artist, tmpArtist);
+		g_string_assign(this->parent->album, tmpAlbum);
+		g_string_assign(this->parent->title, tmpTitle);
+		
+		this->parent->Update(this->parent->sd, TRUE, estPlay, NULL);
+	}
+	else
+	{
+		LOG("...KO\n");	
+	}
+}
 
 gboolean qlAssure(gpointer thsPtr)
 {
@@ -68,6 +130,30 @@ gboolean qlAssure(gpointer thsPtr)
 			this->fp = (FILE*)g_fopen(this->fifo, "w");
 			LOG((this->fp)?" OK":" KO");
 		    LOG("\n");
+		    
+			if( this->fp ) {
+				GError *err = NULL;
+				LOG("enter VFS...");
+				this->statPath = thunar_vfs_path_new(this->stat, &err);
+				LOG("...OK\n");
+				if(!this->statPath){
+					LOG("VFS Fail '");
+					LOG(err->message);
+					LOG("'\n");
+				}
+				else {
+					this->statMon = thunar_vfs_monitor_add_file(
+						thunar_vfs_monitor_get_default(),
+						this->statPath,
+						qlCurrentChanged,
+						thsPtr
+						);
+					if( !this->statMon ) {
+						LOG("VFS Fail2");	
+					}
+				}
+			}
+			
 		}
 	}
 	else if( this->fp ) {
@@ -82,6 +168,8 @@ gboolean qlPrintFlush(FILE* fp, const char* str) {
     int iLen = strlen(str);
     int iRet = fprintf(fp, str);
     fflush(fp);
+    
+    
     
     return (iLen == iRet);
 }
@@ -130,7 +218,13 @@ gboolean qlIsPlaying(gpointer thsPtr)
 	MKTHIS;
 	LOG("Enter qlIsPlaying\n");
 	LOG("Leave qlIsPlaying\n");
-	return FALSE;
+	return TRUE;
+}
+
+void qlStatus(gpointer thsPtr)
+{
+	MKTHIS;
+	
 }
 
 gboolean qlToggle(gpointer thsPtr, gboolean *newState)
@@ -155,6 +249,19 @@ gboolean qlDetach(gpointer thsPtr)
 		fclose(this->fp);	
 		this->fp = NULL;
 	}
+	if( this->statPath ) {
+		thunar_vfs_path_unref(this->statPath);
+		this->statPath = NULL;
+	}
+	if( this->statMon) {
+		thunar_vfs_monitor_remove(
+			thunar_vfs_monitor_get_default(), 
+			this->statMon);
+		this->statMon = NULL;
+	}
+	if(this->current)
+		g_hash_table_destroy(this->current);
+	thunar_vfs_shutdown();
 	LOG("Leave qlDetach\n");
 	return bRet;
 }
@@ -226,7 +333,7 @@ void *QL_attach(SPlayer *player)
 	QL_MAP(Persist);
 	//QL_MAP(Configure);
 	QL_MAP(IsVisible);
-	//QL_MAP(Show);
+	QL_MAP(Show);
 	QL_MAP(GetRepeat);
 	QL_MAP(SetRepeat);
 	QL_MAP(GetShuffle);
@@ -237,7 +344,11 @@ void *QL_attach(SPlayer *player)
 	this->fp = NULL;
 	strcpy(this->fifo, g_get_home_dir());
 	strcat(this->fifo, QL_FIFO_PATH);
-	
+	strcpy(this->stat, g_get_home_dir());
+	strcat(this->stat, QL_STAT_PATH);
+	strcpy(this->cover, g_get_home_dir());
+	strcat(this->cover, QL_ALBUM_ART_PATH);
+	thunar_vfs_init();
 	LOG("Leave QL_attach\n");
 	return this;
 }
