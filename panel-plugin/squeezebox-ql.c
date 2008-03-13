@@ -123,14 +123,20 @@ void qlCurrentChanged(ThunarVfsMonitor *monitor,
 		else
 		{
 			LOG("...KO\n");	
+			g_string_assign(this->parent->artist, "");
+			g_string_assign(this->parent->album, "");
+			g_string_assign(this->parent->title, "");
 			this->parent->Update(
-				this->parent->sd, TRUE, estStop, NULL);
+				this->parent->sd, FALSE, estStop, NULL);
 		}
 		break;
 	case THUNAR_VFS_MONITOR_EVENT_DELETED:
 		LOG("...fifo has died\n");	
+		g_string_assign(this->parent->artist, "");
+		g_string_assign(this->parent->album, "");
+		g_string_assign(this->parent->title, "");
 		this->parent->Update(
-			this->parent->sd, TRUE, estStop, NULL);
+			this->parent->sd, FALSE, estStop, NULL);
 		break;
 	}
 }
