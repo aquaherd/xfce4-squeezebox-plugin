@@ -68,8 +68,8 @@ typedef struct {
 void *MPD_attach(SPlayer *player);
 void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType, gpointer thsPtr);
 
-gboolean mpdAssure(gpointer thsPtr)
-{
+gboolean mpdAssure(gpointer thsPtr){
+	
 	MKTHIS;
     gboolean gConnect = FALSE;
 	LOG("Enter mpdAssure\n");
@@ -137,16 +137,14 @@ gboolean mpdAssure(gpointer thsPtr)
 	return (this->player != NULL);
 }
 
-gint mpdCallback(gpointer thsPtr)
-{
+gint mpdCallback(gpointer thsPtr) {
 	MKTHIS;
 	if( this->player != NULL )
 		mpd_status_update(this->player);
 	return TRUE;	
 }
 
-gboolean mpdNext(gpointer thsPtr)
-{
+gboolean mpdNext(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdNext\n");
@@ -158,8 +156,7 @@ gboolean mpdNext(gpointer thsPtr)
 	return bRet;
 }
 
-gboolean mpdPrevious(gpointer thsPtr)
-{
+gboolean mpdPrevious(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdPrevious\n");
@@ -171,8 +168,7 @@ gboolean mpdPrevious(gpointer thsPtr)
 	return TRUE;
 }
 
-gboolean mpdPlayPause(gpointer thsPtr, gboolean newState)
-{
+gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	LOG("Enter mpdPlayPause\n");
 	int iRet = MPD_OK;
@@ -186,8 +182,7 @@ gboolean mpdPlayPause(gpointer thsPtr, gboolean newState)
 	return (iRet == MPD_OK);
 }
 
-gboolean mpdIsPlaying(gpointer thsPtr)
-{
+gboolean mpdIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	MpdState sStat = MPD_STATUS_STATE_STOP;
 	
@@ -202,8 +197,7 @@ gboolean mpdIsPlaying(gpointer thsPtr)
 	return (sStat == MPD_STATUS_STATE_PLAY);
 }
 
-gboolean mpdToggle(gpointer thsPtr, gboolean *newState)
-{
+gboolean mpdToggle(gpointer thsPtr, gboolean *newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
 	LOG("Enter mpdToggle\n");
@@ -218,8 +212,7 @@ gboolean mpdToggle(gpointer thsPtr, gboolean *newState)
 	return TRUE;
 }
 
-gboolean mpdDetach(gpointer thsPtr)
-{
+gboolean mpdDetach(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter mpdDetach\n");
 	if( this->player )
@@ -237,8 +230,7 @@ gboolean mpdDetach(gpointer thsPtr)
 	return TRUE;
 }
 
-void mpdPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring)
-{
+void mpdPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 	MKTHIS;
 	LOG("Enter mpdPersist\n");
 	if( bIsStoring )
@@ -266,19 +258,16 @@ void mpdPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring)
 	LOG("Leave mpdPersist\n");
 }
 
-gboolean mpdGetRepeat(gpointer thsPtr, gboolean *oldRepeat)
-{
+gboolean mpdGetRepeat(gpointer thsPtr) {
     MKTHIS;
     if( mpdAssure(thsPtr) )
     {
-        *oldRepeat = mpd_player_get_repeat(this->player);
-        return TRUE;
+        return mpd_player_get_repeat(this->player);
     }
     return FALSE;
 }
 
-gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle)
-{
+gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
     MKTHIS;
     if( mpdAssure(thsPtr))
     {
@@ -287,19 +276,16 @@ gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle)
     return FALSE;
 }
 
-gboolean mpdGetShuffle(gpointer thsPtr, gboolean *oldShuffle)
-{
+gboolean mpdGetShuffle(gpointer thsPtr) {
     MKTHIS;
     if( mpdAssure(thsPtr) )
     {
-        *oldShuffle = mpd_player_get_random(this->player);
-        return TRUE;
+        return mpd_player_get_random(this->player);
     }
     return FALSE;
 }
 
-gboolean mpdSetShuffle(gpointer thsPtr, gboolean newRandom)
-{
+gboolean mpdSetShuffle(gpointer thsPtr, gboolean newRandom) {
     MKTHIS;
     if( mpdAssure(thsPtr))
     {
@@ -310,8 +296,8 @@ gboolean mpdSetShuffle(gpointer thsPtr, gboolean newRandom)
 
 
 
-void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType, gpointer thsPtr)
-{
+void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType, 
+							 gpointer thsPtr) {
 	MKTHIS;
 	if( sType & MPD_CST_SONGID )
 	{
@@ -379,22 +365,22 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType, gpointer t
     }
     if( sType & (MPD_CST_ELAPSED_TIME | MPD_CST_TOTAL_TIME) )
     {
-        if( sType & MPD_CST_ELAPSED_TIME )
+        /* -- display seconds in some distant future
+		if( sType & MPD_CST_ELAPSED_TIME )
             this->parent->secPos = 
                 mpd_status_get_elapsed_song_time(this->player);
         if( sType & MPD_CST_TOTAL_TIME )
             this->parent->secTot = 
                 mpd_status_get_total_song_time(this->player);
         this->parent->UpdateTimePosition(this->parent->sd);
+		*/
     }
     
     //MPD_CST_TOTAL_TIME
 }
 
-static void
-mpdSettingsDialogResponse(GtkWidget *dlg, int reponse, 
-                         gpointer thsPtr)
-{
+static void mpdSettingsDialogResponse(GtkWidget *dlg, int reponse, 
+                         			  gpointer thsPtr) {
     LOG("Enter mpdSettingsDialogResponse\n");
 	MKTHIS;
 	const gchar *tmpHost = gtk_entry_get_text(GTK_ENTRY(this->wHost));
@@ -428,17 +414,13 @@ mpdSettingsDialogResponse(GtkWidget *dlg, int reponse,
 	LOG("Leave mpdSettingsDialogResponse\n");
 }
 
-static void
-mpdConfigureTimeout(GtkSpinButton *sb, gpointer thsPtr)
-{
+static void mpdConfigureTimeout(GtkSpinButton *sb, gpointer thsPtr) {
 	MKTHIS;
 	this->port = gtk_spin_button_get_value_as_int(sb);	
 	this->bRequireReconnect = TRUE;
 }
 
-static void
-mpdConfigureUseDefault(GtkToggleButton *tb, gpointer thsPtr)
-{
+static void mpdConfigureUseDefault(GtkToggleButton *tb, gpointer thsPtr) {
 	MKTHIS;
 	this->bUseDefault = gtk_toggle_button_get_active(tb);
 	gtk_widget_set_sensitive(this->wHost, !this->bUseDefault);
@@ -447,9 +429,7 @@ mpdConfigureUseDefault(GtkToggleButton *tb, gpointer thsPtr)
 	this->bRequireReconnect = TRUE;
 }
 
-static void
-mpdConfigure(gpointer thsPtr, GtkWidget *parent)
-{
+static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
 	MKTHIS;
     GtkWidget *dlg, *header, *vbox, *cb1,
 		*label1, *label2, *label3;
@@ -544,8 +524,7 @@ mpdConfigure(gpointer thsPtr, GtkWidget *parent)
 }
 
 
-void *MPD_attach(SPlayer *player)
-{
+void *MPD_attach(SPlayer *player) {
 	mpdData *this = g_new0(mpdData, 1);
 	LOG("Enter MPD_attach\n");
 	

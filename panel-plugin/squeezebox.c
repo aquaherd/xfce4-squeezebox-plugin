@@ -252,9 +252,11 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
 		theme = gtk_icon_theme_get_default ();
 		gtk_icon_size_lookup (GTK_ICON_SIZE_DIALOG, &icon_size, NULL);
 		//happily, we easily can escape ampersands and other usual suspects.
-        gchar *ntTitle = g_markup_printf_escaped(sd->player.title->str);
+        gchar *ntTitle = g_markup_printf_escaped(
+				"%s", 
+				sd->player.title->str);
 		gchar *ntDetails = g_markup_printf_escaped(
-                "by <b>%s</b>\nfrom <i>%s</i>",
+                "by <b>%s</b>\nfrom <i>%s</i>\n",
                 sd->player.artist->str,
                 sd->player.album->str);
 		
@@ -350,14 +352,13 @@ squeezebox_update_shuffle(gpointer thsPlayer, gboolean newShuffle)
 }
 
 static void
-squeezebox_update_time_position(gpointer thsPlayer)
-{
+squeezebox_update_visibility(gpointer thsPlayer, gboolean newVisible) {
+    LOG("Enter squeezebox_update_visibility\n");
     SqueezeBoxData *sd = (SqueezeBoxData *)thsPlayer;
-    /*
-    if( sd->note )
-        squeezebox_update_UI_show_toaster(thsPlayer, FALSE);
-    
-    */
+    sd->noUI = TRUE;
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuPlayer), newVisible);
+    sd->noUI = FALSE;
+    LOG("Enter squeezebox_update_visibility\n");
 }
 
 static void
@@ -896,14 +897,20 @@ on_btn_any_leave(GtkWidget *widget, GdkEventCrossing *event, gpointer thsPlayer)
 
 void on_mnuPlayerToggled(GtkCheckMenuItem *checkmenuitem, SqueezeBoxData *sd)
 {
-    if( sd->noUI == FALSE && sd->player.Show )
+    if( sd->noUI == FALSE && sd->player.Show ) {
         sd->player.Show(sd->player.db, checkmenuitem->active);        
+		if( sd->player.IsVisible )
+			squeezebox_update_visibility(sd, sd->player.IsVisible(sd->player.db));
+	}
 }
 
 void on_mnuShuffleToggled(GtkCheckMenuItem *checkmenuitem, SqueezeBoxData *sd)
 {
-    if( sd->noUI == FALSE && sd->player.SetShuffle )
+    if( sd->noUI == FALSE && sd->player.SetShuffle ) {
         sd->player.SetShuffle(sd->player.db, checkmenuitem->active);
+		if( sd->player.GetShuffle )
+			squeezebox_update_shuffle(sd, sd->player.GetShuffle(sd->player.db));
+	}
 }
 
 void on_mnuRepeatToggled(GtkCheckMenuItem *checkmenuitem, SqueezeBoxData *sd)
@@ -1054,7 +1061,7 @@ squeezebox_construct (XfcePanelPlugin * plugin)
     sd->player.Update = squeezebox_update_UI;
     sd->player.UpdateShuffle = squeezebox_update_shuffle;
     sd->player.UpdateRepeat = squeezebox_update_repeat;
-    sd->player.UpdateTimePosition = squeezebox_update_time_position;
+    sd->player.UpdateVisibility = squeezebox_update_visibility;
     sd->inEnter = FALSE;
 #if HAVE_NOTIFY
 	sd->notifytimeout = 5;

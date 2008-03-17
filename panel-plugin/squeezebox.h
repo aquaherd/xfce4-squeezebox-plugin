@@ -46,9 +46,9 @@ typedef struct {
 	gboolean(* IsPlaying)(gpointer thsPtr);
 	gboolean(* Toggle)(gpointer thsPtr, gboolean *newState);
 	gboolean(* Detach)(gpointer thsPtr);
-    gboolean(* GetRepeat)(gpointer thsPtr, gboolean *oldShuffle);
+    gboolean(* GetRepeat)(gpointer thsPtr);
     gboolean(* SetRepeat)(gpointer thsPtr, gboolean newShuffle);
-    gboolean(* GetShuffle)(gpointer thsPtr, gboolean *oldShuffle);
+    gboolean(* GetShuffle)(gpointer thsPtr);
     gboolean(* SetShuffle)(gpointer thsPtr, gboolean newShuffle);
 	gboolean(* IsVisible)(gpointer thsPtr);
 	gboolean(* Show)(gpointer thsPtr, gboolean newState);
@@ -74,7 +74,7 @@ typedef struct {
 	void(* Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State, const gchar* playerMessage);
     void(* UpdateRepeat)(gpointer thsPlayer, gboolean newRepeat);
     void(* UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
-    void(* UpdateTimePosition)(gpointer thsPlayer);
+    void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
 }SPlayer;
 
 typedef struct {

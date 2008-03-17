@@ -71,8 +71,7 @@ typedef struct
 
 static void
 dbusCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name, 
-	const gchar *OldOwner, const gchar* NewOwner, gpointer thsPtr)
-{
+	const gchar *OldOwner, const gchar* NewOwner, gpointer thsPtr) {
 	MKTHIS;
     if( !g_ascii_strcasecmp(Name, "org.gnome.Rhythmbox") && !strlen(NewOwner) )
 	{
@@ -96,9 +95,8 @@ dbusCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name,
 	}
 }
 
-static void
-dbusCallbackPlayPause(DBusGProxy *proxy, const gboolean playing, gpointer thsPtr)
-{
+static void dbusCallbackPlayPause(DBusGProxy *proxy, const gboolean playing, 
+								  gpointer thsPtr) {
 	MKTHIS;
 	LOGF("Enter dbusCallback: StateChanged %d\n", playing);
 	eSynoptics eStat;
@@ -110,17 +108,15 @@ dbusCallbackPlayPause(DBusGProxy *proxy, const gboolean playing, gpointer thsPtr
 	LOG("Leave dbusCallback: StateChanged\n");
 }
 
-static void
-dbusCallbackVisibility(DBusGProxy *proxy, const gboolean visible, gpointer thsPtr)
-{
+static void dbusCallbackVisibility(DBusGProxy *proxy, const gboolean visible, 
+								   gpointer thsPtr) {
     MKTHIS;
     LOG("dbusCallback: Visibility\n");
     db->Visibility = visible;
+	db->parent->UpdateVisibility(db->parent->sd, visible);
 }
 
-static void
-dbusCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr)
-{
+static void dbusCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 	gchar *str = g_filename_from_uri(uri, NULL, NULL);
 	MKTHIS;
 	LOG("dbusCallback: SongChanged '");
@@ -207,8 +203,7 @@ dbusCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr)
 	g_free(str);
 }
  
-gboolean dbusAssure(gpointer thsPtr)
-{
+gboolean dbusAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
     gchar *errLine = NULL;
 	MKTHIS;
@@ -345,8 +340,7 @@ gboolean dbusAssure(gpointer thsPtr)
 	return bRet;
 }
 
-gboolean dbusNext(gpointer thsPtr)
-{
+gboolean dbusNext(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter dbusNext\n");
 	if( !dbusAssure(db) )
@@ -362,8 +356,7 @@ gboolean dbusNext(gpointer thsPtr)
 	return TRUE;
 }
 
-gboolean dbusPrevious(gpointer thsPtr)
-{
+gboolean dbusPrevious(gpointer thsPtr) {
 	MKTHIS;
 	if( !dbusAssure(db) )
 		return FALSE;
@@ -377,8 +370,7 @@ gboolean dbusPrevious(gpointer thsPtr)
 	return TRUE;
 }
 
-gboolean dbusPlayPause(gpointer thsPtr, gboolean newState)
-{
+gboolean dbusPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if( !dbusAssure(db) )
 		return FALSE;
@@ -392,8 +384,7 @@ gboolean dbusPlayPause(gpointer thsPtr, gboolean newState)
 	return TRUE;
 }
 
-gboolean dbusIsPlaying(gpointer thsPtr)
-{
+gboolean dbusIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRes = FALSE;
 	if( !dbusAssure(db) )
@@ -407,8 +398,7 @@ gboolean dbusIsPlaying(gpointer thsPtr)
 	return bRes;
 }
 
-gboolean dbusToggle(gpointer thsPtr, gboolean *newState)
-{
+gboolean dbusToggle(gpointer thsPtr, gboolean *newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
 	if( !dbusAssure(db) )
@@ -422,8 +412,7 @@ gboolean dbusToggle(gpointer thsPtr, gboolean *newState)
 	return TRUE;
 }
 
-gboolean dbusDetach(gpointer thsPtr)
-{
+gboolean dbusDetach(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter dbusDetach\n");
 	if( db->rbPlayer )
@@ -454,19 +443,16 @@ gboolean dbusDetach(gpointer thsPtr)
 	return TRUE;
 }
 
-void dbusPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring)
-{
+void dbusPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 	MKTHIS;
 }
 
-gboolean dbusIsVisible(gpointer thsPtr)
-{
+gboolean dbusIsVisible(gpointer thsPtr) {
     MKTHIS;
     return db->Visibility;   
 }
 
-gboolean dbusShow(gpointer thsPtr, gboolean newState)
-{
+gboolean dbusShow(gpointer thsPtr, gboolean newState) {
     MKTHIS;
     if( dbusAssure(thsPtr) ) {
         org_gnome_Rhythmbox_Shell_present(db->rbPlayer, (newState)? 1 : 0, NULL);
@@ -475,8 +461,13 @@ gboolean dbusShow(gpointer thsPtr, gboolean newState)
     return FALSE;
 }
 
-dbusData * DBUS_attach(SPlayer *player)
-{
+/*
+gboolean dbusGetRepeat(gpointer thsPtr) {
+	MKTHIS;
+	org_gnome_Rhythmbox_Shell_get_playlist_manager(
+}
+*/
+dbusData * DBUS_attach(SPlayer *player) {
 	dbusData *db = NULL;
 	
 	LOG("Enter DBUS_attach\n");
@@ -492,7 +483,8 @@ dbusData * DBUS_attach(SPlayer *player)
 	DBUS_MAP(Persist);
     DBUS_MAP(IsVisible);
     DBUS_MAP(Show);
-    //DBUS_MAP(GetRepeat);
+    //The DBUS API does not provide:
+	//DBUS_MAP(GetRepeat);
     //DBUS_MAP(SetRepeat);
     //DBUS_MAP(GetShuffle);
     //DBUS_MAP(SetShuffle);

@@ -1,8 +1,8 @@
 /***************************************************************************
  *            squeezebox-ql.c
  *
- *  Fri Aug 25 17:20:09 2006
- *  Copyright  2006  Hakan Erduman
+ *  Fri Aug 25 17:08:15 2007
+ *  Copyright  2007  Hakan Erduman
  *  Email Hakan.Erduman@web.de
  ****************************************************************************/
 
@@ -60,6 +60,11 @@ typedef struct {
 	ThunarVfsMonitorHandle *statMon;
 	GHashTable	*current;
 	gboolean    isPlaying;
+	gboolean	isVisible;
+	gboolean	isShuffle;
+	gboolean	isRepeat;
+    NetkScreen	*netkScreen;
+    int			connections[2];
 }qlData;
 
 #define MKTHIS qlData *this = (qlData *)thsPtr;
@@ -74,8 +79,8 @@ void qlCurrentChanged(ThunarVfsMonitor *monitor,
 	ThunarVfsMonitorEvent event,
 	ThunarVfsPath *handle_path,
 	ThunarVfsPath *event_path,
-	gpointer thsPtr)
-{
+	gpointer thsPtr) {
+	
 	char *fc = NULL;
 	MKTHIS;
 	switch(event) {
@@ -141,8 +146,7 @@ void qlCurrentChanged(ThunarVfsMonitor *monitor,
 	}
 }
 
-gboolean qlAssure(gpointer thsPtr)
-{
+gboolean qlAssure(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter qlAssure\n");
 	if(g_file_test(this->fifo, G_FILE_TEST_EXISTS)){
@@ -212,14 +216,10 @@ gboolean qlPrintFlush(FILE* fp, const char* str) {
     int iLen = strlen(str);
     int iRet = fprintf(fp, str);
     fflush(fp);
-    
-    
-    
     return (iLen == iRet);
 }
 
-gboolean qlNext(gpointer thsPtr)
-{
+gboolean qlNext(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlNext\n");
@@ -231,8 +231,7 @@ gboolean qlNext(gpointer thsPtr)
 	return bRet;
 }
 
-gboolean qlPrevious(gpointer thsPtr)
-{
+gboolean qlPrevious(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlPrevious\n");
@@ -244,8 +243,7 @@ gboolean qlPrevious(gpointer thsPtr)
 	return bRet;
 }
 
-gboolean qlPlayPause(gpointer thsPtr, gboolean newState)
-{
+gboolean qlPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	LOG("Enter qlPlayPause\n");
 	gboolean bRet = FALSE;
@@ -260,16 +258,39 @@ gboolean qlPlayPause(gpointer thsPtr, gboolean newState)
 	return bRet;
 }
 
-gboolean qlIsPlaying(gpointer thsPtr)
-{
+gboolean qlIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter qlIsPlaying\n");
 	LOG("Leave qlIsPlaying\n");
 	return this->isPlaying;
 }
 
-void qlStatus(gpointer thsPtr)
-{
+void qlWindowOpened(NetkScreen *screen, NetkWindow *window, gpointer thsPtr) {
+	MKTHIS;
+	const gchar *windowName = netk_window_get_name(window);
+	if( windowName && windowName[0] == '[' ) // minimized but visible
+		windowName++;
+	if( g_str_has_prefix(windowName, "Quod Libet") ) {
+		this->isVisible = TRUE;
+		LOG("QL:Appeared\n");
+		this->parent->UpdateVisibility(this->parent->sd, this->isVisible);
+	}
+}
+
+void qlWindowClosed(NetkScreen *screen, NetkWindow *window, gpointer thsPtr) {
+	MKTHIS;
+	const gchar *windowName = netk_window_get_name(window);
+	if( windowName && windowName[0] == '[' ) // minimized but visible
+		windowName++;
+	if( g_str_has_prefix(windowName, "Quod Libet") ) {
+		this->isVisible = FALSE;
+		LOG("QL:Disappeared\n");
+		this->parent->UpdateVisibility(this->parent->sd, this->isVisible);
+	}
+}
+
+
+void qlStatus(gpointer thsPtr) {
 	MKTHIS;
 	gchar *outText = NULL;
 	const gchar *argv[] = {
@@ -289,16 +310,39 @@ void qlStatus(gpointer thsPtr)
 		LOG(outText);
 		LOG("'\n");
 		
-		if(g_ascii_strncasecmp(outText, "playing", 7))
-			this->isPlaying = FALSE;
-		this->parent->Update(this->parent->sd, FALSE, 
-			(this->isPlaying)?estPlay:estPause, NULL);
+		// QL generally says things like "paused AlbumList 1.000 inorder on"
+		
+		if(strlen(outText)) {
+			gchar *ptr = strtok(outText, " ");
+			this->isPlaying = !g_ascii_strncasecmp(ptr, "playing", 7);
+			this->parent->Update(this->parent->sd, FALSE, 
+				(this->isPlaying)?estPlay:estPause, NULL);
+			if(ptr = strtok(NULL, " ")) {
+				//current view
+				if(ptr = strtok(NULL, " ")) {
+					//1.000 whatever
+					if(ptr = strtok(NULL, " ")) {
+						//shuffle
+						this->isShuffle = g_ascii_strncasecmp(
+							ptr, "inorder", 7);
+						this->parent->UpdateShuffle(
+							this->parent->sd, this->isShuffle);
+						if(ptr = strtok(NULL, " ")) {
+							//repeat
+							this->isRepeat = g_ascii_strncasecmp(
+								ptr, "on", 2);
+							this->parent->UpdateRepeat(
+								this->parent->sd, this->isRepeat);
+						}
+					}
+				}
+			}
+		}
 		g_free(outText);
 	}
 }
 
-gboolean qlToggle(gpointer thsPtr, gboolean *newState)
-{
+gboolean qlToggle(gpointer thsPtr, gboolean *newState) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlToggle\n");
@@ -316,8 +360,7 @@ gboolean qlToggle(gpointer thsPtr, gboolean *newState)
 	return bRet;
 }
 
-gboolean qlDetach(gpointer thsPtr)
-{
+gboolean qlDetach(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlDetach\n");
@@ -338,49 +381,72 @@ gboolean qlDetach(gpointer thsPtr)
 	if(this->current)
 		g_hash_table_destroy(this->current);
 	thunar_vfs_shutdown();
+	
+	if(this->connections[0])
+		g_signal_handler_disconnect(this->netkScreen, this->connections[0]);
+	
+	if(this->connections[1])
+		g_signal_handler_disconnect(this->netkScreen, this->connections[1]);
+	
 	LOG("Leave qlDetach\n");
 	return bRet;
 }
 
-void qlPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring)
-{
+void qlPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 	MKTHIS;
 	LOG("Enter qlPersist\n");
 	LOG("Leave qlPersist\n");
 }
 
-gboolean qlGetRepeat(gpointer thsPtr, gboolean *oldRepeat)
-{
+gboolean qlGetRepeat(gpointer thsPtr) {
     MKTHIS;
-    return FALSE;
+	qlStatus(thsPtr);
+    return this->isShuffle;
 }
 
-gboolean qlSetRepeat(gpointer thsPtr, gboolean newShuffle)
-{
-    MKTHIS;
-    return FALSE;
+gboolean qlSetRepeat(gpointer thsPtr, gboolean newRepeat) {
+	MKTHIS;
+	LOG("Enter qlSetRepeat\n");
+	gboolean bRet = FALSE;
+	this->isShuffle = newRepeat;
+	if( qlAssure(this) )
+		bRet = qlPrintFlush(this->fp, 
+			(newRepeat)?"repeat=1\n" : "repeat=0\n");
+	else {
+		bRet = FALSE;
+	}
+	LOG("LEAVE qlSetRepeat\n");
+	return bRet;
 }
 
-gboolean qlGetShuffle(gpointer thsPtr, gboolean *oldShuffle)
-{
+gboolean qlGetShuffle(gpointer thsPtr) {
     MKTHIS;
-    return FALSE;
+	qlStatus(thsPtr);
+	return this->isShuffle;
 }
 
-gboolean qlSetShuffle(gpointer thsPtr, gboolean newRandom)
-{
-    MKTHIS;
-    return FALSE;
+gboolean qlSetShuffle(gpointer thsPtr, gboolean newRepeat) {
+	MKTHIS;
+	LOG("Enter qlSetShuffle\n");
+	gboolean bRet = FALSE;
+	this->isRepeat = newRepeat;
+	if( qlAssure(this) )
+		bRet = qlPrintFlush(this->fp, 
+			(newRepeat)?"order=shuffle\n" : "order=inorder\n");
+	else {
+		bRet = FALSE;
+	}
+	LOG("LEAVE qlSetShuffle\n");
+	return bRet;
 }
 
-gboolean qlIsVisible(gpointer thsPtr)
-{
+gboolean qlIsVisible(gpointer thsPtr) {
     MKTHIS;
-    return FALSE;
+	qlStatus(thsPtr);
+    return this->isVisible;
 }
 
-gboolean qlShow(gpointer thsPtr, gboolean bShow)
-{
+gboolean qlShow(gpointer thsPtr, gboolean bShow) {
     MKTHIS;
 	LOG("Enter qlShow\n");
 	gboolean bRet = FALSE;
@@ -392,8 +458,7 @@ gboolean qlShow(gpointer thsPtr, gboolean bShow)
     return bRet;
 }
 
-void *QL_attach(SPlayer *player)
-{
+void *QL_attach(SPlayer *player) {
 	qlData *this = g_new0(qlData, 1);
 	LOG("Enter QL_attach\n");
 	
@@ -420,14 +485,44 @@ void *QL_attach(SPlayer *player)
 	this->fp = NULL;
 	strcpy(this->fifo, g_get_home_dir());
 	strcat(this->fifo, QL_FIFO_PATH);
+	
 	strcpy(this->stat, g_get_home_dir());
 	strcat(this->stat, QL_STAT_PATH);
+	
 	strcpy(this->cover, g_get_home_dir());
 	strcat(this->cover, QL_ALBUM_ART_PATH);
 	thunar_vfs_init();
 	
+	// connect to notification events
+    int i = 0;
+    GList *windows, *l;
+
+	netk_screen_force_update (this->netkScreen);
+ 
+	this->netkScreen = netk_screen_get(
+		gdk_screen_get_number(gdk_screen_get_default()));
+
+	this->connections[i++] =
+        g_signal_connect (this->netkScreen, "window_opened",
+                                 G_CALLBACK (qlWindowOpened), 
+                                 this);
+
+    this->connections[i++] =
+        g_signal_connect (this->netkScreen, "window_closed",
+                                 G_CALLBACK (qlWindowClosed), 
+                                 this);
+
 	// update data
 	qlAssure(this);
+	
+	windows = netk_screen_get_windows (this->netkScreen);
+
+    for (l = windows; l != NULL; l = l->next) {
+        NetkWindow *w = l->data;
+
+        qlWindowOpened(this->netkScreen, w, this);
+	}
+	
 	LOG("Leave QL_attach\n");
 	return this;
 }
