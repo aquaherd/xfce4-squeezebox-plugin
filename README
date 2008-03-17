@@ -11,6 +11,9 @@ rewind and fetch track info, album/artist/title at least. Rating,
 album art display and toggling the visibility of the main UI 
 would be optional.
 
+    Naming conflicts with existing gadgetery are coincidental. I was
+listening to a song of the Who when the idea to this plugin came to me.
+
     Track change notification is made by means of libnotify only if 
 libnotify is available during build.
 
@@ -20,14 +23,18 @@ libnotify is available during build.
     Currently available backends:
     - Rhythmbox 0.95 (via DBUS)
     - Music Player Daemon (via libmpd)
+    - QuodLibet (via pipe)
     
     Planned backends:
-    - QuodLibet (via pipe)
+    - lua scripted with lua-dbus bindings
     - mplayer (via -silent -idle switches with own playlist management)
-    - Banshee (as soon as the DBUS interface comes available)
+    - Banshee, XFMedia (as soon as lua-dbus bindings exist)
     
     Remotely possible backends:
-    - Older Rhythmbox (w/o DBUS via bonobo)
+    - SlimServer (as a nod to naming issues)
+    - Older Rhythmbox (w/o DBUS via lua-bonobo)
     - xmms (don't know how yet)
     - xmms2 (dito)
     - bmpx (dito)
+
+Hakan Erduman

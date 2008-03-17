@@ -10,14 +10,11 @@ Upstream Author(s):
 Copyright: 
 
     Copyright (C) 2006 Hakan Erduman
-    <likewise for another author>
 
 License:
 
     GPL
 
-The Debian packaging is (C) 2007, Hakan Erduman <smultimeter@gmail.com> and
+The Debian packaging is (C) 2007, Hakan Erduman <hakan.erduman@web.de> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
 
-# Please also look if there are files or directories which have a
-# different copyright/license attached and list them here.

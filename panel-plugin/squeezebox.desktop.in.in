@@ -3,6 +3,6 @@ Type=X-XFCE-PanelPlugin
 Encoding=UTF-8
 _Name= SqueezeBox
 _Comment= Control rhythmbox, MPD, QuodLibet; display album art
-Icon=rhythmbox
+Icon=sound
 X-XFCE-Exec=@PLUGIN_PATH@/xfce4-squeezebox-plugin
 

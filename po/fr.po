@@ -1,21 +1,18 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: xfce4-mpc-plugin 0.1.0\n"
+"Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-11-14 21:27+0100\n"
-"PO-Revision-Date: 2007-11-14 21:45+0100\n"
-"Last-Translator: Hakan Erduman <smultimeter@gmail.com>\n"
-"Language-Team: French <xfce-i18n@xfce.org>\n"
+"PO-Revision-Date: 2008-03-17 23:10+0100\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-Language: French\n"
+"Last-Translator: Hakan Erduman <hakan.erduman@web.de>\n"
+"Language-Team: \n"
+"X-Poedit-Country: France\n"
 
 #: ../panel-plugin/squeezebox.c:594
 msgid "This backend has no configurable properties"
@@ -125,16 +122,9 @@ msgstr "QuodLibet (pipe)"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:1
 msgid " Control rhythmbox, MPD, QuodLibet; display album art"
-msgstr "Controlez Rythmbox, MPD, QudLibet; Videz l'Art des Albums"
+msgstr " Controlez Rythmbox, MPD, QudLibet; Videz l'Art des Albums"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:2
 msgid " SqueezeBox"
 msgstr " SqueezeBox"
-
-#~ msgid "Mpd Client Plugin"
-#~ msgstr "Greffon de client mpd"
-#~ msgid ".... not connected ?"
-#~ msgstr "... non connecté ?"
-#~ msgid "MPD Client Plugin"
-#~ msgstr "Greffon de client MPD"
 

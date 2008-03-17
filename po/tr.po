@@ -1,25 +1,22 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: xfce4-mpc-plugin 0.1.0\n"
+"Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-11-14 21:27+0100\n"
-"PO-Revision-Date: 2007-11-14 21:51+0100\n"
-"Last-Translator: Hakan Erduman <smultimeter@gmail.com>\n"
-"Language-Team: French <xfce-i18n@xfce.org>\n"
+"PO-Revision-Date: 2008-03-17 23:56+0100\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Poedit-Language: French\n"
+"X-Poedit-Language: Turkish\n"
+"Last-Translator: Hakan Erduman <hakan.erduman@web.de>\n"
+"Language-Team: \n"
+"X-Poedit-Country: TURKEY\n"
 
 #: ../panel-plugin/squeezebox.c:594
 msgid "This backend has no configurable properties"
-msgstr "Bu Backend degistrilebilir kullanimlara sahip degildir"
+msgstr "Bu arkalık değiştirilebilir kullanımlara sahip değildir"
 
 #: ../panel-plugin/squeezebox.c:705
 #: ../panel-plugin/squeezebox-mpd.c:459
@@ -32,19 +29,19 @@ msgstr "Squeezebox media player remote"
 
 #: ../panel-plugin/squeezebox.c:738
 msgid "Show _previous button"
-msgstr "_geri tusunu göster"
+msgstr "_geri tuşunu göster"
 
 #: ../panel-plugin/squeezebox.c:747
 msgid "Show _next button"
-msgstr "_ileri tusunu göster"
+msgstr "_ileri tuşunu göster"
 
 #: ../panel-plugin/squeezebox.c:759
 msgid "No _tooltips"
-msgstr "Tooltip acma"
+msgstr "Tooltip açma"
 
 #: ../panel-plugin/squeezebox.c:766
 msgid "_Simple tooltips"
-msgstr "Ba_sit tooltip"
+msgstr "Ba_sit tooltipler"
 
 #: ../panel-plugin/squeezebox.c:775
 msgid "N_otification tooltips"
@@ -56,7 +53,7 @@ msgstr "Not göster (notify deamon)"
 
 #: ../panel-plugin/squeezebox.c:800
 msgid "Notification _timeout (sec)"
-msgstr "Not gös_terme zamani (saniye)"
+msgstr "Not gös_terme süresi (saniye)"
 
 #: ../panel-plugin/squeezebox.c:823
 msgid "_Backend:"
@@ -75,15 +72,15 @@ msgstr "(bilinmez)"
 #. add menu items
 #: ../panel-plugin/squeezebox.c:1093
 msgid "Show player"
-msgstr "Calari göster"
+msgstr "Çalari göster"
 
 #: ../panel-plugin/squeezebox.c:1100
 msgid "Shuffle"
-msgstr "Tesadüf"
+msgstr "Tesadüfle"
 
 #: ../panel-plugin/squeezebox.c:1107
 msgid "Repeat"
-msgstr "Tekrar"
+msgstr "Tekrarlı"
 
 #: ../panel-plugin/squeezebox-dbus.c:56
 msgid "Rhythmbox 0.9.x (via DBUS)"
@@ -91,19 +88,19 @@ msgstr "Rhythmbox 0.9.x (DBUS üzeri)"
 
 #: ../panel-plugin/squeezebox-mpd.c:47
 msgid "Music Player Daemon (libmpd)"
-msgstr "Music Player Daemon (libmpd üzeri)"
+msgstr "Music Player Cini (libmpd üzeri)"
 
 #: ../panel-plugin/squeezebox-mpd.c:114
 msgid "Can't connect to music player daemon."
-msgstr "Music player daemon'una baglanti kurulamiyor."
+msgstr "Music player cinine bağlantı kurulamıyor."
 
 #: ../panel-plugin/squeezebox-mpd.c:475
 msgid "Music Player Daemon"
-msgstr "Müzik Player Daemon"
+msgstr "Müzik Player cini"
 
 #: ../panel-plugin/squeezebox-mpd.c:488
 msgid "Use _defaults"
-msgstr "Sira_dan ayar kullan"
+msgstr "Sıra_dan ayar kullan"
 
 #: ../panel-plugin/squeezebox-mpd.c:503
 msgid "_Host:"
@@ -123,16 +120,10 @@ msgstr "QuodLibet (pipe üzeri)"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:1
 msgid " Control rhythmbox, MPD, QuodLibet; display album art"
-msgstr "Rhythmbox, MPD, QudLibet'i uzaktan kummande, Albüm sanat göster"
+msgstr " Rhythmbox, mpd ve QuodLibet'i uzaktan kumanda et, Albüm sanat göster"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:2
 msgid " SqueezeBox"
 msgstr " SqueezeBox"
 
-#~ msgid "Mpd Client Plugin"
-#~ msgstr "Greffon de client mpd"
-#~ msgid ".... not connected ?"
-#~ msgstr "... non connecté ?"
-#~ msgid "MPD Client Plugin"
-#~ msgstr "Greffon de client MPD"
 
