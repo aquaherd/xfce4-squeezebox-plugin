@@ -526,4 +526,5 @@ void *QL_attach(SPlayer *player) {
 	LOG("Leave QL_attach\n");
 	return this;
 }
+
 #endif

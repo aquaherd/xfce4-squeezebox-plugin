@@ -398,9 +398,7 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 	}
 }
 
-static gboolean
-squeezebox_set_size (XfcePanelPlugin *plugin, int size, SqueezeBoxData *sd)
-{
+static gboolean squeezebox_set_size (XfcePanelPlugin *plugin, int size, SqueezeBoxData *sd) {
 	int items = 1;
     
 	if( sd->show[ebtnPrev] ) {

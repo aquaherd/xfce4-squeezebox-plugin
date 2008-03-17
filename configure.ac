@@ -35,7 +35,7 @@ XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.4.1])
 dnl check for dbus for rhythmbox 0.9.5
 XDT_CHECK_PACKAGE([DBUSGLIB], [dbus-glib-1], [0.60])
 
-GETTEXT_PACKAGE=xfce4-squuezebox-plugin
+GETTEXT_PACKAGE=xfce4-squeezebox-plugin
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define to the Gettext package name])
 

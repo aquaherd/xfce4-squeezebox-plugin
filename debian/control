@@ -1,12 +1,15 @@
 Source: xfce4-squeezebox-plugin
-Section: unknown
+Section: X11
 Priority: extra
 Maintainer: Hakan Erduman <smultimeter@gmail.com>
-Build-Depends: debhelper (>= 5), autotools-dev
+Build-Depends: debhelper (>= 5), autotools-dev, dbus-glib-1 (>=0.60), libexo-0.3-dev (>= 0.3.2), xfce4-panel-dev (>= 4.4.1)
 Standards-Version: 3.7.2
 
 Package: xfce4-squeezebox-plugin
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: Media player control plugin for the Xfce panel
+ Remote control rhythmbox, mpd, quodlibet and xfmedia 
+ from the panel. Show album art popups and have media key
+ response.
+ 

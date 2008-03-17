@@ -1,21 +1,20 @@
 This package was debianized by Hakan Erduman <smultimeter@gmail.com> on
 Wed, 14 Nov 2007 22:26:56 +0100.
 
-It was downloaded from <url://example.com>
+It was downloaded from <http://erduman.de>
 
 Upstream Author(s): 
 
-    <put author's name and email here>
-    <likewise for another author>
+    Hakan Erduman <hakan.erduman@web.de>
 
 Copyright: 
 
-    <Copyright (C) YYYY Name OfAuthor>
+    Copyright (C) 2006 Hakan Erduman
     <likewise for another author>
 
 License:
 
-    <Put the license of the package here indented by 4 spaces>
+    GPL
 
 The Debian packaging is (C) 2007, Hakan Erduman <smultimeter@gmail.com> and
 is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
