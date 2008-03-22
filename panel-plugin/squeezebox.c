@@ -95,9 +95,14 @@ typedef struct
 }
 SqueezeBoxData;
 
-/* some small helpers */
+/* some small helpers - unused for now
 static void lose (const char *fmt, ...) G_GNUC_NORETURN G_GNUC_PRINTF (1, 2);
 static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
+*/
+static void
+config_toggle_next (GtkToggleButton *tb, SqueezeBoxData *sd);
+static void
+config_toggle_prev (GtkToggleButton *tb, SqueezeBoxData *sd);
 
 /* Panel Plugin Interface */
 
@@ -220,7 +225,7 @@ on_timer(gpointer thsPlayer)
     if( NULL == sd->note ){
         return TRUE;
     }
-	printf("CountDown %ld %ld\n", sd->timerCount, sd->notifytimeout);
+	printf("CountDown %d %d\n", sd->timerCount, sd->notifytimeout);
     if( sd->inEnter )
         sd->timerCount = sd->notifytimeout;
     else {
@@ -242,7 +247,15 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
 	if( !notify_is_initted() )
 		if( !notify_init("xfce4-squeezebox-plugin"))
 			bAct = FALSE;
-        
+    
+    if( bAct ){
+        bAct = (
+            (sd->player.title->str && sd->player.title->str[0]) ||
+            (sd->player.album->str && sd->player.album->str[0]) ||
+            (sd->player.artist->str && sd->player.artist->str[0])
+        );
+    }
+    
 	if( bAct )
 	{
 		GString *albumArt = g_string_new(sd->player.albumArt->str);
@@ -287,7 +300,6 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
 		}
 		if( sd->note ) {
 			gint x = 0, y = 0;
-            gint nTime;
 			GtkRequisition size;
 			XfceScreenPosition pos = 
 				xfce_panel_plugin_get_screen_position(sd->plugin);
@@ -384,9 +396,7 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 				gdk_display_get_default ());
 		}
 		else {
-			g_string_printf(
-				sd->toolTipText,
-				"");
+			g_string_assign(sd->toolTipText, "");
 		}
 		
 		
@@ -485,7 +495,7 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	if( toolTipStyle > ettFull )
 		toolTipStyle = ettFull;
     sd->timerHandle = g_timeout_add(1000, on_timer, sd);
-	printf("Attach %ld\n", sd->timerHandle);
+	printf("Attach %d\n", sd->timerHandle);
 #else
 	if( toolTipStyle > ettSimple )
 		toolTipStyle = ettSimple;
@@ -504,6 +514,17 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 		if( sd->player.Persist )
 			sd->player.Persist(sd->player.db, rc, FALSE);
 		xfce_rc_close (rc);
+        
+        if( bShowPrev )
+        	gtk_widget_show(sd->button[ebtnPrev]);
+        else
+        	gtk_widget_hide(sd->button[ebtnPrev]);
+        
+        if( bShowNext )
+        	gtk_widget_show(sd->button[ebtnNext]);
+        else
+        	gtk_widget_hide(sd->button[ebtnNext]);
+        
 	}
     
 	LOG("Leave squeezebox_read_rc_file\n");
@@ -888,13 +909,16 @@ on_btn_any_leave(GtkWidget *widget, GdkEventCrossing *event, gpointer thsPlayer)
 	SqueezeBoxData *sd = (SqueezeBoxData *)thsPlayer;
     if( sd->toolTipStyle == ettFull ) {
         sd->inEnter = FALSE;
+		
+		if( sd->timerCount > 0 )
+			sd->timerCount = 1;
     }
     return FALSE;
 }
 
 
 void on_mnuPlayerToggled(GtkCheckMenuItem *checkmenuitem, SqueezeBoxData *sd)
-{
+{ 
     if( sd->noUI == FALSE && sd->player.Show ) {
         sd->player.Show(sd->player.db, checkmenuitem->active);        
 		if( sd->player.IsVisible )
@@ -1112,7 +1136,7 @@ squeezebox_construct (XfcePanelPlugin * plugin)
     
     // newish tooltips
     for(i = 0; i < 3; i++) {
-    	g_object_set(sd->button[i], "has-tooltip", TRUE);
+    	g_object_set(sd->button[i], "has-tooltip", TRUE, NULL);
     	g_signal_connect(
     		G_OBJECT(sd->button[i]), "query-tooltip", 
     		G_CALLBACK (on_query_tooltip), sd);

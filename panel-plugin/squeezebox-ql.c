@@ -111,12 +111,19 @@ void qlCurrentChanged(ThunarVfsMonitor *monitor,
 			gchar *tmpArtist = g_hash_table_lookup(this->current, "artist");
 			gchar *tmpAlbum = g_hash_table_lookup(this->current, "album");
 			gchar *tmpTitle = g_hash_table_lookup(this->current, "title");
+            
+            /* -- this ised to be available in pre 1.0
 			gchar *hasPic = g_hash_table_lookup(this->current, "~picture");
 		
 			if(hasPic && *hasPic == 'y') {
 				g_string_assign(this->parent->albumArt, this->cover);
-			}
-		
+			} -- */
+            
+            if(g_file_test(this->cover, G_FILE_TEST_EXISTS))
+		        g_string_assign(this->parent->albumArt, this->cover);
+            else
+                g_string_assign(this->parent->albumArt, "");
+            
 			g_string_assign(this->parent->artist, tmpArtist);
 			g_string_assign(this->parent->album, tmpAlbum);
 			g_string_assign(this->parent->title, tmpTitle);
@@ -131,6 +138,7 @@ void qlCurrentChanged(ThunarVfsMonitor *monitor,
 			g_string_assign(this->parent->artist, "");
 			g_string_assign(this->parent->album, "");
 			g_string_assign(this->parent->title, "");
+	        g_string_assign(this->parent->albumArt, "");
 			this->parent->Update(
 				this->parent->sd, FALSE, estStop, NULL);
 		}
@@ -140,6 +148,7 @@ void qlCurrentChanged(ThunarVfsMonitor *monitor,
 		g_string_assign(this->parent->artist, "");
 		g_string_assign(this->parent->album, "");
 		g_string_assign(this->parent->title, "");
+        g_string_assign(this->parent->albumArt, "");
 		this->parent->Update(
 			this->parent->sd, FALSE, estStop, NULL);
 		break;
@@ -207,6 +216,8 @@ gboolean qlAssure(gpointer thsPtr) {
 		LOG("Anomaly in qlAssure: FIFO disappeared!\n");
 		fclose(this->fp);
 		this->fp = NULL;
+		this->parent->Update(
+			this->parent->sd, FALSE, estStop, NULL);
 	}
 	LOG("Leave qlAssure KO\n");
 	return FALSE;
