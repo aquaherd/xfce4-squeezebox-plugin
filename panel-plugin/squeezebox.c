@@ -435,6 +435,8 @@ squeezebox_free_data (XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 		sd->player.Detach(sd->player.db);
     if( sd->timerHandle )
         g_source_remove(sd->timerHandle);
+    if( sd->player.mmkeys )
+        g_object_unref(sd->player.mmkeys);
     g_free (sd);
 	LOG("Leave squeezebox_free_data\n");
 }
@@ -868,28 +870,55 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	gtk_widget_show (dlg);
 }
 
-void on_btnPrev_clicked(GtkButton *button, SqueezeBoxData *sd)
-{
+void squeezebox_prev(SqueezeBoxData *sd) {
 	if( sd->player.Previous )
 		sd->player.Previous(sd->player.db);
 }
+void on_btnPrev_clicked(GtkButton *button, SqueezeBoxData *sd) {
+    squeezebox_prev(sd);
+}
+void on_keyPrev_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd) {
+    squeezebox_prev(sd);
+}
 
-void on_btnPlay_clicked(GtkButton  *button, SqueezeBoxData *sd)
-{
-	gboolean bRet = FALSE;
+void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd) {
+    gboolean bRet = FALSE;
+    if( sd->player.IsPlaying && sd->player.IsPlaying(sd->player.db) )
+        if( sd->player.Toggle )
+            sd->player.Toggle(sd->player.db, &bRet);
+}
+
+
+gboolean squeezebox_play(SqueezeBoxData *sd) {
+	LOG("Enter squeezebox_play\n");
+    gboolean bRet = FALSE;
 	if( sd->player.Toggle && sd->player.Toggle(sd->player.db, &bRet) )
 	{
 		squeezebox_update_playbtn(sd);
 	}		
+    LOG("Leave squeezebox_play\n");
+	return bRet;
+}
+void on_btnPlay_clicked(GtkButton  *button, SqueezeBoxData *sd) {
+    squeezebox_play(sd);
+}
+void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd) {
+    squeezebox_play(sd);
 }
 
-void on_btnNext_clicked(GtkButton *button, SqueezeBoxData *sd)
-{
-	LOG("Enter on_btnNext_clicked\n");
+void squeezebox_next(SqueezeBoxData *sd) {
+	LOG("Enter squeezebox_next\n");
 	if( sd->player.Next )
 		sd->player.Next(sd->player.db);
-	LOG("Leave on_btnNext_clicked\n");
+	LOG("Leave squeezebox_next\n");
 }
+void on_btnNext_clicked(GtkButton *button, SqueezeBoxData *sd) {
+    squeezebox_next(sd);
+}
+void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd) {
+    squeezebox_next(sd);
+}
+    
 
 static gboolean 
 on_btn_any_enter(GtkWidget *widget, GdkEventCrossing *event, gpointer thsPlayer)
@@ -1014,13 +1043,23 @@ squeezebox_create (SqueezeBoxData *sd)
 	gtk_widget_show (sd->image[ebtnNext]);
 	gtk_container_add (GTK_CONTAINER (sd->button[ebtnNext]), sd->image[ebtnNext]);
 	
-	// connect signals
+	// connect signals of buttons ...
 	g_signal_connect ((gpointer) sd->button[ebtnPrev], "clicked",
 					G_CALLBACK(on_btnPrev_clicked), sd);
     g_signal_connect ((gpointer) sd->button[ebtnPlay], "clicked",
 					G_CALLBACK (on_btnPlay_clicked), sd);
     g_signal_connect ((gpointer) sd->button[ebtnNext], "clicked",
 					G_CALLBACK (on_btnNext_clicked), sd);
+    
+    // ... and of multimedia keys
+    g_signal_connect ((gpointer) sd->player.mmkeys, "mm_prev", 
+                    G_CALLBACK (on_keyPrev_clicked), sd);
+    g_signal_connect ((gpointer) sd->player.mmkeys, "mm_stop", 
+                    G_CALLBACK (on_keyStop_clicked), sd);
+    g_signal_connect ((gpointer) sd->player.mmkeys, "mm_playpause", 
+                    G_CALLBACK (on_keyPlay_clicked), sd);
+    g_signal_connect ((gpointer) sd->player.mmkeys, "mm_next", 
+                    G_CALLBACK (on_keyNext_clicked), sd);
 
     // toaster handling
     #if HAVE_NOTIFY
@@ -1084,6 +1123,7 @@ squeezebox_construct (XfcePanelPlugin * plugin)
     sd->player.UpdateShuffle = squeezebox_update_shuffle;
     sd->player.UpdateRepeat = squeezebox_update_repeat;
     sd->player.UpdateVisibility = squeezebox_update_visibility;
+    sd->player.mmkeys = g_object_new(TYPE_MMKEYS, NULL);
     sd->inEnter = FALSE;
 #if HAVE_NOTIFY
 	sd->notifytimeout = 5;

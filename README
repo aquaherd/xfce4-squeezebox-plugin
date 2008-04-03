@@ -1,4 +1,6 @@
+------------------------------
 Squeezebox XFce4 panel plugin.
+------------------------------
 
     This plugin remote controls some media players from your
 panel. It is in no way derived from the mpd plugin (although 
@@ -6,7 +8,7 @@ inspired) or from the gnome media applet (although similar).
 
     Its goal is to control virtually all available audio players
 as soon as they allow for remote controlling by dbus, pipe or
-bonobo. Required minimal functionality would be play/pause, skip/
+whatever. Required minimal functionality would be play/pause, skip/
 rewind and fetch track info, album/artist/title at least. Rating,
 album art display and toggling the visibility of the main UI 
 would be optional.
@@ -16,6 +18,9 @@ listening to a song of the Who when the idea to this plugin came to me.
 
     Track change notification is made by means of libnotify only if 
 libnotify is available during build.
+
+    Media Keys will be grabbed with the unmodified mmkeys.c glory, as
+seen here and there. (See also README.xubuntu in this document.)
 
     Embedded album art extraction is under research (for iTunes 
     switchers like me)
@@ -28,13 +33,34 @@ libnotify is available during build.
     Planned backends:
     - lua scripted with lua-dbus bindings
     - mplayer (via -silent -idle switches with own playlist management)
-    - Banshee, XFMedia (as soon as lua-dbus bindings exist)
+    - Banshee, Xfmedia (as soon as lua-dbus bindings exist)
     
     Remotely possible backends:
-    - SlimServer (as a nod to naming issues)
+    - SlimServer (as a nod to aforesaid naming issues)
     - Older Rhythmbox (w/o DBUS via lua-bonobo)
     - xmms (don't know how yet)
     - xmms2 (dito)
     - bmpx (dito)
 
+--
 Hakan Erduman
+
+===============
+README.xubuntu:
+===============
+    
+    Somehow, gnome and xorg handle the media keys but they disappear under xubuntu.
+Remedy is as follows:
+1) Create a ~/.Xmodmap file with such content:
+
+keycode 160=XF86AudioMute
+keycode 162=XF86AudioPlay
+keycode 176=XF86AudioRaiseVolume
+keycode 174=XF86AudioLowerVolume
+keycode 153=XF86AudioNext
+keycode 144=XF86AudioPrev
+keycode 164=XF86AudioStop 
+
+(Your keycodes may vary, try xev.)
+
+2) run xmodmap ~/.Xmodmap during xfce startup.

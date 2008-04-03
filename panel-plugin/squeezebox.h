@@ -25,7 +25,7 @@
 #ifndef XFCE4_SQUEEZEBOX_PLUGIN_MAIN_HEADER
 #define XFCE4_SQUEEZEBOX_PLUGIN_MAIN_HEADER
 
-  
+#include "mmkeys.h"
  
 typedef enum {
 	estPlay = 0,
@@ -75,6 +75,9 @@ typedef struct {
     void(* UpdateRepeat)(gpointer thsPlayer, gboolean newRepeat);
     void(* UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
     void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
+    
+    // mmkeys.h
+    MmKeys *mmkeys;
 }SPlayer;
 
 typedef struct {
@@ -104,7 +107,7 @@ extern const Backend* squeezebox_get_backends();
 #define LOG(t) printf(t);fflush(stdout)
 #define LOGERR(t) fprintf(stderr, t);fflush(stderr)
 #define LOGERRF g_warning
-#define LOGF g_message
+#define LOGF printf
 	
 #define xfce_screen_position_is_right_ex(position) \
     (position >= XFCE_SCREEN_POSITION_NE_V && \
