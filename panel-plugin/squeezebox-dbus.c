@@ -156,8 +156,8 @@ static void dbusCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 	{
 		GHashTable 	*table = NULL;
 		GError		*err = NULL;
-		char 		*newUri = NULL;
 		/*
+		char 		*newUri = NULL;
 		if( org_gnome_Rhythmbox_Player_get_playing_uri(db->rbPlayer, &newUri, &err) )
 		{
 			LOG("OutValues work.");
@@ -444,7 +444,7 @@ gboolean dbusDetach(gpointer thsPtr) {
 }
 
 void dbusPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
-	MKTHIS;
+	//MKTHIS;
 }
 
 gboolean dbusIsVisible(gpointer thsPtr) {

@@ -39,7 +39,7 @@
 #include <fcntl.h>
 
 #include <string.h>
-#include <stdio.h>
+#include <glib/gstdio.h>
 
 #include <thunar-vfs/thunar-vfs.h>
 
@@ -84,6 +84,8 @@ void qlCurrentChanged(ThunarVfsMonitor *monitor,
 	char *fc = NULL;
 	MKTHIS;
 	switch(event) {
+    case THUNAR_VFS_MONITOR_EVENT_CREATED:
+        LOG("[create]");
 	case THUNAR_VFS_MONITOR_EVENT_CHANGED:
 		LOG("CHANGEDETECT...");
 		LOG(this->stat);
@@ -162,7 +164,7 @@ gboolean qlAssure(gpointer thsPtr) {
 		if( !this->fp ){
 		    LOG("Opening ");
 		    LOG(this->fifo);
-			this->fp = (FILE*)g_fopen(this->fifo, "w");
+			this->fp = g_fopen(this->fifo, "w");
 			LOG((this->fp)?" OK":" KO");
 		    LOG("\n");
 		    
@@ -328,17 +330,17 @@ void qlStatus(gpointer thsPtr) {
 			this->isPlaying = !g_ascii_strncasecmp(ptr, "playing", 7);
 			this->parent->Update(this->parent->sd, FALSE, 
 				(this->isPlaying)?estPlay:estPause, NULL);
-			if(ptr = strtok(NULL, " ")) {
+			if((ptr = strtok(NULL, " "))) {
 				//current view
-				if(ptr = strtok(NULL, " ")) {
+				if((ptr = strtok(NULL, " "))) {
 					//1.000 whatever
-					if(ptr = strtok(NULL, " ")) {
+					if((ptr = strtok(NULL, " "))) {
 						//shuffle
 						this->isShuffle = g_ascii_strncasecmp(
 							ptr, "inorder", 7);
 						this->parent->UpdateShuffle(
 							this->parent->sd, this->isShuffle);
-						if(ptr = strtok(NULL, " ")) {
+						if((ptr = strtok(NULL, " "))) {
 							//repeat
 							this->isRepeat = g_ascii_strncasecmp(
 								ptr, "on", 2);
@@ -404,7 +406,7 @@ gboolean qlDetach(gpointer thsPtr) {
 }
 
 void qlPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
-	MKTHIS;
+	//MKTHIS;
 	LOG("Enter qlPersist\n");
 	LOG("Leave qlPersist\n");
 }

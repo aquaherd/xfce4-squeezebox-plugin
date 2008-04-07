@@ -311,11 +311,17 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
 			g_string_assign(this->parent->album, song->album);
 			g_string_assign(this->parent->title, song->title);
 			
-			gchar *strTmp = g_markup_printf_escaped("%s/.covers/%s-%s.jpg", 
+			//fetching gmpc covers
+            gchar *strTmp = g_markup_printf_escaped("%s/.covers/%s", 
 				g_get_home_dir(),
-				song->artist, song->album);
-			g_string_assign(artLocation, strTmp);
+				song->artist);
+            GString *str = g_string_new(strTmp);
+            g_string_append(str, " - ");
+            g_string_append(str, song->album);
+            g_string_append(str, ".jpg");
+			g_string_assign(artLocation, str->str);
 			g_free(strTmp);
+            g_string_free(str, TRUE);
 			LOG(artLocation->str);LOG("\n");
 			g_string_truncate(this->parent->albumArt, 0);
 			

@@ -25,8 +25,6 @@
 #ifndef XFCE4_SQUEEZEBOX_PLUGIN_MAIN_HEADER
 #define XFCE4_SQUEEZEBOX_PLUGIN_MAIN_HEADER
 
-#include "mmkeys.h"
- 
 typedef enum {
 	estPlay = 0,
 	estPause = 1,
@@ -76,8 +74,6 @@ typedef struct {
     void(* UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
     void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
     
-    // mmkeys.h
-    MmKeys *mmkeys;
 }SPlayer;
 
 typedef struct {

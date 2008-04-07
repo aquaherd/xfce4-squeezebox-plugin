@@ -41,6 +41,8 @@
 #endif
 
 #include "squeezebox.h"
+#include "mmkeys.h"
+
 #include <libintl.h>
 
 typedef enum tag_eButtons
@@ -67,6 +69,7 @@ typedef struct
     GtkWidget *button[3];
     GtkWidget *image[3];
 	gboolean  show[3];
+
 	GtkWidget *table;
 
 	#if HAVE_NOTIFY
@@ -92,6 +95,11 @@ typedef struct
 	gint backend;
 	SPlayer player;
 	eSynoptics state;
+    
+    // mmkeys.h
+    MmKeys *mmkeys;
+    gboolean grabmedia;
+    gulong mmhandlers[4];
 }
 SqueezeBoxData;
 
@@ -103,6 +111,13 @@ static void
 config_toggle_next (GtkToggleButton *tb, SqueezeBoxData *sd);
 static void
 config_toggle_prev (GtkToggleButton *tb, SqueezeBoxData *sd);
+static void
+squeezebox_update_grab (gboolean bGrab, gboolean bShowErr, SqueezeBoxData *sd);
+
+void on_keyPrev_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd);
+void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd);
+void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd);
+void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd);
 
 /* Panel Plugin Interface */
 
@@ -435,8 +450,7 @@ squeezebox_free_data (XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 		sd->player.Detach(sd->player.db);
     if( sd->timerHandle )
         g_source_remove(sd->timerHandle);
-    if( sd->player.mmkeys )
-        g_object_unref(sd->player.mmkeys);
+    squeezebox_update_grab(FALSE, FALSE, sd);
     g_free (sd);
 	LOG("Leave squeezebox_free_data\n");
 }
@@ -456,6 +470,7 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	gint nBackend = 1;
 	gboolean bShowNext = TRUE;
 	gboolean bShowPrev = TRUE;
+    gboolean bGrabMedia = TRUE;
 	gint toolTipStyle = 1;
 #if HAVE_NOTIFY
 	gboolean bNotify = TRUE;
@@ -474,6 +489,7 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 
 			bShowNext = xfce_rc_read_int_entry(rc, "show_next", 1);
 			bShowPrev = xfce_rc_read_int_entry(rc, "show_prev", 1);
+            bGrabMedia = xfce_rc_read_int_entry(rc, "grab_media", 1);
 			#if HAVE_NOTIFY
 			bNotify   = xfce_rc_read_int_entry(rc, "notify", 1);
 			dNotifyTimeout = xfce_rc_read_int_entry(rc, "notify_timeout", 5);
@@ -491,6 +507,9 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	sd->show[ebtnNext] = bShowNext;
 	sd->show[ebtnPlay] = TRUE; // well, maybe not later
 	sd->show[ebtnPrev] = bShowPrev;
+    sd->grabmedia = bGrabMedia;
+    squeezebox_update_grab(sd->grabmedia, FALSE, sd);
+    
 #if HAVE_NOTIFY
 	sd->notify = bNotify;
 	sd->notifytimeout = dNotifyTimeout;
@@ -554,6 +573,7 @@ squeezebox_write_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 			xfce_rc_write_int_entry(rc, "squeezebox_backend", sd->backend);
 			xfce_rc_write_int_entry(rc, "show_next", (sd->show[ebtnNext])? 1 : 0);
 			xfce_rc_write_int_entry(rc, "show_prev", (sd->show[ebtnPrev])? 1 : 0);
+            xfce_rc_write_int_entry(rc, "grab_media", (sd->grabmedia)? 1 : 0);
 			xfce_rc_write_int_entry(rc, "tooltips", sd->toolTipStyle);
 			#if HAVE_NOTIFY
 			xfce_rc_write_int_entry(rc, "notify", (sd->notify)? 1 : 0);
@@ -653,6 +673,61 @@ config_toggle_tooltips_full (GtkToggleButton *opt, SqueezeBoxData *sd)
 }
 
 static void
+squeezebox_update_grab (gboolean bGrab, gboolean bShowErr, SqueezeBoxData *sd)
+{
+    if( bGrab ) {
+        if( sd->mmkeys ) {
+            // ungrab before grab
+            squeezebox_update_grab(FALSE, FALSE, sd);
+        }
+        
+        // grab
+        LOG("grab\n");
+        sd->mmkeys = g_object_new(TYPE_MMKEYS, NULL);
+
+        // connections are go
+        sd->mmhandlers[0] = g_signal_connect (sd->mmkeys, "mm_prev", 
+                        G_CALLBACK (on_keyPrev_clicked), sd);
+        sd->mmhandlers[1] = g_signal_connect (sd->mmkeys, "mm_stop", 
+                        G_CALLBACK (on_keyStop_clicked), sd);
+        sd->mmhandlers[2] = g_signal_connect (sd->mmkeys, "mm_playpause", 
+                        G_CALLBACK (on_keyPlay_clicked), sd);
+        sd->mmhandlers[3] = g_signal_connect (sd->mmkeys, "mm_next", 
+                        G_CALLBACK (on_keyNext_clicked), sd);
+        
+        if( bShowErr ) {
+            // tell user what we found, hint at xmodmap if necessary.
+        }
+    }
+    else
+    {
+        // ungrab
+        LOG("ungrab\n");
+        if( sd->mmkeys ) {
+            int i;
+            for(i = 0; i < 4; i++) {
+                if( sd->mmhandlers[i] ) {
+                    g_signal_handler_disconnect(sd->mmkeys, sd->mmhandlers[i]);
+                    sd->mmhandlers[i] = 0;
+                }
+            }
+            g_object_unref(sd->mmkeys);
+            sd->mmkeys = NULL;
+        }
+    }
+}
+
+static void
+config_toggle_grabmedia (GtkToggleButton *tb, SqueezeBoxData *sd)
+{
+	gboolean *pBtn = &sd->grabmedia;
+	
+	*pBtn = gtk_toggle_button_get_active(tb);
+    
+    squeezebox_update_grab(*pBtn, TRUE, sd);
+}
+
+static void
 config_toggle_next (GtkToggleButton *tb, SqueezeBoxData *sd)
 {
 	gboolean *pBtn = &sd->show[ebtnNext];
@@ -690,7 +765,7 @@ static void
 squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 {
     GtkWidget *dlg, *header, *vbox, *hbox1, *hbox2, *label1, *label2, 
-	*cb1, *cb2, *cb3, *btnDet;
+	*cb1, *cb2, *cb3, *cb4, *btnDet;
     //GtkAdjustment *adjustment;
     GtkWidget *squeezebox_delay_spinner;
 	GtkWidget *cbBackend, *cbItem, *cbMenu;
@@ -735,22 +810,29 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     gtk_widget_show(hbox1);
     gtk_box_pack_start (GTK_BOX (vbox), hbox1, FALSE, FALSE, 0);
 
+    //check1
     cb1 = gtk_check_button_new_with_mnemonic (_("Show _previous button"));
     gtk_widget_show (cb1);
     gtk_box_pack_start (GTK_BOX (hbox1), cb1, FALSE, FALSE, 0);
-	
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1),
                                   sd->show[ebtnPrev]);
     g_signal_connect (cb1, "toggled", G_CALLBACK (config_toggle_prev),
                       sd);
-	
+	//check2
     cb2 = gtk_check_button_new_with_mnemonic (_("Show _next button"));
     gtk_widget_show (cb2);
     gtk_box_pack_start (GTK_BOX (hbox1), cb2, FALSE, FALSE, 0);
-	
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb2),
                                   sd->show[ebtnNext]);
     g_signal_connect (cb2, "toggled", G_CALLBACK (config_toggle_next),
+                      sd);
+	//check3
+    cb3 = gtk_check_button_new_with_mnemonic (_("_Grab media buttons"));
+    gtk_widget_show (cb3);
+    gtk_box_pack_start (GTK_BOX (hbox1), cb3, FALSE, FALSE, 0);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3),
+                                  sd->grabmedia);
+    g_signal_connect (cb3, "toggled", G_CALLBACK (config_toggle_grabmedia),
                       sd);
 
 	hbox1 = gtk_hbox_new(FALSE, 8);
@@ -783,14 +865,14 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	
 	gtk_box_pack_start(GTK_BOX (hbox1), opt[2], FALSE, FALSE, 0);
 
-	cb3 = gtk_check_button_new_with_mnemonic(
+	cb4 = gtk_check_button_new_with_mnemonic(
 		_("Show noti_fications (notify daemon)"));
-    gtk_widget_show (cb3);
-    gtk_box_pack_start (GTK_BOX (vbox), cb3, FALSE, FALSE, 0);
+    gtk_widget_show (cb4);
+    gtk_box_pack_start (GTK_BOX (vbox), cb4, FALSE, FALSE, 0);
 	
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3),
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb4),
                                   sd->notify);
-    g_signal_connect (cb3, "toggled", G_CALLBACK (config_toggle_notify),
+    g_signal_connect (cb4, "toggled", G_CALLBACK (config_toggle_notify),
                       sd);
 
     hbox2 = gtk_hbox_new(FALSE, 8);
@@ -1051,16 +1133,6 @@ squeezebox_create (SqueezeBoxData *sd)
     g_signal_connect ((gpointer) sd->button[ebtnNext], "clicked",
 					G_CALLBACK (on_btnNext_clicked), sd);
     
-    // ... and of multimedia keys
-    g_signal_connect ((gpointer) sd->player.mmkeys, "mm_prev", 
-                    G_CALLBACK (on_keyPrev_clicked), sd);
-    g_signal_connect ((gpointer) sd->player.mmkeys, "mm_stop", 
-                    G_CALLBACK (on_keyStop_clicked), sd);
-    g_signal_connect ((gpointer) sd->player.mmkeys, "mm_playpause", 
-                    G_CALLBACK (on_keyPlay_clicked), sd);
-    g_signal_connect ((gpointer) sd->player.mmkeys, "mm_next", 
-                    G_CALLBACK (on_keyNext_clicked), sd);
-
     // toaster handling
     #if HAVE_NOTIFY
     g_signal_connect( sd->button[ebtnPrev], "enter-notify-event",
@@ -1123,7 +1195,6 @@ squeezebox_construct (XfcePanelPlugin * plugin)
     sd->player.UpdateShuffle = squeezebox_update_shuffle;
     sd->player.UpdateRepeat = squeezebox_update_repeat;
     sd->player.UpdateVisibility = squeezebox_update_visibility;
-    sd->player.mmkeys = g_object_new(TYPE_MMKEYS, NULL);
     sd->inEnter = FALSE;
 #if HAVE_NOTIFY
 	sd->notifytimeout = 5;
