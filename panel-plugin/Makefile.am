@@ -7,7 +7,7 @@ xfce4_squeezebox_plugin_CFLAGS = 	-DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox
 xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @DBUSGLIB_LIBS@ @LIBMPD_LIBS@ \
 	@NOTIFY_LIBS@ @THUNARVFS_LIBS@
 
-xfce4_squeezebox_plugin_SOURCES = squeezebox.c  squeezebox-dbus.c squeezebox-mpd.c squeezebox-ql.c mmkeys.c
+xfce4_squeezebox_plugin_SOURCES = squeezebox.c squeezebox-dbus.c squeezebox-mpd.c squeezebox-ql.c mmkeys.c
 	
 
 # .desktop file

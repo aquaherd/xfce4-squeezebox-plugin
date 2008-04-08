@@ -765,10 +765,9 @@ static void
 squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 {
     GtkWidget *dlg, *header, *vbox, *hbox1, *hbox2, *label0, *label1, *label2, 
-	*cb1, *cb2, *cb3, *cb4, *btnDet;
-    //GtkAdjustment *adjustment;
+	*cb1, *cb2, *cb3, *cb4, *btnDet, *btnView;
     GtkWidget *squeezebox_delay_spinner;
-	GtkWidget *cbBackend;
+	GtkWidget *cbBackend, *cbNotLoc;
 	GtkWidget *opt[3];
     const Backend *ptr = squeezebox_get_backends();
     int i;
@@ -798,7 +797,6 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     xfce_heading_set_title(XFCE_HEADING(header), _("Squeezebox"));
     xfce_heading_set_icon_name(XFCE_HEADING(header), "xfce-sound");
     xfce_heading_set_subtitle(XFCE_HEADING(header), _("media player remote"));
-    gtk_container_set_border_width (GTK_CONTAINER (header), 6);
     gtk_widget_show (header);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dlg)->vbox), header,
                         FALSE, TRUE, 0);
@@ -809,21 +807,24 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dlg)->vbox), vbox,
                         TRUE, TRUE, 0);
     
-    label0 = gtk_label_new_with_mnemonic(NULL);
-    gchar *markup0 = g_markup_printf_escaped ("<b>%s</b>", _("_Appearance"));
+    label0 = gtk_label_new(NULL);
+    GValue val = {0}; g_value_init(&val, G_TYPE_DOUBLE);
+    g_object_set_property(G_OBJECT(label0), "xalign", &val);
+    gchar *markup0 = g_markup_printf_escaped ("<b>%s</b>", _("Appearance"));
     gtk_label_set_markup_with_mnemonic(GTK_LABEL(label0), markup0);
     g_free (markup0);
     gtk_widget_show(label0);
-    gtk_box_pack_start (GTK_BOX (vbox), label0, TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX (vbox), label0, FALSE, FALSE, 0);
 						
-	hbox1 = gtk_hbox_new(FALSE, 8);
+	//check1+2
+    hbox1 = gtk_hbox_new(FALSE, 8);
     gtk_widget_show(hbox1);
     gtk_box_pack_start (GTK_BOX (vbox), hbox1, FALSE, FALSE, 0);
 
     //check1
     cb1 = gtk_check_button_new_with_mnemonic (_("Show p_revious button"));
     gtk_widget_show (cb1);
-    gtk_box_pack_start (GTK_BOX (hbox1), cb1, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox1), cb1, FALSE, FALSE, 16);
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb1),
                                   sd->show[ebtnPrev]);
     g_signal_connect (cb1, "toggled", G_CALLBACK (config_toggle_prev),
@@ -836,21 +837,32 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
                                   sd->show[ebtnNext]);
     g_signal_connect (cb2, "toggled", G_CALLBACK (config_toggle_next),
                       sd);
+	//check3+btnView
+    hbox1 = gtk_hbox_new(FALSE, 8);
+    gtk_widget_show(hbox1);
+    gtk_box_pack_start (GTK_BOX (vbox), hbox1, FALSE, FALSE, 0);
 	//check3
     cb3 = gtk_check_button_new_with_mnemonic (_("Grab _media buttons, if available"));
     gtk_widget_show (cb3);
-    gtk_box_pack_start (GTK_BOX (vbox), cb3, TRUE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox1), cb3, TRUE, TRUE, 16);
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb3),
                                   sd->grabmedia);
     g_signal_connect (cb3, "toggled", G_CALLBACK (config_toggle_grabmedia),
                       sd);
+    btnView = gtk_button_new_with_mnemonic(_("_Details..."));
+    gtk_widget_show(btnView);
+    gtk_widget_set_sensitive(btnView, FALSE);//tbd: implement 
+    gtk_box_pack_start (GTK_BOX (hbox1), btnView, FALSE, FALSE, 0);
+    /*
+    g_signal_connect(btnView, "clicked",
+                        G_CALLBACK(config_show_backend_properties), sd); */
 
 	hbox1 = gtk_hbox_new(FALSE, 8);
     gtk_widget_show(hbox1);
     gtk_box_pack_start (GTK_BOX (vbox), hbox1, FALSE, FALSE, 0);
 	opt[0] = gtk_radio_button_new_with_mnemonic(NULL, _("No _tooltips"));
 	gtk_widget_show(opt[0]);
-	gtk_box_pack_start(GTK_BOX (hbox1), opt[0], FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX (hbox1), opt[0], FALSE, FALSE, 16);
 	g_signal_connect (opt[0], "toggled",
                      G_CALLBACK(config_toggle_tooltips_none), sd);	
 
@@ -875,15 +887,27 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	
 	gtk_box_pack_start(GTK_BOX (hbox1), opt[2], FALSE, FALSE, 0);
 
+	//check4+cbNotLoc
+    hbox1 = gtk_hbox_new(FALSE, 8);
+    gtk_widget_show(hbox1);
+    gtk_box_pack_start (GTK_BOX (vbox), hbox1, FALSE, FALSE, 0);
+    //cb4
 	cb4 = gtk_check_button_new_with_mnemonic(
 		_("Show noti_fications (notify daemon)"));
     gtk_widget_show (cb4);
-    gtk_box_pack_start (GTK_BOX (vbox), cb4, FALSE, FALSE, 0);
-	
+    gtk_box_pack_start (GTK_BOX (hbox1), cb4, FALSE, FALSE, 16);
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (cb4),
                                   sd->notify);
     g_signal_connect (cb4, "toggled", G_CALLBACK (config_toggle_notify),
                       sd);
+    //cbNotLoc
+    cbNotLoc = gtk_combo_box_new_text();
+    gtk_combo_box_append_text(GTK_COMBO_BOX(cbNotLoc), "Located");
+    gtk_combo_box_append_text(GTK_COMBO_BOX(cbNotLoc), "System default");
+    gtk_widget_show(cbNotLoc);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(cbNotLoc), 0);
+    gtk_widget_set_sensitive(cbNotLoc, FALSE); //tbd: implement location supp.
+    gtk_box_pack_start (GTK_BOX (hbox1), cbNotLoc, TRUE, TRUE, 0);
 
     hbox2 = gtk_hbox_new(FALSE, 8);
     gtk_widget_show(hbox2);
@@ -891,7 +915,7 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     
     label2 = gtk_label_new_with_mnemonic(_("Notification _timeout (sec)"));
     gtk_widget_show(label2);
-    gtk_box_pack_start (GTK_BOX (hbox2), label2, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox2), label2, FALSE, FALSE, 16);
 
     squeezebox_delay_spinner = gtk_spin_button_new_with_range(0.0, 60.0, 1.0);
     gtk_spin_button_set_value(
@@ -912,7 +936,7 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     gchar *markup1 = g_markup_printf_escaped ("<b>%s</b>", _("_Backend"));
     gtk_label_set_markup_with_mnemonic(GTK_LABEL(label1), markup1);
     g_free (markup1);
-    gtk_label_set_justify(GTK_LABEL(label1), GTK_JUSTIFY_LEFT);
+    g_object_set_property(G_OBJECT(label1), "xalign", &val);
     gtk_widget_show(label1);
     gtk_box_pack_start (GTK_BOX (vbox), label1, FALSE, FALSE, 0);
 
@@ -934,7 +958,7 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     g_signal_connect(cbBackend, "changed",
                         G_CALLBACK(config_change_backend), sd);
 	
-    gtk_box_pack_start (GTK_BOX (hbox1), cbBackend, TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox1), cbBackend, TRUE, TRUE, 16);
     
     btnDet = gtk_button_new_with_mnemonic(_("_Settings..."));
     gtk_widget_show(btnDet);

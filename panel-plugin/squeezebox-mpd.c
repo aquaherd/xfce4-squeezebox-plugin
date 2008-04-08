@@ -43,6 +43,8 @@
 // libmpd for music player daemon remote
 #include <libmpd/libmpd.h>
 
+// pixmap
+#include "squeezebox-mpd.png.h"
 #include "squeezebox.h"
 
 DEFINE_BACKEND(MPD, _("Music Player Daemon (libmpd)"))
@@ -509,7 +511,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
     this->wDlg = dlg;
 
     gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
-    gtk_window_set_icon_name (GTK_WINDOW (dlg), "gmpc");
+    gtk_window_set_icon_name (GTK_WINDOW (dlg), "xfce4-sound");
     
     g_signal_connect (dlg, "response", G_CALLBACK (mpdSettingsDialogResponse),
                       thsPtr);
@@ -518,8 +520,8 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
     
     header = xfce_heading_new();
     xfce_heading_set_title(XFCE_HEADING(header), _("MPD"));
-    xfce_heading_set_icon(XFCE_HEADING(header), gdk_pixbuf_new_from_file(
-        DATA_DIR"/squeezebox-mpd.png", NULL));
+    xfce_heading_set_icon(XFCE_HEADING(header), gdk_pixbuf_new_from_inline(
+        sizeof(my_pixbuf), my_pixbuf, FALSE, NULL));
     xfce_heading_set_subtitle(XFCE_HEADING(header), _("music player daemon"));
     gtk_container_set_border_width (GTK_CONTAINER (header), 6);
     gtk_widget_show (header);
@@ -626,8 +628,8 @@ void *MPD_attach(SPlayer *player) {
 	MPD_MAP(Detach);
 	MPD_MAP(Persist);
 	MPD_MAP(Configure);
-    //MPD_MAP(IsVisible);
-    //MPD_MAP(Show);
+      NOMAP(IsVisible);
+      NOMAP(Show);
     MPD_MAP(GetRepeat);
     MPD_MAP(SetRepeat);
     MPD_MAP(GetShuffle);

@@ -31,7 +31,9 @@ typedef enum {
 	estStop = 2,
 	estErr = 10
 }eSynoptics;
- 
+
+#define NOMAP(a) player->a = NULL;
+
 typedef struct {
 	// comon stuff
 	gint updateRateMS;

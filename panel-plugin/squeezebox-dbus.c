@@ -484,10 +484,10 @@ dbusData * DBUS_attach(SPlayer *player) {
     DBUS_MAP(IsVisible);
     DBUS_MAP(Show);
     //The DBUS API does not provide:
-	//DBUS_MAP(GetRepeat);
-    //DBUS_MAP(SetRepeat);
-    //DBUS_MAP(GetShuffle);
-    //DBUS_MAP(SetShuffle);
+	   NOMAP(GetRepeat);
+       NOMAP(SetRepeat);
+       NOMAP(GetShuffle);
+       NOMAP(SetShuffle);
 	
 	db = g_new0(dbusData, 1);
 	db->parent = player;

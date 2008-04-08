@@ -485,7 +485,7 @@ void *QL_attach(SPlayer *player) {
 	QL_MAP(Toggle);
 	QL_MAP(Detach);
 	QL_MAP(Persist);
-	//QL_MAP(Configure);
+	 NOMAP(Configure);
 	QL_MAP(IsVisible);
 	QL_MAP(Show);
 	QL_MAP(GetRepeat);
