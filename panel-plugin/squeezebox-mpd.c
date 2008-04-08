@@ -54,14 +54,16 @@ typedef struct {
 	gint 		port;
 	GString 	*host;
 	GString 	*pass;
+    GString     *path;
 	MpdObj 		*player;
 	gboolean 	bUseDefault;
+    gboolean    bUseMPDFolder;
 	gboolean	bAutoConnect;
 	gboolean	bRequireReconnect;
 	gint		intervalID;
 	gint 		songID;
     gint        songLength;
-	GtkWidget   *wHost, *wPass, *wPort, *wDlg;
+	GtkWidget   *wHost, *wPass, *wPort, *wDlg, *wPath;
 }mpdData;
 
 #define MKTHIS mpdData *this = (mpdData *)thsPtr;
@@ -240,6 +242,9 @@ void mpdPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 		xfce_rc_write_int_entry(rc, "mpd_port", this->port);
 		xfce_rc_write_entry(rc, "mpd_host", this->host->str);
 		xfce_rc_write_entry(rc, "mpd_pass", this->pass->str);
+        xfce_rc_write_int_entry(rc, "mpd_usemusicfolder", 
+            (this->bUseMPDFolder)?TRUE:FALSE);
+        xfce_rc_write_entry(rc, "mpd_musicfolder", this->path->str);
 	}
 	else
 	{
@@ -253,6 +258,13 @@ void mpdPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 		g_string_assign(
 			this->pass,
 			xfce_rc_read_entry(rc, "mpd_pass", "")
+		);
+		this->bUseMPDFolder = 
+			(xfce_rc_read_int_entry(rc, "mpd_usemusicfolder", 1)?TRUE:FALSE);
+		
+        g_string_assign(
+			this->path,
+			xfce_rc_read_entry(rc, "mpd_musicfolder", xfce_get_homedir())
 		);
 	}
 	LOG("Leave mpdPersist\n");
@@ -305,31 +317,57 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
 		mpd_Song *song = mpd_playlist_get_current_song(this->player);
 		if( mpdAssure(thsPtr) && song != NULL && song->id != this->songID )
 		{
-			GString *artLocation = g_string_new("");
+			GString *artLocation = NULL;
+            gboolean bFound = FALSE;
 			
 			g_string_assign(this->parent->artist, song->artist);
 			g_string_assign(this->parent->album, song->album);
 			g_string_assign(this->parent->title, song->title);
 			
 			//fetching gmpc covers
-            gchar *strTmp = g_markup_printf_escaped("%s/.covers/%s", 
-				g_get_home_dir(),
-				song->artist);
-            GString *str = g_string_new(strTmp);
-            g_string_append(str, " - ");
-            g_string_append(str, song->album);
-            g_string_append(str, ".jpg");
-			g_string_assign(artLocation, str->str);
-			g_free(strTmp);
-            g_string_free(str, TRUE);
-			LOG(artLocation->str);LOG("\n");
+            artLocation = g_string_new(g_get_home_dir());
+            g_string_append_printf(artLocation, "/.covers/%s - %s.jpg", 
+                song->artist, song->album);
+			LOG("Check 1:'");LOG(artLocation->str);LOG("'\n");
 			g_string_truncate(this->parent->albumArt, 0);
 			
-			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )
-			{
-				// just assign here, scaling is done in callee
-				g_string_assign(this->parent->albumArt, artLocation->str);
+			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )	{
+                bFound = TRUE;
 			}
+            else { 
+                if( this->bUseMPDFolder && g_file_test(this->path->str, G_FILE_TEST_EXISTS) ) {
+                    g_string_printf(artLocation, "%s/%s", this->path->str, song->file);
+                    gchar *strNext = g_path_get_dirname(artLocation->str);
+                    LOG("Check 2:'");LOG(strNext);LOG("/[.][folder|cover].jpg'\n");
+                    
+                    GDir *dir = g_dir_open(strNext, 0, NULL); 
+                    if( NULL != dir ) {
+                        const gchar *fnam = NULL;
+                        while((fnam = g_dir_read_name(dir))) {
+                            const gchar *fnam2 = fnam;
+                            if('.' == *fnam2)
+                                fnam2++;
+                            if( g_str_equal(fnam2, "folder.jpg") ||
+                               g_str_equal(fnam2, "cover.jpg") ) {
+                               bFound = TRUE;
+                               break;
+                            }
+                        }
+                        if(bFound) {
+                            gchar *fnam3 = g_build_filename(strNext, fnam);
+                            g_string_assign(artLocation, fnam3);
+                            g_free(fnam3);
+                        }
+                        g_dir_close(dir);                        
+                    }
+                    g_free(strNext);
+                }
+            }
+            if(bFound) {
+                // just assign here, scaling is done in callee
+				g_string_assign(this->parent->albumArt, artLocation->str);
+                LOG("Found :'");LOG(artLocation->str);LOG("'\n");
+            }
 			g_string_free(artLocation, TRUE);
 			this->parent->Update(this->parent->sd, TRUE, estPlay, NULL);
 			this->songID = song->id;		
@@ -393,6 +431,9 @@ static void mpdSettingsDialogResponse(GtkWidget *dlg, int reponse,
 	
 	const gchar *tmpPass = gtk_entry_get_text(GTK_ENTRY(this->wPass));
 	
+	const gchar *tmpPath = gtk_file_chooser_get_current_folder(
+       GTK_FILE_CHOOSER(this->wPath));
+	
 	if( g_strcasecmp(tmpHost, this->host->str) )
 	{
 		g_string_assign(this->host, tmpHost);
@@ -404,6 +445,11 @@ static void mpdSettingsDialogResponse(GtkWidget *dlg, int reponse,
 		g_string_assign(this->pass, tmpPass);
 		this->bRequireReconnect = TRUE;
 	}
+                                           
+    if( !g_str_equal(this->path, tmpPath) ) {
+        g_string_assign(this->path, tmpPath);
+    }
+                                           
 	// reconnect if changed
 	if( 0 ) // this->bRequireReconnect )
 	{
@@ -435,10 +481,20 @@ static void mpdConfigureUseDefault(GtkToggleButton *tb, gpointer thsPtr) {
 	this->bRequireReconnect = TRUE;
 }
 
+static void mpdConfigureUseMPDFolder(GtkToggleButton *tb, gpointer thsPtr) {
+    LOG("Enter mpdConfigureUseMPDFolder\n");
+    MKTHIS;
+    this->bUseMPDFolder = gtk_toggle_button_get_active(tb);
+    gtk_widget_set_sensitive(this->wPath, this->bUseMPDFolder);
+    LOG("Leave mpdConfigureUseMPDFolder\n");
+}
+
 static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
+    LOG("Enter mpdConfigure\n");
 	MKTHIS;
     GtkWidget *dlg, *header, *vbox, *cb1,
-		*label1, *label2, *label3;
+		*label1, *label2, *label3,
+        *cb2;
 	GtkTable *table;
 	
 	this->bRequireReconnect = FALSE;
@@ -453,14 +509,18 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
     this->wDlg = dlg;
 
     gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
+    gtk_window_set_icon_name (GTK_WINDOW (dlg), "gmpc");
     
     g_signal_connect (dlg, "response", G_CALLBACK (mpdSettingsDialogResponse),
                       thsPtr);
 
     gtk_container_set_border_width (GTK_CONTAINER (dlg), 2);
     
-    header = xfce_create_header (NULL, _("Music Player Daemon"));
-    gtk_widget_set_size_request (GTK_BIN (header)->child, 200, 32);
+    header = xfce_heading_new();
+    xfce_heading_set_title(XFCE_HEADING(header), _("MPD"));
+    xfce_heading_set_icon(XFCE_HEADING(header), gdk_pixbuf_new_from_file(
+        DATA_DIR"/squeezebox-mpd.png", NULL));
+    xfce_heading_set_subtitle(XFCE_HEADING(header), _("music player daemon"));
     gtk_container_set_border_width (GTK_CONTAINER (header), 6);
     gtk_widget_show (header);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dlg)->vbox), header,
@@ -521,12 +581,33 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
 	gtk_entry_set_text(GTK_ENTRY(this->wPass), this->pass->str);
 	gtk_label_set_mnemonic_widget(GTK_LABEL(label3), this->wPass);
 	
+	// album art lookup
+    cb2 = gtk_check_button_new_with_mnemonic(
+        _("Use MPD Music _folder as cover source"));
+	gtk_widget_show(cb2);
+    gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET(cb2), FALSE, FALSE, 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (cb2),
+                                  this->bUseMPDFolder);
+    g_signal_connect (cb2, "toggled", G_CALLBACK (mpdConfigureUseMPDFolder),
+                      thsPtr);
+
+    
+    this->wPath = gtk_file_chooser_button_new(_("Select MPD music folder"), 
+        GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
+    LOG(this->path->str);LOG("\n");
+    if( this->path->len )
+        gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(this->wPath), this->path->str);
+    gtk_widget_show(this->wPath);
+    gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET(this->wPath), FALSE, FALSE, 0);
 	
-	gtk_widget_set_sensitive(this->wHost, !this->bUseDefault);
+    // apply checkboxes
+    gtk_widget_set_sensitive(this->wHost, !this->bUseDefault);
 	gtk_widget_set_sensitive(this->wPort, !this->bUseDefault);
 	gtk_widget_set_sensitive(this->wPass, !this->bUseDefault);
+    gtk_widget_set_sensitive(this->wPath,  this->bUseMPDFolder);
     
 	gtk_widget_show (dlg);
+    LOG("Leave mpdConfigure\n");
 }
 
 
@@ -558,6 +639,7 @@ void *MPD_attach(SPlayer *player) {
 	this->port = 6600;
 	this->host = g_string_new("localhost");
 	this->pass = g_string_new("");
+    this->path = g_string_new("");
 	this->intervalID = 0;
 	this->parent = player;
 	
