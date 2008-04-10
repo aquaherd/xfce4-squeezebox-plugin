@@ -45,6 +45,7 @@
 
 // pixmap
 #include "squeezebox-mpd.png.h"
+// default
 #include "squeezebox.h"
 
 DEFINE_BACKEND(MPD, _("Music Player Daemon (libmpd)"))

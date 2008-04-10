@@ -81,25 +81,29 @@ typedef struct {
 typedef struct {
     void*( *BACKEND_attach)(SPlayer *player);
     gchar*( *BACKEND_name)();
+    GdkPixbuf*( *BACKEND_icon)();
 }Backend;
  
 #define IMPORT_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
- 	extern gchar * t##_name();
+ 	extern gchar * t##_name(); \
+    extern GdkPixbuf * t##_icon();
  
 extern const Backend* squeezebox_get_backends();
 
 #define BEGIN_BACKEND_MAP() const Backend* squeezebox_get_backends() \
 { \
     static const Backend ret[] = { 
-#define BACKEND(t) {t##_attach, t##_name},
+#define BACKEND(t) {t##_attach, t##_name, t##_icon},
 #define END_BACKEND_MAP() \
         {NULL, NULL} \
     }; \
     return &ret[0]; \
 }
 
-#define DEFINE_BACKEND(t,n) gchar* t##_name(){ return _(n);}
+#define DEFINE_BACKEND(t,n) gchar* t##_name(){ return _(n);} \
+    GdkPixbuf *t##_icon(){ return gdk_pixbuf_new_from_inline( \
+        sizeof(my_pixbuf), my_pixbuf, FALSE, NULL); }
     
 		
 #define LOG(t) printf(t);fflush(stdout)

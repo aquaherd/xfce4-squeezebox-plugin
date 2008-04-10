@@ -43,6 +43,9 @@
 
 #include <thunar-vfs/thunar-vfs.h>
 
+// pixmap
+#include "squeezebox-ql.png.h"
+// default
 #include "squeezebox.h"
 
 DEFINE_BACKEND(QL, _("QuodLibet (pipe)"))

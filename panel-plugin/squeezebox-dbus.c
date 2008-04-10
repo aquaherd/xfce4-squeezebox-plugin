@@ -52,6 +52,9 @@
 */
 #define DBUS_MAP(a) player->a = dbus##a;
 
+// pixmap
+#include "squeezebox-dbus.png.h"
+// default
 #include "squeezebox.h"
 
 DEFINE_BACKEND(DBUS, _("Rhythmbox 0.9.x (via DBUS)"))

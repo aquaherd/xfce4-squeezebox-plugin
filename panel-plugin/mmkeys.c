@@ -24,9 +24,11 @@
 
 static void mmkeys_class_init (MmKeysClass *klass);
 static void mmkeys_init       (MmKeys      *object);
+static void mmkeys_exit       (MmKeys      *object);
 static void mmkeys_finalize   (GObject     *object);
 
 static void grab_mmkey (int key_code, GdkWindow *root);
+static void ungrab_mmkey (int key_code, GdkWindow *root);
 
 static GdkFilterReturn filter_mmkeys (GdkXEvent *xevent,
 			              GdkEvent *event,
@@ -115,6 +117,7 @@ mmkeys_class_init (MmKeysClass *klass)
 static void
 mmkeys_finalize (GObject *object)
 {
+    mmkeys_exit(MMKEYS(object));
 	parent_class->finalize (G_OBJECT(object));
 }
 
@@ -150,6 +153,40 @@ mmkeys_init (MmKeys *object)
 			}
 
 			gdk_window_add_filter (root, filter_mmkeys, object);
+		}
+	}
+}
+
+static void
+mmkeys_exit (MmKeys *object)
+{
+	int keycodes[N_KEYCODES];
+	GdkDisplay *display;
+	GdkScreen *screen;
+	GdkWindow *root;
+	guint i, j;
+
+	display = gdk_display_get_default ();
+
+	keycodes[0] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioPrev);
+	keycodes[1] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioNext);
+	keycodes[2] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioPlay);
+	keycodes[3] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioPause);
+	keycodes[4] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioStop);
+
+	for (i = 0; i < gdk_display_get_n_screens (display); i++) {
+		screen = gdk_display_get_screen (display, i);
+
+		if (screen != NULL) {
+			root = gdk_screen_get_root_window (screen);
+            
+
+			for (j = 0; j < N_KEYCODES; j++) {
+				if (keycodes[j] > 0)
+					ungrab_mmkey (keycodes[j], root);
+			}
+
+			gdk_window_remove_filter (root, filter_mmkeys, object);
 		}
 	}
 }
@@ -201,8 +238,46 @@ grab_mmkey (int key_code, GdkWindow *root)
 	gdk_flush ();
 	if (gdk_error_trap_pop ()) {
 		fprintf (stderr, "Error grabbing key %d, %p\n", key_code, root);
+        fflush (stderr);
 	}
 }
+static void
+ungrab_mmkey (int key_code, GdkWindow *root)
+{
+	gdk_error_trap_push ();
+
+	XUngrabKey (GDK_DISPLAY (), key_code,
+		  0,
+		  GDK_WINDOW_XID (root));
+	XUngrabKey (GDK_DISPLAY (), key_code,
+		  Mod2Mask,
+		  GDK_WINDOW_XID (root));
+	XUngrabKey (GDK_DISPLAY (), key_code,
+		  Mod5Mask,
+		  GDK_WINDOW_XID (root));
+	XUngrabKey (GDK_DISPLAY (), key_code,
+		  LockMask,
+		  GDK_WINDOW_XID (root));
+	XUngrabKey (GDK_DISPLAY (), key_code,
+		  Mod2Mask | Mod5Mask,
+		  GDK_WINDOW_XID (root));
+	XUngrabKey (GDK_DISPLAY (), key_code,
+		  Mod2Mask | LockMask,
+		  GDK_WINDOW_XID (root));
+	XUngrabKey (GDK_DISPLAY (), key_code,
+		  Mod5Mask | LockMask,
+		  GDK_WINDOW_XID (root));
+	XUngrabKey (GDK_DISPLAY (), key_code,
+		  Mod2Mask | Mod5Mask | LockMask,
+		  GDK_WINDOW_XID (root));
+
+	gdk_flush ();
+	if (gdk_error_trap_pop ()) {
+		fprintf (stderr, "Error ungrabbing key %d, %p\n", key_code, root);
+        fflush (stderr);
+	}
+}
+
 
 static GdkFilterReturn
 filter_mmkeys (GdkXEvent *xevent, GdkEvent *event, gpointer data)
