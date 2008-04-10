@@ -3,8 +3,8 @@ Squeezebox XFce4 panel plugin.
 ------------------------------
 
     This plugin remote controls some media players from your
-panel. It is in no way derived from the mpd plugin (although 
-inspired) or from the gnome media applet (although similar).
+panel. It is in no way derived from the mpc plugin (although 
+simlar) or from the gnome media applet (although inspired).
 
     Its goal is to control virtually all available audio players
 as soon as they allow for remote controlling by dbus, pipe or
@@ -19,8 +19,8 @@ listening to a song of the Who when the idea to this plugin came to me.
     Track change notification is made by means of libnotify only if 
 libnotify is available during build.
 
-    Media Keys will be grabbed with the unmodified mmkeys.c glory, as
-seen here and there. (See also README.xubuntu in this document.)
+    Media Keys will be grabbed and ungrabbed with the modified mmkeys.c 
+glory, as seen here and there. (See also README.xubuntu in this document.)
 
     Embedded album art extraction is under research (for iTunes 
     switchers like me)

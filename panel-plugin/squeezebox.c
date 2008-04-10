@@ -126,7 +126,7 @@ static void squeezebox_properties_dialog (XfcePanelPlugin *plugin,
                                        SqueezeBoxData *sd);
 static void squeezebox_construct (XfcePanelPlugin * plugin);
 
-XFCE_PANEL_PLUGIN_REGISTER_INTERNAL (squeezebox_construct);
+//XFCE_PANEL_PLUGIN_REGISTER_INTERNAL (squeezebox_construct);
 
 /* Backend mapping */ 
 #ifdef HAVE_BACKEND_RHYTHMBOX
@@ -801,9 +801,6 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     GtkWidget *squeezebox_delay_spinner;
 	GtkWidget *cbBackend, *cbNotLoc;
 	GtkWidget *opt[3];
-    int i;
-	//GList *glist = NULL;
-	
 
     xfce_panel_plugin_block_menu (plugin);
     
@@ -953,7 +950,6 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     gtk_box_pack_start (GTK_BOX (vbox), hbox1, FALSE, FALSE, 0);
     
     GtkListStore *store;
-    GtkWidget    *bar;
 
     /* make a new list store */
     store = gtk_list_store_new (N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING);
@@ -978,7 +974,6 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     gtk_label_set_mnemonic_widget(GTK_LABEL(label1), cbBackend);
     
     GtkCellRenderer *renderer;
-    GtkTreeViewColumn *column;
 
     renderer = gtk_cell_renderer_pixbuf_new ();
     gtk_cell_renderer_set_fixed_size(renderer, 36, 24);
