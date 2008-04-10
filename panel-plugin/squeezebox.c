@@ -643,44 +643,6 @@ config_show_grab_properties(GtkButton *btn, SqueezeBoxData *sd)
     GtkWidget *label = gtk_label_new("Currently not implemented\nBut may as well show things to come.");
     gtk_box_pack_start (GTK_BOX(vbox), label, FALSE, FALSE, 16);
     
-    GtkListStore *store;
-    GtkWidget    *bar;
-
-    /* make a new list store */
-    store = gtk_list_store_new (N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING);
-
-    /* fill the store with data */
-    GtkTreeIter iter = {0};
-    const Backend *ptr = squeezebox_get_backends();
-    for(;;)
-    {
-        gtk_list_store_append(store, &iter);
-        gtk_list_store_set(store, &iter, 
-            PIXBUF_COLUMN, ptr->BACKEND_icon(), 
-            TEXT_COLUMN, ptr->BACKEND_name(), -1);
-        ptr++;
-        if( !ptr->BACKEND_name )
-            break;
-    }
-    
-    bar = GTK_WIDGET(gtk_combo_box_new_with_model(GTK_TREE_MODEL(store)));
-    
-    GtkCellRenderer *renderer;
-    GtkTreeViewColumn *column;
-
-    renderer = gtk_cell_renderer_pixbuf_new ();
-    gtk_cell_renderer_set_fixed_size(renderer, 36, 42);
-    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(bar), renderer, FALSE);
-    gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(bar), renderer, "pixbuf", PIXBUF_COLUMN);
-
-    renderer = gtk_cell_renderer_text_new ();
-    gtk_cell_layout_pack_end(GTK_CELL_LAYOUT(bar), renderer, TRUE);
-    gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(bar), renderer, "text", TEXT_COLUMN);
-
-    g_object_unref (G_OBJECT (store));    
-    gtk_combo_box_set_active(GTK_COMBO_BOX(bar), 1);
-    
-    gtk_box_pack_start (GTK_BOX(vbox), bar, FALSE, FALSE, 16);
     gtk_widget_show_all(dlg);
     gtk_dialog_run (GTK_DIALOG (dlg));
     gtk_widget_destroy (dlg);
@@ -839,7 +801,6 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     GtkWidget *squeezebox_delay_spinner;
 	GtkWidget *cbBackend, *cbNotLoc;
 	GtkWidget *opt[3];
-    const Backend *ptr = squeezebox_get_backends();
     int i;
 	//GList *glist = NULL;
 	
@@ -991,14 +952,45 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	hbox1 = gtk_hbox_new(FALSE, 8);
     gtk_box_pack_start (GTK_BOX (vbox), hbox1, FALSE, FALSE, 0);
     
-    cbBackend = gtk_combo_box_new_text();
-    for(i=0;;i++)
+    GtkListStore *store;
+    GtkWidget    *bar;
+
+    /* make a new list store */
+    store = gtk_list_store_new (N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+
+    /* fill the store with data */
+    GtkTreeIter iter = {0};
+    const Backend *ptr = squeezebox_get_backends();
+    for(;;)
     {
-        gtk_combo_box_append_text (GTK_COMBO_BOX(cbBackend), ptr->BACKEND_name());    
+        gtk_list_store_append(store, &iter);
+        GdkPixbuf *pix = exo_gdk_pixbuf_scale_down(
+             ptr->BACKEND_icon(), TRUE, 24, 32);
+        gtk_list_store_set(store, &iter, 
+            PIXBUF_COLUMN, pix, 
+            TEXT_COLUMN, ptr->BACKEND_name(), -1);
         ptr++;
         if( !ptr->BACKEND_name )
             break;
     }
+    
+    cbBackend = GTK_WIDGET(gtk_combo_box_new_with_model(GTK_TREE_MODEL(store)));
+    gtk_label_set_mnemonic_widget(GTK_LABEL(label1), cbBackend);
+    
+    GtkCellRenderer *renderer;
+    GtkTreeViewColumn *column;
+
+    renderer = gtk_cell_renderer_pixbuf_new ();
+    gtk_cell_renderer_set_fixed_size(renderer, 36, 24);
+    
+    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(cbBackend), renderer, FALSE);
+    gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(cbBackend), renderer, "pixbuf", PIXBUF_COLUMN);
+
+    renderer = gtk_cell_renderer_text_new ();
+    gtk_cell_layout_pack_end(GTK_CELL_LAYOUT(cbBackend), renderer, TRUE);
+    gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(cbBackend), renderer, "text", TEXT_COLUMN);
+
+    g_object_unref (G_OBJECT (store));    
     gtk_combo_box_set_active(GTK_COMBO_BOX(cbBackend), sd->backend - 1);
     
     g_signal_connect(cbBackend, "changed",
@@ -1007,7 +999,7 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     gtk_box_pack_start (GTK_BOX (hbox1), cbBackend, TRUE, TRUE, 16);
     
     btnDet = gtk_button_new_with_mnemonic(_("_Settings..."));
-    gtk_box_pack_start (GTK_BOX (hbox1), btnDet, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (hbox1), btnDet, FALSE, FALSE, 8);
     g_signal_connect(btnDet, "clicked",
                         G_CALLBACK(config_show_backend_properties), sd);
 	

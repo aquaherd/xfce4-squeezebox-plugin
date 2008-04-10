@@ -3,120 +3,163 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-14 21:27+0100\n"
+"POT-Creation-Date: 2008-04-10 03:07+0200\n"
 "PO-Revision-Date: 2008-03-17 23:10+0100\n"
+"Last-Translator: Hakan Erduman <hakan.erduman@web.de>\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-Language: French\n"
-"Last-Translator: Hakan Erduman <hakan.erduman@web.de>\n"
-"Language-Team: \n"
 "X-Poedit-Country: France\n"
 
-#: ../panel-plugin/squeezebox.c:594
+#: ../panel-plugin/squeezebox.c:617
 msgid "This backend has no configurable properties"
 msgstr "Ceci Backend n'avez pas proprietes confinubles"
 
-#: ../panel-plugin/squeezebox.c:705
-#: ../panel-plugin/squeezebox-mpd.c:459
+#: ../panel-plugin/squeezebox.c:635
+msgid "Media buttons"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:640
+msgid "Grab state of multimedia keys"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:849 ../panel-plugin/squeezebox-mpd.c:505
 msgid "Properties"
 msgstr "Propriétés"
 
-#: ../panel-plugin/squeezebox.c:721
-msgid "Squeezebox media player remote"
+#: ../panel-plugin/squeezebox.c:867
+#, fuzzy
+msgid "Squeezebox"
+msgstr " SqueezeBox"
+
+#: ../panel-plugin/squeezebox.c:869
+#, fuzzy
+msgid "media player remote"
 msgstr "Squeezebox media player remote"
 
-#: ../panel-plugin/squeezebox.c:738
-msgid "Show _previous button"
+#: ../panel-plugin/squeezebox.c:881
+msgid "Appearance"
+msgstr ""
+
+#. check1
+#: ../panel-plugin/squeezebox.c:891
+#, fuzzy
+msgid "Show p_revious button"
 msgstr "Montre bouton devant"
 
-#: ../panel-plugin/squeezebox.c:747
+#. check2
+#: ../panel-plugin/squeezebox.c:898
 msgid "Show _next button"
 msgstr "Montre bouton _avant"
 
-#: ../panel-plugin/squeezebox.c:759
+#. check3
+#: ../panel-plugin/squeezebox.c:908
+msgid "Grab _media buttons, if available"
+msgstr ""
+
+#. btnView
+#: ../panel-plugin/squeezebox.c:914
+#, fuzzy
+msgid "_Details..."
+msgstr "_Ajustements..."
+
+#: ../panel-plugin/squeezebox.c:921
 msgid "No _tooltips"
 msgstr "Pas de _tooltips"
 
-#: ../panel-plugin/squeezebox.c:766
+#: ../panel-plugin/squeezebox.c:927
 msgid "_Simple tooltips"
 msgstr "Tooltips brut_s"
 
-#: ../panel-plugin/squeezebox.c:775
+#: ../panel-plugin/squeezebox.c:935
 msgid "N_otification tooltips"
 msgstr "Tooltips de _notification"
 
-#: ../panel-plugin/squeezebox.c:787
+#: ../panel-plugin/squeezebox.c:950
 msgid "Show noti_fications (notify daemon)"
 msgstr "Montrez l'_notifications"
 
-#: ../panel-plugin/squeezebox.c:800
+#: ../panel-plugin/squeezebox.c:967
 msgid "Notification _timeout (sec)"
 msgstr "Timeout du noticiation"
 
-#: ../panel-plugin/squeezebox.c:823
-msgid "_Backend:"
+#: ../panel-plugin/squeezebox.c:985
+#, fuzzy
+msgid "_Backend"
 msgstr "_Backend:"
 
-#: ../panel-plugin/squeezebox.c:863
+#: ../panel-plugin/squeezebox.c:1009
 msgid "_Settings..."
 msgstr "_Ajustements..."
 
-#: ../panel-plugin/squeezebox.c:1055
-#: ../panel-plugin/squeezebox.c:1056
-#: ../panel-plugin/squeezebox.c:1057
+#: ../panel-plugin/squeezebox.c:1251 ../panel-plugin/squeezebox.c:1252
+#: ../panel-plugin/squeezebox.c:1253
 msgid "(unknown)"
 msgstr "(pas de connaitre)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1093
+#: ../panel-plugin/squeezebox.c:1289
 #, fuzzy
 msgid "Show player"
 msgstr "Afficher le _cadre"
 
-#: ../panel-plugin/squeezebox.c:1100
+#: ../panel-plugin/squeezebox.c:1296
 msgid "Shuffle"
 msgstr "Shuffle"
 
-#: ../panel-plugin/squeezebox.c:1107
+#: ../panel-plugin/squeezebox.c:1303
 msgid "Repeat"
 msgstr "Rappel"
 
-#: ../panel-plugin/squeezebox-dbus.c:56
+#: ../panel-plugin/squeezebox-dbus.c:60
 msgid "Rhythmbox 0.9.x (via DBUS)"
 msgstr "Rhythmbox 0.9.x (via DBUS)"
 
-#: ../panel-plugin/squeezebox-mpd.c:47
+#: ../panel-plugin/squeezebox-mpd.c:51
 msgid "Music Player Daemon (libmpd)"
 msgstr "Musique Player Daemon (sur libmpd)"
 
-#: ../panel-plugin/squeezebox-mpd.c:114
+#: ../panel-plugin/squeezebox-mpd.c:120
 msgid "Can't connect to music player daemon."
 msgstr "Pas de possible contacter le MPD"
 
-#: ../panel-plugin/squeezebox-mpd.c:475
+#: ../panel-plugin/squeezebox-mpd.c:523
+msgid "MPD"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:526
 #, fuzzy
-msgid "Music Player Daemon"
+msgid "music player daemon"
 msgstr "Un client pour MPD, Music Player Daemon"
 
-#: ../panel-plugin/squeezebox-mpd.c:488
+#: ../panel-plugin/squeezebox-mpd.c:538
 msgid "Use _defaults"
 msgstr "Emploir des defauts"
 
-#: ../panel-plugin/squeezebox-mpd.c:503
+#: ../panel-plugin/squeezebox-mpd.c:553
 msgid "_Host:"
 msgstr "_Hôte :"
 
-#: ../panel-plugin/squeezebox-mpd.c:513
+#: ../panel-plugin/squeezebox-mpd.c:563
 msgid "_Port:"
 msgstr "_Port :"
 
-#: ../panel-plugin/squeezebox-mpd.c:526
+#: ../panel-plugin/squeezebox-mpd.c:576
 msgid "Pass_word:"
 msgstr "_Mot de passe :"
 
-#: ../panel-plugin/squeezebox-ql.c:45
+#: ../panel-plugin/squeezebox-mpd.c:589
+msgid "Use MPD Music _folder as cover source"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:598
+msgid "Select MPD music folder"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-ql.c:51
 msgid "QuodLibet (pipe)"
 msgstr "QuodLibet (pipe)"
 
@@ -127,4 +170,3 @@ msgstr " Controlez Rythmbox, MPD, QudLibet; Videz l'Art des Albums"
 #: ../panel-plugin/squeezebox.desktop.in.in.h:2
 msgid " SqueezeBox"
 msgstr " SqueezeBox"
-
