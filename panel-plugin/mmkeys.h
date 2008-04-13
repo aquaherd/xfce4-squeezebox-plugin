@@ -38,9 +38,13 @@
 typedef struct _MmKeys      MmKeys;
 typedef struct _MmKeysClass MmKeysClass;
 
+#define N_KEYCODES 5
+
 struct _MmKeys
 {
     GObject parent;
+	int keycodes[N_KEYCODES];
+	gint errcodes[N_KEYCODES];
 };
 
 struct _MmKeysClass
@@ -50,6 +54,9 @@ struct _MmKeysClass
 
 GType   mmkeys_get_type (void);
 
+//API
 MmKeys *mmkeys_new      (void);
+int mmkeys_key_errno(MmKeys *object, guint index);
+GString* mmkeys_key_name(MmKeys *object, guint index);
 
 #endif /* __MM_KEYS_H */

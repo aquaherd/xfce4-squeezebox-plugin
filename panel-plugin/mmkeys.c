@@ -27,7 +27,7 @@ static void mmkeys_init       (MmKeys      *object);
 static void mmkeys_exit       (MmKeys      *object);
 static void mmkeys_finalize   (GObject     *object);
 
-static void grab_mmkey (int key_code, GdkWindow *root);
+static void grab_mmkey (MmKeys *object, guint index, GdkWindow *root);
 static void ungrab_mmkey (int key_code, GdkWindow *root);
 
 static GdkFilterReturn filter_mmkeys (GdkXEvent *xevent,
@@ -44,6 +44,10 @@ enum {
 
 static GObjectClass *parent_class;
 static guint signals[LAST_SIGNAL];
+static guint syms[N_KEYCODES] = {
+	XF86XK_AudioPrev, XF86XK_AudioNext, XF86XK_AudioPlay, 
+	XF86XK_AudioPause, XF86XK_AudioStop};
+	
 
 static GType type = 0;
 
@@ -121,12 +125,9 @@ mmkeys_finalize (GObject *object)
 	parent_class->finalize (G_OBJECT(object));
 }
 
-#define N_KEYCODES 5
-
 static void
 mmkeys_init (MmKeys *object)
 {
-	int keycodes[N_KEYCODES];
 	GdkDisplay *display;
 	GdkScreen *screen;
 	GdkWindow *root;
@@ -134,11 +135,10 @@ mmkeys_init (MmKeys *object)
 
 	display = gdk_display_get_default ();
 
-	keycodes[0] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioPrev);
-	keycodes[1] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioNext);
-	keycodes[2] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioPlay);
-	keycodes[3] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioPause);
-	keycodes[4] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioStop);
+	for(i = 0; i < N_KEYCODES; i++) {
+		object->errcodes[i] = 0;
+		object->keycodes[i] = XKeysymToKeycode (GDK_DISPLAY (), syms[i]);
+	}
 
 	for (i = 0; i < gdk_display_get_n_screens (display); i++) {
 		screen = gdk_display_get_screen (display, i);
@@ -148,8 +148,8 @@ mmkeys_init (MmKeys *object)
             
 
 			for (j = 0; j < N_KEYCODES; j++) {
-				if (keycodes[j] > 0)
-					grab_mmkey (keycodes[j], root);
+				if (object->keycodes[j] > 0)
+					grab_mmkey (object, j, root);
 			}
 
 			gdk_window_add_filter (root, filter_mmkeys, object);
@@ -160,19 +160,12 @@ mmkeys_init (MmKeys *object)
 static void
 mmkeys_exit (MmKeys *object)
 {
-	int keycodes[N_KEYCODES];
 	GdkDisplay *display;
 	GdkScreen *screen;
 	GdkWindow *root;
 	guint i, j;
 
 	display = gdk_display_get_default ();
-
-	keycodes[0] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioPrev);
-	keycodes[1] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioNext);
-	keycodes[2] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioPlay);
-	keycodes[3] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioPause);
-	keycodes[4] = XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioStop);
 
 	for (i = 0; i < gdk_display_get_n_screens (display); i++) {
 		screen = gdk_display_get_screen (display, i);
@@ -182,8 +175,8 @@ mmkeys_exit (MmKeys *object)
             
 
 			for (j = 0; j < N_KEYCODES; j++) {
-				if (keycodes[j] > 0)
-					ungrab_mmkey (keycodes[j], root);
+				if (object->keycodes[j] > 0)
+					ungrab_mmkey (object->keycodes[j], root);
 			}
 
 			gdk_window_remove_filter (root, filter_mmkeys, object);
@@ -198,8 +191,10 @@ mmkeys_new (void)
 }
 
 static void
-grab_mmkey (int key_code, GdkWindow *root)
+grab_mmkey (MmKeys *object, guint index, GdkWindow *root)
 {
+	int key_code = syms[index];
+	
 	gdk_error_trap_push ();
 
 	XGrabKey (GDK_DISPLAY (), key_code,
@@ -236,39 +231,33 @@ grab_mmkey (int key_code, GdkWindow *root)
 		  GrabModeAsync, GrabModeAsync);
 
 	gdk_flush ();
-	if (gdk_error_trap_pop ()) {
+	gint iErr = gdk_error_trap_pop ();
+	if (iErr) {
 		fprintf (stderr, "Error grabbing key %d, %p\n", key_code, root);
         fflush (stderr);
 	}
+	object->errcodes[index] = iErr;
 }
 static void
 ungrab_mmkey (int key_code, GdkWindow *root)
 {
 	gdk_error_trap_push ();
 
-	XUngrabKey (GDK_DISPLAY (), key_code,
-		  0,
+	XUngrabKey (GDK_DISPLAY (), key_code, 0,
 		  GDK_WINDOW_XID (root));
-	XUngrabKey (GDK_DISPLAY (), key_code,
-		  Mod2Mask,
+	XUngrabKey (GDK_DISPLAY (), key_code, Mod2Mask,
 		  GDK_WINDOW_XID (root));
-	XUngrabKey (GDK_DISPLAY (), key_code,
-		  Mod5Mask,
+	XUngrabKey (GDK_DISPLAY (), key_code, Mod5Mask,
 		  GDK_WINDOW_XID (root));
-	XUngrabKey (GDK_DISPLAY (), key_code,
-		  LockMask,
+	XUngrabKey (GDK_DISPLAY (), key_code, LockMask,
 		  GDK_WINDOW_XID (root));
-	XUngrabKey (GDK_DISPLAY (), key_code,
-		  Mod2Mask | Mod5Mask,
+	XUngrabKey (GDK_DISPLAY (), key_code, Mod2Mask | Mod5Mask,
 		  GDK_WINDOW_XID (root));
-	XUngrabKey (GDK_DISPLAY (), key_code,
-		  Mod2Mask | LockMask,
+	XUngrabKey (GDK_DISPLAY (), key_code, Mod2Mask | LockMask,
 		  GDK_WINDOW_XID (root));
-	XUngrabKey (GDK_DISPLAY (), key_code,
-		  Mod5Mask | LockMask,
+	XUngrabKey (GDK_DISPLAY (), key_code, Mod5Mask | LockMask,
 		  GDK_WINDOW_XID (root));
-	XUngrabKey (GDK_DISPLAY (), key_code,
-		  Mod2Mask | Mod5Mask | LockMask,
+	XUngrabKey (GDK_DISPLAY (), key_code, Mod2Mask | Mod5Mask | LockMask,
 		  GDK_WINDOW_XID (root));
 
 	gdk_flush ();
@@ -310,4 +299,21 @@ filter_mmkeys (GdkXEvent *xevent, GdkEvent *event, gpointer data)
 	} else {
 		return GDK_FILTER_CONTINUE;
 	}
+}
+
+int mmkeys_key_errno(MmKeys *object, guint index)
+{
+	if(index < N_KEYCODES)
+		return object->keycodes[index];
+	return FALSE;
+}
+
+GString* mmkeys_key_name(MmKeys *object, guint index)
+{
+	if(index < N_KEYCODES) {
+		const gchar *ptr = XKeysymToString(syms[index]);
+		if(ptr)
+			return g_string_new(ptr);
+	}
+	return NULL;
 }
