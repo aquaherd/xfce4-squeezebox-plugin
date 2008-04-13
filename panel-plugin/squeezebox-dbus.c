@@ -27,12 +27,8 @@
 #endif
 #ifdef HAVE_BACKEND_RHYTHMBOX
 
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
-
-#include <libxfcegui4/libxfcegui4.h>
-#include <libxfce4panel/xfce-panel-plugin.h>
-#include <libxfce4panel/xfce-panel-convenience.h>
+// default
+#include "squeezebox.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -54,8 +50,6 @@
 
 // pixmap
 #include "squeezebox-dbus.png.h"
-// default
-#include "squeezebox.h"
 
 DEFINE_BACKEND(DBUS, _("Rhythmbox 0.9.x (via DBUS)"))
 

@@ -26,13 +26,8 @@
 #include <config.h>
 #endif
 
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
-
-#include <libxfcegui4/libxfcegui4.h>
-#include <libxfce4panel/xfce-panel-plugin.h>
-#include <libxfce4panel/xfce-panel-convenience.h>
-#include <exo/exo.h>
+#include "squeezebox.h"
+#include "mmkeys.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -40,9 +35,6 @@
 #if HAVE_NOTIFY
 #include <libnotify/notify.h>
 #endif
-
-#include "squeezebox.h"
-#include "mmkeys.h"
 
 #include <libintl.h>
 

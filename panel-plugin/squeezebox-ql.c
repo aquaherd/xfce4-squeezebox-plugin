@@ -27,12 +27,8 @@
 #endif
 #ifdef HAVE_BACKEND_QL
 
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
-
-#include <libxfcegui4/libxfcegui4.h>
-#include <libxfce4panel/xfce-panel-plugin.h>
-#include <libxfce4panel/xfce-panel-convenience.h>
+// default
+#include "squeezebox.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -45,8 +41,6 @@
 
 // pixmap
 #include "squeezebox-ql.png.h"
-// default
-#include "squeezebox.h"
 
 DEFINE_BACKEND(QL, _("QuodLibet (pipe)"))
 
@@ -294,15 +288,15 @@ void qlWindowOpened(NetkScreen *screen, NetkWindow *window, gpointer thsPtr) {
 }
 
 void qlWindowClosed(NetkScreen *screen, NetkWindow *window, gpointer thsPtr) {
-    MKTHIS;
-    const gchar *windowName = netk_window_get_name(window);
-    if( windowName && windowName[0] == '[' ) // minimized but visible
-        windowName++;
-    if( g_str_has_prefix(windowName, "Quod Libet") ) {
-        this->isVisible = FALSE;
-        LOG("QL:Disappeared\n");
-        this->parent->UpdateVisibility(this->parent->sd, this->isVisible);
-    }
+	MKTHIS;
+	const gchar *windowName = netk_window_get_name(window);
+	if( windowName && windowName[0] == '[' ) // minimized but visible
+		windowName++;
+	if( g_str_has_prefix(windowName, "Quod Libet") ) {
+		this->isVisible = FALSE;
+		LOG("QL:Disappeared\n");
+		this->parent->UpdateVisibility(this->parent->sd, this->isVisible);
+	}
 }
 
 

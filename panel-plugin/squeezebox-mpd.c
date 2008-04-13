@@ -27,12 +27,8 @@
 #endif
 #ifdef HAVE_BACKEND_MPD
 
-#include <gtk/gtk.h>
-#include <gdk/gdkx.h>
-
-#include <libxfcegui4/libxfcegui4.h>
-#include <libxfce4panel/xfce-panel-plugin.h>
-#include <libxfce4panel/xfce-panel-convenience.h>
+// default
+#include "squeezebox.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -45,8 +41,6 @@
 
 // pixmap
 #include "squeezebox-mpd.png.h"
-// default
-#include "squeezebox.h"
 
 DEFINE_BACKEND(MPD, _("Music Player Daemon (libmpd)"))
 
