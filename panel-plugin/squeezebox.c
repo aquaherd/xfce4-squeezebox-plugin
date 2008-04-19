@@ -148,10 +148,31 @@ BEGIN_BACKEND_MAP()
 END_BACKEND_MAP()
 
 /* internal functions */
-
+#define UNSET(t) sd->player.t = NULL
 static void 
 squeezebox_init_backend(SqueezeBoxData *sd, gint nBackend)
 {
+    // clear previous backend
+	if( sd->player.Detach ) {
+		sd->player.Detach(sd->player.db);
+        g_free(sd->player.db);
+    }
+	UNSET(Assure);
+    UNSET(Next);
+	UNSET(Previous);
+	UNSET(PlayPause);
+	UNSET(IsPlaying);
+	UNSET(Toggle);
+	UNSET(Detach);
+    UNSET(GetRepeat);
+    UNSET(SetRepeat);
+    UNSET(GetShuffle);
+    UNSET(SetShuffle);
+	UNSET(IsVisible);
+	UNSET(Show);
+	UNSET(Persist);
+	UNSET(Configure);
+    
     // call init of backend
     sd->backend = nBackend;
     const Backend *ptr = squeezebox_get_backends();
@@ -439,8 +460,10 @@ static void
 squeezebox_free_data (XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 {
     LOG("Enter squeezebox_free_data\n");
-	if( sd->player.Detach )
+	if( sd->player.Detach ) {
 		sd->player.Detach(sd->player.db);
+        g_free(sd->player.db);
+    }
     if( sd->timerHandle )
         g_source_remove(sd->timerHandle);
     squeezebox_update_grab(FALSE, FALSE, sd);
@@ -606,8 +629,21 @@ config_show_backend_properties(GtkButton *btn, SqueezeBoxData *sd)
 		GtkWidget *dlg = gtk_message_dialog_new(
 			GTK_WINDOW(g_object_get_data(G_OBJECT(sd->plugin), "dialog")), 
 			GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, 
-			_("This backend has no configurable properties"));
-		gtk_dialog_run (GTK_DIALOG (dlg));
+			_("This backend has no configurable properties."));
+        
+#if GTK_CHECK_VERSION(2,10,0)
+        // show icon of backend
+        const Backend *ptr = squeezebox_get_backends();
+        GtkWidget *wgt = gtk_image_new_from_pixbuf (
+            sd->player.db = ptr[sd->backend-1].BACKEND_icon());
+        
+		gtk_widget_show (wgt);
+        gtk_message_dialog_set_image (GTK_MESSAGE_DIALOG(dlg), wgt);
+#endif
+        gtk_dialog_run (GTK_DIALOG (dlg));
+#if GTK_CHECK_VERSION(2,10,0)
+        gtk_widget_destroy (wgt);
+#endif
 		gtk_widget_destroy (dlg);
 	}
 }

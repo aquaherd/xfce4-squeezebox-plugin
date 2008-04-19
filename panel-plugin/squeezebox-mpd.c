@@ -611,9 +611,6 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
 void *MPD_attach(SPlayer *player) {
 	mpdData *this = g_new0(mpdData, 1);
 	LOG("Enter MPD_attach\n");
-	
-	if( player->Detach )
-		player->Detach(player->db);
 	MPD_MAP(Assure);
 	MPD_MAP(Next);
 	MPD_MAP(Previous);

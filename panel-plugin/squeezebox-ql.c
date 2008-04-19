@@ -476,8 +476,6 @@ void *QL_attach(SPlayer * player)
     qlData *this = g_new0(qlData, 1);
     LOG("Enter QL_attach\n");
 
-    if (player->Detach)
-	player->Detach(player->db);
     QL_MAP(Assure);
     QL_MAP(Next);
     QL_MAP(Previous);

@@ -434,7 +434,7 @@ gboolean rbDetach(gpointer thsPtr) {
 		//g_object_unref(G_OBJECT(db->bus));
 		db->bus = NULL;		
 	}
-	g_free(db);
+	//g_free(db);
 	LOG("Leave rbDetach\n");
 	
 	return TRUE;
@@ -467,9 +467,7 @@ gboolean rbGetRepeat(gpointer thsPtr) {
 rbData * RB_attach(SPlayer *player) {
 	rbData *db = NULL;
 	
-	LOG("Enter DBUS_attach\n");
-	if( player->Detach )
-		player->Detach(player->db);
+	LOG("Enter RB_attach\n");
 	RB_MAP(Assure);
 	RB_MAP(Next);
 	RB_MAP(Previous);
@@ -510,7 +508,7 @@ rbData * RB_attach(SPlayer *player) {
 		
 	}
 	db->noCreate = FALSE;
-	LOG("Leave DBUS_attach\n");
+	LOG("Leave RB_attach\n");
 	return db;
 }
 #endif
