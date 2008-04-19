@@ -1,5 +1,5 @@
 /***************************************************************************
- *            rythmbox-dbus.c
+ *            rythmbox-rb.c
  *
  *  Fri Aug 25 17:20:09 2006
  *  Copyright  2006  Hakan Erduman
@@ -43,15 +43,15 @@
 
 /*
 #ifndef DBUS_TYPE_G_STRING_VALUE_HASHTABLE
-#define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
+#define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (rb_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
 #endif
 */
-#define DBUS_MAP(a) player->a = dbus##a;
+#define RB_MAP(a) player->a = rb##a;
 
 // pixmap
-#include "squeezebox-dbus.png.h"
+#include "squeezebox-rb.png.h"
 
-DEFINE_BACKEND(DBUS, _("Rhythmbox 0.9.x (via DBUS)"))
+DEFINE_BACKEND(RB, _("Rhythmbox 0.9.x (via DBUS)"))
 
 typedef struct 
 {
@@ -62,12 +62,12 @@ typedef struct
     DBusGProxy		*dbService;
 	gboolean		noCreate;
     gboolean        Visibility;
-}dbusData;
+}rbData;
 
-#define MKTHIS dbusData *db = (dbusData *)thsPtr;
+#define MKTHIS rbData *db = (rbData *)thsPtr;
 
 static void
-dbusCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name, 
+rbCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name, 
 	const gchar *OldOwner, const gchar* NewOwner, gpointer thsPtr) {
 	MKTHIS;
     if( !g_ascii_strcasecmp(Name, "org.gnome.Rhythmbox") && !strlen(NewOwner) )
@@ -92,31 +92,31 @@ dbusCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name,
 	}
 }
 
-static void dbusCallbackPlayPause(DBusGProxy *proxy, const gboolean playing, 
+static void rbCallbackPlayPause(DBusGProxy *proxy, const gboolean playing, 
 								  gpointer thsPtr) {
 	MKTHIS;
-	LOGF("Enter dbusCallback: StateChanged %d\n", playing);
+	LOGF("Enter rbCallback: StateChanged %d\n", playing);
 	eSynoptics eStat;
 	if(playing)
 		eStat = estPlay;
 	else
 		eStat = estPause;
 	db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
-	LOG("Leave dbusCallback: StateChanged\n");
+	LOG("Leave rbCallback: StateChanged\n");
 }
 
-static void dbusCallbackVisibility(DBusGProxy *proxy, const gboolean visible, 
+static void rbCallbackVisibility(DBusGProxy *proxy, const gboolean visible, 
 								   gpointer thsPtr) {
     MKTHIS;
-    LOG("dbusCallback: Visibility\n");
+    LOG("rbCallback: Visibility\n");
     db->Visibility = visible;
 	db->parent->UpdateVisibility(db->parent->sd, visible);
 }
 
-static void dbusCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
+static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 	gchar *str = g_filename_from_uri(uri, NULL, NULL);
 	MKTHIS;
-	LOG("dbusCallback: SongChanged '");
+	LOG("rbCallback: SongChanged '");
 	LOG(str);
 	LOG("'");
 	
@@ -200,11 +200,11 @@ static void dbusCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 	g_free(str);
 }
  
-gboolean dbusAssure(gpointer thsPtr) {
+gboolean rbAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
     gchar *errLine = NULL;
 	MKTHIS;
-	LOG("Enter dbusAssure\n");
+	LOG("Enter rbAssure\n");
 	if( !db->bus )
 	{
 		db->bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
@@ -280,19 +280,19 @@ gboolean dbusAssure(gpointer thsPtr) {
 				dbus_g_proxy_add_signal(db->rbPlayer, "playingChanged", 
 					G_TYPE_BOOLEAN, G_TYPE_INVALID);
 				dbus_g_proxy_connect_signal(db->rbPlayer, "playingChanged", 
-					G_CALLBACK(dbusCallbackPlayPause), db, NULL);	
+					G_CALLBACK(rbCallbackPlayPause), db, NULL);	
 		
 				//  song change
 				dbus_g_proxy_add_signal(db->rbPlayer, "playingUriChanged", 
 					G_TYPE_STRING, G_TYPE_INVALID);
 				dbus_g_proxy_connect_signal(db->rbPlayer, "playingUriChanged", 
-					G_CALLBACK(dbusCallback), db, NULL);
+					G_CALLBACK(rbCallback), db, NULL);
 				
 				//  player change
 				dbus_g_proxy_add_signal(db->rbShell, "visibilityChanged", 
 					G_TYPE_BOOLEAN, G_TYPE_INVALID);
 				dbus_g_proxy_connect_signal(db->rbShell, "visibilityChanged", 
-					G_CALLBACK(dbusCallbackVisibility), db, NULL);
+					G_CALLBACK(rbCallbackVisibility), db, NULL);
 				
 				// user close notification
 				db->dbService = dbus_g_proxy_new_for_name(db->bus,
@@ -307,7 +307,7 @@ gboolean dbusAssure(gpointer thsPtr) {
 					G_TYPE_INVALID);
 				
 				dbus_g_proxy_connect_signal(db->dbService, "NameOwnerChanged", 
-					G_CALLBACK(dbusCallbackNameOwnerChanged),
+					G_CALLBACK(rbCallbackNameOwnerChanged),
 					db,
 					NULL);
 				
@@ -333,14 +333,14 @@ gboolean dbusAssure(gpointer thsPtr) {
         }
     }
 
-	LOG("Leave dbusAssure\n");
+	LOG("Leave rbAssure\n");
 	return bRet;
 }
 
-gboolean dbusNext(gpointer thsPtr) {
+gboolean rbNext(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter dbusNext\n");
-	if( !dbusAssure(db) )
+	LOG("Enter rbNext\n");
+	if( !rbAssure(db) )
 		return FALSE;
 	if (!dbus_g_proxy_call (db->rbPlayer, "next", NULL, 
 		G_TYPE_INVALID, 
@@ -349,13 +349,13 @@ gboolean dbusNext(gpointer thsPtr) {
 		LOGERR("Failed to complete Next\n");
 		return FALSE;
 	}
-	LOG("Leave dbusNext\n");
+	LOG("Leave rbNext\n");
 	return TRUE;
 }
 
-gboolean dbusPrevious(gpointer thsPtr) {
+gboolean rbPrevious(gpointer thsPtr) {
 	MKTHIS;
-	if( !dbusAssure(db) )
+	if( !rbAssure(db) )
 		return FALSE;
 	if (!dbus_g_proxy_call (db->rbPlayer, "previous", NULL, 
 		G_TYPE_INVALID, 
@@ -367,9 +367,9 @@ gboolean dbusPrevious(gpointer thsPtr) {
 	return TRUE;
 }
 
-gboolean dbusPlayPause(gpointer thsPtr, gboolean newState) {
+gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	if( !dbusAssure(db) )
+	if( !rbAssure(db) )
 		return FALSE;
 	if( !dbus_g_proxy_call(db->rbPlayer, "playPause", NULL,
 		G_TYPE_BOOLEAN, newState, G_TYPE_INVALID,
@@ -381,10 +381,10 @@ gboolean dbusPlayPause(gpointer thsPtr, gboolean newState) {
 	return TRUE;
 }
 
-gboolean dbusIsPlaying(gpointer thsPtr) {
+gboolean rbIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRes = FALSE;
-	if( !dbusAssure(db) )
+	if( !rbAssure(db) )
 		return FALSE;
 	if( !dbus_g_proxy_call(db->rbPlayer, "getPlaying", NULL,
 		G_TYPE_INVALID,
@@ -395,13 +395,13 @@ gboolean dbusIsPlaying(gpointer thsPtr) {
 	return bRes;
 }
 
-gboolean dbusToggle(gpointer thsPtr, gboolean *newState) {
+gboolean rbToggle(gpointer thsPtr, gboolean *newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
-	if( !dbusAssure(db) )
+	if( !rbAssure(db) )
 		return FALSE;
-	oldState = dbusIsPlaying(db);
-	if( !dbusPlayPause(db, !oldState) )
+	oldState = rbIsPlaying(db);
+	if( !rbPlayPause(db, !oldState) )
 		return FALSE;
 	if( newState )
 		*newState = !oldState;
@@ -409,9 +409,9 @@ gboolean dbusToggle(gpointer thsPtr, gboolean *newState) {
 	return TRUE;
 }
 
-gboolean dbusDetach(gpointer thsPtr) {
+gboolean rbDetach(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter dbusDetach\n");
+	LOG("Enter rbDetach\n");
 	if( db->rbPlayer )
 	{
 		g_object_unref (G_OBJECT (db->rbPlayer));		
@@ -435,23 +435,23 @@ gboolean dbusDetach(gpointer thsPtr) {
 		db->bus = NULL;		
 	}
 	g_free(db);
-	LOG("Leave dbusDetach\n");
+	LOG("Leave rbDetach\n");
 	
 	return TRUE;
 }
 
-void dbusPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
+void rbPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 	//MKTHIS;
 }
 
-gboolean dbusIsVisible(gpointer thsPtr) {
+gboolean rbIsVisible(gpointer thsPtr) {
     MKTHIS;
     return db->Visibility;   
 }
 
-gboolean dbusShow(gpointer thsPtr, gboolean newState) {
+gboolean rbShow(gpointer thsPtr, gboolean newState) {
     MKTHIS;
-    if( dbusAssure(thsPtr) ) {
+    if( rbAssure(thsPtr) ) {
         org_gnome_Rhythmbox_Shell_present(db->rbPlayer, (newState)? 1 : 0, NULL);
         return TRUE;
     }
@@ -459,34 +459,34 @@ gboolean dbusShow(gpointer thsPtr, gboolean newState) {
 }
 
 /*
-gboolean dbusGetRepeat(gpointer thsPtr) {
+gboolean rbGetRepeat(gpointer thsPtr) {
 	MKTHIS;
 	org_gnome_Rhythmbox_Shell_get_playlist_manager(
 }
 */
-dbusData * DBUS_attach(SPlayer *player) {
-	dbusData *db = NULL;
+rbData * RB_attach(SPlayer *player) {
+	rbData *db = NULL;
 	
 	LOG("Enter DBUS_attach\n");
 	if( player->Detach )
 		player->Detach(player->db);
-	DBUS_MAP(Assure);
-	DBUS_MAP(Next);
-	DBUS_MAP(Previous);
-	DBUS_MAP(PlayPause);
-	DBUS_MAP(IsPlaying);
-	DBUS_MAP(Toggle);
-	DBUS_MAP(Detach);
-	DBUS_MAP(Persist);
-    DBUS_MAP(IsVisible);
-    DBUS_MAP(Show);
+	RB_MAP(Assure);
+	RB_MAP(Next);
+	RB_MAP(Previous);
+	RB_MAP(PlayPause);
+	RB_MAP(IsPlaying);
+	RB_MAP(Toggle);
+	RB_MAP(Detach);
+	RB_MAP(Persist);
+    RB_MAP(IsVisible);
+    RB_MAP(Show);
     //The DBUS API does not provide:
 	   NOMAP(GetRepeat);
        NOMAP(SetRepeat);
        NOMAP(GetShuffle);
        NOMAP(SetShuffle);
 	
-	db = g_new0(dbusData, 1);
+	db = g_new0(rbData, 1);
 	db->parent = player;
 	db->bus = NULL;
 	db->rbPlayer = NULL;
@@ -494,18 +494,18 @@ dbusData * DBUS_attach(SPlayer *player) {
 	
 	// check if rhythmbox is running
 	
-	if( dbusAssure(db) )
+	if( rbAssure(db) )
 	{
 		
 		GError *err = NULL;
 		char *uri = NULL;
-		dbusCallbackPlayPause(db->rbPlayer, dbusIsPlaying(db), db);
+		rbCallbackPlayPause(db->rbPlayer, rbIsPlaying(db), db);
 		
 		if( org_gnome_Rhythmbox_Player_get_playing_uri(
 			db->rbPlayer, &uri, &err) && uri )
 		{
 			LOG("!!!");
-			dbusCallback(db->rbPlayer, uri, db);
+			rbCallback(db->rbPlayer, uri, db);
 		}
 		
 	}

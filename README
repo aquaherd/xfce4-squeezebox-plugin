@@ -19,7 +19,7 @@ listening to a song of the Who when the idea to this plugin came to me.
     Track change notification is made by means of libnotify only if 
 libnotify is available during build.
 
-    Media Keys will be grabbed and ungrabbed with the modified mmkeys.c 
+    Media Keys can be grabbed and ungrabbed with the modified mmkeys.c 
 glory, as seen here and there. (See also README.xubuntu in this document.)
 
     Embedded album art extraction is under research (for iTunes 
@@ -33,7 +33,7 @@ glory, as seen here and there. (See also README.xubuntu in this document.)
     Planned backends:
     - lua scripted with lua-dbus bindings
     - mplayer (via -silent -idle switches with own playlist management)
-    - Banshee, Xfmedia (as soon as lua-dbus bindings exist)
+    - Xfmedia, Banshee, Exaile (as soon as lua-dbus bindings exist)
     
     Remotely possible backends:
     - SlimServer (as a nod to aforesaid naming issues)

@@ -122,7 +122,7 @@ static void squeezebox_construct (XfcePanelPlugin * plugin);
 
 /* Backend mapping */ 
 #ifdef HAVE_BACKEND_RHYTHMBOX
-IMPORT_BACKEND(DBUS)
+IMPORT_BACKEND(RB)
 #endif
 
 #ifdef HAVE_BACKEND_MPD
@@ -135,7 +135,7 @@ IMPORT_BACKEND(QL)
 
 BEGIN_BACKEND_MAP()
 	#ifdef HAVE_BACKEND_RHYTHMBOX
-		BACKEND(DBUS)
+		BACKEND(RB)
     #endif
 
 	#ifdef HAVE_BACKEND_MPD
