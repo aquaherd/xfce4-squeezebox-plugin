@@ -61,6 +61,7 @@ typedef struct
 
     GtkWidget *button[3];
     GtkWidget *image[3];
+    GtkWidget *btnDet;
 	gboolean  show[3];
 
 	GtkWidget *table;
@@ -348,11 +349,13 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
 			// did we get an icon?
 			if(pixbuf)
 			{
-				#if (LIBNOTIFY_VERSION_MAJOR == 0 && LIBNOTIFY_VERSION_MINOR <=3 && LIBNOTIFY_VERSION_MICRO < 2)
-					notify_notification_set_icon_data_from_pixbuf (sd->note, pixbuf);
-				#else
-					notify_notification_set_icon_from_pixbuf (sd->note, pixbuf);
-				#endif
+#if (LIBNOTIFY_VERSION_MAJOR == 0 && \
+    LIBNOTIFY_VERSION_MINOR <=3 && \
+    LIBNOTIFY_VERSION_MICRO < 2)
+                notify_notification_set_icon_data_from_pixbuf (sd->note, pixbuf);
+#else
+                notify_notification_set_icon_from_pixbuf (sd->note, pixbuf);
+#endif
 				g_object_unref (pixbuf);
 			}
 
@@ -525,6 +528,7 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	sd->show[ebtnPrev] = bShowPrev;
     sd->grabmedia = bGrabMedia;
     squeezebox_update_grab(sd->grabmedia, FALSE, sd);
+    gtk_widget_set_sensitive (sd->btnDet, (NULL != sd->player.Configure));
     
 #if HAVE_NOTIFY
 	sd->notify = bNotify;
@@ -629,21 +633,9 @@ config_show_backend_properties(GtkButton *btn, SqueezeBoxData *sd)
 		GtkWidget *dlg = gtk_message_dialog_new(
 			GTK_WINDOW(g_object_get_data(G_OBJECT(sd->plugin), "dialog")), 
 			GTK_DIALOG_MODAL, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, 
-			_("This backend has no configurable properties."));
+			_("This backend has no configurable properties"));
         
-#if GTK_CHECK_VERSION(2,10,0)
-        // show icon of backend
-        const Backend *ptr = squeezebox_get_backends();
-        GtkWidget *wgt = gtk_image_new_from_pixbuf (
-            sd->player.db = ptr[sd->backend-1].BACKEND_icon());
-        
-		gtk_widget_show (wgt);
-        gtk_message_dialog_set_image (GTK_MESSAGE_DIALOG(dlg), wgt);
-#endif
         gtk_dialog_run (GTK_DIALOG (dlg));
-#if GTK_CHECK_VERSION(2,10,0)
-        gtk_widget_destroy (wgt);
-#endif
 		gtk_widget_destroy (dlg);
 	}
 }
@@ -680,7 +672,8 @@ static void
 config_change_backend(GtkComboBox *cb, SqueezeBoxData *sd)
 {
 	int nBackend = gtk_combo_box_get_active(cb) + 1;
-    squeezebox_init_backend(sd, nBackend);    
+    squeezebox_init_backend(sd, nBackend); 
+    gtk_widget_set_sensitive (sd->btnDet, (NULL != sd->player.Configure));
 }
 
 #if HAVE_NOTIFY
@@ -825,7 +818,7 @@ static void
 squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 {
     GtkWidget *dlg, *header, *vbox, *hbox1, *hbox2, *label0, *label1, *label2, 
-	*cb1, *cb2, *cb3, *cb4, *btnDet, *btnView;
+	*cb1, *cb2, *cb3, *cb4, *btnView;
     GtkWidget *squeezebox_delay_spinner;
 	GtkWidget *cbBackend, *cbNotLoc;
 	GtkWidget *opt[3];
@@ -1021,9 +1014,9 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	
     gtk_box_pack_start (GTK_BOX (hbox1), cbBackend, TRUE, TRUE, 16);
     
-    btnDet = gtk_button_new_with_mnemonic(_("_Settings..."));
-    gtk_box_pack_start (GTK_BOX (hbox1), btnDet, FALSE, FALSE, 8);
-    g_signal_connect(btnDet, "clicked",
+    sd->btnDet = gtk_button_new_with_mnemonic(_("_Settings..."));
+    gtk_box_pack_start (GTK_BOX (hbox1), sd->btnDet, FALSE, FALSE, 8);
+    g_signal_connect(sd->btnDet, "clicked",
                         G_CALLBACK(config_show_backend_properties), sd);
 	
     gtk_widget_show_all (dlg);

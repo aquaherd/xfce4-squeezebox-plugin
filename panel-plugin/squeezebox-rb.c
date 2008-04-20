@@ -270,6 +270,7 @@ gboolean rbAssure(gpointer thsPtr) {
 				g_object_unref (G_OBJECT (db->rbShell));
 				db->rbShell = NULL;
 				db->rbPlayer = NULL;
+                db->dbService = NULL;
 				LOGERR("Couldn't connect to player proxy\n");
 				bRet = FALSE;
 			}
