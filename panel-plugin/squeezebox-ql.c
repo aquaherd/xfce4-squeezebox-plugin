@@ -76,77 +76,77 @@ void qlCurrentChanged(ThunarVfsMonitor * monitor,
 		      ThunarVfsPath * handle_path,
 		      ThunarVfsPath * event_path, gpointer thsPtr)
 {
-
+    
     char *fc = NULL;
     MKTHIS;
     switch (event) {
-    case THUNAR_VFS_MONITOR_EVENT_CREATED:
-    case THUNAR_VFS_MONITOR_EVENT_CHANGED:
-	LOG("CHANGEDETECT...");
-	LOG(this->stat);
-	if (g_file_get_contents(this->stat, &fc, NULL, NULL)) {
-	    if (!this->current)
-		this->current = g_hash_table_new(g_str_hash, g_str_equal);
-	    gchar **set = g_strsplit_set(fc, "\n", -1);
-	    g_free(fc);
-
-	    LOG("...OK\n");
-
-	    gchar **ptr = set;
-	    do {
-		gchar **line = g_strsplit_set(*ptr, "=", 2);
-		gchar *key = g_strdup(line[0]);
-		gchar *value = g_strdup(line[1]);
-		//LOG(key); LOG("="); LOG(value); LOG("\n");
-
-		g_hash_table_replace(this->current, key, value);
-		ptr++;
-		g_strfreev(line);
-	    }
-	    while (**ptr);
-	    g_strfreev(set);
-
-	    gchar *tmpArtist =
-		g_hash_table_lookup(this->current, "artist");
-	    gchar *tmpAlbum = g_hash_table_lookup(this->current, "album");
-	    gchar *tmpTitle = g_hash_table_lookup(this->current, "title");
-
-	    /* -- this ised to be available in pre 1.0
-	       gchar *hasPic = g_hash_table_lookup(this->current, "~picture");
-
-	       if(hasPic && *hasPic == 'y') {
-	       g_string_assign(this->parent->albumArt, this->cover);
-	       } -- */
-
-	    if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
-		g_string_assign(this->parent->albumArt, this->cover);
-	    else
-		g_string_assign(this->parent->albumArt, "");
-
-	    g_string_assign(this->parent->artist, tmpArtist);
-	    g_string_assign(this->parent->album, tmpAlbum);
-	    g_string_assign(this->parent->title, tmpTitle);
-
-	    this->parent->Update(this->parent->sd, TRUE,
-				 (this->isPlaying) ? estPlay : estPause,
-				 NULL);
-	} else {
-	    LOG("...KO\n");
-	    g_string_assign(this->parent->artist, "");
-	    g_string_assign(this->parent->album, "");
-	    g_string_assign(this->parent->title, "");
-	    g_string_assign(this->parent->albumArt, "");
-	    this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
-	}
-	break;
-    case THUNAR_VFS_MONITOR_EVENT_DELETED:
-	LOG("...fifo has died\n");
-	g_string_assign(this->parent->artist, "");
-	g_string_assign(this->parent->album, "");
-	g_string_assign(this->parent->title, "");
-	g_string_assign(this->parent->albumArt, "");
-	this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
-	break;
+        case THUNAR_VFS_MONITOR_EVENT_CREATED:
+        case THUNAR_VFS_MONITOR_EVENT_CHANGED:
+            LOG("CHANGEDETECT...");
+            LOG(this->stat);
+            if (g_file_get_contents(this->stat, &fc, NULL, NULL)) {
+                if (!this->current)
+                    this->current = g_hash_table_new(g_str_hash, g_str_equal);
+                gchar **set = g_strsplit_set(fc, "\n", -1);
+                g_free(fc);
+                
+                LOG("...OK\n");
+                
+                gchar **ptr = set;
+                do {
+                    gchar **line = g_strsplit_set(*ptr, "=", 2);
+                    gchar *key = g_strdup(line[0]);
+                    gchar *value = g_strdup(line[1]);
+                    //LOG(key); LOG("="); LOG(value); LOG("\n");
+                    
+                    g_hash_table_replace(this->current, key, value);
+                    ptr++;
+                    g_strfreev(line);
+                }
+                while (**ptr);
+                g_strfreev(set);
+                
+                gchar *tmpArtist =
+                    g_hash_table_lookup(this->current, "artist");
+                gchar *tmpAlbum = g_hash_table_lookup(this->current, "album");
+                gchar *tmpTitle = g_hash_table_lookup(this->current, "title");
+                
+                /* -- this ised to be available in pre 1.0
+                 gchar *hasPic = g_hash_table_lookup(this->current, "~picture");
+                 
+                 if(hasPic && *hasPic == 'y') {
+                     g_string_assign(this->parent->albumArt, this->cover);
+            } -- */
+                
+                if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
+                    g_string_assign(this->parent->albumArt, this->cover);
+                else
+                    g_string_assign(this->parent->albumArt, "");
+                
+                g_string_assign(this->parent->artist, tmpArtist);
+                g_string_assign(this->parent->album, tmpAlbum);
+                g_string_assign(this->parent->title, tmpTitle);
+                
+                this->parent->Update(this->parent->sd, TRUE,
+                                     (this->isPlaying) ? estPlay : estPause,
+                                     NULL);
+            } else {
+                LOG("...KO\n");
+                g_string_assign(this->parent->artist, "");
+                g_string_assign(this->parent->album, "");
+                g_string_assign(this->parent->title, "");
+                g_string_assign(this->parent->albumArt, "");
+                this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
+            }
+            break;
+        case THUNAR_VFS_MONITOR_EVENT_DELETED:
+            LOG("...fifo has died\n");
+            g_string_assign(this->parent->artist, "");
+            g_string_assign(this->parent->album, "");
+            g_string_assign(this->parent->title, "");
+            g_string_assign(this->parent->albumArt, "");
+            this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
+            break;
     }
 }
 

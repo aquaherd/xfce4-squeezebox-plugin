@@ -294,10 +294,8 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
 		
 		theme = gtk_icon_theme_get_default ();
 		gtk_icon_size_lookup (GTK_ICON_SIZE_DIALOG, &icon_size, NULL);
+        gchar *ntTitle = sd->player.title->str;
 		//happily, we easily can escape ampersands and other usual suspects.
-        gchar *ntTitle = g_markup_printf_escaped(
-				"%s", 
-				sd->player.title->str);
 		gchar *ntDetails = g_markup_printf_escaped(
                 "by <b>%s</b>\nfrom <i>%s</i>\n",
                 sd->player.artist->str,
@@ -365,7 +363,7 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
             
             sd->timerCount = sd->notifytimeout;
 		}
-		g_free(ntTitle);
+		//g_free(ntTitle);
 		g_free(ntDetails);
 		g_string_free(albumArt, TRUE);
 	}
@@ -508,7 +506,7 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 
 			bShowNext = xfce_rc_read_int_entry(rc, "show_next", 1);
 			bShowPrev = xfce_rc_read_int_entry(rc, "show_prev", 1);
-            bGrabMedia = xfce_rc_read_int_entry(rc, "grab_media", 1);
+            bGrabMedia = xfce_rc_read_int_entry(rc, "grab_media", 0);
 			#if HAVE_NOTIFY
 			bNotify   = xfce_rc_read_int_entry(rc, "notify", 1);
 			dNotifyTimeout = xfce_rc_read_int_entry(rc, "notify_timeout", 5);
@@ -1018,7 +1016,9 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     gtk_box_pack_start (GTK_BOX (hbox1), sd->btnDet, FALSE, FALSE, 8);
     g_signal_connect(sd->btnDet, "clicked",
                         G_CALLBACK(config_show_backend_properties), sd);
-	
+    gtk_widget_set_sensitive (sd->btnDet, (NULL != sd->player.Configure));
+
+    
     gtk_widget_show_all (dlg);
 }
 

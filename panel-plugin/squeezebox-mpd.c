@@ -280,7 +280,8 @@ gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
     MKTHIS;
     if( mpdAssure(thsPtr))
     {
-        return (MPD_OK == mpd_player_set_repeat(this->player, (newShuffle)?1:0));
+        return (MPD_OK == 
+                mpd_player_set_repeat(this->player, (newShuffle)?1:0));
     }
     return FALSE;
 }
@@ -330,8 +331,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
 			
 			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )	{
                 bFound = TRUE;
-			}
-            else { 
+			} else { 
                 if( this->bUseMPDFolder && g_file_test(this->path->str, G_FILE_TEST_EXISTS) ) {
                     g_string_printf(artLocation, "%s/%s", this->path->str, song->file);
                     gchar *strNext = g_path_get_dirname(artLocation->str);
@@ -351,7 +351,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
                             }
                         }
                         if(bFound) {
-                            gchar *fnam3 = g_build_filename(strNext, fnam);
+                            gchar *fnam3 = g_build_filename(strNext, fnam, NULL);
                             g_string_assign(artLocation, fnam3);
                             g_free(fnam3);
                         }
@@ -389,7 +389,6 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
     if( sType & MPD_CST_REPEAT )
     {
 		LOG("Enter mpdCallback: RepeatChanged\n");
-        gboolean bNew = FALSE;
         this->parent->UpdateRepeat(
             this->parent->sd, 
             mpd_player_get_repeat(this->player));
@@ -398,7 +397,6 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
     if( sType & MPD_CST_RANDOM )
     {
 		LOG("Enter mpdCallback: ShuffleChanged\n");
-        gboolean bNew = FALSE;
         this->parent->UpdateShuffle(
             this->parent->sd, 
             mpd_player_get_random(this->player));
