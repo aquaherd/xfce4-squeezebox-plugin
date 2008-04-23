@@ -112,7 +112,7 @@ extern const Backend* squeezebox_get_backends();
 
 #define DEFINE_BACKEND(t,n) gchar* t##_name(){ return _(n);} \
     GdkPixbuf *t##_icon(){ return gdk_pixbuf_new_from_inline( \
-        sizeof(my_pixbuf), my_pixbuf, FALSE, NULL); }
+        sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); }
     
 		
 #define LOG(t) printf(t);fflush(stdout)

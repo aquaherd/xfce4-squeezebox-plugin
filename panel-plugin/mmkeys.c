@@ -193,7 +193,7 @@ mmkeys_new (void)
 static void
 grab_mmkey (MmKeys *object, guint index, GdkWindow *root)
 {
-	int key_code = syms[index];
+	int key_code = object->keycodes[index];
 	
 	gdk_error_trap_push ();
 
