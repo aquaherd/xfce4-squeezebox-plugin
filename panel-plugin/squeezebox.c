@@ -421,9 +421,10 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 				sd->player.artist->str,
 				sd->player.album->str,
 				sd->player.title->str);
-				
+if(GTK_CHECK_VERSION(2,12,0)){
 			gtk_tooltip_trigger_tooltip_query(
 				gdk_display_get_default ());
+}
 		}
 		else {
 			g_string_assign(sd->toolTipText, "");

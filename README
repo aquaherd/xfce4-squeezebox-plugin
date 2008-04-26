@@ -64,3 +64,10 @@ keycode 164=XF86AudioStop
 (Your keycodes may vary, try xev.)
 
 2) run xmodmap ~/.Xmodmap during xfce startup.
+
+3) Bleeding edge GTK versions
+- gtk+-2.8.20 (Etch)
+- gtk+ 2.10.x (xfce-4.6)
+- gtk+ 2.12.19 (Hardy)
+I'm setting the lowest of the above as dependency, but I include
+workarounds for the tooltip change in 2.12 as well.
