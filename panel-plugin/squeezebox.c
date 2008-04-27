@@ -66,7 +66,7 @@ typedef struct
 
 	GtkWidget *table;
 
-	#if HAVE_NOTIFY
+#if HAVE_NOTIFY
 	gboolean  notify;
     gboolean  inEnter;
     gboolean  inCreate;
@@ -74,7 +74,7 @@ typedef struct
 	gint      notifytimeout;
     gint      timerCount;
     guint     timerHandle;
-	#endif
+#endif
     
     // menu items
     GtkWidget 
@@ -85,7 +85,7 @@ typedef struct
 
 	gint        toolTipStyle;
 #if HAVE_GTK_2_12
-    GtkTooltips *tooltips;
+    //GtkTooltips *tooltips;
 #endif
     GString     *toolTipText;
 
@@ -460,13 +460,6 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 static gboolean squeezebox_set_size (XfcePanelPlugin *plugin, int size, SqueezeBoxData *sd) {
 	int items = 1;
     
-#ifndef HAVE_GTK_12_2
-    if(sd->tooltips)
-    {
-        g_object_unref(sd->tooltips);
-        sd->tooltips = NULL;
-    }
-#endif
 	if( sd->show[ebtnPrev] ) {
 		gtk_widget_set_size_request (GTK_WIDGET (sd->button[ebtnPrev]), size, size);
 		items++;
@@ -487,6 +480,13 @@ static void
 squeezebox_free_data (XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 {
     LOG("Enter squeezebox_free_data\n");
+#ifndef HAVE_GTK_2_12
+    if(sd->tooltips)
+    {
+        g_object_unref(sd->tooltips);
+        sd->tooltips = NULL;
+    }
+#endif
 	if( sd->player.Detach ) {
 		sd->player.Detach(sd->player.db);
         g_free(sd->player.db);
@@ -1192,6 +1192,9 @@ squeezebox_create (SqueezeBoxData *sd)
 	LOG("Enter squeezebox_create\n");
   
 	GtkContainer *window1 = GTK_CONTAINER(sd->plugin);
+	sd->table = gtk_table_new(1, 3, FALSE);
+	gtk_widget_show (sd->table);
+	gtk_container_add (GTK_CONTAINER (window1), sd->table);
 	
 #ifndef HAVE_GTK_2_12
     sd->tooltips = gtk_tooltips_new();
