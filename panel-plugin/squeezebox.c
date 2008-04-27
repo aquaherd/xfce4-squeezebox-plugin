@@ -84,6 +84,9 @@ typedef struct
     gboolean noUI;
 
 	gint        toolTipStyle;
+#if HAVE_GTK_2_12
+    GtkTooltips *tooltips;
+#endif
     GString     *toolTipText;
 
 	gint backend;
@@ -425,6 +428,20 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 			gtk_tooltip_trigger_tooltip_query(
 				gdk_display_get_default ());
 #else
+			if( sd->show[ebtnPrev] )
+				gtk_tooltips_set_tip(
+					sd->tooltips, sd->button[ebtnPrev], 
+					sd->toolTipText->str, NULL);
+			
+			if( sd->show[ebtnPlay] )
+				gtk_tooltips_set_tip(
+					sd->tooltips, sd->button[ebtnPlay], 
+					sd->toolTipText->str, NULL);
+			
+			if( sd->show[ebtnNext] )
+				gtk_tooltips_set_tip(
+					sd->tooltips, sd->button[ebtnNext], 
+					sd->toolTipText->str, NULL);
 #endif			
 		}
 		else {
@@ -443,6 +460,13 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 static gboolean squeezebox_set_size (XfcePanelPlugin *plugin, int size, SqueezeBoxData *sd) {
 	int items = 1;
     
+#ifndef HAVE_GTK_12_2
+    if(sd->tooltips)
+    {
+        g_object_unref(sd->tooltips);
+        sd->tooltips = NULL;
+    }
+#endif
 	if( sd->show[ebtnPrev] ) {
 		gtk_widget_set_size_request (GTK_WIDGET (sd->button[ebtnPrev]), size, size);
 		items++;
@@ -545,12 +569,14 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
         toolTipStyle = ettNone;
 #endif
 	sd->toolTipStyle = toolTipStyle;
+#ifndef HAVE_GTK_2_12    
     if( sd->toolTipStyle == ettSimple )
-    	;//TODO
+        gtk_tooltips_enable(sd->tooltips);
     else
-        ;//TODO
+        gtk_tooltips_disable(sd->tooltips);
+#endif
 
-	if( rc != NULL )
+    if( rc != NULL )
 	{
 		if( sd->player.Persist )
 			sd->player.Persist(sd->player.db, rc, FALSE);
@@ -703,6 +729,9 @@ config_toggle_tooltips_none (GtkToggleButton *opt, SqueezeBoxData *sd)
 {
     if( gtk_toggle_button_get_active(opt) ) {
         sd->toolTipStyle = ettNone;
+#ifndef HAVE_GTK_2_12
+        gtk_tooltips_disable(sd->tooltips);
+#endif
     }
 }
 
@@ -711,6 +740,9 @@ config_toggle_tooltips_simple (GtkToggleButton *opt, SqueezeBoxData *sd)
 {
     if( gtk_toggle_button_get_active(opt) ) {
         sd->toolTipStyle = ettSimple;
+#ifndef HAVE_GTK_2_12
+        gtk_tooltips_enable(sd->tooltips);
+#endif
     }
 }
 
@@ -719,6 +751,9 @@ config_toggle_tooltips_full (GtkToggleButton *opt, SqueezeBoxData *sd)
 {
     if( gtk_toggle_button_get_active(opt) ) {
         sd->toolTipStyle = ettFull;
+#ifndef HAVE_GTK_2_12
+        gtk_tooltips_disable(sd->tooltips);
+#endif
     }
 }
 
@@ -1158,9 +1193,11 @@ squeezebox_create (SqueezeBoxData *sd)
   
 	GtkContainer *window1 = GTK_CONTAINER(sd->plugin);
 	
-	sd->table = gtk_table_new(1, 3, FALSE);
-	gtk_widget_show (sd->table);
-	gtk_container_add (GTK_CONTAINER (window1), sd->table);
+#ifndef HAVE_GTK_2_12
+    sd->tooltips = gtk_tooltips_new();
+    g_object_ref(sd->tooltips);
+    gtk_object_sink(GTK_OBJECT(sd->tooltips));
+#endif
 	
 	sd->button[ebtnPrev] = gtk_button_new ();
     gtk_button_set_relief(GTK_BUTTON(sd->button[ebtnPrev]), GTK_RELIEF_NONE);
@@ -1207,7 +1244,7 @@ squeezebox_create (SqueezeBoxData *sd)
 					G_CALLBACK (on_btnNext_clicked), sd);
     
     // toaster handling
-    #if HAVE_NOTIFY
+#if HAVE_NOTIFY
     g_signal_connect( sd->button[ebtnPrev], "enter-notify-event",
                     G_CALLBACK(on_btn_any_enter), sd);
     g_signal_connect( sd->button[ebtnPrev], "leave-notify-event",
@@ -1223,7 +1260,7 @@ squeezebox_create (SqueezeBoxData *sd)
     g_signal_connect( sd->button[ebtnNext], "leave-notify-event",
                     G_CALLBACK(on_btn_any_leave), sd);
                     
-    #endif
+#endif
 	
 	/* Store pointers to all widgets, for use by lookup_widget().
 	GLADE_HOOKUP_OBJECT_NO_REF (window1, window1, "window1");

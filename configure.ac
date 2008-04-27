@@ -43,8 +43,8 @@ AM_GLIB_GNU_GETTEXT
 
 dnl check for exo presence
 PKG_CHECK_MODULES([EXO], [exo-0.3 >= 0.3.0])
-dnl check for libmpd presence
 
+dnl check for libmpd presence
 AC_ARG_WITH(libmpd,
     AC_HELP_STRING([--with-libmpd=path], [path to libmpd directory]),
         LIBMPD_PATH="$withval", LIBMPD_PATH="")
@@ -57,6 +57,15 @@ if test -n "$LIBMPD_PATH" ; then
 else
    AC_MSG_RESULT(no, falling back to pkg-config)
    PKG_CHECK_MODULES([LIBMPD], [libmpd >= 0.12])
+fi
+
+dnl check for new or old tooltips
+PKG_CHECK_MODULES(GTK,                            \
+    gtk+-2.0 >= 2.12.0,
+    have_newtooltips=yes,
+    have_newtooltips=no)
+if test x$have_newtooltips = xyes ; then
+    AC_DEFINE(HAVE_GTK_2_12, 1, [Define if GtkTooltips is deprecated])
 fi
 
 dnl check for libnotify, taken from rhythmbox 0.9.5
@@ -217,6 +226,12 @@ if test x$enable_libnotify = xyes; then
 	echo " Notify support ................enabled"
 else
 	echo " Notify support ................disabled"
+fi
+
+if test x$have_newtooltips = xyes ; then
+	echo " Tooltips API ..................new"
+else
+	echo " Tooltips API ..................old"
 fi
 
 echo ""

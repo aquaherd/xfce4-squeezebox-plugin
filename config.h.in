@@ -33,6 +33,9 @@
 /* Define if the GNU gettext() function is already present or preinstalled. */
 #undef HAVE_GETTEXT
 
+/* Define if GtkTooltips is deprecated */
+#undef HAVE_GTK_2_12
+
 /* Define to use id3tag */
 #undef HAVE_ID3TAG
 
