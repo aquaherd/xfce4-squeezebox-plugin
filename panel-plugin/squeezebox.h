@@ -32,8 +32,8 @@
 #include <libxfcegui4/libxfcegui4.h>
 #include <libxfce4panel/xfce-panel-plugin.h>
 #include <libxfce4panel/xfce-panel-convenience.h>
+#define EXO_API_SUBJECT_TO_CHANGE
 #include <exo/exo.h>
-
 typedef enum {
 	estPlay = 0,
 	estPause = 1,

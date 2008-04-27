@@ -421,10 +421,11 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 				sd->player.artist->str,
 				sd->player.album->str,
 				sd->player.title->str);
-if(GTK_CHECK_VERSION(2,12,0)){
+#if HAVE_GTK_2_12
 			gtk_tooltip_trigger_tooltip_query(
 				gdk_display_get_default ());
-}
+#else
+#endif			
 		}
 		else {
 			g_string_assign(sd->toolTipText, "");
@@ -1122,7 +1123,7 @@ void on_mnuRepeatToggled(GtkCheckMenuItem *checkmenuitem, SqueezeBoxData *sd)
     if( sd->noUI == FALSE && sd->player.SetRepeat )
         sd->player.SetRepeat(sd->player.db, checkmenuitem->active);
 }
-
+#if HAVE_GTK_2_12
 gboolean on_query_tooltip(
 	GtkWidget  *widget,
 	gint        x,
@@ -1141,6 +1142,7 @@ gboolean on_query_tooltip(
 	}
 	return FALSE;
 }
+#endif
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
@@ -1316,14 +1318,15 @@ squeezebox_construct (XfcePanelPlugin * plugin)
                       G_CALLBACK (on_mnuRepeatToggled), sd);
     g_object_ref(sd->mnuRepeat);
     
-    // newish tooltips
+#if HAVE_GTK_2_12
+// newish tooltips
     for(i = 0; i < 3; i++) {
     	g_object_set(sd->button[i], "has-tooltip", TRUE, NULL);
     	g_signal_connect(
     		G_OBJECT(sd->button[i]), "query-tooltip", 
     		G_CALLBACK (on_query_tooltip), sd);
     }
-    
+#endif
     squeezebox_read_rc_file (plugin, sd);
     
     // the above will init & create the actual player backend

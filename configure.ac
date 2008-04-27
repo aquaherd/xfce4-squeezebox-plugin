@@ -30,7 +30,7 @@ dnl Check for standard header files
 AC_HEADER_STDC
 
 dnl configure the panel plugin
-XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.4.1])
+XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.3.99])
 
 dnl check for dbus for rhythmbox 0.9.5
 XDT_CHECK_PACKAGE([DBUSGLIB], [dbus-glib-1], [0.60])
@@ -41,7 +41,8 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define to the Gettext p
 
 AM_GLIB_GNU_GETTEXT
 
-
+dnl check for exo presence
+PKG_CHECK_MODULES([EXO], [exo-0.3 >= 0.3.0])
 dnl check for libmpd presence
 
 AC_ARG_WITH(libmpd,
@@ -173,7 +174,7 @@ AC_ARG_ENABLE(QL,[  --disable-QL           disable QuodLibet support (default: e
 if test x$enable_QL = xyes; then
 	AC_DEFINE(HAVE_BACKEND_QL,1,[Define to use QL])
 	dnl Checking for thunar-vfs
-	XDT_CHECK_PACKAGE([THUNARVFS], [thunar-vfs-1], [0.8.0])
+	XDT_CHECK_PACKAGE([THUNARVFS], [thunar-vfs-1], [0.4.0])
 	AC_SUBST([THUNARVFS_CFLAGS])
 	AC_SUBST([THUNARVFS_LIBS])
 fi
@@ -189,7 +190,7 @@ AC_SUBST([LIBMPD_LIBS])
 dnl PKG_CHECK_MODULES(LIBGTK, gtk+ libxfce4panel-1.0)
 AC_SUBST(LIBGTK_CFLAGS)
 AC_SUBST(LIBGTK_LIBS)
-AM_PATH_GLIB_2_0(2.14.0,,AC_MSG_ERROR([
+AM_PATH_GLIB_2_0(2.12.0,,AC_MSG_ERROR([
 *** GLib 2.14 is required to build xfce4-squeezebox-plugin; please make sure you have the
 *** GLib development headers installed. The latest version of GLib is always
 *** available at http://www.gtk.org/.]))
