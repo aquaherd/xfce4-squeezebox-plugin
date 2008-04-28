@@ -84,8 +84,8 @@ typedef struct
     gboolean noUI;
 
 	gint        toolTipStyle;
-#if HAVE_GTK_2_12
-    //GtkTooltips *tooltips;
+#ifndef HAVE_GTK_2_12
+    GtkTooltips *tooltips;
 #endif
     GString     *toolTipText;
 
