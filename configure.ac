@@ -44,21 +44,6 @@ AM_GLIB_GNU_GETTEXT
 dnl check for exo presence
 PKG_CHECK_MODULES([EXO], [exo-0.3 >= 0.3.0])
 
-dnl check for libmpd presence
-AC_ARG_WITH(libmpd,
-    AC_HELP_STRING([--with-libmpd=path], [path to libmpd directory]),
-        LIBMPD_PATH="$withval", LIBMPD_PATH="")
-
-AC_MSG_CHECKING(whether --libmpd was used)
-if test -n "$LIBMPD_PATH" ; then
-   AC_MSG_RESULT(yes, using $LIBMPD_PATH)
-   LIBMPD_CFLAGS="-I${LIBMPD_PATH}/include/"
-   LIBMPD_LIBS="-L${LIBMPD_PATH}/lib/ -lmpd"
-else
-   AC_MSG_RESULT(no, falling back to pkg-config)
-   PKG_CHECK_MODULES([LIBMPD], [libmpd >= 0.12])
-fi
-
 dnl check for new or old tooltips
 PKG_CHECK_MODULES(GTK,                            \
     gtk+-2.0 >= 2.12.0,
@@ -177,6 +162,23 @@ fi
 AC_ARG_ENABLE(MPD,[  --disable-MPD           disable MPD support (default: enable)],[enable_MPD=$enableval],[enable_MPD=yes])
 if test x$enable_MPD = xyes; then
 	AC_DEFINE(HAVE_BACKEND_MPD,1,[Define to use MPD])
+
+	dnl check for libmpd presence
+	AC_ARG_WITH(libmpd,
+		AC_HELP_STRING([--with-libmpd=path], [path to libmpd directory]),
+			LIBMPD_PATH="$withval", LIBMPD_PATH="")
+
+	AC_MSG_CHECKING(whether --libmpd was used)
+	if test -n "$LIBMPD_PATH" ; then
+	   AC_MSG_RESULT(yes, using $LIBMPD_PATH)
+	   LIBMPD_CFLAGS="-I${LIBMPD_PATH}/include/"
+	   LIBMPD_LIBS="-L${LIBMPD_PATH}/lib/ -lmpd"
+	else
+	   AC_MSG_RESULT(no, falling back to pkg-config)
+	   PKG_CHECK_MODULES([LIBMPD], [libmpd >= 0.12])
+	fi
+	AC_SUBST([LIBMPD_CFLAGS])
+	AC_SUBST([LIBMPD_LIBS])
 fi
 
 AC_ARG_ENABLE(QL,[  --disable-QL           disable QuodLibet support (default: enable)],[enable_QL=$enableval],[enable_QL=yes])
@@ -194,8 +196,7 @@ XDT_I18N([de fr tr])
 
 dnl Check for debugging support
 XDT_FEATURE_DEBUG()
-AC_SUBST([LIBMPD_CFLAGS])
-AC_SUBST([LIBMPD_LIBS])
+
 dnl PKG_CHECK_MODULES(LIBGTK, gtk+ libxfce4panel-1.0)
 AC_SUBST(LIBGTK_CFLAGS)
 AC_SUBST(LIBGTK_LIBS)
