@@ -523,7 +523,12 @@ void *QL_attach(SPlayer * player)
 			 G_CALLBACK(qlWindowClosed), this);
 
     // update data
-    qlAssure(this);
+    if( qlAssure(this) ) {
+        qlStatus (this);
+    } else {
+        this->parent->Update(this->parent->sd, FALSE, 
+            estStop, NULL);        
+    }
 
     windows = netk_screen_get_windows(this->netkScreen);
 

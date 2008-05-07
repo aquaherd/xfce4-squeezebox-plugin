@@ -158,7 +158,7 @@ squeezebox_init_backend(SqueezeBoxData *sd, gint nBackend)
 {
     // clear previous backend
 	if( sd->player.Detach ) {
-		sd->player.Detach(sd->player.db);
+        sd->player.Detach(sd->player.db);
         g_free(sd->player.db);
     }
 	UNSET(Assure);
@@ -177,6 +177,12 @@ squeezebox_init_backend(SqueezeBoxData *sd, gint nBackend)
 	UNSET(Persist);
 	UNSET(Configure);
     
+    // clear current song info
+    g_string_set_size (sd->player.artist, 0);
+    g_string_set_size (sd->player.album, 0);
+    g_string_set_size (sd->player.title, 0);
+    g_string_set_size (sd->player.albumArt, 0);
+
     // call init of backend
     sd->backend = nBackend;
     const Backend *ptr = squeezebox_get_backends();
@@ -189,7 +195,9 @@ squeezebox_init_backend(SqueezeBoxData *sd, gint nBackend)
     gtk_widget_set_sensitive(sd->mnuShuffle, 
         (NULL != sd->player.GetShuffle && NULL != sd->player.SetShuffle ));
     
-}
+    // try connect happens in created backend
+    
+}   
 
 static void 
 squeezebox_update_playbtn(SqueezeBoxData *sd)
@@ -491,8 +499,10 @@ squeezebox_free_data (XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 		sd->player.Detach(sd->player.db);
         g_free(sd->player.db);
     }
+#if HAVE_NOTIFY
     if( sd->timerHandle )
         g_source_remove(sd->timerHandle);
+#endif
     squeezebox_update_grab(FALSE, FALSE, sd);
     g_free (sd);
 	LOG("Leave squeezebox_free_data\n");
@@ -746,6 +756,7 @@ config_toggle_tooltips_simple (GtkToggleButton *opt, SqueezeBoxData *sd)
     }
 }
 
+#if HAVE_NOTIFY
 static void
 config_toggle_tooltips_full (GtkToggleButton *opt, SqueezeBoxData *sd)
 {
@@ -756,6 +767,7 @@ config_toggle_tooltips_full (GtkToggleButton *opt, SqueezeBoxData *sd)
 #endif
     }
 }
+#endif
 
 static void
 squeezebox_update_grab (gboolean bGrab, gboolean bShowErr, SqueezeBoxData *sd)
@@ -852,11 +864,14 @@ config_toggle_prev (GtkToggleButton *tb, SqueezeBoxData *sd)
 static void
 squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 {
-    GtkWidget *dlg, *header, *vbox, *hbox1, *hbox2, *label0, *label1, *label2, 
-	*cb1, *cb2, *cb3, *cb4, *btnView;
-    GtkWidget *squeezebox_delay_spinner;
-	GtkWidget *cbBackend, *cbNotLoc;
+    GtkWidget *dlg, *header, *vbox, *hbox1, *label0, *label1, 
+	*cb1, *cb2, *cb3, *btnView;
+	GtkWidget *cbBackend;
 	GtkWidget *opt[3];
+#if HAVE_NOTIFY
+    GtkWidget *squeezebox_delay_spinner;
+    GtkWidget *cb4, *label2, *hbox2, *cbNotLoc;
+#endif
 
     xfce_panel_plugin_block_menu (plugin);
     
@@ -1108,7 +1123,7 @@ void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd) {
     squeezebox_next(sd);
 }
     
-
+#if HAVE_NOTIFY
 static gboolean 
 on_btn_any_enter(GtkWidget *widget, GdkEventCrossing *event, gpointer thsPlayer)
 {
@@ -1133,6 +1148,7 @@ on_btn_any_leave(GtkWidget *widget, GdkEventCrossing *event, gpointer thsPlayer)
     }
     return FALSE;
 }
+#endif
 
 
 void on_mnuPlayerToggled(GtkCheckMenuItem *checkmenuitem, SqueezeBoxData *sd)
@@ -1168,7 +1184,7 @@ gboolean on_query_tooltip(
 	SqueezeBoxData *sd)
 {
 	if(sd->toolTipStyle == ettSimple && 
-		sd->inCreate == FALSE && 
+		//sd->inCreate == FALSE && 
 		sd->toolTipText->str != NULL &&
 		sd->toolTipText->str[0] != 0) {
 		
@@ -1308,12 +1324,12 @@ squeezebox_construct (XfcePanelPlugin * plugin)
     sd->player.UpdateShuffle = squeezebox_update_shuffle;
     sd->player.UpdateRepeat = squeezebox_update_repeat;
     sd->player.UpdateVisibility = squeezebox_update_visibility;
-    sd->inEnter = FALSE;
 #if HAVE_NOTIFY
+    sd->inEnter = FALSE;
 	sd->notifytimeout = 5;
     sd->timerHandle = 0;
-#endif
     sd->inCreate = TRUE;
+#endif
 	
 	squeezebox_create(sd);
 
@@ -1371,7 +1387,9 @@ squeezebox_construct (XfcePanelPlugin * plugin)
     
     // the above will init & create the actual player backend
     // and also init menu states
+#if HAVE_NOTIFY
     sd->inCreate = FALSE;					  
+#endif
 	LOG("Leave squeezebox_construct\n");
 		
 }

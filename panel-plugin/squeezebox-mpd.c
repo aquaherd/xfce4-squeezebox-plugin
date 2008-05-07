@@ -218,7 +218,6 @@ gboolean mpdDetach(gpointer thsPtr) {
 	{
 		mpd_disconnect(this->player);
 		mpd_free(this->player);
-		g_free(this);
 	}
 	if( this->intervalID )
 	{
@@ -649,6 +648,8 @@ void *MPD_attach(SPlayer *player) {
             int new_song_id, void *pointer), 
 		void *pointer);	
 	*/
+    
+    mpdAssure (this);
 	
 	LOG("Leave MPD_attach\n");
 	return this;
