@@ -44,8 +44,12 @@ typedef enum {
 #define NOMAP(a) player->a = NULL;
 
 typedef struct {
-	// comon stuff
-	gint updateRateMS;
+	// this is the 'API'
+	
+    // yet unused
+    gint updateRateMS;
+    gint secPos;     // Current track position in seconds
+    gint secTot;     // Current track length in seconds
 	
 	// backend implementations
 	gboolean(* Assure)(gpointer thsPtr);
@@ -69,8 +73,6 @@ typedef struct {
 	GString *album;
 	GString *title;
 	GString *albumArt;  // path to image file
-    gint    secPos;     // Current track position in seconds
-    gint    secTot;     // Current track length in seconds
 	
 	// backend "this" pointer, first param of above functions
 	gpointer db;
@@ -84,7 +86,11 @@ typedef struct {
     void(* UpdateRepeat)(gpointer thsPlayer, gboolean newRepeat);
     void(* UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
     void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
-    
+    void(* AddSubItem)(gpointer thsPlayer, gpointer newPlayer);
+#if HAVE_DBUS
+    void(* MonitorDBUS)(gpointer thsPlayer, GString app);
+#endif
+    void(* MonitorFile)(gpointer thsPlayer, GString filePath);     
 }SPlayer;
 
 typedef struct {
