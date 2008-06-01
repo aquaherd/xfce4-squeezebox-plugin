@@ -4,7 +4,7 @@ Squeezebox XFce4 panel plugin.
 
     This plugin remote controls some media players from your
 panel. It is in no way derived from the mpc plugin (although 
-simlar) or from the gnome media applet (although inspired).
+similar) or from the gnome media applet (although inspired).
 
     Its goal is to control virtually all available audio players
 as soon as they allow for remote controlling by dbus, pipe or
@@ -51,6 +51,9 @@ README.xubuntu:
     
     Somehow, gnome and xorg handle the media keys but they disappear under xubuntu.
 Remedy is as follows:
+
+0) Use the correct keyboard layout ;) Or Else:
+
 1) Create a ~/.Xmodmap file with such content:
 
 keycode 160=XF86AudioMute
@@ -71,3 +74,16 @@ keycode 164=XF86AudioStop
 - gtk+ 2.12.19 (Hardy)
 I'm setting the lowest of the above as dependency, but I include
 workarounds for the tooltip change in 2.12 as well.
+
+===============
+README.FreeBSD:
+===============
+1. make on freebsd is older than GNU make. Therefore GNU make is aliased as gmake.
+2. MSGFMT does not expand somehow. Must provide during configure.
+
+So, building any goodie on freebsd boils down to:
+Code:
+
+$ ./configure MSGFMT=/usr/local/bin/msgfmt GMSGFMT=/usr/local/bin/msgfmt
+$ gmake
+$ sudo gmake install
