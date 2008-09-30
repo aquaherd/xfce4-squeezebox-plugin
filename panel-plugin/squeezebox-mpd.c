@@ -343,8 +343,8 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
                             const gchar *fnam2 = fnam;
                             if('.' == *fnam2)
                                 fnam2++;
-                            if( g_str_equal(fnam2, "folder.jpg") ||
-                               g_str_equal(fnam2, "cover.jpg") ) {
+                            if( !g_ascii_strcasecmp(fnam2, "folder.jpg") ||
+                               !g_ascii_strcasecmp(fnam2, "cover.jpg") ) {
                                bFound = TRUE;
                                break;
                             }
