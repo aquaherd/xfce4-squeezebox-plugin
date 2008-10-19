@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<node>
+  <interface name="org.freedesktop.MediaPlayer">
+    <method name="PositionGet">
+      <arg name="arg0" type="i" direction="out"/>
+    </method>
+    <method name="PositionSet">
+      <arg name="arg0" type="i" direction="in"/>
+    </method>
+    <method name="VolumeGet">
+      <arg name="arg0" type="i" direction="out"/>
+    </method>
+    <method name="VolumeSet">
+      <arg name="arg0" type="i" direction="in"/>
+    </method>
+    <method name="GetCaps">
+      <arg name="arg0" type="i" direction="out"/>
+    </method>
+    <method name="GetMetadata">
+      <arg name="arg0" type="a{sv}" direction="out"/>
+    </method>
+    <method name="GetStatus">
+      <arg name="arg0" type="i" direction="out"/>
+    </method>
+    <method name="Quit">
+    </method>
+    <method name="Repeat">
+      <arg name="arg0" type="b" direction="in"/>
+    </method>
+    <method name="Play">
+    </method>
+    <method name="Stop">
+    </method>
+    <method name="Pause">
+    </method>
+    <method name="Prev">
+    </method>
+    <method name="Next">
+    </method>
+    <signal name="CapsChange">
+      <arg type="i"/>
+    </signal>
+    <signal name="StatusChange">
+      <arg type="i"/>
+    </signal>
+    <signal name="TrackChange">
+      <arg type="a{sv}"/>
+    </signal>
+  </interface>
+  <interface name="org.freedesktop.MediaPlayer">
+    <method name="Random">
+      <arg name="arg0" type="b" direction="in"/>
+    </method>
+    <method name="Loop">
+      <arg name="arg0" type="b" direction="in"/>
+    </method>
+    <method name="DelTrack">
+      <arg name="arg0" type="i" direction="in"/>
+    </method>
+    <method name="AddTrack">
+      <arg name="arg0" type="s" direction="in"/>
+      <arg name="arg1" type="b" direction="in"/>
+    </method>
+    <method name="GetLength">
+      <arg name="arg0" type="i" direction="out"/>
+    </method>
+    <method name="GetCurrentTrack">
+      <arg name="arg0" type="i" direction="out"/>
+    </method>
+    <method name="GetMetadata">
+      <arg name="arg0" type="i" direction="in"/>
+      <arg name="arg1" type="a{sv}" direction="out"/>
+    </method>
+  </interface>
+</node>
+
