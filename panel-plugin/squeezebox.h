@@ -28,6 +28,7 @@
 // stdafx.hish
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
+#include <gio/gio.h>
 
 #include <libxfcegui4/libxfcegui4.h>
 #include <libxfce4panel/xfce-panel-plugin.h>
@@ -82,7 +83,8 @@ typedef struct {
 	gpointer sd;
 	
 	// frontend callbacks
-	void(* Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State, const gchar* playerMessage);
+	void(* Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State, 
+                   const gchar* playerMessage);
     void(* UpdateRepeat)(gpointer thsPlayer, gboolean newRepeat);
     void(* UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
     void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);

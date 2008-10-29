@@ -82,7 +82,7 @@ msgstr ""
 msgid "Repeat"
 msgstr ""
 
-#: ../panel-plugin/squeezebox-dbus.c:56
+#: ../panel-plugin/squeezebox-rb.c:54
 msgid "Rhythmbox 0.9.x (via DBUS)"
 msgstr ""
 

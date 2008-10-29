@@ -110,7 +110,7 @@ msgstr "Zufall"
 msgid "Repeat"
 msgstr "Wiederholen"
 
-#: ../panel-plugin/squeezebox-dbus.c:60
+#: ../panel-plugin/squeezebox-rb.c:60
 msgid "Rhythmbox 0.9.x (via DBUS)"
 msgstr "Rhythmbox 0.9.x (über DBUS)"
 

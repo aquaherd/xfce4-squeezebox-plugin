@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-04-10 03:07+0200\n"
-"PO-Revision-Date: 2008-03-17 23:56+0100\n"
+"PO-Revision-Date: 2008-10-24 02:08+0100\n"
 "Last-Translator: Hakan Erduman <hakan.erduman@web.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -20,35 +20,33 @@ msgstr "Bu arkalık değiştirilebilir kullanımlara sahip değildir"
 
 #: ../panel-plugin/squeezebox.c:635
 msgid "Media buttons"
-msgstr ""
+msgstr "Medya tuşları"
 
 #: ../panel-plugin/squeezebox.c:640
 msgid "Grab state of multimedia keys"
-msgstr ""
+msgstr "Medya tuşlarının bağlantı hali"
 
-#: ../panel-plugin/squeezebox.c:849 ../panel-plugin/squeezebox-mpd.c:505
+#: ../panel-plugin/squeezebox.c:849
+#: ../panel-plugin/squeezebox-mpd.c:505
 msgid "Properties"
 msgstr "Ayarlar"
 
 #: ../panel-plugin/squeezebox.c:867
-#, fuzzy
 msgid "Squeezebox"
-msgstr " SqueezeBox"
+msgstr " Squeezebox"
 
 #: ../panel-plugin/squeezebox.c:869
-#, fuzzy
 msgid "media player remote"
-msgstr "Squeezebox media player remote"
+msgstr "Squeezebox medya çalar kumandası"
 
 #: ../panel-plugin/squeezebox.c:881
 msgid "Appearance"
-msgstr ""
+msgstr "Görünüm"
 
 #. check1
 #: ../panel-plugin/squeezebox.c:891
-#, fuzzy
 msgid "Show p_revious button"
-msgstr "_geri tuşunu göster"
+msgstr "_Geri tuşunu göster"
 
 #. check2
 #: ../panel-plugin/squeezebox.c:898
@@ -58,13 +56,12 @@ msgstr "_ileri tuşunu göster"
 #. check3
 #: ../panel-plugin/squeezebox.c:908
 msgid "Grab _media buttons, if available"
-msgstr ""
+msgstr "Medya tuşlarını varsa bağla"
 
 #. btnView
 #: ../panel-plugin/squeezebox.c:914
-#, fuzzy
 msgid "_Details..."
-msgstr "_Ayarlar..."
+msgstr "_Detaylar..."
 
 #: ../panel-plugin/squeezebox.c:921
 msgid "No _tooltips"
@@ -87,15 +84,15 @@ msgid "Notification _timeout (sec)"
 msgstr "Not gös_terme süresi (saniye)"
 
 #: ../panel-plugin/squeezebox.c:985
-#, fuzzy
 msgid "_Backend"
-msgstr "_Backend:"
+msgstr "Ar_kalık"
 
 #: ../panel-plugin/squeezebox.c:1009
 msgid "_Settings..."
 msgstr "_Ayarlar..."
 
-#: ../panel-plugin/squeezebox.c:1251 ../panel-plugin/squeezebox.c:1252
+#: ../panel-plugin/squeezebox.c:1251
+#: ../panel-plugin/squeezebox.c:1252
 #: ../panel-plugin/squeezebox.c:1253
 msgid "(unknown)"
 msgstr "(bilinmez)"
@@ -103,7 +100,7 @@ msgstr "(bilinmez)"
 #. add menu items
 #: ../panel-plugin/squeezebox.c:1289
 msgid "Show player"
-msgstr "Çalari göster"
+msgstr "Çaları göster"
 
 #: ../panel-plugin/squeezebox.c:1296
 msgid "Shuffle"
@@ -111,28 +108,27 @@ msgstr "Tesadüfle"
 
 #: ../panel-plugin/squeezebox.c:1303
 msgid "Repeat"
-msgstr "Tekrarlı"
+msgstr "Tekrarla"
 
-#: ../panel-plugin/squeezebox-dbus.c:60
+#: ../panel-plugin/squeezebox-rb.c:60
 msgid "Rhythmbox 0.9.x (via DBUS)"
 msgstr "Rhythmbox 0.9.x (DBUS üzeri)"
 
 #: ../panel-plugin/squeezebox-mpd.c:51
 msgid "Music Player Daemon (libmpd)"
-msgstr "Music Player Cini (libmpd üzeri)"
+msgstr "Müzik Çalar Cini (libmpd üzeri)"
 
 #: ../panel-plugin/squeezebox-mpd.c:120
 msgid "Can't connect to music player daemon."
-msgstr "Music player cinine bağlantı kurulamıyor."
+msgstr "Müzik çalar cinine bağlantı kurulamıyor."
 
 #: ../panel-plugin/squeezebox-mpd.c:523
 msgid "MPD"
-msgstr ""
+msgstr "MPD"
 
 #: ../panel-plugin/squeezebox-mpd.c:526
-#, fuzzy
 msgid "music player daemon"
-msgstr "Müzik Player cini"
+msgstr "müzik çalar cini"
 
 #: ../panel-plugin/squeezebox-mpd.c:538
 msgid "Use _defaults"
@@ -152,11 +148,11 @@ msgstr "Pass_word:"
 
 #: ../panel-plugin/squeezebox-mpd.c:589
 msgid "Use MPD Music _folder as cover source"
-msgstr ""
+msgstr "MPD dizinini albüm sanatı kaynağı olarak kullan"
 
 #: ../panel-plugin/squeezebox-mpd.c:598
 msgid "Select MPD music folder"
-msgstr ""
+msgstr "MPD müzik dizinini belirle"
 
 #: ../panel-plugin/squeezebox-ql.c:51
 msgid "QuodLibet (pipe)"
@@ -169,3 +165,4 @@ msgstr " Rhythmbox, mpd ve QuodLibet'i uzaktan kumanda et, Albüm sanat göster"
 #: ../panel-plugin/squeezebox.desktop.in.in.h:2
 msgid " SqueezeBox"
 msgstr " SqueezeBox"
+

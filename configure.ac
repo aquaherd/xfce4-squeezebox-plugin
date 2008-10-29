@@ -44,6 +44,9 @@ AM_GLIB_GNU_GETTEXT
 dnl check for exo presence
 PKG_CHECK_MODULES([EXO], [exo-0.3 >= 0.3.0])
 
+dnl check for gio presence
+PKG_CHECK_MODULES([GIO], [gio-unix-2.0 >= 2.6.0])
+
 dnl check for new or old tooltips
 PKG_CHECK_MODULES(GTK,                            \
     gtk+-2.0 >= 2.12.0,
@@ -201,11 +204,13 @@ dnl PKG_CHECK_MODULES(LIBGTK, gtk+ libxfce4panel-1.0)
 AC_SUBST(LIBGTK_CFLAGS)
 AC_SUBST(LIBGTK_LIBS)
 AM_PATH_GLIB_2_0(2.12.0,,AC_MSG_ERROR([
-*** GLib 2.14 is required to build xfce4-squeezebox-plugin; please make sure you have the
+*** GLib 2.12 is required to build xfce4-squeezebox-plugin; please make sure you have the
 *** GLib development headers installed. The latest version of GLib is always
 *** available at http://www.gtk.org/.]))
 AC_SUBST(GLIB_LIBS)
 AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(GIO_CFLAGS)
+AC_SUBST(GIO_LIBS)
 
 AC_OUTPUT([
 Makefile

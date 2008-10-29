@@ -318,10 +318,12 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
 		}
 		else {
 			pixbuf = gtk_icon_theme_load_icon(theme,
-						 "gnome-media-player",
+						 "media-cdrom",
 						 icon_size,
 						 0,
 						 NULL);
+            if(NULL == pixbuf)
+                LOG("Stock Icon mismatch!\n");;
 		}
         //squeezebox_update_UI_hide_toaster(thsPlayer);
         if( ! bExisted ) {

@@ -364,7 +364,8 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
 				g_string_assign(this->parent->albumArt, artLocation->str);
                 LOG("Found :'");LOG(artLocation->str);LOG("'\n");
             }
-			g_string_free(artLocation, TRUE);
+
+            g_string_free(artLocation, TRUE);
 			this->parent->Update(this->parent->sd, TRUE, estPlay, NULL);
 			this->songID = song->id;		
 		}
@@ -604,6 +605,34 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
     LOG("Leave mpdConfigure\n");
 }
 
+static const char *dotDesktopCategories [] =
+{
+    N_("GNOME"),
+    N_("Application"),
+    N_("AudioVideo"),
+    NULL
+};
+
+void mpdPopulateClient(GList *list, const gchar *name) {
+    XfceDesktopEntry *info = xfce_desktop_entry_new(name, dotDesktopCategories, 3);
+    if(NULL != info)    {
+        LOG("Found MPD Client: ");
+        LOG(xfce_desktop_entry_get_file (info));
+        LOG("\n");
+        g_object_unref (info);
+    } 
+    else {
+        LOG("Not found: ");
+        LOG(name);
+        LOG("\n");
+    }
+}
+void mpdPopulateClientList()
+{
+    GList *list = g_list_alloc ();
+    mpdPopulateClient(list, "/usr/share/applications/gmpc.desktop");    
+    mpdPopulateClient(list, "/usr/share/applications/sonata.desktop");    
+}
 
 void *MPD_attach(SPlayer *player) {
 	mpdData *this = g_new0(mpdData, 1);
@@ -642,13 +671,10 @@ void *MPD_attach(SPlayer *player) {
 	this->intervalID = 
 		g_timeout_add(player->updateRateMS, mpdCallback, this);
 		
-	/* check secondary callbacks
-	void mpd_ob_signal_set_song_changed(MpdObj *mi, 
-		void *(* song_changed)(MpdObj *mi, int old_song_id, 
-            int new_song_id, void *pointer), 
-		void *pointer);	
-	*/
+    // populate playlist managers
+    mpdPopulateClientList();
     
+    // attach to daemon
     mpdAssure (this);
 	
 	LOG("Leave MPD_attach\n");
