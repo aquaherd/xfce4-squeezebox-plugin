@@ -123,10 +123,17 @@ extern const Backend* squeezebox_get_backends();
         sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); }
     
 		
+#if DEBUG
 #define LOG(t) printf(t);fflush(stdout)
 #define LOGERR(t) fprintf(stderr, t);fflush(stderr)
-#define LOGERRF g_warning
+#define LOGWARN g_warning
 #define LOGF printf
+#else
+#define LOG(t)
+#define LOGERR(t)
+#define LOGWARN(...)
+#define LOGF
+#endif
 	
 #define xfce_screen_position_is_right_ex(position) \
     (position >= XFCE_SCREEN_POSITION_NE_V && \

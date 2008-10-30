@@ -116,9 +116,7 @@ static void rbCallbackVisibility(DBusGProxy *proxy, const gboolean visible,
 static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 	gchar *str = g_filename_from_uri(uri, NULL, NULL);
 	MKTHIS;
-	LOG("rbCallback: SongChanged '");
-	LOG(str);
-	LOG("'");
+	LOGF("rbCallback: SongChanged '%s'", str);
 	
 	/*
 	#if HAVE_ID3TAG // how to query artist with id3tag
@@ -176,7 +174,7 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 				g_get_home_dir(),
 				db->parent->artist->str, 
 				db->parent->album->str);
-			LOG("\n\tArt: ");LOG(artLocation->str);LOG("\n");
+			LOGF("\n\tArt: %s\n", artLocation->str);
 			
 			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )
 			{
@@ -227,7 +225,7 @@ gboolean rbAssure(gpointer thsPtr) {
 		
 		if( error )
 		{
-			LOGERRF("\tCouldn't connect to shell proxy '%s' \n",
+			LOGWARN("\tCouldn't connect to shell proxy '%s' \n",
 				error->message);
 			if( db->noCreate )
 				bRet = FALSE;
@@ -252,7 +250,7 @@ gboolean rbAssure(gpointer thsPtr) {
 							G_TYPE_UINT, &start_service_reply,
 							G_TYPE_INVALID)) 
 				{
-					LOGERRF("Could'n start service '%s'", error->message);
+					LOGWARN("Could'n start service '%s'", error->message);
 					bRet = FALSE;
                     errLine = g_strdup(error->message);
 				}
