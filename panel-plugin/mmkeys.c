@@ -38,7 +38,6 @@ enum {
 	MM_PLAYPAUSE,
 	MM_NEXT,
 	MM_PREV,
-	MM_STOP,
 	LAST_SIGNAL
 };
 
@@ -46,7 +45,7 @@ static GObjectClass *parent_class;
 static guint signals[LAST_SIGNAL];
 static guint syms[N_KEYCODES] = {
 	XF86XK_AudioPrev, XF86XK_AudioNext, XF86XK_AudioPlay, 
-	XF86XK_AudioPause, XF86XK_AudioStop};
+	XF86XK_AudioPause};
 	
 
 static GType type = 0;
@@ -102,14 +101,6 @@ mmkeys_class_init (MmKeysClass *klass)
 			      G_TYPE_NONE, 1, G_TYPE_INT);
 	signals[MM_NEXT] =
 		g_signal_new ("mm_next",
-			      G_TYPE_FROM_CLASS (klass),
-			      G_SIGNAL_RUN_LAST,
-			      0,
-			      NULL, NULL,
-			      g_cclosure_marshal_VOID__INT,
-			      G_TYPE_NONE, 1, G_TYPE_INT);
-	signals[MM_STOP] =
-		g_signal_new ("mm_stop",
 			      G_TYPE_FROM_CLASS (klass),
 			      G_SIGNAL_RUN_LAST,
 			      0,
@@ -233,9 +224,10 @@ grab_mmkey (MmKeys *object, guint index, GdkWindow *root)
 	gdk_flush ();
 	gint iErr = gdk_error_trap_pop ();
 	if (iErr) {
-		fprintf (stderr, "Error grabbing key %d, %p\n", key_code, root);
-        fflush (stderr);
+        g_warning ("Error grabbing key %d, %p\n", key_code, root);
 	}
+    else
+        g_message("Grabbed key %d\n", key_code);
 	object->errcodes[index] = iErr;
 }
 static void
@@ -292,9 +284,6 @@ filter_mmkeys (GdkXEvent *xevent, GdkEvent *event, gpointer data)
 		return GDK_FILTER_REMOVE;
 	} else if (XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioNext) == key->keycode) {
 		g_signal_emit (data, signals[MM_NEXT], 0, 0);
-		return GDK_FILTER_REMOVE;
-	} else if (XKeysymToKeycode (GDK_DISPLAY (), XF86XK_AudioStop) == key->keycode) {
-		g_signal_emit (data, signals[MM_STOP], 0, 0);
 		return GDK_FILTER_REMOVE;
 	} else {
 		return GDK_FILTER_CONTINUE;

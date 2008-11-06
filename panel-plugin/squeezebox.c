@@ -564,8 +564,10 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	sd->show[ebtnPrev] = bShowPrev;
     sd->grabmedia = bGrabMedia;
     squeezebox_update_grab(sd->grabmedia, FALSE, sd);
-    gtk_widget_set_sensitive (sd->btnDet, (NULL != sd->player.Configure));
-    
+    /*
+    if(GTK_IS_WIDGET(sd->btnDet))
+        gtk_widget_set_sensitive (sd->btnDet, (NULL != sd->player.Configure));
+    */
 #if HAVE_NOTIFY
 	sd->notify = bNotify;
 	sd->notifytimeout = dNotifyTimeout;
@@ -626,8 +628,7 @@ squeezebox_write_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	
 		if (rc != NULL) 
 		{
-			LOG("Writing to file '");
-			LOG(file);
+			LOGF("Writing to file '%s'\n", file);
 			xfce_rc_write_int_entry(rc, "squeezebox_backend", sd->backend);
 			xfce_rc_write_int_entry(rc, "show_next", (sd->show[ebtnNext])? 1 : 0);
 			xfce_rc_write_int_entry(rc, "show_prev", (sd->show[ebtnPrev])? 1 : 0);
@@ -788,8 +789,6 @@ squeezebox_update_grab (gboolean bGrab, gboolean bShowErr, SqueezeBoxData *sd)
         // connections are go
         sd->mmhandlers[0] = g_signal_connect (sd->mmkeys, "mm_prev", 
                         G_CALLBACK (on_keyPrev_clicked), sd);
-        sd->mmhandlers[1] = g_signal_connect (sd->mmkeys, "mm_stop", 
-                        G_CALLBACK (on_keyStop_clicked), sd);
         sd->mmhandlers[2] = g_signal_connect (sd->mmkeys, "mm_playpause", 
                         G_CALLBACK (on_keyPlay_clicked), sd);
         sd->mmhandlers[3] = g_signal_connect (sd->mmkeys, "mm_next", 
