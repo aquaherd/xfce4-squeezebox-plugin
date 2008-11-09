@@ -87,3 +87,9 @@ Code:
 $ ./configure MSGFMT=/usr/local/bin/msgfmt GMSGFMT=/usr/local/bin/msgfmt
 $ gmake
 $ sudo gmake install
+
+=================
+README.Packagers:
+=================
+- make distcheck fails in po.
+- neither my french nor my turkish translations are accurate.

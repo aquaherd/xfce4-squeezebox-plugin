@@ -82,8 +82,7 @@ void qlCurrentChanged(ThunarVfsMonitor * monitor,
     switch (event) {
         case THUNAR_VFS_MONITOR_EVENT_CREATED:
         case THUNAR_VFS_MONITOR_EVENT_CHANGED:
-            LOG("CHANGEDETECT...");
-            LOG(this->stat);
+            LOGF("CHANGEDETECT...%s", this->stat);
             if (g_file_get_contents(this->stat, &fc, NULL, NULL)) {
                 if (!this->current)
                     this->current = g_hash_table_new(g_str_hash, g_str_equal);
@@ -156,11 +155,9 @@ gboolean qlAssure(gpointer thsPtr)
     LOG("Enter qlAssure\n");
     if (g_file_test(this->fifo, G_FILE_TEST_EXISTS)) {
         if (!this->fp) {
-            LOG("Opening ");
-            LOG(this->fifo);
+            LOGF("Opening %s", this->fifo);
             this->fp = g_fopen(this->fifo, "w");
-            LOG((this->fp) ? " OK" : " KO");
-            LOG("\n");
+            LOGF("%s\n", (this->fp) ? " OK" : " KO");
 
             if (this->fp) {
                 GError *err = NULL;
@@ -168,9 +165,7 @@ gboolean qlAssure(gpointer thsPtr)
                 this->statPath = thunar_vfs_path_new(this->stat, &err);
                 LOG("...OK\n");
                 if (!this->statPath) {
-                    LOG("VFS Fail '");
-                    LOG(err->message);
-                    LOG("'\n");
+                    LOGF("VFS Fail '%s'\n", err->message);
                 } else {
                     ThunarVfsMonitor *monitor =
                     thunar_vfs_monitor_get_default();
@@ -212,7 +207,7 @@ gboolean qlAssure(gpointer thsPtr)
 
 gboolean qlPrintFlush(FILE * fp, const char *str) {
     int iLen = strlen(str);
-    int iRet = fprintf(fp, str);
+    int iRet = fputs(str, fp);
     fflush(fp);
     return (iLen == iRet);
 }
@@ -311,9 +306,7 @@ void qlStatus(gpointer thsPtr)
 		     G_SPAWN_STDERR_TO_DEV_NULL,
 		     NULL, NULL, &outText, NULL, &exit_status, NULL)) {
 
-        LOG("QL says: '");
-        LOG(outText);
-        LOG("'\n");
+        LOGF("QL says: '%s'\n", outText);
 
         // QL generally says things like "paused AlbumList 1.000 inorder on"
 

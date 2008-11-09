@@ -325,7 +325,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
             artLocation = g_string_new(g_get_home_dir());
             g_string_append_printf(artLocation, "/.covers/%s - %s.jpg", 
                 song->artist, song->album);
-			LOG("Check 1:'");LOG(artLocation->str);LOG("'\n");
+			LOGF("Check 1:'%s'\n", artLocation->str);
 			g_string_truncate(this->parent->albumArt, 0);
 			
 			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )	{
@@ -334,7 +334,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
                 if( this->bUseMPDFolder && g_file_test(this->path->str, G_FILE_TEST_EXISTS) ) {
                     g_string_printf(artLocation, "%s/%s", this->path->str, song->file);
                     gchar *strNext = g_path_get_dirname(artLocation->str);
-                    LOG("Check 2:'");LOG(strNext);LOG("/[.][folder|cover].jpg'\n");
+                    LOGF("Check 2:'%s/[.][folder|cover].jpg'\n", strNext);
                     
                     GDir *dir = g_dir_open(strNext, 0, NULL); 
                     if( NULL != dir ) {
@@ -362,7 +362,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
             if(bFound) {
                 // just assign here, scaling is done in callee
 				g_string_assign(this->parent->albumArt, artLocation->str);
-                LOG("Found :'");LOG(artLocation->str);LOG("'\n");
+                LOGF("Found :'%s'\n", artLocation->str);
             }
 
             g_string_free(artLocation, TRUE);
@@ -589,7 +589,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
     
     this->wPath = gtk_file_chooser_button_new(_("Select MPD music folder"), 
         GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
-    LOG(this->path->str);LOG("\n");
+    LOGF("Music folder: %s\n", this->path->str);
     if( this->path->len )
         gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(this->wPath), this->path->str);
     gtk_widget_show(this->wPath);

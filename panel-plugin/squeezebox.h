@@ -28,7 +28,6 @@
 // stdafx.hish
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
-#include <gio/gio.h>
 
 #include <libxfcegui4/libxfcegui4.h>
 #include <libxfce4panel/xfce-panel-plugin.h>
