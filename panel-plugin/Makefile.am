@@ -3,10 +3,10 @@ plugin_PROGRAMS = xfce4-squeezebox-plugin
 
 xfce4_squeezebox_plugin_CFLAGS = 	-DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
     -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ @DBUSGLIB_CFLAGS@ \
-    @LIBMPD_CFLAGS@ @NOTIFY_CFLAGS@ @THUNARVFS_CFLAGS@ @EXO_CFLAGS@
+    @LIBMPD_CFLAGS@ @NOTIFY_CFLAGS@ @THUNARVFS_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@
 
 xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @DBUSGLIB_LIBS@ @LIBMPD_LIBS@ \
-	@NOTIFY_LIBS@ @THUNARVFS_LIBS@ @EXO_LIBS@
+	@NOTIFY_LIBS@ @THUNARVFS_LIBS@ @EXO_LIBS@ @LIBWNCK_LIBS@
 
 xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox.h squeezebox.c \

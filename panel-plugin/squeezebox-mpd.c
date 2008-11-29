@@ -344,6 +344,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
                             if('.' == *fnam2)
                                 fnam2++;
                             if( !g_ascii_strcasecmp(fnam2, "folder.jpg") ||
+                               !g_ascii_strcasecmp(fnam2, "front.jpg") ||
                                !g_ascii_strcasecmp(fnam2, "cover.jpg") ) {
                                bFound = TRUE;
                                break;

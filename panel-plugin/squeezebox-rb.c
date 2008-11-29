@@ -170,17 +170,53 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 			g_string_assign(db->parent->album, g_value_get_string(tmpAlbum));
 			g_string_assign(db->parent->title, g_value_get_string(tmpTitle));
 			g_string_truncate(db->parent->albumArt, 0);
-			g_string_printf(artLocation, "%s/.gnome2/rhythmbox/covers/%s - %s.jpg", 
+			g_string_printf(artLocation, 
+                "Check 1:'%s/.cache/rhythmbox/covers/%s - %s.jpg'", 
 				g_get_home_dir(),
 				db->parent->artist->str, 
 				db->parent->album->str);
 			LOGF("\n\tArt: %s\n", artLocation->str);
 			
+            gboolean bFound = FALSE;
 			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )
 			{
-				// just assign here, scaling is done in callee
-				g_string_assign(db->parent->albumArt, artLocation->str);
+				bFound = TRUE;
 			}
+            else
+            {
+                //rb 0.11 can read folder.jpg and so should we
+                gchar *strPath = g_filename_from_uri(uri, NULL, NULL);
+                gchar *strNext = g_path_get_dirname(strPath);
+                g_free(strPath);
+                LOGF("Check 2:'%s/[.][folder|cover].jpg'\n", strNext);
+                
+                GDir *dir = g_dir_open(strNext, 0, NULL); 
+                if( NULL != dir ) {
+                    const gchar *fnam = NULL;
+                    while((fnam = g_dir_read_name(dir))) {
+                        const gchar *fnam2 = fnam;
+                        if('.' == *fnam2)
+                            fnam2++;
+                        if( !g_ascii_strcasecmp(fnam2, "folder.jpg") ||
+                           !g_ascii_strcasecmp(fnam2, "front.jpg") ||
+                           !g_ascii_strcasecmp(fnam2, "cover.jpg") ) {
+                           bFound = TRUE;
+                           break;
+                        }
+                    }
+                    if(bFound) {
+                        gchar *fnam3 = g_build_filename(strNext, fnam, NULL);
+                        g_string_assign(artLocation, fnam3);
+                        g_free(fnam3);
+                    }
+                    g_dir_close(dir);   
+                }
+            }
+            if(bFound) {
+                // just assign here, scaling is done in callee
+				g_string_assign(db->parent->albumArt, artLocation->str);
+                LOGF("Found :'%s'\n", artLocation->str);
+            }
 
 			g_hash_table_destroy(table);
 			g_string_free(artLocation, TRUE);

@@ -38,6 +38,8 @@
 #include <glib/gstdio.h>
 
 #include <thunar-vfs/thunar-vfs.h>
+#define WNCK_I_KNOW_THIS_IS_UNSTABLE
+#include <libwnck/libwnck.h>
 
 // pixmap
 #include "squeezebox-ql.png.h"
@@ -63,7 +65,7 @@ typedef struct {
     gboolean isVisible;
     gboolean isShuffle;
     gboolean isRepeat;
-    NetkScreen *netkScreen;
+    WnckScreen *wnckScreen;
     int connections[2];
 } qlData;
 
@@ -78,6 +80,7 @@ void qlCurrentChanged(ThunarVfsMonitor * monitor,
 {
     
     char *fc = NULL;
+    const gchar *unknown = _("[Unknown]");
     MKTHIS;
     switch (event) {
         case THUNAR_VFS_MONITOR_EVENT_CREATED:
@@ -105,26 +108,21 @@ void qlCurrentChanged(ThunarVfsMonitor * monitor,
                 while (**ptr);
                 g_strfreev(set);
                 
-                gchar *tmpArtist =
-                    g_hash_table_lookup(this->current, "artist");
+                gchar *tmpArtist = g_hash_table_lookup(this->current, "artist");
                 gchar *tmpAlbum = g_hash_table_lookup(this->current, "album");
                 gchar *tmpTitle = g_hash_table_lookup(this->current, "title");
-                
-                /* -- this ised to be available in pre 1.0
-                 gchar *hasPic = g_hash_table_lookup(this->current, "~picture");
-                 
-                 if(hasPic && *hasPic == 'y') {
-                     g_string_assign(this->parent->albumArt, this->cover);
-            } -- */
                 
                 if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
                     g_string_assign(this->parent->albumArt, this->cover);
                 else
                     g_string_assign(this->parent->albumArt, "");
                 
-                g_string_assign(this->parent->artist, tmpArtist);
-                g_string_assign(this->parent->album, tmpAlbum);
-                g_string_assign(this->parent->title, tmpTitle);
+                g_string_assign(this->parent->artist, 
+                                (tmpArtist)?tmpArtist:unknown);
+                g_string_assign(this->parent->album, 
+                                (tmpAlbum)?tmpAlbum:unknown);
+                g_string_assign(this->parent->title, 
+                                (tmpTitle)?tmpTitle:unknown);
                 
                 this->parent->Update(this->parent->sd, TRUE,
                                      (this->isPlaying) ? estPlay : estPause,
@@ -263,10 +261,10 @@ gboolean qlIsPlaying(gpointer thsPtr)
 }
 
 void
-qlWindowOpened(NetkScreen * screen, NetkWindow * window, gpointer thsPtr)
+qlWindowOpened(WnckScreen * screen, WnckWindow * window, gpointer thsPtr)
 {
     MKTHIS;
-    const gchar *windowName = netk_window_get_name(window);
+    const gchar *windowName = wnck_window_get_name(window);
     if (windowName && windowName[0] == '[')	// minimized but visible
         windowName++;
     if (g_str_has_prefix(windowName, "Quod Libet")) {
@@ -277,10 +275,10 @@ qlWindowOpened(NetkScreen * screen, NetkWindow * window, gpointer thsPtr)
 }
 
 void
-qlWindowClosed(NetkScreen * screen, NetkWindow * window, gpointer thsPtr)
+qlWindowClosed(WnckScreen * screen, WnckWindow * window, gpointer thsPtr)
 {
     MKTHIS;
-    const gchar *windowName = netk_window_get_name(window);
+    const gchar *windowName = wnck_window_get_name(window);
     if (windowName && windowName[0] == '[')	// minimized but visible
         windowName++;
     if (g_str_has_prefix(windowName, "Quod Libet")) {
@@ -382,10 +380,10 @@ gboolean qlDetach(gpointer thsPtr)
     thunar_vfs_shutdown();
 
     if (this->connections[0])
-        g_signal_handler_disconnect(this->netkScreen, this->connections[0]);
+        g_signal_handler_disconnect(this->wnckScreen, this->connections[0]);
 
     if (this->connections[1])
-	    g_signal_handler_disconnect(this->netkScreen, this->connections[1]);
+	    g_signal_handler_disconnect(this->wnckScreen, this->connections[1]);
 
     LOG("Leave qlDetach\n");
     return bRet;
@@ -502,17 +500,17 @@ void *QL_attach(SPlayer * player)
     int i = 0;
     GList *windows, *l;
 
-    netk_screen_force_update(this->netkScreen);
+    wnck_screen_force_update(this->wnckScreen);
 
-    this->netkScreen =
-	netk_screen_get(gdk_screen_get_number(gdk_screen_get_default()));
+    this->wnckScreen =
+	wnck_screen_get(gdk_screen_get_number(gdk_screen_get_default()));
 
     this->connections[i++] =
-	g_signal_connect(this->netkScreen, "window_opened",
+	g_signal_connect(this->wnckScreen, "window_opened",
 			 G_CALLBACK(qlWindowOpened), this);
 
     this->connections[i++] =
-	g_signal_connect(this->netkScreen, "window_closed",
+	g_signal_connect(this->wnckScreen, "window_closed",
 			 G_CALLBACK(qlWindowClosed), this);
 
     // update data
@@ -523,11 +521,11 @@ void *QL_attach(SPlayer * player)
             estStop, NULL);        
     }
 
-    windows = netk_screen_get_windows(this->netkScreen);
+    windows = wnck_screen_get_windows(this->wnckScreen);
 
     for (l = windows; l != NULL; l = l->next) {
-        NetkWindow *w = l->data;
-        qlWindowOpened(this->netkScreen, w, this);
+        WnckWindow *w = l->data;
+        qlWindowOpened(this->wnckScreen, w, this);
     }
 
     LOG("Leave QL_attach\n");

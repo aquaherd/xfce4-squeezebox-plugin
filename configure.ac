@@ -188,6 +188,10 @@ if test x$enable_QL = xyes; then
 	XDT_CHECK_PACKAGE([THUNARVFS], [thunar-vfs-1], [0.4.0])
 	AC_SUBST([THUNARVFS_CFLAGS])
 	AC_SUBST([THUNARVFS_LIBS])
+	dnl Checking for libwnck
+	XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.24.1])
+	AC_SUBST([LIBWNCK_CFLAGS])
+	AC_SUBST([LIBWNCK_LIBS])
 fi
 
 
