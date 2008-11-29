@@ -51,6 +51,7 @@ am_xfce4_squeezebox_plugin_OBJECTS =  \
 	xfce4_squeezebox_plugin-squeezebox-rb.$(OBJEXT) \
 	xfce4_squeezebox_plugin-squeezebox-mpd.$(OBJEXT) \
 	xfce4_squeezebox_plugin-squeezebox-ql.$(OBJEXT) \
+	xfce4_squeezebox_plugin-squeezebox-au.$(OBJEXT) \
 	xfce4_squeezebox_plugin-mmkeys.$(OBJEXT)
 xfce4_squeezebox_plugin_OBJECTS =  \
 	$(am_xfce4_squeezebox_plugin_OBJECTS)
@@ -281,6 +282,7 @@ xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox-rb.c squeezebox-rb.png squeezebox-rb.png.h rb-shell-binding.h rb-shell-player-binding.h \
 	squeezebox-mpd.c squeezebox-mpd.png squeezebox-mpd.png.h \
 	squeezebox-ql.c squeezebox-ql.png squeezebox-ql.png.h \
+	squeezebox-au.c squeezebox-au.png squeezebox-au.png.h \
 	mmkeys.h mmkeys.c
 
 
@@ -369,6 +371,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-au.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-mpd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-ql.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-rb.Po@am__quote@
@@ -450,6 +453,20 @@ xfce4_squeezebox_plugin-squeezebox-ql.obj: squeezebox-ql.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='squeezebox-ql.c' object='xfce4_squeezebox_plugin-squeezebox-ql.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-squeezebox-ql.obj `if test -f 'squeezebox-ql.c'; then $(CYGPATH_W) 'squeezebox-ql.c'; else $(CYGPATH_W) '$(srcdir)/squeezebox-ql.c'; fi`
+
+xfce4_squeezebox_plugin-squeezebox-au.o: squeezebox-au.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-squeezebox-au.o -MD -MP -MF $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-au.Tpo -c -o xfce4_squeezebox_plugin-squeezebox-au.o `test -f 'squeezebox-au.c' || echo '$(srcdir)/'`squeezebox-au.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-au.Tpo $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-au.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='squeezebox-au.c' object='xfce4_squeezebox_plugin-squeezebox-au.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-squeezebox-au.o `test -f 'squeezebox-au.c' || echo '$(srcdir)/'`squeezebox-au.c
+
+xfce4_squeezebox_plugin-squeezebox-au.obj: squeezebox-au.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-squeezebox-au.obj -MD -MP -MF $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-au.Tpo -c -o xfce4_squeezebox_plugin-squeezebox-au.obj `if test -f 'squeezebox-au.c'; then $(CYGPATH_W) 'squeezebox-au.c'; else $(CYGPATH_W) '$(srcdir)/squeezebox-au.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-au.Tpo $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-au.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='squeezebox-au.c' object='xfce4_squeezebox_plugin-squeezebox-au.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-squeezebox-au.obj `if test -f 'squeezebox-au.c'; then $(CYGPATH_W) 'squeezebox-au.c'; else $(CYGPATH_W) '$(srcdir)/squeezebox-au.c'; fi`
 
 xfce4_squeezebox_plugin-mmkeys.o: mmkeys.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-mmkeys.o -MD -MP -MF $(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Tpo -c -o xfce4_squeezebox_plugin-mmkeys.o `test -f 'mmkeys.c' || echo '$(srcdir)/'`mmkeys.c

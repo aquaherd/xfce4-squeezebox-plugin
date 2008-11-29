@@ -12,6 +12,9 @@
 /* Name of default gettext domain */
 #undef GETTEXT_PACKAGE
 
+/* Define to use audacious */
+#undef HAVE_BACKEND_AUDACIOUS
+
 /* Define to use MPD */
 #undef HAVE_BACKEND_MPD
 

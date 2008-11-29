@@ -194,6 +194,11 @@ if test x$enable_QL = xyes; then
 	AC_SUBST([LIBWNCK_LIBS])
 fi
 
+AC_ARG_ENABLE(audacious,[  --disable-audacious     disable audacious support (default: enable)],[enable_audacious=$enableval],[enable_audacious=yes])
+if test x$enable_audacious = xyes; then
+	AC_DEFINE(HAVE_BACKEND_AUDACIOUS,1,[Define to use audacious])
+fi
+
 
 dnl Translations
 XDT_I18N([de fr tr])
@@ -259,6 +264,12 @@ if test x$enable_QL = xyes; then
 	echo " QuodLibet support .............enabled"
 else
 	echo " QuodLibet support ..... .......disabled"
+fi
+
+if test x$enable_audacious = xyes; then
+	echo " audacious support .............enabled"
+else
+	echo " audacious support .............disabled"
 fi
 
 echo ""

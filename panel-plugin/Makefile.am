@@ -13,6 +13,7 @@ xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox-rb.c squeezebox-rb.png squeezebox-rb.png.h rb-shell-binding.h rb-shell-player-binding.h \
 	squeezebox-mpd.c squeezebox-mpd.png squeezebox-mpd.png.h \
 	squeezebox-ql.c squeezebox-ql.png squeezebox-ql.png.h \
+	squeezebox-au.c squeezebox-au.png squeezebox-au.png.h \
 	mmkeys.h mmkeys.c
 	
 
