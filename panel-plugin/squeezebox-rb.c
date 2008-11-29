@@ -171,11 +171,11 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 			g_string_assign(db->parent->title, g_value_get_string(tmpTitle));
 			g_string_truncate(db->parent->albumArt, 0);
 			g_string_printf(artLocation, 
-                "Check 1:'%s/.cache/rhythmbox/covers/%s - %s.jpg'", 
+                "%s/.cache/rhythmbox/covers/%s - %s.jpg", 
 				g_get_home_dir(),
 				db->parent->artist->str, 
 				db->parent->album->str);
-			LOGF("\n\tArt: %s\n", artLocation->str);
+			LOGF("\n\tCheck 1: '%s'\n", artLocation->str);
 			
             gboolean bFound = FALSE;
 			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )
@@ -185,9 +185,7 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
             else
             {
                 //rb 0.11 can read folder.jpg and so should we
-                gchar *strPath = g_filename_from_uri(uri, NULL, NULL);
-                gchar *strNext = g_path_get_dirname(strPath);
-                g_free(strPath);
+                gchar *strNext = g_path_get_dirname(str);
                 LOGF("Check 2:'%s/[.][folder|cover].jpg'\n", strNext);
                 
                 GDir *dir = g_dir_open(strNext, 0, NULL); 
@@ -211,6 +209,7 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
                     }
                     g_dir_close(dir);   
                 }
+                g_free(strNext);
             }
             if(bFound) {
                 // just assign here, scaling is done in callee
