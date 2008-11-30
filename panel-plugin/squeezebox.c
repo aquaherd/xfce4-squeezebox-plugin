@@ -137,7 +137,7 @@ IMPORT_BACKEND(MPD)
 IMPORT_BACKEND(QL)
 #endif
 
-#ifdef HAVE_BACKEND_AU
+#ifdef HAVE_BACKEND_AUDACIOUS
 IMPORT_BACKEND(AU)
 #endif
 
@@ -154,7 +154,7 @@ BEGIN_BACKEND_MAP()
 		BACKEND(QL) 
 	#endif
 
-    #ifdef HAVE_BACKEND_AU
+    #ifdef HAVE_BACKEND_AUDACIOUS
 		BACKEND(AU) 
 	#endif
 END_BACKEND_MAP()
@@ -422,6 +422,70 @@ squeezebox_update_visibility(gpointer thsPlayer, gboolean newVisible) {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuPlayer), newVisible);
     sd->noUI = FALSE;
     LOG("Enter squeezebox_update_visibility\n");
+}
+
+static void
+squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path)
+{
+	SqueezeBoxData *sd = (SqueezeBoxData *)thsPlayer;
+    gchar *strNext = g_path_get_dirname(path);
+    gboolean bFound = FALSE;
+	/*
+	#if HAVE_ID3TAG // how to query artist with id3tag
+	struct id3_file *fp = id3_file_open(str, ID3_FILE_MODE_READONLY);
+	if( fp )
+	{
+		LOG(".");
+		struct id3_tag *tag = id3_file_tag(fp);
+		if( tag )
+		{
+			LOG(".");
+			struct id3_frame *frm = id3_tag_findframe(tag,
+										ID3_FRAME_ARTIST, 0);
+			if( frm )
+			{
+				LOG(".");
+				id3_ucs4_t const *str = id3_field_getstrings(&frm->fields[1], 0);
+				if( str )
+				{
+					LOG(".");
+					gchar *artist = (gchar*)id3_ucs4_utf8duplicate(str);
+					LOG(artist);
+				}
+			}				
+		}
+		id3_file_close(fp);
+	}
+	#endif
+	*/
+	
+    LOGF("SB Enter Check:'%s/[.][folder|cover|front].jpg'\n", strNext);
+    
+    GDir *dir = g_dir_open(strNext, 0, NULL); 
+    if( NULL != dir ) {
+        const gchar *fnam = NULL;
+        while((fnam = g_dir_read_name(dir))) {
+            const gchar *fnam2 = fnam;
+            if('.' == *fnam2)
+                fnam2++;
+            if( !g_ascii_strcasecmp(fnam2, "folder.jpg") ||
+               !g_ascii_strcasecmp(fnam2, "front.jpg") ||
+               !g_ascii_strcasecmp(fnam2, "cover.jpg") ) {
+               bFound = TRUE;
+               break;
+            }
+        }
+        if(bFound) {
+            gchar *fnam3 = g_build_filename(strNext, fnam, NULL);
+            g_string_assign(sd->player.albumArt, fnam3);
+            g_free(fnam3);
+        } else {
+            g_string_truncate(sd->player.albumArt, 0);
+        }
+        g_dir_close(dir);   
+    }
+    g_free(strNext);
+    LOG("SB: Leave Check\n");
 }
 
 static void
@@ -1333,6 +1397,11 @@ squeezebox_construct (XfcePanelPlugin * plugin)
     sd->player.UpdateShuffle = squeezebox_update_shuffle;
     sd->player.UpdateRepeat = squeezebox_update_repeat;
     sd->player.UpdateVisibility = squeezebox_update_visibility;
+#if HAVE_DBUS
+    sd->player.MonitorDBUS = NULL; //tbd
+#endif
+    sd->player.MonitorFile = NULL; //tbd
+    sd->player.FindAlbumArtByFilePath = squeezebox_find_albumart_by_filepath;
 #if HAVE_NOTIFY
     sd->inEnter = FALSE;
 	sd->notifytimeout = 5;

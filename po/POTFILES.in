@@ -2,5 +2,6 @@ panel-plugin/squeezebox.c
 panel-plugin/squeezebox-rb.c
 panel-plugin/squeezebox-mpd.c
 panel-plugin/squeezebox-ql.c
+panel-plugin/squeezebox-au.c
 panel-plugin/squeezebox.desktop.in.in
 

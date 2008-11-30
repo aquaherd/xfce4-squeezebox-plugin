@@ -43,7 +43,7 @@
 
 /*
 #ifndef DBUS_TYPE_G_STRING_VALUE_HASHTABLE
-#define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (rb_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
+#define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
 #endif
 */
 #define RB_MAP(a) player->a = rb##a;
@@ -114,38 +114,8 @@ static void rbCallbackVisibility(DBusGProxy *proxy, const gboolean visible,
 }
 
 static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
-	gchar *str = g_filename_from_uri(uri, NULL, NULL);
 	MKTHIS;
-	LOGF("rbCallback: SongChanged '%s'", str);
-	
-	/*
-	#if HAVE_ID3TAG // how to query artist with id3tag
-	struct id3_file *fp = id3_file_open(str, ID3_FILE_MODE_READONLY);
-	if( fp )
-	{
-		LOG(".");
-		struct id3_tag *tag = id3_file_tag(fp);
-		if( tag )
-		{
-			LOG(".");
-			struct id3_frame *frm = id3_tag_findframe(tag,
-										ID3_FRAME_ARTIST, 0);
-			if( frm )
-			{
-				LOG(".");
-				id3_ucs4_t const *str = id3_field_getstrings(&frm->fields[1], 0);
-				if( str )
-				{
-					LOG(".");
-					gchar *artist = (gchar*)id3_ucs4_utf8duplicate(str);
-					LOG(artist);
-				}
-			}				
-		}
-		id3_file_close(fp);
-	}
-	#endif
-	*/
+	LOGF("rbCallback: SongChanged '%s'", uri);
 	
 	if( db->rbShell )
 	{
@@ -185,31 +155,10 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
             else
             {
                 //rb 0.11 can read folder.jpg and so should we
-                gchar *strNext = g_path_get_dirname(str);
-                LOGF("Check 2:'%s/[.][folder|cover].jpg'\n", strNext);
-                
-                GDir *dir = g_dir_open(strNext, 0, NULL); 
-                if( NULL != dir ) {
-                    const gchar *fnam = NULL;
-                    while((fnam = g_dir_read_name(dir))) {
-                        const gchar *fnam2 = fnam;
-                        if('.' == *fnam2)
-                            fnam2++;
-                        if( !g_ascii_strcasecmp(fnam2, "folder.jpg") ||
-                           !g_ascii_strcasecmp(fnam2, "front.jpg") ||
-                           !g_ascii_strcasecmp(fnam2, "cover.jpg") ) {
-                           bFound = TRUE;
-                           break;
-                        }
-                    }
-                    if(bFound) {
-                        gchar *fnam3 = g_build_filename(strNext, fnam, NULL);
-                        g_string_assign(artLocation, fnam3);
-                        g_free(fnam3);
-                    }
-                    g_dir_close(dir);   
-                }
-                g_free(strNext);
+	            gchar *str = g_filename_from_uri(uri, NULL, NULL);
+                if(str && str[0])
+                    db->parent->FindAlbumArtByFilePath(db->parent->sd, str);
+	            g_free(str);
             }
             if(bFound) {
                 // just assign here, scaling is done in callee
@@ -230,7 +179,6 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 	}
 	
 	LOG("\n");
-	g_free(str);
 }
  
 gboolean rbAssure(gpointer thsPtr) {

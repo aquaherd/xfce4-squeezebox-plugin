@@ -1,5 +1,5 @@
 /***************************************************************************
- *            rythmbox-rb.c
+ *            rythmbox-au.c
  *
  *  Sat Nov 29 23:00:09 2008
  *  Copyright  2008 by Hakan Erduman
@@ -34,11 +34,11 @@
 #include <dbus/dbus-glib.h>
 #include "audacious-player-binding.h"
 
-/*
+
 #ifndef DBUS_TYPE_G_STRING_VALUE_HASHTABLE
-#define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (rb_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
+#define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
 #endif
-*/
+
 #define AU_MAP(a) player->a = au##a;
 
 // pixmap
@@ -60,12 +60,55 @@ typedef struct {
 // implementation
 
 static void auCallbackCapsChange(DBusGProxy *proxy, gint caps, gpointer thsPtr) {
+	// MKTHIS;
+	LOGF("Enter auCallback: CapsChange %d\n", caps);
+	LOG("Leave auCallback: CapsChange\n");
+}
+
+static eSynoptics auTranslateStatus(gint auStatus)
+{
+	eSynoptics eStat;
+	switch(auStatus)
+    {
+        case 0: eStat = estPlay; break;
+        case 1: eStat = estPause; break;
+        case 2: eStat = estStop; break;
+        default: eStat = estErr; break;
+    }
+    return eStat;   
 }
 
 static void auCallbackStatusChange(DBusGProxy *proxy, gint status, gpointer thsPtr) {
+	MKTHIS;
+	LOGF("Enter auCallback: StatusChange %d\n", status);
+    eSynoptics eStat = auTranslateStatus(status);
+	db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
+	LOG("Leave auCallback: StatusChange\n");
 }
 
 static void auCallbackTrackChange(DBusGProxy *proxy, GHashTable *table, gpointer thsPtr) {
+    MKTHIS;
+	LOG("Enter auCallback: TrackChange\n");
+	GValue *tmpArtist = g_hash_table_lookup(table, "artist");
+	GValue *tmpAlbum = g_hash_table_lookup(table, "album");
+	GValue *tmpTitle = g_hash_table_lookup(table, "title");
+	LOG("Enter auCallback: this far\n");
+	GValue *tmpURI = g_hash_table_lookup(table, "URI");
+	
+	g_string_assign(db->parent->artist, g_value_get_string(tmpArtist));
+	g_string_assign(db->parent->album, g_value_get_string(tmpAlbum));
+	g_string_assign(db->parent->title, g_value_get_string(tmpTitle));
+	gchar *str = g_filename_from_uri(g_value_get_string(tmpURI), NULL, NULL);    
+    if(str && str[0])
+        db->parent->FindAlbumArtByFilePath(db->parent->sd, str);
+    eSynoptics eStat = estErr;
+    gint iStat = 0;
+    if(org_freedesktop_MediaPlayer_get_status(db->auPlayer, &iStat, NULL))
+    {
+        eStat = auTranslateStatus(iStat);
+    }
+	db->parent->Update(db->parent->sd, TRUE, eStat, NULL);
+	LOG("Leave auCallback: TrackChange\n");
 }
 
 static void
@@ -92,7 +135,7 @@ auCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name,
 static gboolean auAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
     gchar *errLine = NULL;
-	MKTHIS;
+	auData *db = (auData*)thsPtr;
 	LOG("Enter auAssure\n");
 	if( !db->bus )
 	{
@@ -109,8 +152,8 @@ static gboolean auAssure(gpointer thsPtr) {
 		GError *error = NULL;
 		db->auPlayer = dbus_g_proxy_new_for_name_owner(db->bus,
 							  "org.mpris.audacious",
-							  "/org/freedesktop/MediaPlayer",
-							  "org.freedesktop.Mediaplayer",
+							  "/Player",
+							  "org.freedesktop.MediaPlayer",
 							  &error);
 		
 		
@@ -128,7 +171,7 @@ static gboolean auAssure(gpointer thsPtr) {
 
 				bus_proxy = dbus_g_proxy_new_for_name (db->bus,
 							  "org.mpris.audacious",
-							  "/org/freedesktop/MediaPlayer",
+							  "/Player",
 							  "org.freedesktop.Mediaplayer");
 		
                 g_error_free(error); 
@@ -160,7 +203,8 @@ static gboolean auAssure(gpointer thsPtr) {
 	
 			//  song change
 			dbus_g_proxy_add_signal(db->auPlayer, "TrackChange", 
-				G_TYPE_HASH_TABLE, G_TYPE_INVALID);
+                DBUS_TYPE_G_STRING_VALUE_HASHTABLE,
+				G_TYPE_INVALID);
 			dbus_g_proxy_connect_signal(db->auPlayer, "TrackChange", 
 				G_CALLBACK(auCallbackTrackChange), db, NULL);
 			
@@ -217,7 +261,6 @@ static gboolean auNext(gpointer thsPtr) {
 		return FALSE;
 	if (!org_freedesktop_MediaPlayer_next (db->auPlayer, NULL)){
 		LOGERR("Failed to complete Next\n");
-		return FALSE;
 	}
 	LOG("Leave auNext\n");
 	return TRUE;
@@ -230,7 +273,6 @@ static gboolean auPrevious(gpointer thsPtr) {
 		return FALSE;
 	if (!org_freedesktop_MediaPlayer_prev (db->auPlayer, NULL)){
 		LOGERR("Failed to complete Previous\n");
-		return FALSE;
 	}
 	LOG("Leave auPrevious\n");
 	return TRUE;
@@ -256,7 +298,7 @@ static gboolean auIsPlaying(gpointer thsPtr) {
 		LOGERR("Failed to complete get_status\n");
 		return FALSE;
 	}
-	return status != 1;
+	return (status == 0);
 }
 
 static gboolean auToggle(gpointer thsPtr, gboolean *newState) {
@@ -302,10 +344,10 @@ void auPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 	//MKTHIS;
 }
 
-static auData * AU_attach(SPlayer *player) {
+auData * AU_attach(SPlayer *player) {
 	auData *db = NULL;
 	
-	LOG("Enter RB_attach\n");
+	LOG("Enter AU_attach\n");
 	AU_MAP(Assure);
 	AU_MAP(Next);
 	AU_MAP(Previous);
@@ -343,10 +385,11 @@ static auData * AU_attach(SPlayer *player) {
         }
         if(org_freedesktop_MediaPlayer_get_metadata(db->auPlayer, &metaData, NULL)) {
             auCallbackTrackChange(db->auPlayer, metaData, db);
+            g_hash_table_unref(metaData);
         }
 	}
 	db->noCreate = FALSE;
-	LOG("Leave RB_attach\n");
+	LOG("Leave AU_attach\n");
 	return db;
 }
 

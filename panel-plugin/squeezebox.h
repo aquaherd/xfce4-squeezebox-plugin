@@ -91,7 +91,8 @@ typedef struct {
 #if HAVE_DBUS
     void(* MonitorDBUS)(gpointer thsPlayer, GString app);
 #endif
-    void(* MonitorFile)(gpointer thsPlayer, GString filePath);     
+    void(* MonitorFile)(gpointer thsPlayer, GString filePath); 
+    void(* FindAlbumArtByFilePath)(gpointer thsPlayer, const gchar * path);
 }SPlayer;
 
 typedef struct {

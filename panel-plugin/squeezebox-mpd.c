@@ -333,31 +333,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
 			} else { 
                 if( this->bUseMPDFolder && g_file_test(this->path->str, G_FILE_TEST_EXISTS) ) {
                     g_string_printf(artLocation, "%s/%s", this->path->str, song->file);
-                    gchar *strNext = g_path_get_dirname(artLocation->str);
-                    LOGF("Check 2:'%s/[.][folder|cover].jpg'\n", strNext);
-                    
-                    GDir *dir = g_dir_open(strNext, 0, NULL); 
-                    if( NULL != dir ) {
-                        const gchar *fnam = NULL;
-                        while((fnam = g_dir_read_name(dir))) {
-                            const gchar *fnam2 = fnam;
-                            if('.' == *fnam2)
-                                fnam2++;
-                            if( !g_ascii_strcasecmp(fnam2, "folder.jpg") ||
-                               !g_ascii_strcasecmp(fnam2, "front.jpg") ||
-                               !g_ascii_strcasecmp(fnam2, "cover.jpg") ) {
-                               bFound = TRUE;
-                               break;
-                            }
-                        }
-                        if(bFound) {
-                            gchar *fnam3 = g_build_filename(strNext, fnam, NULL);
-                            g_string_assign(artLocation, fnam3);
-                            g_free(fnam3);
-                        }
-                        g_dir_close(dir);                        
-                    }
-                    g_free(strNext);
+                    this->parent->FindAlbumArtByFilePath(this->parent->sd, artLocation->str);
                 }
             }
             if(bFound) {
