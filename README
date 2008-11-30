@@ -22,18 +22,20 @@ libnotify is available during build.
     Media Keys can be grabbed and ungrabbed with the modified mmkeys.c 
 glory, as seen here and there. (See also README.xubuntu in this document.)
 
-    Embedded album art extraction is under research (for iTunes 
-    switchers like me)
+    Embedded album art extraction is under research (for iTunes switchers 
+like me). It also considers [/.](folder|cover|front).jpg in the file's 
+folder if the backend supports file names.
     
     Currently available backends:
     - Rhythmbox 0.95 (via DBUS)
     - Music Player Daemon (via libmpd)
     - QuodLibet (via pipe)
+    - audacious 1.5.x (via dbus)
     
     Planned backends:
     - lua scripted with lua-dbus bindings
     - mplayer (via -silent -idle switches with own playlist management)
-    - Xfmedia, Banshee, Exaile (as soon as lua-dbus bindings exist)
+    - Xfmedia, Banshee, Exaile 
     
     Remotely possible backends:
     - SlimServer (as a nod to aforesaid naming issues)
@@ -49,8 +51,8 @@ Hakan Erduman
 README.xubuntu:
 ===============
     
-    Somehow, gnome and xorg handle the media keys but they disappear under xubuntu.
-Remedy is as follows:
+    Somehow, gnome and xorg handle the media keys but they disappear 
+under xubuntu hardy. Remedy is as follows:
 
 0) Use the correct keyboard layout ;) Or Else:
 
@@ -63,7 +65,7 @@ keycode 174=XF86AudioLowerVolume
 keycode 153=XF86AudioNext
 keycode 144=XF86AudioPrev
 keycode 164=XF86AudioStop 
-
+(This issue seems resolved with Intrepid)
 (Your keycodes may vary, try xev.)
 
 2) run xmodmap ~/.Xmodmap during xfce startup.
@@ -74,6 +76,17 @@ keycode 164=XF86AudioStop
 - gtk+ 2.12.19 (Hardy)
 I'm setting the lowest of the above as dependency, but I include
 workarounds for the tooltip change in 2.12 as well.
+
+4) Dropping netk for wnck will happen in xfce-4.6, this release already 
+   has it. (Upcoming Jaunty)
+
+============
+README.etch:
+============
+Known issues:
+- Packaged Audacious does not support DBUS under etch.
+- Packaged QuodLibet may lack album art support (missing plugin)
+- Packaged Rhythmbox stores album art on a different location.
 
 ===============
 README.FreeBSD:
@@ -91,5 +104,6 @@ $ sudo gmake install
 =================
 README.Packagers:
 =================
-- make distcheck fails in po.
 - neither my french nor my turkish translations are accurate.
+- 'weibullguy' from forum.xfce.org reports 'Cross Linux from Scratch' as 
+  a distro this plugin is known to build on.

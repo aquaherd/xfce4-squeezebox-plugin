@@ -189,7 +189,7 @@ if test x$enable_QL = xyes; then
 	AC_SUBST([THUNARVFS_CFLAGS])
 	AC_SUBST([THUNARVFS_LIBS])
 	dnl Checking for libwnck
-	XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.24.1])
+	XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.14.3])
 	AC_SUBST([LIBWNCK_CFLAGS])
 	AC_SUBST([LIBWNCK_LIBS])
 fi
@@ -199,6 +199,10 @@ if test x$enable_audacious = xyes; then
 	AC_DEFINE(HAVE_BACKEND_AUDACIOUS,1,[Define to use audacious])
 fi
 
+AC_ARG_ENABLE(exaile,[  --disable-exaile     disable exaile support (default: enable)],[enable_exaile=$enableval],[enable_exaile=yes])
+if test x$enable_exaile = xyes; then
+	AC_DEFINE(HAVE_BACKEND_EXAILE,1,[Define to use exaile])
+fi
 
 dnl Translations
 XDT_I18N([de fr tr])
@@ -270,6 +274,12 @@ if test x$enable_audacious = xyes; then
 	echo " audacious support .............enabled"
 else
 	echo " audacious support .............disabled"
+fi
+
+if test x$enable_exaile = xyes; then
+	echo " exaile support ................enabled"
+else
+	echo " exaile support ................disabled"
 fi
 
 echo ""
