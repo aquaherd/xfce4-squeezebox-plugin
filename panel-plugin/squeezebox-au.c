@@ -50,9 +50,12 @@ typedef struct {
 	SPlayer			*parent;
 	DBusGConnection *bus;
 	DBusGProxy 		*auPlayer;
+	DBusGProxy 		*auTheme;
     DBusGProxy		*dbService;
 	gboolean		noCreate;
     gboolean        Visibility;
+    gboolean        Shuffle;
+    gboolean        Repeat;
 }auData;
 
 #define MKTHIS auData *db = (auData *)thsPtr;
@@ -229,6 +232,14 @@ static gboolean auAssure(gpointer thsPtr) {
 				G_CALLBACK(auCallbackNameOwnerChanged),
 				db,
 				NULL);
+            
+            // extended properties
+    		db->auTheme = dbus_g_proxy_new_for_name_owner(db->bus,
+					  "org.atheme.audacious",
+					  "/org/atheme/audacious",
+					  "org.atheme.audacious",
+					  NULL);
+
 		}
 			
 	}
@@ -339,10 +350,54 @@ static gboolean auDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
-void auPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
-    // no settings at the moment
-	//MKTHIS;
+gboolean auIsVisible(gpointer thsPtr) {
+    MKTHIS;
+    if( auAssure(thsPtr) && NULL != db->auTheme ) {
+        org_atheme_audacious_main_win_visible(db->auTheme, &db->Visibility, NULL);
+    }
+    return db->Visibility;   
 }
+
+gboolean auShow(gpointer thsPtr, gboolean newState) {
+    MKTHIS;
+    if( auAssure(thsPtr) && NULL != db->auTheme ) {
+        org_atheme_audacious_show_main_win(db->auTheme, (newState)? 1 : 0, NULL);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+gboolean auGetShuffle(gpointer thsPtr) {
+    MKTHIS;
+    if( auAssure(thsPtr) && NULL != db->auTheme ) {
+        org_atheme_audacious_shuffle(db->auTheme, &db->Shuffle, NULL);
+    }
+    return db->Shuffle;   
+}    
+
+gboolean auSetShuffle(gpointer thsPtr, gboolean newShuffle) {
+    MKTHIS;
+    if( auAssure(thsPtr) && NULL != db->auTheme) {
+        org_atheme_audacious_toggle_shuffle(db->auTheme, NULL);
+    }
+    return TRUE;   
+}    
+
+gboolean auGetRepeat(gpointer thsPtr) {
+    MKTHIS;
+    if( auAssure(thsPtr) && NULL != db->auTheme ) {
+        org_atheme_audacious_repeat(db->auTheme, &db->Repeat, NULL);
+    }
+    return db->Shuffle;   
+}    
+
+gboolean auSetRepeat(gpointer thsPtr, gboolean newRepeat) {
+    MKTHIS;
+    if( auAssure(thsPtr) && NULL != db->auTheme) {
+        org_atheme_audacious_toggle_repeat(db->auTheme, NULL);
+    }
+    return TRUE;   
+}    
 
 auData * AU_attach(SPlayer *player) {
 	auData *db = NULL;
@@ -355,19 +410,20 @@ auData * AU_attach(SPlayer *player) {
 	AU_MAP(IsPlaying);
 	AU_MAP(Toggle);
 	AU_MAP(Detach);
-	AU_MAP(Persist);
-    //The DBUS API does not yet provide:
-       NOMAP(IsVisible);
-       NOMAP(Show);
-	   NOMAP(GetRepeat);
-       NOMAP(SetRepeat);
-       NOMAP(GetShuffle);
-       NOMAP(SetShuffle);
+	 NOMAP(Configure); // no settings
+	 NOMAP(Persist); // no settings
+    AU_MAP(IsVisible);
+    AU_MAP(Show);
+    AU_MAP(GetRepeat);
+    AU_MAP(SetRepeat);
+    AU_MAP(GetShuffle);
+    AU_MAP(SetShuffle);
 	
 	db = g_new0(auData, 1);
 	db->parent = player;
 	db->bus = NULL;
 	db->auPlayer = NULL;
+    db->auTheme = NULL;
 	db->noCreate = TRUE;
 	
 	// check if audacious is running

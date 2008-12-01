@@ -389,13 +389,6 @@ gboolean qlDetach(gpointer thsPtr)
     return bRet;
 }
 
-void qlPersist(gpointer thsPtr, XfceRc * rc, gboolean bIsStoring)
-{
-    //MKTHIS;
-    LOG("Enter qlPersist\n");
-    LOG("Leave qlPersist\n");
-}
-
 gboolean qlGetRepeat(gpointer thsPtr)
 {
     MKTHIS;
@@ -474,8 +467,8 @@ void *QL_attach(SPlayer * player)
     QL_MAP(IsPlaying);
     QL_MAP(Toggle);
     QL_MAP(Detach);
-    QL_MAP(Persist);
-    NOMAP(Configure);
+     NOMAP(Persist);
+     NOMAP(Configure);
     QL_MAP(IsVisible);
     QL_MAP(Show);
     QL_MAP(GetRepeat);

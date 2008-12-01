@@ -30,16 +30,20 @@ folder if the backend supports file names.
     - Rhythmbox 0.95 (via DBUS)
     - Music Player Daemon (via libmpd)
     - QuodLibet (via pipe)
-    - audacious 1.5.x (via dbus)
+    - audacious 1.5.x (via DBUS)
+    - exaile 0.2.99.1 (via DBUS, see README.exaile below)
     
-    Planned backends:
-    - lua scripted with lua-dbus bindings
-    - mplayer (via -silent -idle switches with own playlist management)
-    - Xfmedia, Banshee, Exaile 
+    Stalled backends:
+    - Xfmedia (future uncertain)
+    - Banshee (DBUS interface in flow yet)
+    - decibel-audio-player (DBUS interface lacklustre)
+    - consonance (submitted DBUS API request on sf at 2008-08-16)
     
     Remotely possible backends:
+    - mplayer (via -silent -idle switches with own playlist management)
+    - lua scripted with lua-dbus bindings
     - SlimServer (as a nod to aforesaid naming issues)
-    - Older Rhythmbox (w/o DBUS via lua-bonobo)
+    - Shuffle anything audio from a tracker query (should be nice)
     - xmms (don't know how yet)
     - xmms2 (dito)
     - bmpx (dito)
@@ -47,10 +51,19 @@ folder if the backend supports file names.
 --
 Hakan Erduman
 
+
+=============
+README.exaile
+=============
+I have reported the sorry state of the DBUS-interface on 2008-04-20.
+Nothing has yet emerged into the mainline bzr, the interface has gotten worse
+instead. You'll be able to hit the play/pause, next and prev buttons, but 
+there is no album art, tooltips or feedback available at the moment.
+
+
 ===============
 README.xubuntu:
 ===============
-    
     Somehow, gnome and xorg handle the media keys but they disappear 
 under xubuntu hardy. Remedy is as follows:
 
@@ -78,7 +91,7 @@ I'm setting the lowest of the above as dependency, but I include
 workarounds for the tooltip change in 2.12 as well.
 
 4) Dropping netk for wnck will happen in xfce-4.6, this release already 
-   has it. (Upcoming Jaunty)
+   has it. (Hoping for 4.6 in upcoming Jaunty)
 
 ============
 README.etch:
@@ -106,4 +119,4 @@ README.Packagers:
 =================
 - neither my french nor my turkish translations are accurate.
 - 'weibullguy' from forum.xfce.org reports 'Cross Linux from Scratch' as 
-  a distro this plugin is known to build on.
+  a distro this plugin is also known to build on.

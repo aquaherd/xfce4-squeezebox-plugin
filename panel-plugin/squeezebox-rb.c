@@ -422,10 +422,6 @@ gboolean rbDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
-void rbPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
-	//MKTHIS;
-}
-
 gboolean rbIsVisible(gpointer thsPtr) {
     MKTHIS;
     return db->Visibility;   
@@ -456,15 +452,16 @@ rbData * RB_attach(SPlayer *player) {
 	RB_MAP(PlayPause);
 	RB_MAP(IsPlaying);
 	RB_MAP(Toggle);
+	 NOMAP(Configure); // no settings
 	RB_MAP(Detach);
-	RB_MAP(Persist);
+	 NOMAP(Persist);
     RB_MAP(IsVisible);
     RB_MAP(Show);
     //The DBUS API does not provide:
-	   NOMAP(GetRepeat);
-       NOMAP(SetRepeat);
-       NOMAP(GetShuffle);
-       NOMAP(SetShuffle);
+     NOMAP(GetRepeat);
+     NOMAP(SetRepeat);
+     NOMAP(GetShuffle);
+     NOMAP(SetShuffle);
 	
 	db = g_new0(rbData, 1);
 	db->parent = player;

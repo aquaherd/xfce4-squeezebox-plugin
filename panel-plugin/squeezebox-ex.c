@@ -53,6 +53,9 @@ typedef struct {
     DBusGProxy		*dbService;
 	gboolean		noCreate;
     gboolean        Visibility;
+    gboolean        isPlaying;
+    gint            intervalID;
+    guchar          lastPosition;
 }exData;
 
 #define MKTHIS exData *db = (exData *)thsPtr;
@@ -80,6 +83,61 @@ exCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name,
 	}
 }
 
+gint exCallback(gpointer thsPtr) {
+	//MKTHIS;
+    //gboolean doAct = FALSE;
+    /* -- current_position is currently broken in exaile 0.2.99.1
+    guchar actPos = 0;
+    gboolean actState = db->isPlaying;
+	if( db->exPlayer != NULL ) {
+        db->isPlaying = FALSE;
+        if( org_exaile_ExaileInterface_current_position(db->exPlayer, &actPos, NULL)) {
+            LOG(".");
+            actState = (actPos != db->lastPosition);
+            db->lastPosition = actPos;
+            if(actState != db->isPlaying) {
+                db->isPlaying = actState;
+                doAct = TRUE;
+            }
+        }
+    }
+    if(doAct) {
+        db->parent->Update(db->parent->sd, FALSE, 
+                db->isPlaying?estPlay:estPause, NULL);        
+    }
+    */
+    
+    /* getting track attributes seems broken too :(
+	if( db->exPlayer != NULL ) {
+        gchar *artist = NULL, *album = NULL, *title = NULL;
+        db->isPlaying = TRUE;
+        if( org_exaile_ExaileInterface_get_track_attr(db->exPlayer, "artist", &artist, NULL) ||
+        org_exaile_ExaileInterface_get_track_attr(db->exPlayer, "album", &album, NULL) ||
+        org_exaile_ExaileInterface_get_track_attr(db->exPlayer, "title", &title, NULL)) {
+		
+            if(!g_str_equal(db->parent->artist->str, artist)) {
+                g_string_assign(db->parent->artist, artist);
+                doAct = TRUE;
+            }
+            if(!g_str_equal(db->parent->album->str, album)) {
+                g_string_assign(db->parent->album, album);
+                doAct = TRUE;
+            }
+            if(!g_str_equal(db->parent->title->str, title)) {
+                g_string_assign(db->parent->title, title);
+                doAct = TRUE;
+            }
+        }
+    }
+    if(doAct) {
+        db->parent->Update(db->parent->sd, TRUE, 
+                estPlay, NULL);        
+    }
+    */
+	return TRUE;	
+}
+
+
 static gboolean exAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
     gchar *errLine = NULL;
@@ -99,9 +157,9 @@ static gboolean exAssure(gpointer thsPtr) {
 	{
 		GError *error = NULL;
 		db->exPlayer = dbus_g_proxy_new_for_name_owner(db->bus,
-							  "org.exaile.DBusInterface",
-							  "/DBusInterfaceObject",
-							  "org.exaile.DBusInterface",
+							  "org.exaile.ExaileInterface",
+							  "/org/exaile",
+							  "org.exaile.ExaileInterface",
 							  &error);
 		
 		
@@ -118,9 +176,9 @@ static gboolean exAssure(gpointer thsPtr) {
 				LOG("\tstarting new instance\n");
 
 				bus_proxy = dbus_g_proxy_new_for_name (db->bus,
-							  "org.exaile.DBusInterface",
-							  "/DBusInterfaceObject",
-							  "org.exaile.DBusInterface");
+							  "org.exaile.ExaileInterface",
+							  "/org/exaile",
+							  "org.exaile.ExaileInterface");
 		
                 g_error_free(error); 
                 error = NULL;
@@ -178,6 +236,12 @@ static gboolean exAssure(gpointer thsPtr) {
                 g_free(errLine);
         }
     }
+    else {
+        if( db->noCreate )
+            db->parent->Update(db->parent->sd, FALSE, estPlay, NULL);        
+
+    }
+        
 
 	LOG("Leave exAssure\n");
 	return bRet;
@@ -188,7 +252,7 @@ static gboolean exNext(gpointer thsPtr) {
 	LOG("Enter exNext\n");
 	if( !exAssure(db) )
 		return FALSE;
-	if (!org_exaile_DBusInterface_next_track (db->exPlayer, NULL)){
+	if (!org_exaile_ExaileInterface_next (db->exPlayer, NULL)){
 		LOGERR("Failed to complete Next\n");
 	}
 	LOG("Leave exNext\n");
@@ -200,7 +264,7 @@ static gboolean exPrevious(gpointer thsPtr) {
 	LOG("Enter exPrevious\n");
 	if( !exAssure(db) )
 		return FALSE;
-	if (!org_exaile_DBusInterface_prev_track (db->exPlayer, NULL)){
+	if (!org_exaile_ExaileInterface_prev (db->exPlayer, NULL)){
 		LOGERR("Failed to complete Previous\n");
 	}
 	LOG("Leave exPrevious\n");
@@ -211,19 +275,12 @@ static gboolean exPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if( !exAssure(db) )
 		return FALSE;
-    return org_exaile_DBusInterface_play_pause(db->exPlayer, NULL);
+    return org_exaile_ExaileInterface_play_pause(db->exPlayer, NULL);
 }
 
 static gboolean exIsPlaying(gpointer thsPtr) {
 	MKTHIS;
-    gchar *status = NULL;
-	if( !exAssure(db) )
-		return FALSE;
-	if( !org_exaile_DBusInterface_status(db->exPlayer, &status, NULL)){
-		LOGERR("Failed to complete get_status\n");
-		return FALSE;
-	}
-	return (0 == g_ascii_strncasecmp(status, "playing", 7));
+	return db->isPlaying;
 }
 
 static gboolean exToggle(gpointer thsPtr, gboolean *newState) {
@@ -280,14 +337,15 @@ exData * EX_attach(SPlayer *player) {
 	EX_MAP(IsPlaying);
 	EX_MAP(Toggle);
 	EX_MAP(Detach);
-	EX_MAP(Persist);
+	    NOMAP(Configure);
+	    NOMAP(Persist);
     //The DBUS API does not yet provide:
-       NOMAP(IsVisible);
-       NOMAP(Show);
-	   NOMAP(GetRepeat);
-       NOMAP(SetRepeat);
-       NOMAP(GetShuffle);
-       NOMAP(SetShuffle);
+        NOMAP(IsVisible);
+        NOMAP(Show);
+	    NOMAP(GetRepeat);
+        NOMAP(SetRepeat);
+        NOMAP(GetShuffle);
+        NOMAP(SetShuffle);
 	
 	db = g_new0(exData, 1);
 	db->parent = player;
@@ -296,11 +354,16 @@ exData * EX_attach(SPlayer *player) {
 	db->noCreate = TRUE;
 	
 	// check if exaile is running
-	
 	if( exAssure(db) ){
         // emulate state change
 	}
 	db->noCreate = FALSE;
+
+    // establish the callback function - not yet
+    /*
+	db->intervalID = 
+		g_timeout_add(player->updateRateMS, exCallback, db);
+     */
 	LOG("Leave EX_attach\n");
 	return db;
 }

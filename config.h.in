@@ -15,6 +15,9 @@
 /* Define to use audacious */
 #undef HAVE_BACKEND_AUDACIOUS
 
+/* Define to use exaile */
+#undef HAVE_BACKEND_EXAILE
+
 /* Define to use MPD */
 #undef HAVE_BACKEND_MPD
 
