@@ -206,6 +206,8 @@ squeezebox_init_backend(SqueezeBoxData *sd, gint nBackend)
 
     // have menu populated
     gtk_widget_set_sensitive(sd->mnuPlayer, (NULL != sd->player.Show));
+    if(NULL == sd->player.IsVisible)
+        gtk_check_menu_item_set_inconsistent(GTK_CHECK_MENU_ITEM(sd->mnuPlayer), TRUE);
     gtk_widget_set_sensitive(sd->mnuRepeat, 
         (NULL != sd->player.GetRepeat && NULL != sd->player.SetRepeat ));
     gtk_widget_set_sensitive(sd->mnuShuffle, 

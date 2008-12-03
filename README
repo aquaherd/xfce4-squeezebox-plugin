@@ -31,7 +31,7 @@ folder if the backend supports file names.
     - Music Player Daemon (via libmpd)
     - QuodLibet (via pipe)
     - audacious 1.5.x (via DBUS)
-    - exaile 0.2.99.1 (via DBUS, see README.exaile below)
+    - exaile 0.2.14devel [r1629] (via DBUS, see README.exaile below)
     
     Stalled backends:
     - Xfmedia (future uncertain)
@@ -56,9 +56,11 @@ Hakan Erduman
 README.exaile
 =============
 I have reported the sorry state of the DBUS-interface on 2008-04-20.
-Nothing has yet emerged into the mainline bzr, the interface has gotten worse
-instead. You'll be able to hit the play/pause, next and prev buttons, but 
-there is no album art, tooltips or feedback available at the moment.
+Nothing has yet emerged into the mainline bzr; the interface has gotten worse
+instead, so I can only support a specific version of exaile: 0.2.14devel [r1629]
+
+You can get it here:
+$ bzr branch lp:~caio-alonso/exaile/missing-signals
 
 
 ===============
@@ -97,9 +99,10 @@ workarounds for the tooltip change in 2.12 as well.
 README.etch:
 ============
 Known issues:
-- Packaged Audacious does not support DBUS under etch.
+- Packaged audacious does not seem to support DBUS under etch.
 - Packaged QuodLibet may lack album art support (missing plugin)
 - Packaged Rhythmbox stores album art on a different location.
+- Packaged exaile is 0.2.11, but it's lenny not etch.
 
 ===============
 README.FreeBSD:

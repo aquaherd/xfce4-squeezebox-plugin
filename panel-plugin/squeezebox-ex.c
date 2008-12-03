@@ -1,7 +1,7 @@
 /***************************************************************************
- *            rythmbox-au.c
+ *            rythmbox-ex.c
  *
- *  Sat Nov 29 23:00:09 2008
+ *  Sat Nov 30 22:11:23 2008
  *  Copyright  2008 by Hakan Erduman
  *  Email Hakan.Erduman@web.de
  ****************************************************************************/
@@ -59,6 +59,10 @@ typedef struct {
 }exData;
 
 #define MKTHIS exData *db = (exData *)thsPtr;
+// init Quarks
+GQuark stopped = 0;
+GQuark paused  = 0;
+GQuark playing = 0;
 
 // implementation
 
@@ -84,8 +88,8 @@ exCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name,
 }
 
 gint exCallback(gpointer thsPtr) {
-	//MKTHIS;
-    //gboolean doAct = FALSE;
+	MKTHIS;
+    gboolean doAct = FALSE;
     /* -- current_position is currently broken in exaile 0.2.99.1
     guchar actPos = 0;
     gboolean actState = db->isPlaying;
@@ -107,36 +111,98 @@ gint exCallback(gpointer thsPtr) {
     }
     */
     
-    /* getting track attributes seems broken too :(
+    /* getting track attributes seems broken too :( */
 	if( db->exPlayer != NULL ) {
-        gchar *artist = NULL, *album = NULL, *title = NULL;
         db->isPlaying = TRUE;
-        if( org_exaile_ExaileInterface_get_track_attr(db->exPlayer, "artist", &artist, NULL) ||
-        org_exaile_ExaileInterface_get_track_attr(db->exPlayer, "album", &album, NULL) ||
-        org_exaile_ExaileInterface_get_track_attr(db->exPlayer, "title", &title, NULL)) {
-		
-            if(!g_str_equal(db->parent->artist->str, artist)) {
-                g_string_assign(db->parent->artist, artist);
-                doAct = TRUE;
-            }
-            if(!g_str_equal(db->parent->album->str, album)) {
-                g_string_assign(db->parent->album, album);
-                doAct = TRUE;
-            }
-            if(!g_str_equal(db->parent->title->str, title)) {
-                g_string_assign(db->parent->title, title);
-                doAct = TRUE;
-            }
-        }
     }
     if(doAct) {
         db->parent->Update(db->parent->sd, TRUE, 
                 estPlay, NULL);        
     }
-    */
+    
 	return TRUE;	
 }
 
+static eSynoptics exTranslateStatus(gchar* exStatus) {
+
+    GQuark newStat = g_quark_from_string(exStatus);
+    if(newStat == playing) 
+        return estPlay;
+    else if(newStat == paused) 
+        return estPause;
+    if(newStat == stopped) 
+        return estStop;
+    
+    return estErr;
+}
+
+static void exCallbackStatusChange(DBusGProxy *proxy, gpointer thsPtr) {
+	MKTHIS;
+    eSynoptics eStat = estErr;
+	LOGF("Enter auCallback: StatusChange\n");
+    gchar *status = NULL;
+    if(org_exaile_DBusInterface_status(db->exPlayer, &status, NULL))
+    {
+        eStat = exTranslateStatus(status);
+        g_free(status);
+    }
+	db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
+	LOG("Leave auCallback: StatusChange\n");
+}
+
+static void exCallbackTrackChange(DBusGProxy *proxy, gpointer thsPtr) {
+    MKTHIS;
+    gchar *artist = NULL, *album = NULL, *title = NULL, *cover = NULL;
+    gboolean act = FALSE;
+    gchar *status = NULL;
+    
+	LOG("Enter auCallback: TrackChange\n");
+    eSynoptics eStat = estErr;
+    if(org_exaile_DBusInterface_status(db->exPlayer, &status, NULL))
+    {
+        eStat = exTranslateStatus(status);
+        g_free(status);
+    }
+    switch(eStat)
+    {
+        case estPlay:
+        case estPause:
+            if(org_exaile_DBusInterface_get_artist(db->exPlayer, &artist, NULL)) {
+                g_string_assign(db->parent->artist, artist);
+                g_free(artist);
+                act = TRUE;
+            }
+            if(org_exaile_DBusInterface_get_album(db->exPlayer, &album, NULL)) {
+                g_string_assign(db->parent->album, album);
+                g_free(album);
+                act = TRUE;
+            }
+            if(org_exaile_DBusInterface_get_title(db->exPlayer, &title, NULL)) {
+                g_string_assign(db->parent->title, title);
+                g_free(title);
+                act = TRUE;
+            }
+            if(org_exaile_DBusInterface_get_cover_path(db->exPlayer, &cover, NULL)) {
+                if( g_file_test(cover, G_FILE_TEST_EXISTS) ) 
+                    g_string_assign(db->parent->albumArt, cover);
+                else
+                    g_string_truncate(db->parent->albumArt, 0);
+                g_free(cover);
+                act = TRUE;
+            }
+            break;
+        case estErr:
+        default:
+            g_string_truncate(db->parent->artist, 0);
+            g_string_truncate(db->parent->album, 0);
+            g_string_truncate(db->parent->title, 0);
+            act = TRUE;
+    }
+    if(act) {
+        db->parent->Update(db->parent->sd, TRUE, eStat, NULL);
+    }
+	LOG("Leave auCallback: TrackChange\n");
+}
 
 static gboolean exAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
@@ -157,9 +223,9 @@ static gboolean exAssure(gpointer thsPtr) {
 	{
 		GError *error = NULL;
 		db->exPlayer = dbus_g_proxy_new_for_name_owner(db->bus,
-							  "org.exaile.ExaileInterface",
-							  "/org/exaile",
-							  "org.exaile.ExaileInterface",
+							  "org.exaile.DBusInterface",
+							  "/DBusInterfaceObject",
+							  "org.exaile.DBusInterface",
 							  &error);
 		
 		
@@ -176,9 +242,9 @@ static gboolean exAssure(gpointer thsPtr) {
 				LOG("\tstarting new instance\n");
 
 				bus_proxy = dbus_g_proxy_new_for_name (db->bus,
-							  "org.exaile.ExaileInterface",
-							  "/org/exaile",
-							  "org.exaile.ExaileInterface");
+							  "org.exaile.DBusInterface",
+							  "/DBusInterfaceObject",
+							  "org.exaile.DBusInterface");
 		
                 g_error_free(error); 
                 error = NULL;
@@ -201,6 +267,18 @@ static gboolean exAssure(gpointer thsPtr) {
 		if( db->exPlayer )
 		{
 			// state changes
+            //  playing change
+			dbus_g_proxy_add_signal(db->exPlayer, "state_changed", 
+				G_TYPE_INVALID);
+			dbus_g_proxy_connect_signal(db->exPlayer, "state_changed", 
+				G_CALLBACK(exCallbackStatusChange), db, NULL);	
+	
+			//  song change
+			dbus_g_proxy_add_signal(db->exPlayer, "track_changed", 
+				G_TYPE_INVALID);
+			dbus_g_proxy_connect_signal(db->exPlayer, "track_changed", 
+				G_CALLBACK(exCallbackTrackChange), db, NULL);
+			
 			// user close notification
 			db->dbService = dbus_g_proxy_new_for_name(db->bus,
 				DBUS_SERVICE_DBUS,
@@ -252,7 +330,7 @@ static gboolean exNext(gpointer thsPtr) {
 	LOG("Enter exNext\n");
 	if( !exAssure(db) )
 		return FALSE;
-	if (!org_exaile_ExaileInterface_next (db->exPlayer, NULL)){
+	if (!org_exaile_DBusInterface_next_track (db->exPlayer, NULL)){
 		LOGERR("Failed to complete Next\n");
 	}
 	LOG("Leave exNext\n");
@@ -264,7 +342,7 @@ static gboolean exPrevious(gpointer thsPtr) {
 	LOG("Enter exPrevious\n");
 	if( !exAssure(db) )
 		return FALSE;
-	if (!org_exaile_ExaileInterface_prev (db->exPlayer, NULL)){
+	if (!org_exaile_DBusInterface_prev_track (db->exPlayer, NULL)){
 		LOGERR("Failed to complete Previous\n");
 	}
 	LOG("Leave exPrevious\n");
@@ -275,7 +353,7 @@ static gboolean exPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if( !exAssure(db) )
 		return FALSE;
-    return org_exaile_ExaileInterface_play_pause(db->exPlayer, NULL);
+    return org_exaile_DBusInterface_play_pause(db->exPlayer, NULL);
 }
 
 static gboolean exIsPlaying(gpointer thsPtr) {
@@ -293,6 +371,15 @@ static gboolean exToggle(gpointer thsPtr, gboolean *newState) {
     if(newState)
         *newState = exIsPlaying(db);
     return TRUE;
+}
+
+gboolean exShow(gpointer thsPtr, gboolean newState) {
+    MKTHIS;
+    if( exAssure(thsPtr) ) {
+        org_exaile_DBusInterface_toggle_visibility(db->exPlayer, NULL);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 static gboolean exDetach(gpointer thsPtr) {
@@ -341,7 +428,7 @@ exData * EX_attach(SPlayer *player) {
 	    NOMAP(Persist);
     //The DBUS API does not yet provide:
         NOMAP(IsVisible);
-        NOMAP(Show);
+    EX_MAP(Show);
 	    NOMAP(GetRepeat);
         NOMAP(SetRepeat);
         NOMAP(GetShuffle);
@@ -352,18 +439,19 @@ exData * EX_attach(SPlayer *player) {
 	db->bus = NULL;
 	db->exPlayer = NULL;
 	db->noCreate = TRUE;
-	
-	// check if exaile is running
+    
+    // init Quarks
+    stopped = g_quark_from_static_string("stopped");
+    paused  = g_quark_from_static_string("paused");
+    playing = g_quark_from_static_string("playing");
+    
+ 	// check if exaile is running
 	if( exAssure(db) ){
         // emulate state change
+        exCallbackTrackChange(db->exPlayer, db);
 	}
 	db->noCreate = FALSE;
 
-    // establish the callback function - not yet
-    /*
-	db->intervalID = 
-		g_timeout_add(player->updateRateMS, exCallback, db);
-     */
 	LOG("Leave EX_attach\n");
 	return db;
 }
