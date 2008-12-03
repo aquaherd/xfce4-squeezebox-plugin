@@ -3,10 +3,10 @@ dnl
 dnl xfce4-squeezebox-plugin - squeezebox plugin for the XFce4 panel
 dnl
 
-m4_define([test_version], [1.0.0])
+m4_define([test_version], [0.1.0])
 
 AC_INIT([xfce4-squeezebox-plugin], [test_version()],
-	[hakan.erduman@web.de])
+	[hakan@erduman.de])
 
 
 TEST_VERSION=test_version()
