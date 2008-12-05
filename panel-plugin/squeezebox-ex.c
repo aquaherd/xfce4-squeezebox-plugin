@@ -72,7 +72,7 @@ exCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name,
 	MKTHIS;
     if( !g_ascii_strcasecmp(Name, "org.exaile.DBusInterface") && !strlen(NewOwner) )
 	{
-		LOGF("Exaile has died? %s|%s|%s\n", Name, OldOwner, NewOwner);
+		LOG("Exaile has died? %s|%s|%s", Name, OldOwner, NewOwner);
         if( db->exPlayer )
         {
             g_object_unref (G_OBJECT (db->exPlayer));		
@@ -139,7 +139,7 @@ static eSynoptics exTranslateStatus(gchar* exStatus) {
 static void exCallbackStatusChange(DBusGProxy *proxy, gpointer thsPtr) {
 	MKTHIS;
     eSynoptics eStat = estErr;
-	LOGF("Enter auCallback: StatusChange\n");
+	LOG("Enter auCallback: StatusChange");
     gchar *status = NULL;
     if(org_exaile_DBusInterface_status(db->exPlayer, &status, NULL))
     {
@@ -147,7 +147,7 @@ static void exCallbackStatusChange(DBusGProxy *proxy, gpointer thsPtr) {
         g_free(status);
     }
 	db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
-	LOG("Leave auCallback: StatusChange\n");
+	LOG("Leave auCallback: StatusChange");
 }
 
 static void exCallbackTrackChange(DBusGProxy *proxy, gpointer thsPtr) {
@@ -156,7 +156,7 @@ static void exCallbackTrackChange(DBusGProxy *proxy, gpointer thsPtr) {
     gboolean act = FALSE;
     gchar *status = NULL;
     
-	LOG("Enter auCallback: TrackChange\n");
+	LOG("Enter auCallback: TrackChange");
     eSynoptics eStat = estErr;
     if(org_exaile_DBusInterface_status(db->exPlayer, &status, NULL))
     {
@@ -201,20 +201,20 @@ static void exCallbackTrackChange(DBusGProxy *proxy, gpointer thsPtr) {
     if(act) {
         db->parent->Update(db->parent->sd, TRUE, eStat, NULL);
     }
-	LOG("Leave auCallback: TrackChange\n");
+	LOG("Leave auCallback: TrackChange");
 }
 
 static gboolean exAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
     gchar *errLine = NULL;
 	exData *db = (exData*)thsPtr;
-	LOG("Enter exAssure\n");
+	LOG("Enter exAssure");
 	if( !db->bus )
 	{
 		db->bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
 		if( !db->bus )
 		{
-			LOGERR("\tCouldn't connect to dbus\n");
+			LOGERR("\tCouldn't connect to dbus");
 			bRet = FALSE;
 		}
 		
@@ -231,7 +231,7 @@ static gboolean exAssure(gpointer thsPtr) {
 		
 		if( error )
 		{
-			LOGWARN("\tCouldn't connect to shell proxy '%s' \n",
+			LOGWARN("\tCouldn't connect to shell proxy '%s' ",
 				error->message);
 			if( db->noCreate )
 				bRet = FALSE;
@@ -239,7 +239,7 @@ static gboolean exAssure(gpointer thsPtr) {
 			{
 				DBusGProxy *bus_proxy;
 				guint start_service_reply;
-				LOG("\tstarting new instance\n");
+				LOG("\tstarting new instance");
 
 				bus_proxy = dbus_g_proxy_new_for_name (db->bus,
 							  "org.exaile.DBusInterface",
@@ -321,31 +321,31 @@ static gboolean exAssure(gpointer thsPtr) {
     }
         
 
-	LOG("Leave exAssure\n");
+	LOG("Leave exAssure");
 	return bRet;
 }
 
 static gboolean exNext(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter exNext\n");
+	LOG("Enter exNext");
 	if( !exAssure(db) )
 		return FALSE;
 	if (!org_exaile_DBusInterface_next_track (db->exPlayer, NULL)){
-		LOGERR("Failed to complete Next\n");
+		LOGERR("Failed to complete Next");
 	}
-	LOG("Leave exNext\n");
+	LOG("Leave exNext");
 	return TRUE;
 }
 
 static gboolean exPrevious(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter exPrevious\n");
+	LOG("Enter exPrevious");
 	if( !exAssure(db) )
 		return FALSE;
 	if (!org_exaile_DBusInterface_prev_track (db->exPlayer, NULL)){
-		LOGERR("Failed to complete Previous\n");
+		LOGERR("Failed to complete Previous");
 	}
-	LOG("Leave exPrevious\n");
+	LOG("Leave exPrevious");
 	return TRUE;
 }
 
@@ -384,7 +384,7 @@ gboolean exShow(gpointer thsPtr, gboolean newState) {
 
 static gboolean exDetach(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter exDetach\n");
+	LOG("Enter exDetach");
 	if( db->exPlayer )
 	{
 		g_object_unref (G_OBJECT (db->exPlayer));		
@@ -403,7 +403,7 @@ static gboolean exDetach(gpointer thsPtr) {
 		db->bus = NULL;		
 	}
 	//g_free(db);
-	LOG("Leave exDetach\n");
+	LOG("Leave exDetach");
 	
 	return TRUE;
 }
@@ -416,7 +416,7 @@ void exPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 exData * EX_attach(SPlayer *player) {
 	exData *db = NULL;
 	
-	LOG("Enter EX_attach\n");
+	LOG("Enter EX_attach");
 	EX_MAP(Assure);
 	EX_MAP(Next);
 	EX_MAP(Previous);
@@ -452,7 +452,7 @@ exData * EX_attach(SPlayer *player) {
 	}
 	db->noCreate = FALSE;
 
-	LOG("Leave EX_attach\n");
+	LOG("Leave EX_attach");
 	return db;
 }
 

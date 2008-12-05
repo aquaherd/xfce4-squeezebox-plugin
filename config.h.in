@@ -3,7 +3,7 @@
 /* Define for debugging support */
 #undef DEBUG
 
-/* Define for tracing support */
+/* Set this to 1 to enable full trace debugging. */
 #undef DEBUG_TRACE
 
 /* always defined to indicate that i18n is enabled */

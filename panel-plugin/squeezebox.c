@@ -220,7 +220,7 @@ squeezebox_init_backend(SqueezeBoxData *sd, gint nBackend)
 static void 
 squeezebox_update_playbtn(SqueezeBoxData *sd)
 {
-	LOG("Enter squeezebox_update_playbtn\n");
+	LOG("Enter squeezebox_update_playbtn");
 	/* // hmmm.
 	GtkIconTheme *theme = gtk_icon_theme_get_default();
 	GError *err = NULL;
@@ -247,11 +247,10 @@ squeezebox_update_playbtn(SqueezeBoxData *sd)
 			GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_MENU);
 		break;
 	}		
-	
 	gtk_widget_show (sd->image[ebtnPlay]);
 	gtk_container_add(
 		GTK_CONTAINER(sd->button[ebtnPlay]), sd->image[ebtnPlay]);
-	LOG("Leave squeezebox_update_playbtn\n");
+	LOG("Leave squeezebox_update_playbtn");
 }
 
 #if HAVE_NOTIFY
@@ -259,7 +258,7 @@ squeezebox_update_playbtn(SqueezeBoxData *sd)
 
 static void 
 toaster_closed(NotifyNotification *notification, SqueezeBoxData *sd)
-{	LOG("toaster_closed\n");
+{	LOG("toaster_closed");
     sd->note = NULL;
 }
 
@@ -267,7 +266,7 @@ toaster_closed(NotifyNotification *notification, SqueezeBoxData *sd)
 static void 
 squeezebox_update_UI_hide_toaster(gpointer thsPlayer)
 {
-	LOG("hide_toaster\n");	
+	LOG("hide_toaster");	
 	SqueezeBoxData *sd = (SqueezeBoxData *)thsPlayer;
     if( sd->note )
     {
@@ -284,7 +283,7 @@ on_timer(gpointer thsPlayer)
     if( NULL == sd->note ){
         return TRUE;
     }
-	printf("CountDown %d %d\n", sd->timerCount, sd->notifytimeout);
+	LOG("CountDown %d %d", sd->timerCount, sd->notifytimeout);
     if( sd->inEnter )
         sd->timerCount = sd->notifytimeout;
     else {
@@ -341,7 +340,7 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
 						 0,
 						 NULL);
             if(NULL == pixbuf)
-                LOG("Stock Icon mismatch!\n");;
+                LOG("Stock Icon mismatch!");;
 		}
         //squeezebox_update_UI_hide_toaster(thsPlayer);
         if( ! bExisted ) {
@@ -398,40 +397,39 @@ squeezebox_update_UI_show_toaster(gpointer thsPlayer)
 		g_free(ntDetails);
 		g_string_free(albumArt, TRUE);
 	}
-	LOG("\n");
 }
 #endif
 
 static void
 squeezebox_update_repeat(gpointer thsPlayer, gboolean newRepeat)
 {
-    LOG("Enter squeezebox_update_repeat\n");
+    LOG("Enter squeezebox_update_repeat");
     SqueezeBoxData *sd = (SqueezeBoxData *)thsPlayer;
     sd->noUI = TRUE;
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuRepeat), newRepeat);
     sd->noUI = FALSE;
-    LOG("Leave squeezebox_update_repeat\n");
+    LOG("Leave squeezebox_update_repeat");
 }
 
 static void
 squeezebox_update_shuffle(gpointer thsPlayer, gboolean newShuffle)
 {
-    LOG("Enter squeezebox_update_shuffle\n");
+    LOG("Enter squeezebox_update_shuffle");
     SqueezeBoxData *sd = (SqueezeBoxData *)thsPlayer;
     sd->noUI = TRUE;
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuShuffle), newShuffle);
     sd->noUI = FALSE;
-    LOG("Enter squeezebox_update_shuffle\n");
+    LOG("Enter squeezebox_update_shuffle");
 }
 
 static void
 squeezebox_update_visibility(gpointer thsPlayer, gboolean newVisible) {
-    LOG("Enter squeezebox_update_visibility\n");
+    LOG("Enter squeezebox_update_visibility");
     SqueezeBoxData *sd = (SqueezeBoxData *)thsPlayer;
     sd->noUI = TRUE;
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuPlayer), newVisible);
     sd->noUI = FALSE;
-    LOG("Enter squeezebox_update_visibility\n");
+    LOG("Enter squeezebox_update_visibility");
 }
 
 static void
@@ -469,7 +467,7 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path)
 	#endif
 	*/
 	
-    LOGF("SB Enter Check:'%s/[.][folder|cover|front].jpg'\n", strNext);
+    LOG("SB Enter Check:'%s/[.][folder|cover|front].jpg'", strNext);
     
     GDir *dir = g_dir_open(strNext, 0, NULL); 
     if( NULL != dir ) {
@@ -495,7 +493,7 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path)
         g_dir_close(dir);   
     }
     g_free(strNext);
-    LOG("SB: Leave Check\n");
+    LOG("SB: Leave Check");
 }
 
 static void
@@ -571,7 +569,7 @@ static gboolean squeezebox_set_size (XfcePanelPlugin *plugin, int size, SqueezeB
 static void
 squeezebox_free_data (XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 {
-    LOG("Enter squeezebox_free_data\n");
+    LOG("Enter squeezebox_free_data");
 #ifndef HAVE_GTK_2_12
     if(sd->tooltips)
     {
@@ -589,7 +587,7 @@ squeezebox_free_data (XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 #endif
     squeezebox_update_grab(FALSE, FALSE, sd);
     g_free (sd);
-	LOG("Leave squeezebox_free_data\n");
+	LOG("Leave squeezebox_free_data");
 }
 
 static void
@@ -613,7 +611,7 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	gboolean bNotify = TRUE;
 	gdouble  dNotifyTimeout = 5.0;
 #endif
-    LOG("Enter squeezebox_read_rc_file\n");
+    LOG("Enter squeezebox_read_rc_file");
 	
     if ((file = xfce_panel_plugin_lookup_rc_file (plugin)) != NULL)
     {
@@ -637,8 +635,8 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 				toolTipStyle = 0;
         }
     }
-	
-	// Always init backend
+
+    // Always init backend
     sd->player.sd = sd;
     squeezebox_init_backend(sd, nBackend);	
 	sd->show[ebtnNext] = bShowNext;
@@ -656,7 +654,7 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	if( toolTipStyle > ettFull )
 		toolTipStyle = ettFull;
     sd->timerHandle = g_timeout_add(1000, on_timer, sd);
-	printf("Attach %d\n", sd->timerHandle);
+	LOG("Attach %d", sd->timerHandle);
 #else
 	if( toolTipStyle > ettSimple )
 		toolTipStyle = ettSimple;
@@ -690,7 +688,7 @@ squeezebox_read_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
         
 	}
     
-	LOG("Leave squeezebox_read_rc_file\n");
+	LOG("Leave squeezebox_read_rc_file");
 }
 
 static void
@@ -700,7 +698,7 @@ squeezebox_write_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	char *file;
     XfceRc *rc;
 	
-	LOG("Enter squeezebox_write_rc_file\n");
+	LOG("Enter squeezebox_write_rc_file");
     
     if ((file = xfce_panel_plugin_save_location (plugin, TRUE)))
 	{
@@ -710,7 +708,7 @@ squeezebox_write_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 	
 		if (rc != NULL) 
 		{
-			LOGF("Writing to file '%s'\n", file);
+			LOG("Writing to file '%s'", file);
 			xfce_rc_write_int_entry(rc, "squeezebox_backend", sd->backend);
 			xfce_rc_write_int_entry(rc, "show_next", (sd->show[ebtnNext])? 1 : 0);
 			xfce_rc_write_int_entry(rc, "show_prev", (sd->show[ebtnPrev])? 1 : 0);
@@ -725,10 +723,10 @@ squeezebox_write_rc_file (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
 				sd->player.Persist(sd->player.db, rc, TRUE);
 			
 			xfce_rc_close (rc);
-			LOG("OK\n");
+			LOG("OK");
 		}
 	}
-	LOG("Leave squeezebox_write_rc_file\n");
+	LOG("Leave squeezebox_write_rc_file");
 }
 
 
@@ -864,7 +862,7 @@ squeezebox_update_grab (gboolean bGrab, gboolean bShowErr, SqueezeBoxData *sd)
         }
         
         // grab
-        LOG("grab\n");
+        LOG("grab");
         sd->mmkeys = mmkeys_new();
             //g_object_new(TYPE_MMKEYS, NULL);
 
@@ -883,7 +881,7 @@ squeezebox_update_grab (gboolean bGrab, gboolean bShowErr, SqueezeBoxData *sd)
     else
     {
         // ungrab
-        LOG("ungrab\n");
+        LOG("ungrab");
         if( sd->mmkeys ) {
             int i;
             for(i = 0; i < 4; i++) {
@@ -895,7 +893,7 @@ squeezebox_update_grab (gboolean bGrab, gboolean bShowErr, SqueezeBoxData *sd)
             LOG("unref-");
             g_object_unref(sd->mmkeys);
             sd->mmkeys = NULL;
-            LOG("-\n");
+            LOG("-");
         }
     }
 }
@@ -1177,13 +1175,13 @@ void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd) {
 
 
 gboolean squeezebox_play(SqueezeBoxData *sd) {
-	LOG("Enter squeezebox_play\n");
+	LOG("Enter squeezebox_play");
     gboolean bRet = FALSE;
 	if( sd->player.Toggle && sd->player.Toggle(sd->player.db, &bRet) )
 	{
 		squeezebox_update_playbtn(sd);
 	}		
-    LOG("Leave squeezebox_play\n");
+    LOG("Leave squeezebox_play");
 	return bRet;
 }
 void on_btnPlay_clicked(GtkButton  *button, SqueezeBoxData *sd) {
@@ -1194,10 +1192,10 @@ void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData *sd) {
 }
 
 void squeezebox_next(SqueezeBoxData *sd) {
-	LOG("Enter squeezebox_next\n");
+	LOG("Enter squeezebox_next");
 	if( sd->player.Next )
 		sd->player.Next(sd->player.db);
-	LOG("Leave squeezebox_next\n");
+	LOG("Leave squeezebox_next");
 }
 void on_btnNext_clicked(GtkButton *button, SqueezeBoxData *sd) {
     squeezebox_next(sd);
@@ -1288,7 +1286,7 @@ gboolean on_query_tooltip(
 static GtkContainer*
 squeezebox_create (SqueezeBoxData *sd)
 {
-	LOG("Enter squeezebox_create\n");
+	LOG("Enter squeezebox_create");
   
 	GtkContainer *window1 = GTK_CONTAINER(sd->plugin);
 	sd->table = gtk_table_new(1, 3, FALSE);
@@ -1383,7 +1381,7 @@ squeezebox_create (SqueezeBoxData *sd)
 	
     
     
-	LOG("Leave squeezebox_create\n");
+	LOG("Leave squeezebox_create");
 	return window1;
 }
 
@@ -1393,7 +1391,7 @@ squeezebox_construct (XfcePanelPlugin * plugin)
 	int i = 0;
 
 	xfce_textdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
-	LOG("Enter squeezebox_construct\n");
+	LOG("Enter squeezebox_construct");
 	
 	SqueezeBoxData *sd = g_new0 (SqueezeBoxData, 1);
    
@@ -1478,7 +1476,7 @@ squeezebox_construct (XfcePanelPlugin * plugin)
 #if HAVE_NOTIFY
     sd->inCreate = FALSE;					  
 #endif
-	LOG("Leave squeezebox_construct\n");
+	LOG("Leave squeezebox_construct");
 		
 }
 

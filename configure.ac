@@ -209,6 +209,7 @@ XDT_I18N([de fr tr])
 
 dnl Check for debugging support
 XDT_FEATURE_DEBUG()
+AC_DEFINE([DEBUG_TRACE], [1], [Set this to 1 to enable full trace debugging.])
 
 dnl PKG_CHECK_MODULES(LIBGTK, gtk+ libxfce4panel-1.0)
 AC_SUBST(LIBGTK_CFLAGS)

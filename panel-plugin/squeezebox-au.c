@@ -58,14 +58,18 @@ typedef struct {
     gboolean        Repeat;
 }auData;
 
+// MFCish property map -- currently none
+BEGIN_PROP_MAP(AU)
+END_PROP_MAP()                
+
 #define MKTHIS auData *db = (auData *)thsPtr;
 
 // implementation
 
 static void auCallbackCapsChange(DBusGProxy *proxy, gint caps, gpointer thsPtr) {
 	// MKTHIS;
-	LOGF("Enter auCallback: CapsChange %d\n", caps);
-	LOG("Leave auCallback: CapsChange\n");
+	LOG("Enter auCallback: CapsChange %d", caps);
+	LOG("Leave auCallback: CapsChange");
 }
 
 static eSynoptics auTranslateStatus(gint auStatus)
@@ -83,19 +87,19 @@ static eSynoptics auTranslateStatus(gint auStatus)
 
 static void auCallbackStatusChange(DBusGProxy *proxy, gint status, gpointer thsPtr) {
 	MKTHIS;
-	LOGF("Enter auCallback: StatusChange %d\n", status);
+	LOG("Enter auCallback: StatusChange %d", status);
     eSynoptics eStat = auTranslateStatus(status);
 	db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
-	LOG("Leave auCallback: StatusChange\n");
+	LOG("Leave auCallback: StatusChange");
 }
 
 static void auCallbackTrackChange(DBusGProxy *proxy, GHashTable *table, gpointer thsPtr) {
     MKTHIS;
-	LOG("Enter auCallback: TrackChange\n");
+	LOG("Enter auCallback: TrackChange");
 	GValue *tmpArtist = g_hash_table_lookup(table, "artist");
 	GValue *tmpAlbum = g_hash_table_lookup(table, "album");
 	GValue *tmpTitle = g_hash_table_lookup(table, "title");
-	LOG("Enter auCallback: this far\n");
+	LOG("Enter auCallback: this far");
 	GValue *tmpURI = g_hash_table_lookup(table, "URI");
 	
 	g_string_assign(db->parent->artist, g_value_get_string(tmpArtist));
@@ -111,18 +115,17 @@ static void auCallbackTrackChange(DBusGProxy *proxy, GHashTable *table, gpointer
         eStat = auTranslateStatus(iStat);
     }
 	db->parent->Update(db->parent->sd, TRUE, eStat, NULL);
-	LOG("Leave auCallback: TrackChange\n");
+	LOG("Leave auCallback: TrackChange");
 }
 
 static void
 auCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name, 
 	const gchar *OldOwner, const gchar* NewOwner, gpointer thsPtr) {
 	MKTHIS;
-    if( !g_ascii_strcasecmp(Name, "org.mpris.Audacious") && !strlen(NewOwner) )
+    if( !g_ascii_strcasecmp(Name, "org.mpris.audacious") && !strlen(NewOwner) )
 	{
-		LOGF("Audacious has died? %s|%s|%s\n", Name, OldOwner, NewOwner);
-        if( db->auPlayer )
-        {
+		LOG("Audacious has died? %s|%s|%s", Name, OldOwner, NewOwner);
+        if( db->auPlayer ) {
             g_object_unref (G_OBJECT (db->auPlayer));		
             db->auPlayer = NULL;
         }
@@ -139,13 +142,14 @@ static gboolean auAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
     gchar *errLine = NULL;
 	auData *db = (auData*)thsPtr;
-	LOG("Enter auAssure\n");
+	LOG("Enter auAssure");
+    
 	if( !db->bus )
 	{
 		db->bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
 		if( !db->bus )
 		{
-			LOGERR("\tCouldn't connect to dbus\n");
+			LOGERR("\tCouldn't connect to dbus");
 			bRet = FALSE;
 		}
 		
@@ -158,11 +162,9 @@ static gboolean auAssure(gpointer thsPtr) {
 							  "/Player",
 							  "org.freedesktop.MediaPlayer",
 							  &error);
-		
-		
 		if( error )
 		{
-			LOGWARN("\tCouldn't connect to shell proxy '%s' \n",
+			LOGWARN("\tCouldn't connect to shell proxy '%s' ",
 				error->message);
 			if( db->noCreate )
 				bRet = FALSE;
@@ -170,7 +172,7 @@ static gboolean auAssure(gpointer thsPtr) {
 			{
 				DBusGProxy *bus_proxy;
 				guint start_service_reply;
-				LOG("\tstarting new instance\n");
+				LOG("\tstarting new instance");
 
 				bus_proxy = dbus_g_proxy_new_for_name (db->bus,
 							  "org.mpris.audacious",
@@ -260,32 +262,32 @@ static gboolean auAssure(gpointer thsPtr) {
                 g_free(errLine);
         }
     }
-
-	LOG("Leave auAssure\n");
+    
+	LOG("Leave auAssure");
 	return bRet;
 }
 
 static gboolean auNext(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter auNext\n");
+	LOG("Enter auNext");
 	if( !auAssure(db) )
 		return FALSE;
 	if (!org_freedesktop_MediaPlayer_next (db->auPlayer, NULL)){
-		LOGERR("Failed to complete Next\n");
+		LOGERR("Failed to complete Next");
 	}
-	LOG("Leave auNext\n");
+	LOG("Leave auNext");
 	return TRUE;
 }
 
 static gboolean auPrevious(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter auPrevious\n");
+	LOG("Enter auPrevious");
 	if( !auAssure(db) )
 		return FALSE;
 	if (!org_freedesktop_MediaPlayer_prev (db->auPlayer, NULL)){
-		LOGERR("Failed to complete Previous\n");
+		LOGERR("Failed to complete Previous");
 	}
-	LOG("Leave auPrevious\n");
+	LOG("Leave auPrevious");
 	return TRUE;
 }
 
@@ -306,7 +308,7 @@ static gboolean auIsPlaying(gpointer thsPtr) {
 	if( !auAssure(db) )
 		return FALSE;
 	if( !org_freedesktop_MediaPlayer_get_status(db->auPlayer, &status, NULL)){
-		LOGERR("Failed to complete get_status\n");
+		LOGERR("Failed to complete get_status");
 		return FALSE;
 	}
 	return (status == 0);
@@ -326,7 +328,7 @@ static gboolean auToggle(gpointer thsPtr, gboolean *newState) {
 
 static gboolean auDetach(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter auDetach\n");
+	LOG("Enter auDetach");
 	if( db->auPlayer )
 	{
 		g_object_unref (G_OBJECT (db->auPlayer));		
@@ -345,7 +347,7 @@ static gboolean auDetach(gpointer thsPtr) {
 		db->bus = NULL;		
 	}
 	//g_free(db);
-	LOG("Leave auDetach\n");
+	LOG("Leave auDetach");
 	
 	return TRUE;
 }
@@ -402,7 +404,7 @@ gboolean auSetRepeat(gpointer thsPtr, gboolean newRepeat) {
 auData * AU_attach(SPlayer *player) {
 	auData *db = NULL;
 	
-	LOG("Enter AU_attach\n");
+	LOG("Enter AU_attach");
 	AU_MAP(Assure);
 	AU_MAP(Next);
 	AU_MAP(Previous);
@@ -445,7 +447,7 @@ auData * AU_attach(SPlayer *player) {
         }
 	}
 	db->noCreate = FALSE;
-	LOG("Leave AU_attach\n");
+	LOG("Leave AU_attach");
 	return db;
 }
 

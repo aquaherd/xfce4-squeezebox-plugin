@@ -63,6 +63,18 @@ typedef struct {
 	GtkWidget   *wHost, *wPass, *wPort, *wDlg, *wPath;
 }mpdData;
 
+// MFCish property map
+BEGIN_PROP_MAP(MPD)
+    PROP_ENTRY("mpd_usedefault",    G_TYPE_BOOLEAN,  mpdData,bUseDefault)
+    PROP_ENTRY("mpd_port",          G_TYPE_INT,      mpdData,port)
+    PROP_ENTRY("mpd_host",          G_TYPE_STRING,   mpdData,host)
+    PROP_ENTRY("mpd_pass",          G_TYPE_STRING,   mpdData,pass)
+    PROP_ENTRY("mpd_usemusicfolder",G_TYPE_BOOLEAN,  mpdData,bUseMPDFolder)
+    PROP_ENTRY("mpd_musicfolder",   G_TYPE_STRING,   mpdData,path)
+END_PROP_MAP()                
+
+
+
 #define MKTHIS mpdData *this = (mpdData *)thsPtr;
 void *MPD_attach(SPlayer *player);
 void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType, gpointer thsPtr);
@@ -71,7 +83,7 @@ gboolean mpdAssure(gpointer thsPtr){
 	
 	MKTHIS;
     gboolean gConnect = FALSE;
-	LOG("Enter mpdAssure\n");
+	LOG("Enter mpdAssure");
 	if( !this->player )
 	{
 		if( this->bUseDefault ) 
@@ -91,7 +103,7 @@ gboolean mpdAssure(gpointer thsPtr){
 		{
 			if( MPD_OK == mpd_connect(this->player) )
 			{
-				LOG("Connect OK\n");
+				LOG("Connect OK");
 			}
 		}
 		gConnect = TRUE;
@@ -106,7 +118,7 @@ gboolean mpdAssure(gpointer thsPtr){
 			//mpd_send_password(this->player);
 		if (mpd_check_error(this->player) || mpd_status_update(this->player) != MPD_OK)
 		{
-			LOG(".Fail.\n");
+			LOG(".Fail.");
 			g_string_assign(this->parent->artist, "");
 			g_string_assign(this->parent->album, "");
 			g_string_assign(this->parent->title, "");
@@ -118,7 +130,7 @@ gboolean mpdAssure(gpointer thsPtr){
 		}
 		else
 		{
-			LOG(".OK.\n");
+			LOG(".OK.");
 		}
 	}
 	
@@ -132,7 +144,7 @@ gboolean mpdAssure(gpointer thsPtr){
 		    this);
 	}
 	
-	LOG("Leave mpdAssure\n");
+	LOG("Leave mpdAssure");
 	return (this->player != NULL);
 }
 
@@ -146,30 +158,30 @@ gint mpdCallback(gpointer thsPtr) {
 gboolean mpdNext(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
-	LOG("Enter mpdNext\n");
+	LOG("Enter mpdNext");
 	if( !mpdAssure(this) )
 		return FALSE;
 	else
 		bRet = (MPD_OK == mpd_player_next(this->player));
-	LOG("Leave mpdNext\n");
+	LOG("Leave mpdNext");
 	return bRet;
 }
 
 gboolean mpdPrevious(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
-	LOG("Enter mpdPrevious\n");
+	LOG("Enter mpdPrevious");
 	if( !mpdAssure(this) )
 		return FALSE;
 	else
 		bRet = (MPD_OK == mpd_player_prev(this->player));
-	LOG("Leave mpdPrevious\n");
+	LOG("Leave mpdPrevious");
 	return TRUE;
 }
 
 gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	LOG("Enter mpdPlayPause\n");
+	LOG("Enter mpdPlayPause");
 	int iRet = MPD_OK;
 	if( !mpdAssure(this) )
 		return FALSE;
@@ -177,7 +189,7 @@ gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
 		iRet = mpd_player_play(this->player);
 	else
 		iRet = mpd_player_pause(this->player);
-	LOG("Leave mpdPlayPause\n");
+	LOG("Leave mpdPlayPause");
 	return (iRet == MPD_OK);
 }
 
@@ -185,21 +197,21 @@ gboolean mpdIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	MpdState sStat = MPD_STATUS_STATE_STOP;
 	
-	LOG("Enter mpdIsPlaying\n");
+	LOG("Enter mpdIsPlaying");
 	if( !mpdAssure(this) )
 		return FALSE;
 	if( this->player )
 	{
 		sStat = mpd_player_get_state(this->player);
 	}
-	LOG("Leave mpdIsPlaying\n");
+	LOG("Leave mpdIsPlaying");
 	return (sStat == MPD_STATUS_STATE_PLAY);
 }
 
 gboolean mpdToggle(gpointer thsPtr, gboolean *newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
-	LOG("Enter mpdToggle\n");
+	LOG("Enter mpdToggle");
 	if( !mpdAssure(this) )
 		return FALSE;
 	oldState = mpdIsPlaying(this);
@@ -207,13 +219,13 @@ gboolean mpdToggle(gpointer thsPtr, gboolean *newState) {
 		return FALSE;
 	if( newState )
 		*newState = !oldState;
-	LOG("Leave mpdToggle\n");
+	LOG("Leave mpdToggle");
 	return TRUE;
 }
 
 gboolean mpdDetach(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter mpdDetach\n");
+	LOG("Enter mpdDetach");
 	if( this->player )
 	{
 		mpd_disconnect(this->player);
@@ -224,13 +236,13 @@ gboolean mpdDetach(gpointer thsPtr) {
 		g_source_remove(this->intervalID);
 		this->intervalID = 0;
 	}
-	LOG("Leave mpdDetach\n");
+	LOG("Leave mpdDetach");
 	return TRUE;
 }
 
 void mpdPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 	MKTHIS;
-	LOG("Enter mpdPersist\n");
+	LOG("Enter mpdPersist");
 	if( bIsStoring )
 	{
 		xfce_rc_write_int_entry(rc, "mpd_usedefault", 
@@ -263,7 +275,7 @@ void mpdPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
 			xfce_rc_read_entry(rc, "mpd_musicfolder", xfce_get_homedir())
 		);
 	}
-	LOG("Leave mpdPersist\n");
+	LOG("Leave mpdPersist");
 }
 
 gboolean mpdGetRepeat(gpointer thsPtr) {
@@ -310,7 +322,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
 	MKTHIS;
 	if( sType & MPD_CST_SONGID )
 	{
-		LOG("Enter mpdCallback: SongChanged\n");
+		LOG("Enter mpdCallback: SongChanged");
 		mpd_Song *song = mpd_playlist_get_current_song(this->player);
 		if( mpdAssure(thsPtr) && song != NULL && song->id != this->songID )
 		{
@@ -325,7 +337,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
             artLocation = g_string_new(g_get_home_dir());
             g_string_append_printf(artLocation, "/.covers/%s - %s.jpg", 
                 song->artist, song->album);
-			LOGF("Check 1:'%s'\n", artLocation->str);
+			LOG("Check 1:'%s'", artLocation->str);
 			g_string_truncate(this->parent->albumArt, 0);
 			
 			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )	{
@@ -339,18 +351,18 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
             if(bFound) {
                 // just assign here, scaling is done in callee
 				g_string_assign(this->parent->albumArt, artLocation->str);
-                LOGF("Found :'%s'\n", artLocation->str);
+                LOG("Found :'%s'", artLocation->str);
             }
 
             g_string_free(artLocation, TRUE);
 			this->parent->Update(this->parent->sd, TRUE, estPlay, NULL);
 			this->songID = song->id;		
 		}
-		LOG("Leave mpdCallback: SongChanged\n");
+		LOG("Leave mpdCallback: SongChanged");
 	}
 	if( sType & MPD_CST_STATE )
 	{
-		LOG("Enter mpdCallback: StateChanged\n");
+		LOG("Enter mpdCallback: StateChanged");
 		eSynoptics eStat;
 		MpdState state = mpd_player_get_state(this->player);
 		switch(state)
@@ -361,23 +373,23 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
 			default: eStat = estErr; break;
 		}
 		this->parent->Update(this->parent->sd, FALSE, eStat, NULL);
-		LOG("Leave mpdCallback: StateChanged\n");
+		LOG("Leave mpdCallback: StateChanged");
 	}
     if( sType & MPD_CST_REPEAT )
     {
-		LOG("Enter mpdCallback: RepeatChanged\n");
+		LOG("Enter mpdCallback: RepeatChanged");
         this->parent->UpdateRepeat(
             this->parent->sd, 
             mpd_player_get_repeat(this->player));
-		LOG("Leave mpdCallback: RepeatChanged\n");
+		LOG("Leave mpdCallback: RepeatChanged");
     }
     if( sType & MPD_CST_RANDOM )
     {
-		LOG("Enter mpdCallback: ShuffleChanged\n");
+		LOG("Enter mpdCallback: ShuffleChanged");
         this->parent->UpdateShuffle(
             this->parent->sd, 
             mpd_player_get_random(this->player));
-		LOG("Leave mpdCallback: ShuffleChanged\n");
+		LOG("Leave mpdCallback: ShuffleChanged");
     }
     if( sType & (MPD_CST_ELAPSED_TIME | MPD_CST_TOTAL_TIME) )
     {
@@ -397,7 +409,7 @@ void mpdCallbackStateChanged(MpdObj *player, ChangedStatusType sType,
 
 static void mpdSettingsDialogResponse(GtkWidget *dlg, int reponse, 
                          			  gpointer thsPtr) {
-    LOG("Enter mpdSettingsDialogResponse\n");
+    LOG("Enter mpdSettingsDialogResponse");
 	MKTHIS;
 	const gchar *tmpHost = gtk_entry_get_text(GTK_ENTRY(this->wHost));
 	
@@ -425,17 +437,17 @@ static void mpdSettingsDialogResponse(GtkWidget *dlg, int reponse,
 	// reconnect if changed
 	if( 0 ) // this->bRequireReconnect )
 	{
-		LOGF("    Reconnecting to %s/%s\n", tmpHost, this->host->str);
+		LOG("    Reconnecting to %s/%s", tmpHost, this->host->str);
 		SPlayer *p = this->parent;
 		this->bRequireReconnect = FALSE;
 		mpdDetach(thsPtr);
 		MPD_attach(p);
-		LOG("    Done reconnect.\n");
+		LOG("    Done reconnect.");
 	}
 	
     gtk_widget_destroy (dlg);
 	
-	LOG("Leave mpdSettingsDialogResponse\n");
+	LOG("Leave mpdSettingsDialogResponse");
 }
 
 static void mpdConfigureTimeout(GtkSpinButton *sb, gpointer thsPtr) {
@@ -454,15 +466,15 @@ static void mpdConfigureUseDefault(GtkToggleButton *tb, gpointer thsPtr) {
 }
 
 static void mpdConfigureUseMPDFolder(GtkToggleButton *tb, gpointer thsPtr) {
-    LOG("Enter mpdConfigureUseMPDFolder\n");
+    LOG("Enter mpdConfigureUseMPDFolder");
     MKTHIS;
     this->bUseMPDFolder = gtk_toggle_button_get_active(tb);
     gtk_widget_set_sensitive(this->wPath, this->bUseMPDFolder);
-    LOG("Leave mpdConfigureUseMPDFolder\n");
+    LOG("Leave mpdConfigureUseMPDFolder");
 }
 
 static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
-    LOG("Enter mpdConfigure\n");
+    LOG("Enter mpdConfigure");
 	MKTHIS;
     GtkWidget *dlg, *header, *vbox, *cb1,
 		*label1, *label2, *label3,
@@ -566,7 +578,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
     
     this->wPath = gtk_file_chooser_button_new(_("Select MPD music folder"), 
         GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
-    LOGF("Music folder: %s\n", this->path->str);
+    LOG("Music folder: %s", this->path->str);
     if( this->path->len )
         gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(this->wPath), this->path->str);
     gtk_widget_show(this->wPath);
@@ -579,7 +591,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
     gtk_widget_set_sensitive(this->wPath,  this->bUseMPDFolder);
     
 	gtk_widget_show (dlg);
-    LOG("Leave mpdConfigure\n");
+    LOG("Leave mpdConfigure");
 }
 
 static const char *dotDesktopCategories [] =
@@ -593,15 +605,12 @@ static const char *dotDesktopCategories [] =
 void mpdPopulateClient(GList *list, const gchar *name) {
     XfceDesktopEntry *info = xfce_desktop_entry_new(name, dotDesktopCategories, 3);
     if(NULL != info)    {
-        LOG("Found MPD Client: ");
-        LOG(xfce_desktop_entry_get_file (info));
-        LOG("\n");
+        const gchar *file = xfce_desktop_entry_get_file (info);
+        LOG("Found MPD Client: %s", file);
         g_object_unref (info);
     } 
     else {
-        LOG("Not found: ");
-        LOG(name);
-        LOG("\n");
+        LOG("Not found: %s", name);
     }
 }
 void mpdPopulateClientList()
@@ -613,7 +622,7 @@ void mpdPopulateClientList()
 
 void *MPD_attach(SPlayer *player) {
 	mpdData *this = g_new0(mpdData, 1);
-	LOG("Enter MPD_attach\n");
+	LOG("Enter MPD_attach");
 	MPD_MAP(Assure);
 	MPD_MAP(Next);
 	MPD_MAP(Previous);
@@ -636,8 +645,11 @@ void *MPD_attach(SPlayer *player) {
 	this->port = 6600;
 	this->host = g_string_new("localhost");
 	this->pass = g_string_new("");
+    this->bUseMPDFolder = FALSE;
     this->path = g_string_new("");
 	this->intervalID = 0;
+
+    // always assign
 	this->parent = player;
 	
 	// force our own update rate
@@ -654,7 +666,7 @@ void *MPD_attach(SPlayer *player) {
     // attach to daemon
     mpdAssure (this);
 	
-	LOG("Leave MPD_attach\n");
+	LOG("Leave MPD_attach");
 	return this;
 }
 #endif

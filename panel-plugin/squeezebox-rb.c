@@ -64,6 +64,11 @@ typedef struct
     gboolean        Visibility;
 }rbData;
 
+// MFCish property map -- currently none
+BEGIN_PROP_MAP(RB)
+END_PROP_MAP()                
+
+
 #define MKTHIS rbData *db = (rbData *)thsPtr;
 
 static void
@@ -72,7 +77,7 @@ rbCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name,
 	MKTHIS;
     if( !g_ascii_strcasecmp(Name, "org.gnome.Rhythmbox") && !strlen(NewOwner) )
 	{
-		LOGF("Rhythmbox has died? %s|%s|%s\n", Name, OldOwner, NewOwner);
+		LOG("Rhythmbox has died? %s|%s|%s", Name, OldOwner, NewOwner);
         if( db->rbPlayer )
         {
             g_object_unref (G_OBJECT (db->rbPlayer));		
@@ -95,27 +100,27 @@ rbCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name,
 static void rbCallbackPlayPause(DBusGProxy *proxy, const gboolean playing, 
 								  gpointer thsPtr) {
 	MKTHIS;
-	LOGF("Enter rbCallback: StateChanged %d\n", playing);
+	LOG("Enter rbCallback: StateChanged %d", playing);
 	eSynoptics eStat;
 	if(playing)
 		eStat = estPlay;
 	else
 		eStat = estPause;
 	db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
-	LOG("Leave rbCallback: StateChanged\n");
+	LOG("Leave rbCallback: StateChanged");
 }
 
 static void rbCallbackVisibility(DBusGProxy *proxy, const gboolean visible, 
 								   gpointer thsPtr) {
     MKTHIS;
-    LOG("rbCallback: Visibility\n");
+    LOG("rbCallback: Visibility");
     db->Visibility = visible;
 	db->parent->UpdateVisibility(db->parent->sd, visible);
 }
 
 static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 	MKTHIS;
-	LOGF("rbCallback: SongChanged '%s'", uri);
+	LOG("rbCallback: SongChanged '%s'", uri);
 	
 	if( db->rbShell )
 	{
@@ -145,7 +150,7 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 				g_get_home_dir(),
 				db->parent->artist->str, 
 				db->parent->album->str);
-			LOGF("\n\tCheck 1: '%s'\n", artLocation->str);
+			LOG("\tCheck 1: '%s'", artLocation->str);
 			
             gboolean bFound = FALSE;
 			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )
@@ -163,7 +168,7 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
             if(bFound) {
                 // just assign here, scaling is done in callee
 				g_string_assign(db->parent->albumArt, artLocation->str);
-                LOGF("Found :'%s'\n", artLocation->str);
+                LOG("Found :'%s'", artLocation->str);
             }
 
 			g_hash_table_destroy(table);
@@ -173,25 +178,24 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 		}
 		if( err )
 		{
-			fprintf (stderr, "Unable to get Properties: '%s'\n", err->message);
+			fprintf (stderr, "Unable to get Properties: '%s'", err->message);
 			g_error_free(err);
 		}
 	}
 	
-	LOG("\n");
 }
  
 gboolean rbAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
     gchar *errLine = NULL;
 	MKTHIS;
-	LOG("Enter rbAssure\n");
+	LOG("Enter rbAssure");
 	if( !db->bus )
 	{
 		db->bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
 		if( !db->bus )
 		{
-			LOGERR("\tCouldn't connect to dbus\n");
+			LOGERR("\tCouldn't connect to dbus");
 			bRet = FALSE;
 		}
 		
@@ -208,7 +212,7 @@ gboolean rbAssure(gpointer thsPtr) {
 		
 		if( error )
 		{
-			LOGWARN("\tCouldn't connect to shell proxy '%s' \n",
+			LOGWARN("\tCouldn't connect to shell proxy '%s' ",
 				error->message);
 			if( db->noCreate )
 				bRet = FALSE;
@@ -216,7 +220,7 @@ gboolean rbAssure(gpointer thsPtr) {
 			{
 				DBusGProxy *bus_proxy;
 				guint start_service_reply;
-				LOG("\tstarting new instance\n");
+				LOG("\tstarting new instance");
 
 				bus_proxy = dbus_g_proxy_new_for_name (db->bus,
 									   "org.freedesktop.DBus",
@@ -252,7 +256,7 @@ gboolean rbAssure(gpointer thsPtr) {
 				db->rbShell = NULL;
 				db->rbPlayer = NULL;
                 db->dbService = NULL;
-				LOGERR("Couldn't connect to player proxy\n");
+				LOGERR("Couldn't connect to player proxy");
 				bRet = FALSE;
 			}
 			else
@@ -315,23 +319,23 @@ gboolean rbAssure(gpointer thsPtr) {
         }
     }
 
-	LOG("Leave rbAssure\n");
+	LOG("Leave rbAssure");
 	return bRet;
 }
 
 gboolean rbNext(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter rbNext\n");
+	LOG("Enter rbNext");
 	if( !rbAssure(db) )
 		return FALSE;
 	if (!dbus_g_proxy_call (db->rbPlayer, "next", NULL, 
 		G_TYPE_INVALID, 
 		G_TYPE_INVALID
 		)){
-		LOGERR("Failed to complete Next\n");
+		LOGERR("Failed to complete Next");
 		return FALSE;
 	}
-	LOG("Leave rbNext\n");
+	LOG("Leave rbNext");
 	return TRUE;
 }
 
@@ -343,7 +347,7 @@ gboolean rbPrevious(gpointer thsPtr) {
 		G_TYPE_INVALID, 
 		G_TYPE_INVALID
 		)){
-		LOGERR("Failed to complete Prev\n");
+		LOGERR("Failed to complete Prev");
 		return FALSE;
 	}
 	return TRUE;
@@ -357,7 +361,7 @@ gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
 		G_TYPE_BOOLEAN, newState, G_TYPE_INVALID,
 		G_TYPE_INVALID
 		)){
-		LOGERR("Failed to complete playPause\n");
+		LOGERR("Failed to complete playPause");
 		return FALSE;
 	}
 	return TRUE;
@@ -371,7 +375,7 @@ gboolean rbIsPlaying(gpointer thsPtr) {
 	if( !dbus_g_proxy_call(db->rbPlayer, "getPlaying", NULL,
 		G_TYPE_INVALID,
 		G_TYPE_BOOLEAN, &bRes, G_TYPE_INVALID)) {
-		LOGERR("Failed to complete getPlaying\n");
+		LOGERR("Failed to complete getPlaying");
 		return FALSE;
 	}
 	return bRes;
@@ -393,7 +397,7 @@ gboolean rbToggle(gpointer thsPtr, gboolean *newState) {
 
 gboolean rbDetach(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter rbDetach\n");
+	LOG("Enter rbDetach");
 	if( db->rbPlayer )
 	{
 		g_object_unref (G_OBJECT (db->rbPlayer));		
@@ -417,7 +421,7 @@ gboolean rbDetach(gpointer thsPtr) {
 		db->bus = NULL;		
 	}
 	//g_free(db);
-	LOG("Leave rbDetach\n");
+	LOG("Leave rbDetach");
 	
 	return TRUE;
 }
@@ -445,7 +449,7 @@ gboolean rbGetRepeat(gpointer thsPtr) {
 rbData * RB_attach(SPlayer *player) {
 	rbData *db = NULL;
 	
-	LOG("Enter RB_attach\n");
+	LOG("Enter RB_attach");
 	RB_MAP(Assure);
 	RB_MAP(Next);
 	RB_MAP(Previous);
@@ -487,7 +491,7 @@ rbData * RB_attach(SPlayer *player) {
 		
 	}
 	db->noCreate = FALSE;
-	LOG("Leave RB_attach\n");
+	LOG("Leave RB_attach");
 	return db;
 }
 #endif

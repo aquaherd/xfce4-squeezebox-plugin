@@ -26,6 +26,10 @@
 #define XFCE4_SQUEEZEBOX_PLUGIN_MAIN_HEADER
 
 // stdafx.hish
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
@@ -95,16 +99,26 @@ typedef struct {
     void(* FindAlbumArtByFilePath)(gpointer thsPlayer, const gchar * path);
 }SPlayer;
 
+// Backend definitions
+
+typedef struct {
+    const gchar* Name;
+    gint Type;
+    gint Offset;
+}PropDef;
+ 
 typedef struct {
     void*( *BACKEND_attach)(SPlayer *player);
     gchar*( *BACKEND_name)();
     GdkPixbuf*( *BACKEND_icon)();
+    PropDef*( *BACKEND_properties)();
 }Backend;
- 
+
 #define IMPORT_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
  	extern gchar * t##_name(); \
-    extern GdkPixbuf * t##_icon();
+    extern GdkPixbuf * t##_icon(); \
+    extern PropDef* t##_properties();
  
 extern const Backend* squeezebox_get_backends();
 
@@ -122,17 +136,25 @@ extern const Backend* squeezebox_get_backends();
     GdkPixbuf *t##_icon(){ return gdk_pixbuf_new_from_inline( \
         sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); }
     
-		
-#if DEBUG
-#define LOG(t) printf(t);fflush(stdout)
-#define LOGERR(t) fprintf(stderr, t);fflush(stderr)
+// Properties
+
+#define BEGIN_PROP_MAP(bk) const PropDef* bk##_properties() \
+{ \
+    static const PropDef props[] = {
+#define PROP_ENTRY(name,type,struct,member) {name,type,G_STRUCT_OFFSET(struct,member)},
+#define END_PROP_MAP() {"",0,0} \
+    }; \
+    return &props[0]; \
+}
+
+#if DEBUG_TRACE
+#define LOGERR g_error
 #define LOGWARN g_warning
-#define LOGF printf
+#define LOG g_message
 #else
-#define LOG(t)
-#define LOGERR(t)
+#define LOG(...)
+#define LOGERR(...)
 #define LOGWARN(...)
-#define LOGF
 #endif
 	
 #define xfce_screen_position_is_right_ex(position) \
