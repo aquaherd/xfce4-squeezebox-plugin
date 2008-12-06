@@ -204,6 +204,11 @@ if test x$enable_exaile = xyes; then
 	AC_DEFINE(HAVE_BACKEND_EXAILE,1,[Define to use exaile])
 fi
 
+AC_ARG_ENABLE(consonance,[  --disable-consonance     disable consonance support (default: enable)],[enable_consonance=$enableval],[enable_consonance=yes])
+if test x$enable_consonance = xyes; then
+	AC_DEFINE(HAVE_BACKEND_CONSONANCE,1,[Define to use consonance])
+fi
+
 dnl Translations
 XDT_I18N([de fr tr])
 
@@ -281,6 +286,12 @@ if test x$enable_exaile = xyes; then
 	echo " exaile support ................enabled"
 else
 	echo " exaile support ................disabled"
+fi
+
+if test x$enable_consonance = xyes; then
+	echo " consonance support ............enabled"
+else
+	echo " consonance support ............disabled"
 fi
 
 echo ""
