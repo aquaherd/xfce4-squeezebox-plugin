@@ -15,6 +15,9 @@
 /* Define to use audacious */
 #undef HAVE_BACKEND_AUDACIOUS
 
+/* Define to use consonance */
+#undef HAVE_BACKEND_CONSONANCE
+
 /* Define to use exaile */
 #undef HAVE_BACKEND_EXAILE
 

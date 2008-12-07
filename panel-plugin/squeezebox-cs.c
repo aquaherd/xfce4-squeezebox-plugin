@@ -49,6 +49,9 @@ typedef struct {
     gboolean        Repeat;
     GString         *file;
 	DBusConnection  *con_dbus;			/* DBUS connection */
+    guint           intervalID;
+    GQuark          csPlaying, csPaused, csStopped;
+    eSynoptics      oldStat;
 }csData;
 
 // MFCish property map -- currently none
@@ -105,6 +108,7 @@ exit:
 static gboolean csPoll(gpointer thsPtr){
     MKTHIS;
 	gboolean ret = TRUE;
+    gboolean fileChanged = FALSE;
 	DBusMessage *msg = NULL;
 	DBusMessage *reply_msg = NULL;
 	DBusError d_error;
@@ -140,7 +144,17 @@ static gboolean csPoll(gpointer thsPtr){
 		ret = FALSE;
 		goto bad;
 	}
-
+    
+    GQuark csAct = g_quark_from_string(state);
+    if(csAct == db->csStopped)
+        eStat = estStop;
+    else if(csAct == db->csPaused)
+        eStat = estPause;
+    else if(csAct == db->csPlaying)
+        eStat = estPlay;
+    else 
+        eStat = estErr;
+    
 	if (g_ascii_strcasecmp(state, "Stopped")) {
 		dbus_message_get_args(reply_msg, &d_error,
 				      DBUS_TYPE_STRING, &state,
@@ -160,16 +174,35 @@ static gboolean csPoll(gpointer thsPtr){
         
         if(!g_str_equal(db->file->str, file)) {
             g_string_assign(db->file, file);
+            fileChanged = TRUE;
             if(!g_str_equal(db->parent->artist->str, artist))
                 g_string_assign(db->parent->artist, artist);
             if(!g_str_equal(db->parent->album->str, album))
                 g_string_assign(db->parent->album, album);
             if(!g_str_equal(db->parent->title->str, title))
                 g_string_assign(db->parent->title, title);
+            db->parent->FindAlbumArtByFilePath(db->parent->sd, db->file->str);
         }
 	}
+    else if(db->file->len) {
+        g_string_truncate(db->file, 0);
+        g_string_truncate(db->parent->artist, 0);
+        g_string_truncate(db->parent->album, 0);
+        g_string_truncate(db->parent->title, 0);
+        g_string_truncate(db->parent->albumArt, 0);
+        fileChanged = TRUE;
+    }
+        
+    if(eStat != db->oldStat || fileChanged) {
+        LOG("State change detected: %s: '%s'", state, db->file->str);
+        db->oldStat = eStat;
+        db->parent->Update(db->parent->sd, fileChanged, eStat, NULL);
+    }
+    
 bad:
 	dbus_message_unref(msg);
+    
+    return ret;
 }
 
 static gboolean csAssure(gpointer thsPtr) {
@@ -203,9 +236,18 @@ static gboolean csAssure(gpointer thsPtr) {
 	return (NULL != db->con_dbus);
 }
 
+static gint csCallback(gpointer thsPtr) {
+    MKTHIS;
+    if(NULL != db->con_dbus)
+        csPoll(thsPtr);
+	return TRUE;	
+}
+
 static gboolean csNext(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter csNext");
+    if( !csAssure(db) )
+		return FALSE;
 	dbus_send_signal(DBUS_SIG_NEXT, db);
 	LOG("Leave csNext");
 	return TRUE;
@@ -214,6 +256,8 @@ static gboolean csNext(gpointer thsPtr) {
 static gboolean csPrevious(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter csPrevious");
+    if( !csAssure(db) )
+		return FALSE;
 	dbus_send_signal(DBUS_SIG_PREV, db);
 	LOG("Leave csPrevious");
 	return TRUE;
@@ -221,25 +265,35 @@ static gboolean csPrevious(gpointer thsPtr) {
 
 static gboolean csPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	LOG("Enter csPlayPause");
-    if(newState)
-		dbus_send_signal(DBUS_SIG_PAUSE, db);
-    else
-		dbus_send_signal(DBUS_SIG_PLAY, db);
+	LOG("Enter csPlayPause %d", newState);
+    if(csAssure(thsPtr)) {
+        dbus_send_signal((newState)?DBUS_SIG_PLAY:DBUS_SIG_PAUSE, db);
+    }
 	LOG("Leave csPlayPause");
 	return TRUE;
 }
 
 static gboolean csIsPlaying(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter csIsPlaying");
-	LOG("Leave csIsPlaying");
-	return TRUE;
+	return (db->oldStat == estPlay);
 }
 
 static gboolean csToggle(gpointer thsPtr, gboolean *newState) {
     MKTHIS;
 	LOG("Enter csToggle");
+    if( !csAssure(db) )
+		return FALSE;
+    gboolean newStat = FALSE;
+    switch(db->oldStat) {
+        case estPlay: newStat = FALSE; break;
+        case estPause: newStat = TRUE; break;
+        case estStop: newStat = TRUE; break;
+        default:
+            return FALSE;
+    }
+    csPlayPause(db, newStat);
+    if(newState)
+        *newState = csIsPlaying(db);
 	LOG("Leave csToggle");
     return TRUE;
 }
@@ -255,51 +309,14 @@ static gboolean csDetach(gpointer thsPtr) {
         g_string_free(db->file, TRUE);
         db->file = NULL;
     }
+	if( db->intervalID )
+	{
+		g_source_remove(db->intervalID);
+		db->intervalID = 0;
+	}
 	LOG("Leave csDetach");
 	return TRUE;
 }
-
-gboolean csIsVisible(gpointer thsPtr) {
-    MKTHIS;
-	LOG("Enter csIsVisible");
-	LOG("Leave csIsVisible");
-	return TRUE;
-}
-
-gboolean csShow(gpointer thsPtr, gboolean newState) {
-    MKTHIS;
-	LOG("Enter csShow");
-	LOG("Leave csShow");
-	return TRUE;
-}
-
-gboolean csGetShuffle(gpointer thsPtr) {
-    MKTHIS;
-	LOG("Enter csGetShuffle");
-	LOG("Leave csGetShuffle");
-	return TRUE;
-}    
-
-gboolean csSetShuffle(gpointer thsPtr, gboolean newShuffle) {
-    MKTHIS;
-	LOG("Enter csSetShuffle");
-	LOG("Leave csSetShuffle");
-	return TRUE;
-}    
-
-gboolean csGetRepeat(gpointer thsPtr) {
-    MKTHIS;
-	LOG("Enter csGetRepeat");
-	LOG("Leave csGetRepeat");
-	return TRUE;
-}    
-
-gboolean csSetRepeat(gpointer thsPtr, gboolean newRepeat) {
-    MKTHIS;
-	LOG("Enter csSetRepeat");
-	LOG("Leave csSetRepeat");
-	return TRUE;
-}    
 
 csData * CS_attach(SPlayer *player) {
 	csData *db = NULL;
@@ -314,22 +331,29 @@ csData * CS_attach(SPlayer *player) {
 	CS_MAP(Detach);
 	 NOMAP(Configure); // no settings
 	 NOMAP(Persist); // no settings
-    CS_MAP(IsVisible);
-    CS_MAP(Show);
-    CS_MAP(GetRepeat);
-    CS_MAP(SetRepeat);
-    CS_MAP(GetShuffle);
-    CS_MAP(SetShuffle);
+     NOMAP(IsVisible);
+     NOMAP(Show);
+     NOMAP(GetRepeat);
+     NOMAP(SetRepeat);
+     NOMAP(GetShuffle);
+     NOMAP(SetShuffle);
 	
 	db = g_new0(csData, 1);
 	db->parent = player;
 	db->noCreate = TRUE;
     db->file = g_string_new("");
 	
-	// check if audacious is running
-	
+    // quarks
+    db->csPlaying = g_quark_from_string("Playing");
+    db->csPaused = g_quark_from_string("Paused");
+    db->csStopped = g_quark_from_string("Stopped");
+    
+    // establish the callback function
+    db->intervalID = 
+	    g_timeout_add(1000, csCallback, db);
+
+    // check if consonance is running
 	if( csAssure(db) ){
-        // emulate state change
 	}
 	db->noCreate = FALSE;
 	LOG("Leave CS_attach");
