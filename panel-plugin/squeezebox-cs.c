@@ -48,7 +48,10 @@ typedef struct {
     gboolean        Shuffle;
     gboolean        Repeat;
     GString         *file;
+	DBusGConnection  *bus;			/* DBUS connection */
 	DBusConnection  *con_dbus;			/* DBUS connection */
+    DBusGProxy 		*csPlayer;          /* currently for removal detection */
+    DBusGProxy 		*dbService;          /* currently for removal detection */
     guint           intervalID;
     GQuark          csPlaying, csPaused, csStopped;
     eSynoptics      oldStat;
@@ -205,21 +208,62 @@ bad:
     return ret;
 }
 
+static gint csCallback(gpointer thsPtr) {
+    MKTHIS;
+    static gboolean inTimer = FALSE;
+    gboolean ret = TRUE;
+    if(!inTimer) {
+        inTimer = TRUE;
+        if(NULL != db->csPlayer) {
+            if(!csPoll(thsPtr)) {
+                db->intervalID = 0;
+	            if( db->csPlayer ){
+		            g_object_unref (G_OBJECT (db->csPlayer));		
+		            db->csPlayer = NULL;
+	            }
+                ret = FALSE;
+            }
+        }
+    }
+    inTimer = FALSE;
+	return ret;	
+}
+
+static void
+csCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name, 
+	const gchar *OldOwner, const gchar* NewOwner, gpointer thsPtr) {
+	MKTHIS;
+    if( !g_ascii_strcasecmp(Name, DBUS_NAME) && !strlen(NewOwner) )
+	{
+		LOG("consonance has died? %s|%s|%s", Name, OldOwner, NewOwner);
+        if( db->csPlayer ) {
+            g_object_unref (G_OBJECT (db->csPlayer));		
+            db->csPlayer = NULL;
+        }
+        db->parent->Update(db->parent->sd, FALSE, estStop, NULL);
+	}
+}
+
 static gboolean csAssure(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter csAssure");
-    if(NULL == db->con_dbus) {
+	if( !db->bus )
+	{
+		db->bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
+		if( !db->bus )
+		{
+			LOGERR("\tCouldn't connect to dbus");
+			return FALSE;
+		}
+		
+	}
+    if(NULL != db->bus && !db->con_dbus) {
 	    DBusConnection *conn = NULL;
 	    DBusError error;
 	    gint ret = 0;
 
 	    dbus_error_init(&error);
-	    conn = dbus_bus_get(DBUS_BUS_SESSION, &error);
-	    if (!conn) {
-		    g_critical("(%s): Unable to get a DBUS connection", __func__);
-		    dbus_error_free(&error);
-		    return FALSE;
-	    }
+	    conn = dbus_g_connection_get_connection(db->bus);
 
 	    ret = dbus_bus_request_name(conn, DBUS_NAME, 0, &error);
 	    if (ret == -1) {
@@ -231,16 +275,39 @@ static gboolean csAssure(gpointer thsPtr) {
 	    dbus_connection_setup_with_g_main(conn, NULL);
 	    db->con_dbus = conn;
 
+		// user close notification
+		db->dbService = dbus_g_proxy_new_for_name(db->bus,
+			DBUS_SERVICE_DBUS,
+			DBUS_PATH_DBUS,
+			DBUS_INTERFACE_DBUS);
+		
+		dbus_g_proxy_add_signal(db->dbService, "NameOwnerChanged",
+			G_TYPE_STRING,
+			G_TYPE_STRING,
+			G_TYPE_STRING,
+			G_TYPE_INVALID);
+		dbus_g_proxy_connect_signal(db->dbService, "NameOwnerChanged", 
+			G_CALLBACK(csCallbackNameOwnerChanged),
+			db,
+			NULL);
+
     }
+    if(!db->csPlayer) {
+        GError *error = NULL;
+		db->csPlayer = dbus_g_proxy_new_for_name_owner(db->bus,
+            DBUS_NAME, DBUS_PATH, DBUS_INTERFACE, &error);
+        if(error) {
+		    LOGWARN("Could'n connect to consonance '%s'", error->message);
+            g_error_free(error);
+        }
+    }
+    if(!db->intervalID) {
+        // establish the callback functions
+        db->intervalID = 
+	        g_timeout_add(1000, csCallback, db);
+    }        
 	LOG("Leave csAssure");
 	return (NULL != db->con_dbus);
-}
-
-static gint csCallback(gpointer thsPtr) {
-    MKTHIS;
-    if(NULL != db->con_dbus)
-        csPoll(thsPtr);
-	return TRUE;	
 }
 
 static gboolean csNext(gpointer thsPtr) {
@@ -305,6 +372,10 @@ static gboolean csDetach(gpointer thsPtr) {
 		g_object_unref (G_OBJECT (db->con_dbus));		
 		db->con_dbus = NULL;
 	}
+	if( db->csPlayer ){
+		g_object_unref (G_OBJECT (db->csPlayer));		
+		db->csPlayer = NULL;
+	}
     if( db->file ) {
         g_string_free(db->file, TRUE);
         db->file = NULL;
@@ -314,6 +385,19 @@ static gboolean csDetach(gpointer thsPtr) {
 		g_source_remove(db->intervalID);
 		db->intervalID = 0;
 	}
+	if( db->dbService )
+	{
+		g_object_unref (G_OBJECT (db->dbService));		
+		db->dbService = NULL;
+	}
+	if( db->bus )
+	{
+		//some reading shows that this should not be freed
+		//but its not clear if meant server only.
+		//g_object_unref(G_OBJECT(db->bus));
+		db->bus = NULL;		
+	}
+	//g_free(db);
 	LOG("Leave csDetach");
 	return TRUE;
 }
@@ -348,12 +432,9 @@ csData * CS_attach(SPlayer *player) {
     db->csPaused = g_quark_from_string("Paused");
     db->csStopped = g_quark_from_string("Stopped");
     
-    // establish the callback function
-    db->intervalID = 
-	    g_timeout_add(1000, csCallback, db);
-
     // check if consonance is running
 	if( csAssure(db) ){
+        ;
 	}
 	db->noCreate = FALSE;
 	LOG("Leave CS_attach");
