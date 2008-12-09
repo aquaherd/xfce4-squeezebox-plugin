@@ -44,14 +44,12 @@
 // pixmap
 #include "squeezebox-au.png.h"
 
-DEFINE_BACKEND(AU, _("audacious 1.5.x (via DBUS)"))
+DEFINE_DBUS_BACKEND(AU, _("audacious 1.5.x (via DBUS)"), "org.mpris.audacious")
 
 typedef struct {
 	SPlayer			*parent;
-	DBusGConnection *bus;
 	DBusGProxy 		*auPlayer;
 	DBusGProxy 		*auTheme;
-    DBusGProxy		*dbService;
 	gboolean		noCreate;
     gboolean        Visibility;
     gboolean        Shuffle;
@@ -65,6 +63,7 @@ END_PROP_MAP()
 #define MKTHIS auData *db = (auData *)thsPtr;
 
 // implementation
+static gboolean auAssure(gpointer thsPtr);
 
 static void auCallbackCapsChange(DBusGProxy *proxy, gint caps, gpointer thsPtr) {
 	// MKTHIS;
@@ -118,24 +117,46 @@ static void auCallbackTrackChange(DBusGProxy *proxy, GHashTable *table, gpointer
 	LOG("Leave auCallback: TrackChange");
 }
 
-static void
-auCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name, 
-	const gchar *OldOwner, const gchar* NewOwner, gpointer thsPtr) {
+static void auCallbackFake(gpointer thsPtr) {
+    MKTHIS;
+    // emulate state change
+    gint caps = 0;
+    gint status = 0;
+    GHashTable *metaData = NULL;
+    if(org_freedesktop_MediaPlayer_get_caps(db->auPlayer, &caps, NULL)) {
+        auCallbackCapsChange(db->auPlayer, caps, db);
+    }
+    if(org_freedesktop_MediaPlayer_get_status(db->auPlayer, &status, NULL)) {
+        auCallbackStatusChange(db->auPlayer, status, db);
+    }
+    if(org_freedesktop_MediaPlayer_get_metadata(db->auPlayer, &metaData, NULL)) {
+        auCallbackTrackChange(db->auPlayer, metaData, db);
+        g_hash_table_unref(metaData);
+    }
+}    
+
+static gboolean
+auUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	MKTHIS;
-    if( !g_ascii_strcasecmp(Name, "org.mpris.audacious") && !strlen(NewOwner) )
-	{
-		LOG("Audacious has died? %s|%s|%s", Name, OldOwner, NewOwner);
-        if( db->auPlayer ) {
+	if(appeared){
+        LOG("Audacious has started");
+        if( !db->auPlayer && auAssure(thsPtr))
+           auCallbackFake(thsPtr);
+    }
+    else {
+        LOG("Audacious has died");
+        if( db->auPlayer )
+        {
             g_object_unref (G_OBJECT (db->auPlayer));		
             db->auPlayer = NULL;
         }
-        if( db->dbService )
-        {
-            g_object_unref (G_OBJECT (db->dbService));		
-            db->dbService = NULL;
-        }
-        db->parent->Update(db->parent->sd, FALSE, estStop, NULL);
-	}
+        g_string_truncate(db->parent->artist, 0);
+        g_string_truncate(db->parent->album, 0);
+        g_string_truncate(db->parent->title, 0);
+        g_string_truncate(db->parent->albumArt, 0);
+        db->parent->Update(db->parent->sd, TRUE, estStop, NULL);
+    }
+    return TRUE;
 }
 
 static gboolean auAssure(gpointer thsPtr) {
@@ -144,21 +165,11 @@ static gboolean auAssure(gpointer thsPtr) {
 	auData *db = (auData*)thsPtr;
 	LOG("Enter auAssure");
     
-	if( !db->bus )
-	{
-		db->bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
-		if( !db->bus )
-		{
-			LOGERR("\tCouldn't connect to dbus");
-			bRet = FALSE;
-		}
-		
-	}
-	if( db->bus && !db->auPlayer )
+	if( db->parent->bus && !db->auPlayer )
 	{
 		GError *error = NULL;
-		db->auPlayer = dbus_g_proxy_new_for_name_owner(db->bus,
-							  "org.mpris.audacious",
+		db->auPlayer = dbus_g_proxy_new_for_name_owner(db->parent->bus,
+							  AU_dbusName(),
 							  "/Player",
 							  "org.freedesktop.MediaPlayer",
 							  &error);
@@ -174,8 +185,8 @@ static gboolean auAssure(gpointer thsPtr) {
 				guint start_service_reply;
 				LOG("\tstarting new instance");
 
-				bus_proxy = dbus_g_proxy_new_for_name (db->bus,
-							  "org.mpris.audacious",
+				bus_proxy = dbus_g_proxy_new_for_name (db->parent->bus,
+							  AU_dbusName(),
 							  "/Player",
 							  "org.freedesktop.Mediaplayer");
 		
@@ -218,30 +229,15 @@ static gboolean auAssure(gpointer thsPtr) {
 				G_TYPE_INT, G_TYPE_INVALID);
 			dbus_g_proxy_connect_signal(db->auPlayer, "CapsChange", 
 				G_CALLBACK(auCallbackCapsChange), db, NULL);
-			
-			// user close notification
-			db->dbService = dbus_g_proxy_new_for_name(db->bus,
-				DBUS_SERVICE_DBUS,
-				DBUS_PATH_DBUS,
-				DBUS_INTERFACE_DBUS);
-			
-			dbus_g_proxy_add_signal(db->dbService, "NameOwnerChanged",
-				G_TYPE_STRING,
-				G_TYPE_STRING,
-				G_TYPE_STRING,
-				G_TYPE_INVALID);
-			dbus_g_proxy_connect_signal(db->dbService, "NameOwnerChanged", 
-				G_CALLBACK(auCallbackNameOwnerChanged),
-				db,
-				NULL);
             
             // extended properties
-    		db->auTheme = dbus_g_proxy_new_for_name_owner(db->bus,
-					  "org.atheme.audacious",
-					  "/org/atheme/audacious",
-					  "org.atheme.audacious",
-					  NULL);
-
+            if(!db->auTheme) {
+        		db->auTheme = dbus_g_proxy_new_for_name_owner(db->parent->bus,
+					      "org.atheme.audacious",
+					      "/org/atheme/audacious",
+					      "org.atheme.audacious",
+					      NULL);
+            }
 		}
 			
 	}
@@ -334,18 +330,6 @@ static gboolean auDetach(gpointer thsPtr) {
 		g_object_unref (G_OBJECT (db->auPlayer));		
 		db->auPlayer = NULL;
 	}
-	if( db->dbService )
-	{
-		g_object_unref (G_OBJECT (db->dbService));		
-		db->dbService = NULL;
-	}
-	if( db->bus )
-	{
-		//some reading shows that this should not be freed
-		//but its not clear if meant server only.
-		//g_object_unref(G_OBJECT(db->bus));
-		db->bus = NULL;		
-	}
 	//g_free(db);
 	LOG("Leave auDetach");
 	
@@ -416,6 +400,7 @@ auData * AU_attach(SPlayer *player) {
 	 NOMAP(Persist); // no settings
     AU_MAP(IsVisible);
     AU_MAP(Show);
+    AU_MAP(UpdateDBUS);
     AU_MAP(GetRepeat);
     AU_MAP(SetRepeat);
     AU_MAP(GetShuffle);
@@ -423,7 +408,6 @@ auData * AU_attach(SPlayer *player) {
 	
 	db = g_new0(auData, 1);
 	db->parent = player;
-	db->bus = NULL;
 	db->auPlayer = NULL;
     db->auTheme = NULL;
 	db->noCreate = TRUE;
@@ -431,20 +415,7 @@ auData * AU_attach(SPlayer *player) {
 	// check if audacious is running
 	
 	if( auAssure(db) ){
-        // emulate state change
-        gint caps = 0;
-        gint status = 0;
-        GHashTable *metaData = NULL;
-        if(org_freedesktop_MediaPlayer_get_caps(db->auPlayer, &caps, NULL)) {
-            auCallbackCapsChange(db->auPlayer, caps, db);
-        }
-        if(org_freedesktop_MediaPlayer_get_status(db->auPlayer, &status, NULL)) {
-            auCallbackStatusChange(db->auPlayer, status, db);
-        }
-        if(org_freedesktop_MediaPlayer_get_metadata(db->auPlayer, &metaData, NULL)) {
-            auCallbackTrackChange(db->auPlayer, metaData, db);
-            g_hash_table_unref(metaData);
-        }
+        auCallbackFake(db);
 	}
 	db->noCreate = FALSE;
 	LOG("Leave AU_attach");

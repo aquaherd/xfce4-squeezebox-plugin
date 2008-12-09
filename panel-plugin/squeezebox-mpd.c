@@ -505,7 +505,6 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget *parent) {
     xfce_heading_set_icon(XFCE_HEADING(header), gdk_pixbuf_new_from_inline(
         sizeof(my_pixbuf), my_pixbuf, FALSE, NULL));
     xfce_heading_set_subtitle(XFCE_HEADING(header), _("music player daemon"));
-    gtk_container_set_border_width (GTK_CONTAINER (header), 6);
     gtk_widget_show (header);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG (dlg)->vbox), header,
                         FALSE, TRUE, 0);
@@ -634,6 +633,7 @@ void *MPD_attach(SPlayer *player) {
 	MPD_MAP(Configure);
       NOMAP(IsVisible);
       NOMAP(Show);
+      NOMAP(UpdateDBUS);
     MPD_MAP(GetRepeat);
     MPD_MAP(SetRepeat);
     MPD_MAP(GetShuffle);

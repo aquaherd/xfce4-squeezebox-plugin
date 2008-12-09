@@ -125,53 +125,53 @@ static void squeezebox_construct (XfcePanelPlugin * plugin);
 //XFCE_PANEL_PLUGIN_REGISTER_INTERNAL (squeezebox_construct);
 
 /* Backend mapping */ 
-#ifdef HAVE_BACKEND_RHYTHMBOX
-IMPORT_BACKEND(RB)
+#if HAVE_BACKEND_RHYTHMBOX
+IMPORT_DBUS_BACKEND(RB)
 #endif
 
-#ifdef HAVE_BACKEND_MPD
+#if HAVE_BACKEND_MPD
 IMPORT_BACKEND(MPD)
 #endif
 
-#ifdef HAVE_BACKEND_QL
+#if HAVE_BACKEND_QUODLIBET
 IMPORT_BACKEND(QL)
 #endif
 
-#ifdef HAVE_BACKEND_AUDACIOUS
-IMPORT_BACKEND(AU)
+#if HAVE_BACKEND_AUDACIOUS
+IMPORT_DBUS_BACKEND(AU)
 #endif
 
-#ifdef HAVE_BACKEND_EXAILE
-IMPORT_BACKEND(EX)
+#if HAVE_BACKEND_EXAILE
+IMPORT_DBUS_BACKEND(EX)
 #endif
 
-#ifdef HAVE_BACKEND_CONSONANCE
-IMPORT_BACKEND(CS)
+#if HAVE_BACKEND_CONSONANCE
+IMPORT_DBUS_BACKEND(CS)
 #endif
 
 BEGIN_BACKEND_MAP()
-	#ifdef HAVE_BACKEND_RHYTHMBOX
-		BACKEND(RB)
+	#if HAVE_BACKEND_RHYTHMBOX
+		DBUS_BACKEND(RB)
     #endif
 
-	#ifdef HAVE_BACKEND_MPD
+	#if HAVE_BACKEND_MPD
 		BACKEND(MPD)
     #endif
     
-    #ifdef HAVE_BACKEND_QL
+    #if HAVE_BACKEND_QUODLIBET
 		BACKEND(QL) 
 	#endif
 
-    #ifdef HAVE_BACKEND_AUDACIOUS
-		BACKEND(AU) 
+    #if HAVE_BACKEND_AUDACIOUS
+		DBUS_BACKEND(AU) 
 	#endif
 
-    #ifdef HAVE_BACKEND_EXAILE
-		BACKEND(EX) 
+    #if HAVE_BACKEND_EXAILE
+		DBUS_BACKEND(EX) 
     #endif
 
-    #ifdef HAVE_BACKEND_CONSONANCE
-		BACKEND(CS) 
+    #if HAVE_BACKEND_CONSONANCE
+		DBUS_BACKEND(CS) 
     #endif
 END_BACKEND_MAP()
 
@@ -437,7 +437,7 @@ squeezebox_update_visibility(gpointer thsPlayer, gboolean newVisible) {
     sd->noUI = TRUE;
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuPlayer), newVisible);
     sd->noUI = FALSE;
-    LOG("Enter squeezebox_update_visibility");
+    LOG("Leave squeezebox_update_visibility");
 }
 
 static void
@@ -517,11 +517,18 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 	
 	if( updateSong ) {
 		if( sd->toolTipStyle == ettSimple ) {
-			g_string_printf(
-				sd->toolTipText, "%s: %s - %s",
-				sd->player.artist->str,
-				sd->player.album->str,
-				sd->player.title->str);
+            if(sd->player.artist->len + sd->player.album->len + sd->player.title->len)
+			    g_string_printf(
+				    sd->toolTipText, "%s: %s - %s",
+				    sd->player.artist->str,
+				    sd->player.album->str,
+				    sd->player.title->str);
+            else {
+                const Backend *ptr = squeezebox_get_backends();
+                g_string_printf(
+                    sd->toolTipText, _("%s: No info"), 
+                    ptr[sd->backend-1].BACKEND_name(&sd->player));
+            }
 #if HAVE_GTK_2_12
 			gtk_tooltip_trigger_tooltip_query(
 				gdk_display_get_default ());
@@ -584,6 +591,20 @@ squeezebox_free_data (XfcePanelPlugin * plugin, SqueezeBoxData * sd)
         g_object_unref(sd->tooltips);
         sd->tooltips = NULL;
     }
+#endif
+#if HAVE_DBUS
+	if( sd->player.dbService )
+	{
+		g_object_unref (G_OBJECT (sd->player.dbService));		
+		sd->player.dbService = NULL;
+	}
+	if( sd->player.bus )
+	{
+		//some reading shows that this should not be freed
+		//but its not clear if meant server only.
+		//g_object_unref(G_OBJECT(db->bus));
+		sd->player.bus = NULL;		
+	}
 #endif
 	if( sd->player.Detach ) {
 		sd->player.Detach(sd->player.db);
@@ -753,7 +774,8 @@ squeezebox_dialog_response (GtkWidget *dlg, int reponse,
 static void
 config_show_backend_properties(GtkButton *btn, SqueezeBoxData *sd)
 {
-	if( sd->player.Configure )
+    LOG("Enter config_show_backend_properties");
+    if( sd->player.Configure )
 		sd->player.Configure(sd->player.db, GTK_WIDGET(sd->plugin));
 	else
 	{
@@ -765,6 +787,7 @@ config_show_backend_properties(GtkButton *btn, SqueezeBoxData *sd)
         gtk_dialog_run (GTK_DIALOG (dlg));
 		gtk_widget_destroy (dlg);
 	}
+    LOG("Leave config_show_backend_properties");
 }
 
 enum
@@ -1119,6 +1142,7 @@ squeezebox_properties_dialog (XfcePanelPlugin *plugin, SqueezeBoxData *sd)
     const Backend *ptr = squeezebox_get_backends();
     for(;;)
     {
+        LOG("Have %s", ptr->BACKEND_name());
         gtk_list_store_append(store, &iter);
         GdkPixbuf *pix = exo_gdk_pixbuf_scale_down(
              ptr->BACKEND_icon(), TRUE, 24, 32);
@@ -1393,6 +1417,20 @@ squeezebox_create (SqueezeBoxData *sd)
 	return window1;
 }
 
+#if HAVE_DBUS
+static void squeezebox_update_dbus(DBusGProxy *proxy, const gchar* Name, 
+	const gchar *OldOwner, const gchar* NewOwner, SqueezeBoxData *sd)
+{
+    if(sd->backend) {
+        gboolean appeared = (NULL != NewOwner && 0 != NewOwner[0]);
+        const gchar *dbusName = squeezebox_get_backends()[sd->backend-1].BACKEND_dbusName();
+	    if( sd->player.UpdateDBUS && !g_ascii_strcasecmp(Name, dbusName)) {
+            LOG("DBUS name change %s: '%s'->'%s'", Name, OldOwner, NewOwner);
+		    sd->player.UpdateDBUS(sd->player.db, appeared);
+        }
+    }
+}
+#endif
 static void
 squeezebox_construct (XfcePanelPlugin * plugin)
 {
@@ -1414,7 +1452,28 @@ squeezebox_construct (XfcePanelPlugin * plugin)
     sd->player.UpdateRepeat = squeezebox_update_repeat;
     sd->player.UpdateVisibility = squeezebox_update_visibility;
 #if HAVE_DBUS
-    sd->player.MonitorDBUS = NULL; //tbd
+	sd->player.bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
+	if( !sd->player.bus )
+	{
+		LOGERR("\tCouldn't connect to dbus");
+	}
+    else
+    {
+        // user close and appear notification
+        sd->player.dbService = dbus_g_proxy_new_for_name(sd->player.bus,
+            DBUS_SERVICE_DBUS,
+            DBUS_PATH_DBUS,
+            DBUS_INTERFACE_DBUS);
+        dbus_g_proxy_add_signal(sd->player.dbService, "NameOwnerChanged",
+            G_TYPE_STRING,
+            G_TYPE_STRING,
+            G_TYPE_STRING,
+            G_TYPE_INVALID);
+        dbus_g_proxy_connect_signal(sd->player.dbService, "NameOwnerChanged", 
+            G_CALLBACK(squeezebox_update_dbus),
+            sd,
+            NULL);
+    }
 #endif
     sd->player.MonitorFile = NULL; //tbd
     sd->player.FindAlbumArtByFilePath = squeezebox_find_albumart_by_filepath;

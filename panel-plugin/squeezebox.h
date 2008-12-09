@@ -33,6 +33,10 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
+#if HAVE_DBUS
+#include <dbus/dbus-glib.h>
+#endif
+
 #include <libxfcegui4/libxfcegui4.h>
 #include <libxfce4panel/xfce-panel-plugin.h>
 #include <libxfce4panel/xfce-panel-convenience.h>
@@ -69,6 +73,9 @@ typedef struct {
     gboolean(* SetShuffle)(gpointer thsPtr, gboolean newShuffle);
 	gboolean(* IsVisible)(gpointer thsPtr);
 	gboolean(* Show)(gpointer thsPtr, gboolean newState);
+#if HAVE_DBUS
+    gboolean(* UpdateDBUS)(gpointer thsPtr, gboolean appeared);
+#endif
 	void(* Persist)(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring);
 	void(* Configure)(gpointer thsPtr, GtkWidget *parent);
 	
@@ -84,7 +91,13 @@ typedef struct {
 	
     // frontend "this" pointer
 	gpointer sd;
-	
+
+    // frontend globals
+#if HAVE_DBUS
+	DBusGConnection *bus;
+    DBusGProxy		*dbService;
+#endif
+
 	// frontend callbacks
 	void(* Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State, 
                    const gchar* playerMessage);
@@ -92,9 +105,6 @@ typedef struct {
     void(* UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
     void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
     void(* AddSubItem)(gpointer thsPlayer, gpointer newPlayer);
-#if HAVE_DBUS
-    void(* MonitorDBUS)(gpointer thsPlayer, GString app);
-#endif
     void(* MonitorFile)(gpointer thsPlayer, GString filePath); 
     void(* FindAlbumArtByFilePath)(gpointer thsPlayer, const gchar * path);
 }SPlayer;
@@ -112,6 +122,7 @@ typedef struct {
     gchar*( *BACKEND_name)();
     GdkPixbuf*( *BACKEND_icon)();
     PropDef*( *BACKEND_properties)();
+    gchar*( *BACKEND_dbusName)();
 }Backend;
 
 #define IMPORT_BACKEND(t) \
@@ -120,12 +131,20 @@ typedef struct {
     extern GdkPixbuf * t##_icon(); \
     extern PropDef* t##_properties();
  
+#define IMPORT_DBUS_BACKEND(t) \
+ 	extern void * t##_attach(SPlayer *player); \
+ 	extern gchar * t##_name(); \
+    extern GdkPixbuf * t##_icon(); \
+    extern PropDef* t##_properties(); \
+    extern gchar * t##_dbusName();
+
 extern const Backend* squeezebox_get_backends();
 
 #define BEGIN_BACKEND_MAP() const Backend* squeezebox_get_backends() \
 { \
     static const Backend ret[] = { 
-#define BACKEND(t) {t##_attach, t##_name, t##_icon},
+#define BACKEND(t) {t##_attach, t##_name, t##_icon, t##_properties, NULL},
+#define DBUS_BACKEND(t) {t##_attach, t##_name, t##_icon, t##_properties, t##_dbusName},
 #define END_BACKEND_MAP() \
         {NULL, NULL} \
     }; \
@@ -135,6 +154,11 @@ extern const Backend* squeezebox_get_backends();
 #define DEFINE_BACKEND(t,n) gchar* t##_name(){ return _(n);} \
     GdkPixbuf *t##_icon(){ return gdk_pixbuf_new_from_inline( \
         sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); }
+    
+#define DEFINE_DBUS_BACKEND(t,n,d) gchar* t##_name(){ return _(n);} \
+    GdkPixbuf *t##_icon(){ return gdk_pixbuf_new_from_inline( \
+        sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); } \
+    gchar *t##_dbusName(){return d;}
     
 // Properties
 

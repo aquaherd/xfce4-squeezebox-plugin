@@ -19,7 +19,7 @@
  */
 
 #include <stdio.h>
-
+#include <config.h>
 #include "mmkeys.h"
 
 static void mmkeys_class_init (MmKeysClass *klass);
@@ -223,11 +223,13 @@ grab_mmkey (MmKeys *object, guint index, GdkWindow *root)
 
 	gdk_flush ();
 	gint iErr = gdk_error_trap_pop ();
+#if DEBUG_TRACE
 	if (iErr) {
         g_warning ("Error grabbing key %d, %p\n", key_code, root);
 	}
     else
         g_message("Grabbed key %d\n", key_code);
+#endif
 	object->errcodes[index] = iErr;
 }
 static void

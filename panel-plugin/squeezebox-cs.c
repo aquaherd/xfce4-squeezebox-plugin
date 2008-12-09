@@ -39,7 +39,6 @@
 // pixmap
 #include "squeezebox-cs.png.h"
 
-DEFINE_BACKEND(CS, _("consonance 0.3.x (via DBUS)"))
 
 typedef struct {
 	SPlayer			*parent;
@@ -48,10 +47,8 @@ typedef struct {
     gboolean        Shuffle;
     gboolean        Repeat;
     GString         *file;
-	DBusGConnection  *bus;			/* DBUS connection */
 	DBusConnection  *con_dbus;			/* DBUS connection */
     DBusGProxy 		*csPlayer;          /* currently for removal detection */
-    DBusGProxy 		*dbService;          /* currently for removal detection */
     guint           intervalID;
     GQuark          csPlaying, csPaused, csStopped;
     eSynoptics      oldStat;
@@ -81,6 +78,8 @@ END_PROP_MAP()
 
 #define DBUS_METHOD_CURRENT_STATE "curent_state"
 
+DEFINE_DBUS_BACKEND(CS, _("consonance 0.3.x (via DBUS)"), DBUS_NAME)
+
 /* Send a signal to a running instance */
 
 void dbus_send_signal(const gchar *signal, void *thsPtr)
@@ -100,7 +99,7 @@ void dbus_send_signal(const gchar *signal, void *thsPtr)
 		goto exit;
 	}
 
-	dbus_connection_flush(db->con_dbus);
+	//dbus_connection_flush(db->con_dbus);
 exit:
 	dbus_message_unref(msg);
 }
@@ -127,13 +126,13 @@ static gboolean csPoll(gpointer thsPtr){
 		g_critical("(%s): Unable to allocate memory for DBUS message",
 			   __func__);
 		ret = FALSE;
-		exit(0);
+        goto bad;
 	}
 
 	reply_msg = dbus_connection_send_with_reply_and_block(db->con_dbus, msg,
-							      -1, &d_error);
+							      1000, &d_error);
 	if (!reply_msg) {
-		g_critical("(%s): Unable to send DBUS message", __func__);
+		g_critical("(%s): Unable to send DBUS message '%s'", __func__, d_error.message);
 		dbus_error_free(&d_error);
 		ret = FALSE;
 		goto bad;
@@ -142,7 +141,7 @@ static gboolean csPoll(gpointer thsPtr){
 	if (!dbus_message_get_args(reply_msg, &d_error,
 				   DBUS_TYPE_STRING, &state,
 				   DBUS_TYPE_INVALID)) {
-		g_critical("(%s): Unable to get player state", __func__);
+		g_critical("(%s): Unable to get player state '%s'", __func__, d_error.message);
 		dbus_error_free(&d_error);
 		ret = FALSE;
 		goto bad;
@@ -204,7 +203,10 @@ static gboolean csPoll(gpointer thsPtr){
     
 bad:
 	dbus_message_unref(msg);
-    
+    if(!ret && db->intervalID) {
+		g_source_remove(db->intervalID);
+		db->intervalID = 0;
+    }
     return ret;
 }
 
@@ -216,7 +218,6 @@ static gint csCallback(gpointer thsPtr) {
         inTimer = TRUE;
         if(NULL != db->csPlayer) {
             if(!csPoll(thsPtr)) {
-                db->intervalID = 0;
 	            if( db->csPlayer ){
 		            g_object_unref (G_OBJECT (db->csPlayer));		
 		            db->csPlayer = NULL;
@@ -224,77 +225,20 @@ static gint csCallback(gpointer thsPtr) {
                 ret = FALSE;
             }
         }
+        inTimer = FALSE;
     }
-    inTimer = FALSE;
 	return ret;	
-}
-
-static void
-csCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name, 
-	const gchar *OldOwner, const gchar* NewOwner, gpointer thsPtr) {
-	MKTHIS;
-    if( !g_ascii_strcasecmp(Name, DBUS_NAME) && !strlen(NewOwner) )
-	{
-		LOG("consonance has died? %s|%s|%s", Name, OldOwner, NewOwner);
-        if( db->csPlayer ) {
-            g_object_unref (G_OBJECT (db->csPlayer));		
-            db->csPlayer = NULL;
-        }
-        db->parent->Update(db->parent->sd, FALSE, estStop, NULL);
-	}
 }
 
 static gboolean csAssure(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter csAssure");
-	if( !db->bus )
-	{
-		db->bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
-		if( !db->bus )
-		{
-			LOGERR("\tCouldn't connect to dbus");
-			return FALSE;
-		}
-		
-	}
-    if(NULL != db->bus && !db->con_dbus) {
-	    DBusConnection *conn = NULL;
-	    DBusError error;
-	    gint ret = 0;
-
-	    dbus_error_init(&error);
-	    conn = dbus_g_connection_get_connection(db->bus);
-
-	    ret = dbus_bus_request_name(conn, DBUS_NAME, 0, &error);
-	    if (ret == -1) {
-		    g_critical("(%s): Unable to request for DBUS service name", __func__);
-		    dbus_error_free(&error);
-		    return FALSE;
-	    }
-
-	    dbus_connection_setup_with_g_main(conn, NULL);
-	    db->con_dbus = conn;
-
-		// user close notification
-		db->dbService = dbus_g_proxy_new_for_name(db->bus,
-			DBUS_SERVICE_DBUS,
-			DBUS_PATH_DBUS,
-			DBUS_INTERFACE_DBUS);
-		
-		dbus_g_proxy_add_signal(db->dbService, "NameOwnerChanged",
-			G_TYPE_STRING,
-			G_TYPE_STRING,
-			G_TYPE_STRING,
-			G_TYPE_INVALID);
-		dbus_g_proxy_connect_signal(db->dbService, "NameOwnerChanged", 
-			G_CALLBACK(csCallbackNameOwnerChanged),
-			db,
-			NULL);
-
+    if(NULL != db->parent->bus && !db->con_dbus) {
+	    db->con_dbus = dbus_g_connection_get_connection(db->parent->bus);
     }
-    if(!db->csPlayer) {
+    if(db->con_dbus && !db->csPlayer) {
         GError *error = NULL;
-		db->csPlayer = dbus_g_proxy_new_for_name_owner(db->bus,
+		db->csPlayer = dbus_g_proxy_new_for_name_owner(db->parent->bus,
             DBUS_NAME, DBUS_PATH, DBUS_INTERFACE, &error);
         if(error) {
 		    LOGWARN("Could'n connect to consonance '%s'", error->message);
@@ -368,10 +312,6 @@ static gboolean csToggle(gpointer thsPtr, gboolean *newState) {
 static gboolean csDetach(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter csDetach");
-	if( db->con_dbus ){
-		g_object_unref (G_OBJECT (db->con_dbus));		
-		db->con_dbus = NULL;
-	}
 	if( db->csPlayer ){
 		g_object_unref (G_OBJECT (db->csPlayer));		
 		db->csPlayer = NULL;
@@ -385,21 +325,33 @@ static gboolean csDetach(gpointer thsPtr) {
 		g_source_remove(db->intervalID);
 		db->intervalID = 0;
 	}
-	if( db->dbService )
-	{
-		g_object_unref (G_OBJECT (db->dbService));		
-		db->dbService = NULL;
-	}
-	if( db->bus )
-	{
-		//some reading shows that this should not be freed
-		//but its not clear if meant server only.
-		//g_object_unref(G_OBJECT(db->bus));
-		db->bus = NULL;		
-	}
 	//g_free(db);
 	LOG("Leave csDetach");
 	return TRUE;
+}
+
+static gboolean
+csUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+	MKTHIS;
+	if(appeared){
+        LOG("consonance has started");
+        if( !db->csPlayer && csAssure(thsPtr))
+           csPoll(thsPtr);
+    }
+    else {
+        LOG("consonance has died");
+        if( db->csPlayer )
+        {
+            g_object_unref (G_OBJECT (db->csPlayer));		
+            db->csPlayer = NULL;
+        }
+        g_string_truncate(db->parent->artist, 0);
+        g_string_truncate(db->parent->album, 0);
+        g_string_truncate(db->parent->title, 0);
+        g_string_truncate(db->parent->albumArt, 0);
+        db->parent->Update(db->parent->sd, TRUE, estStop, NULL);
+    }
+    return TRUE;
 }
 
 csData * CS_attach(SPlayer *player) {
@@ -417,6 +369,7 @@ csData * CS_attach(SPlayer *player) {
 	 NOMAP(Persist); // no settings
      NOMAP(IsVisible);
      NOMAP(Show);
+    CS_MAP(UpdateDBUS);
      NOMAP(GetRepeat);
      NOMAP(SetRepeat);
      NOMAP(GetShuffle);

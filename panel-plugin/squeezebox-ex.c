@@ -44,13 +44,11 @@
 // pixmap
 #include "squeezebox-ex.png.h"
 
-DEFINE_BACKEND(EX, _("exaile 0.2.x (via DBUS)"))
+DEFINE_DBUS_BACKEND(EX, _("exaile 0.2.x (via DBUS)"), "org.exaile.DBusInterface")
 
 typedef struct {
 	SPlayer			*parent;
-	DBusGConnection *bus;
 	DBusGProxy 		*exPlayer;
-    DBusGProxy		*dbService;
 	gboolean		noCreate;
     gboolean        Visibility;
     gboolean        isPlaying;
@@ -64,28 +62,11 @@ GQuark stopped = 0;
 GQuark paused  = 0;
 GQuark playing = 0;
 
-// implementation
+// MFCish property map -- currently none
+BEGIN_PROP_MAP(EX)
+END_PROP_MAP()                
 
-static void
-exCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name, 
-	const gchar *OldOwner, const gchar* NewOwner, gpointer thsPtr) {
-	MKTHIS;
-    if( !g_ascii_strcasecmp(Name, "org.exaile.DBusInterface") && !strlen(NewOwner) )
-	{
-		LOG("Exaile has died? %s|%s|%s", Name, OldOwner, NewOwner);
-        if( db->exPlayer )
-        {
-            g_object_unref (G_OBJECT (db->exPlayer));		
-            db->exPlayer = NULL;
-        }
-        if( db->dbService )
-        {
-            g_object_unref (G_OBJECT (db->dbService));		
-            db->dbService = NULL;
-        }
-        db->parent->Update(db->parent->sd, FALSE, estStop, NULL);
-	}
-}
+// implementation
 
 gint exCallback(gpointer thsPtr) {
 	MKTHIS;
@@ -204,26 +185,22 @@ static void exCallbackTrackChange(DBusGProxy *proxy, gpointer thsPtr) {
 	LOG("Leave auCallback: TrackChange");
 }
 
+static void exCallbackFake(gpointer thsPtr) {
+    MKTHIS;
+    exCallbackTrackChange(db->exPlayer, thsPtr);
+    exCallbackStatusChange(db->exPlayer, thsPtr);
+}    
+
 static gboolean exAssure(gpointer thsPtr) {
+    MKTHIS;
 	gboolean bRet = TRUE;
     gchar *errLine = NULL;
-	exData *db = (exData*)thsPtr;
 	LOG("Enter exAssure");
-	if( !db->bus )
-	{
-		db->bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
-		if( !db->bus )
-		{
-			LOGERR("\tCouldn't connect to dbus");
-			bRet = FALSE;
-		}
-		
-	}
-	if( db->bus && !db->exPlayer )
+	if( db->parent->bus && !db->exPlayer )
 	{
 		GError *error = NULL;
-		db->exPlayer = dbus_g_proxy_new_for_name_owner(db->bus,
-							  "org.exaile.DBusInterface",
+		db->exPlayer = dbus_g_proxy_new_for_name_owner(db->parent->bus,
+							  EX_dbusName(),
 							  "/DBusInterfaceObject",
 							  "org.exaile.DBusInterface",
 							  &error);
@@ -241,7 +218,7 @@ static gboolean exAssure(gpointer thsPtr) {
 				guint start_service_reply;
 				LOG("\tstarting new instance");
 
-				bus_proxy = dbus_g_proxy_new_for_name (db->bus,
+				bus_proxy = dbus_g_proxy_new_for_name (db->parent->bus,
 							  "org.exaile.DBusInterface",
 							  "/DBusInterfaceObject",
 							  "org.exaile.DBusInterface");
@@ -278,22 +255,6 @@ static gboolean exAssure(gpointer thsPtr) {
 				G_TYPE_INVALID);
 			dbus_g_proxy_connect_signal(db->exPlayer, "track_changed", 
 				G_CALLBACK(exCallbackTrackChange), db, NULL);
-			
-			// user close notification
-			db->dbService = dbus_g_proxy_new_for_name(db->bus,
-				DBUS_SERVICE_DBUS,
-				DBUS_PATH_DBUS,
-				DBUS_INTERFACE_DBUS);
-			
-			dbus_g_proxy_add_signal(db->dbService, "NameOwnerChanged",
-				G_TYPE_STRING,
-				G_TYPE_STRING,
-				G_TYPE_STRING,
-				G_TYPE_INVALID);
-			dbus_g_proxy_connect_signal(db->dbService, "NameOwnerChanged", 
-				G_CALLBACK(exCallbackNameOwnerChanged),
-				db,
-				NULL);
 		}
 			
 	}
@@ -319,7 +280,6 @@ static gboolean exAssure(gpointer thsPtr) {
             db->parent->Update(db->parent->sd, FALSE, estPlay, NULL);        
 
     }
-        
 
 	LOG("Leave exAssure");
 	return bRet;
@@ -390,27 +350,34 @@ static gboolean exDetach(gpointer thsPtr) {
 		g_object_unref (G_OBJECT (db->exPlayer));		
 		db->exPlayer = NULL;
 	}
-	if( db->dbService )
-	{
-		g_object_unref (G_OBJECT (db->dbService));		
-		db->dbService = NULL;
-	}
-	if( db->bus )
-	{
-		//some reading shows that this should not be freed
-		//but its not clear if meant server only.
-		//g_object_unref(G_OBJECT(db->bus));
-		db->bus = NULL;		
-	}
 	//g_free(db);
 	LOG("Leave exDetach");
 	
 	return TRUE;
 }
 
-void exPersist(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring) {
-    // no settings at the moment
-	//MKTHIS;
+static gboolean
+exUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+	MKTHIS;
+	if(appeared){
+        LOG("Exaile has started");
+        if( !db->exPlayer && exAssure(thsPtr))
+           exCallbackFake(thsPtr);
+    }
+    else {
+        LOG("Audacious has died");
+        if( db->exPlayer )
+        {
+            g_object_unref (G_OBJECT (db->exPlayer));		
+            db->exPlayer = NULL;
+        }
+        g_string_truncate(db->parent->artist, 0);
+        g_string_truncate(db->parent->album, 0);
+        g_string_truncate(db->parent->title, 0);
+        g_string_truncate(db->parent->albumArt, 0);
+        db->parent->Update(db->parent->sd, TRUE, estStop, NULL);
+    }
+    return TRUE;
 }
 
 exData * EX_attach(SPlayer *player) {
@@ -429,6 +396,7 @@ exData * EX_attach(SPlayer *player) {
     //The DBUS API does not yet provide:
         NOMAP(IsVisible);
     EX_MAP(Show);
+    EX_MAP(UpdateDBUS);
 	    NOMAP(GetRepeat);
         NOMAP(SetRepeat);
         NOMAP(GetShuffle);
@@ -436,7 +404,6 @@ exData * EX_attach(SPlayer *player) {
 	
 	db = g_new0(exData, 1);
 	db->parent = player;
-	db->bus = NULL;
 	db->exPlayer = NULL;
 	db->noCreate = TRUE;
     
@@ -448,7 +415,7 @@ exData * EX_attach(SPlayer *player) {
  	// check if exaile is running
 	if( exAssure(db) ){
         // emulate state change
-        exCallbackTrackChange(db->exPlayer, db);
+        exCallbackFake(db);
 	}
 	db->noCreate = FALSE;
 

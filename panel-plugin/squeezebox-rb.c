@@ -36,8 +36,6 @@
 #include <string.h>
 //#include <id3tag.h>
 
-// libdbus-glib for rhythmbox remote
-#include <dbus/dbus-glib.h>
 #include "rb-shell-binding.h"
 #include "rb-shell-player-binding.h"
 
@@ -51,15 +49,13 @@
 // pixmap
 #include "squeezebox-rb.png.h"
 
-DEFINE_BACKEND(RB, _("Rhythmbox 0.9.x (via DBUS)"))
+DEFINE_DBUS_BACKEND(RB, _("Rhythmbox 0.9.x (via DBUS)"), "org.gnome.Rhythmbox")
 
 typedef struct 
 {
 	SPlayer			*parent;
-	DBusGConnection *bus;
 	DBusGProxy 		*rbPlayer;
 	DBusGProxy		*rbShell;
-    DBusGProxy		*dbService;
 	gboolean		noCreate;
     gboolean        Visibility;
 }rbData;
@@ -70,32 +66,6 @@ END_PROP_MAP()
 
 
 #define MKTHIS rbData *db = (rbData *)thsPtr;
-
-static void
-rbCallbackNameOwnerChanged(DBusGProxy *proxy, const gchar* Name, 
-	const gchar *OldOwner, const gchar* NewOwner, gpointer thsPtr) {
-	MKTHIS;
-    if( !g_ascii_strcasecmp(Name, "org.gnome.Rhythmbox") && !strlen(NewOwner) )
-	{
-		LOG("Rhythmbox has died? %s|%s|%s", Name, OldOwner, NewOwner);
-        if( db->rbPlayer )
-        {
-            g_object_unref (G_OBJECT (db->rbPlayer));		
-            db->rbPlayer = NULL;
-        }
-        if( db->rbShell )
-        {
-            g_object_unref (G_OBJECT (db->rbShell));		
-            db->rbShell = NULL;
-        }
-        if( db->dbService )
-        {
-            g_object_unref (G_OBJECT (db->dbService));		
-            db->dbService = NULL;
-        }
-        db->parent->Update(db->parent->sd, FALSE, estStop, NULL);
-	}
-}
 
 static void rbCallbackPlayPause(DBusGProxy *proxy, const gboolean playing, 
 								  gpointer thsPtr) {
@@ -113,7 +83,7 @@ static void rbCallbackPlayPause(DBusGProxy *proxy, const gboolean playing,
 static void rbCallbackVisibility(DBusGProxy *proxy, const gboolean visible, 
 								   gpointer thsPtr) {
     MKTHIS;
-    LOG("rbCallback: Visibility");
+    LOG("rbCallback: Visibility %d", visible);
     db->Visibility = visible;
 	db->parent->UpdateVisibility(db->parent->sd, visible);
 }
@@ -185,25 +155,58 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 	
 }
  
+static void rbCallbackFake(gpointer thsPtr) {
+    MKTHIS;
+	char *uri = NULL;
+	rbCallbackPlayPause(db->rbPlayer, rbIsPlaying(db), db);
+	
+	if( org_gnome_Rhythmbox_Player_get_playing_uri(
+		db->rbPlayer, &uri, NULL) && uri )
+	{
+		LOG("!!!");
+		rbCallback(db->rbPlayer, uri, db);
+	}
+    rbCallbackVisibility(db->rbPlayer, rbIsVisible(db), db);
+}
+
+static gboolean
+rbUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+	MKTHIS;
+	if(appeared){
+        LOG("Rhythmbox has started");
+        if( !db->rbPlayer && rbAssure(thsPtr))
+           rbCallbackFake(thsPtr);
+    }
+    else {
+        LOG("Rhythmbox has died");
+        if( db->rbPlayer )
+        {
+            g_object_unref (G_OBJECT (db->rbPlayer));		
+            db->rbPlayer = NULL;
+        }
+        if( db->rbShell )
+        {
+            g_object_unref (G_OBJECT (db->rbShell));		
+            db->rbShell = NULL;
+        }
+        g_string_truncate(db->parent->artist, 0);
+        g_string_truncate(db->parent->album, 0);
+        g_string_truncate(db->parent->title, 0);
+        g_string_truncate(db->parent->albumArt, 0);
+        db->parent->Update(db->parent->sd, TRUE, estStop, NULL);
+    }
+    return TRUE;
+}
+
 gboolean rbAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
     gchar *errLine = NULL;
 	MKTHIS;
 	LOG("Enter rbAssure");
-	if( !db->bus )
-	{
-		db->bus = dbus_g_bus_get (DBUS_BUS_SESSION, NULL);
-		if( !db->bus )
-		{
-			LOGERR("\tCouldn't connect to dbus");
-			bRet = FALSE;
-		}
-		
-	}
-	if( db->bus && !db->rbShell )
+	if( db->parent->bus && !db->rbShell )
 	{
 		GError *error = NULL;
-		db->rbShell = dbus_g_proxy_new_for_name_owner(db->bus,
+		db->rbShell = dbus_g_proxy_new_for_name_owner(db->parent->bus,
 							  "org.gnome.Rhythmbox",
 							  "/org/gnome/Rhythmbox/Shell",
 							  "org.gnome.Rhythmbox.Shell",
@@ -222,7 +225,7 @@ gboolean rbAssure(gpointer thsPtr) {
 				guint start_service_reply;
 				LOG("\tstarting new instance");
 
-				bus_proxy = dbus_g_proxy_new_for_name (db->bus,
+				bus_proxy = dbus_g_proxy_new_for_name (db->parent->bus,
 									   "org.freedesktop.DBus",
 									   "/org/freedesktop/DBus",
 									   "org.freedesktop.DBus");
@@ -255,7 +258,6 @@ gboolean rbAssure(gpointer thsPtr) {
 				g_object_unref (G_OBJECT (db->rbShell));
 				db->rbShell = NULL;
 				db->rbPlayer = NULL;
-                db->dbService = NULL;
 				LOGERR("Couldn't connect to player proxy");
 				bRet = FALSE;
 			}
@@ -279,27 +281,8 @@ gboolean rbAssure(gpointer thsPtr) {
 					G_TYPE_BOOLEAN, G_TYPE_INVALID);
 				dbus_g_proxy_connect_signal(db->rbShell, "visibilityChanged", 
 					G_CALLBACK(rbCallbackVisibility), db, NULL);
-				
-				// user close notification
-				db->dbService = dbus_g_proxy_new_for_name(db->bus,
-					DBUS_SERVICE_DBUS,
-					DBUS_PATH_DBUS,
-					DBUS_INTERFACE_DBUS);
-				
-				dbus_g_proxy_add_signal(db->dbService, "NameOwnerChanged",
-					G_TYPE_STRING,
-					G_TYPE_STRING,
-					G_TYPE_STRING,
-					G_TYPE_INVALID);
-				
-				dbus_g_proxy_connect_signal(db->dbService, "NameOwnerChanged", 
-					G_CALLBACK(rbCallbackNameOwnerChanged),
-					db,
-					NULL);
-				
 			}
 		}
-			
 	}
 
     // reflect UI
@@ -408,18 +391,6 @@ gboolean rbDetach(gpointer thsPtr) {
 		g_object_unref (G_OBJECT (db->rbShell));		
 		db->rbShell = NULL;
 	}
-	if( db->dbService )
-	{
-		g_object_unref (G_OBJECT (db->dbService));		
-		db->dbService = NULL;
-	}
-	if( db->bus )
-	{
-		//some reading shows that this should not be freed
-		//but its not clear if meant server only.
-		//g_object_unref(G_OBJECT(db->bus));
-		db->bus = NULL;		
-	}
 	//g_free(db);
 	LOG("Leave rbDetach");
 	
@@ -461,6 +432,7 @@ rbData * RB_attach(SPlayer *player) {
 	 NOMAP(Persist);
     RB_MAP(IsVisible);
     RB_MAP(Show);
+    RB_MAP(UpdateDBUS);
     //The DBUS API does not provide:
      NOMAP(GetRepeat);
      NOMAP(SetRepeat);
@@ -469,26 +441,13 @@ rbData * RB_attach(SPlayer *player) {
 	
 	db = g_new0(rbData, 1);
 	db->parent = player;
-	db->bus = NULL;
 	db->rbPlayer = NULL;
 	db->noCreate = TRUE;
 	
 	// check if rhythmbox is running
 	
-	if( rbAssure(db) )
-	{
-		
-		GError *err = NULL;
-		char *uri = NULL;
-		rbCallbackPlayPause(db->rbPlayer, rbIsPlaying(db), db);
-		
-		if( org_gnome_Rhythmbox_Player_get_playing_uri(
-			db->rbPlayer, &uri, &err) && uri )
-		{
-			LOG("!!!");
-			rbCallback(db->rbPlayer, uri, db);
-		}
-		
+	if( rbAssure(db) ) {
+        rbCallbackFake(db);
 	}
 	db->noCreate = FALSE;
 	LOG("Leave RB_attach");

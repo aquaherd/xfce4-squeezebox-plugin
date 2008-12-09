@@ -34,6 +34,10 @@ XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.3.99])
 
 dnl check for dbus for rhythmbox 0.9.5
 XDT_CHECK_PACKAGE([DBUSGLIB], [dbus-glib-1], [0.60])
+AC_ARG_ENABLE(DBUS,[  --disable-DBUS     disable DBUS backends support (default: enable)],[enable_DBUS=$enableval],[enable_DBUS=yes])
+if test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_DBUS,1,[Define to use DBUS backends])
+fi
 
 GETTEXT_PACKAGE=xfce4-squeezebox-plugin
 AC_SUBST(GETTEXT_PACKAGE)
@@ -155,7 +159,7 @@ fi
 
 dnl Add backends here
 AC_ARG_ENABLE(rhythmbox,[  --disable-rhythmbox     disable rhythmbox support (default: enable)],[enable_rhythmbox=$enableval],[enable_rhythmbox=yes])
-if test x$enable_rhythmbox = xyes; then
+if test x$enable_rhythmbox = xyes && test x$enable_DBUS = xyes; then
 	AC_DEFINE(HAVE_BACKEND_RHYTHMBOX,1,[Define to use rhythmbox])
 fi
 
@@ -181,9 +185,9 @@ if test x$enable_MPD = xyes; then
 	AC_SUBST([LIBMPD_LIBS])
 fi
 
-AC_ARG_ENABLE(QL,[  --disable-QL           disable QuodLibet support (default: enable)],[enable_QL=$enableval],[enable_QL=yes])
-if test x$enable_QL = xyes; then
-	AC_DEFINE(HAVE_BACKEND_QL,1,[Define to use QL])
+AC_ARG_ENABLE(quodlibet,[  --disable-quodlibet           disable QuodLibet support (default: enable)],[enable_quodlibet=$enableval],[enable_quodlibet=yes])
+if test x$enable_quodlibet = xyes; then
+	AC_DEFINE(HAVE_BACKEND_QUODLIBET,1,[Define to use QL])
 	dnl Checking for thunar-vfs
 	XDT_CHECK_PACKAGE([THUNARVFS], [thunar-vfs-1], [0.4.0])
 	AC_SUBST([THUNARVFS_CFLAGS])
@@ -195,17 +199,17 @@ if test x$enable_QL = xyes; then
 fi
 
 AC_ARG_ENABLE(audacious,[  --disable-audacious     disable audacious support (default: enable)],[enable_audacious=$enableval],[enable_audacious=yes])
-if test x$enable_audacious = xyes; then
+if test x$enable_audacious = xyes && test x$enable_DBUS = xyes; then
 	AC_DEFINE(HAVE_BACKEND_AUDACIOUS,1,[Define to use audacious])
 fi
 
 AC_ARG_ENABLE(exaile,[  --disable-exaile     disable exaile support (default: enable)],[enable_exaile=$enableval],[enable_exaile=yes])
-if test x$enable_exaile = xyes; then
+if test x$enable_exaile = xyes && test x$enable_DBUS = xyes; then
 	AC_DEFINE(HAVE_BACKEND_EXAILE,1,[Define to use exaile])
 fi
 
 AC_ARG_ENABLE(consonance,[  --disable-consonance     disable consonance support (default: enable)],[enable_consonance=$enableval],[enable_consonance=yes])
-if test x$enable_consonance = xyes; then
+if test x$enable_consonance = xyes && test x$enable_DBUS = xyes; then
 	AC_DEFINE(HAVE_BACKEND_CONSONANCE,1,[Define to use consonance])
 fi
 
@@ -214,7 +218,10 @@ XDT_I18N([de fr tr])
 
 dnl Check for debugging support
 XDT_FEATURE_DEBUG()
-AC_DEFINE([DEBUG_TRACE], [1], [Set this to 1 to enable full trace debugging.])
+AC_ARG_ENABLE(debug_trace,[  --disable-debug_trace     disable trace support (default: enable)],[enable_debug_trace=$enableval],[enable_debug_trace=yes])
+if test x$enable_debug_trace = xyes; then
+    AC_DEFINE([DEBUG_TRACE], [1], [Set this to 1 to enable full trace debugging.])
+fi
 
 dnl PKG_CHECK_MODULES(LIBGTK, gtk+ libxfce4panel-1.0)
 AC_SUBST(LIBGTK_CFLAGS)
@@ -235,6 +242,12 @@ po/Makefile.in
 echo ""
 echo "########### SqueezeBox CONFIGURATION ############"
 echo ""
+
+if test x$enable_DBUS = xyes; then
+	echo " DBUS support ..................enabled"
+else
+	echo " DBUS support ..................disabled"
+fi
 
 if test x$enable_id3 = xyes; then
 	echo " ID3 tag support ...............enabled"
@@ -258,7 +271,7 @@ echo ""
 echo "----------- SqueezeBox Backends -----------------"
 echo ""
 
-if test x$enable_rhythmbox = xyes; then
+if test x$enable_rhythmbox = xyes && test x$enable_DBUS = xyes; then
 	echo " rhythmbox support .............enabled"
 else
 	echo " rhythmbox support .............disabled"
@@ -270,29 +283,28 @@ else
 	echo " MPD support ...................disabled"
 fi
 
-if test x$enable_QL = xyes; then
+if test x$enable_QUODLIBET = xyes; then
 	echo " QuodLibet support .............enabled"
 else
 	echo " QuodLibet support ..... .......disabled"
 fi
 
-if test x$enable_audacious = xyes; then
+if test x$enable_audacious = xyes && test x$enable_DBUS = xyes; then
 	echo " audacious support .............enabled"
 else
 	echo " audacious support .............disabled"
 fi
 
-if test x$enable_exaile = xyes; then
+if test x$enable_exaile = xyes && test x$enable_DBUS = xyes; then
 	echo " exaile support ................enabled"
 else
 	echo " exaile support ................disabled"
 fi
 
-if test x$enable_consonance = xyes; then
+if test x$enable_consonance = xyes && test x$enable_DBUS = xyes; then
 	echo " consonance support ............enabled"
 else
 	echo " consonance support ............disabled"
 fi
 
 echo ""
-echo "That's it, now type make if you really must :)"

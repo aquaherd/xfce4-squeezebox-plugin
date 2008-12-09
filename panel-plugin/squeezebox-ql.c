@@ -25,7 +25,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#ifdef HAVE_BACKEND_QL
+#ifdef HAVE_BACKEND_QUODLIBET
 
 // default
 #include "squeezebox.h"
@@ -165,10 +165,10 @@ gboolean qlAssure(gpointer thsPtr)
                 GError *err = NULL;
                 LOG("enter VFS...");
                 this->statPath = thunar_vfs_path_new(this->stat, &err);
-                LOG("...OK");
                 if (!this->statPath) {
-                    LOG("VFS Fail '%s'", err->message);
+                    LOG("...VFS KO '%s'", err->message);
                 } else {
+                    LOG("...VFS OK");
                     ThunarVfsMonitor *monitor =
                     thunar_vfs_monitor_get_default();
 
@@ -177,8 +177,9 @@ gboolean qlAssure(gpointer thsPtr)
                                         qlCurrentChanged,
                                         thsPtr);
                     if (!this->statMon) {
-                        LOG("VFS Fail2");
+                        LOG("VFS KO2");
                     } else {
+                        LOG("VFS OK2");
                         /* --- this is too late for this->noUpdate
                            thunar_vfs_monitor_feed(
                            monitor,
@@ -201,7 +202,11 @@ gboolean qlAssure(gpointer thsPtr)
         LOG("Anomaly in qlAssure: FIFO disappeared!");
         fclose(this->fp);
         this->fp = NULL;
-        this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
+        g_string_truncate(this->parent->artist, 0);
+        g_string_truncate(this->parent->album, 0);
+        g_string_truncate(this->parent->title, 0);
+        g_string_truncate(this->parent->albumArt, 0);
+        this->parent->Update(this->parent->sd, TRUE, estStop, NULL);
     }
     LOG("Leave qlAssure KO");
     return FALSE;
@@ -475,6 +480,7 @@ void *QL_attach(SPlayer * player)
      NOMAP(Configure);
     QL_MAP(IsVisible);
     QL_MAP(Show);
+     NOMAP(UpdateDBUS);
     QL_MAP(GetRepeat);
     QL_MAP(SetRepeat);
     QL_MAP(GetShuffle);
