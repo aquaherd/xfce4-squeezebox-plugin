@@ -1422,11 +1422,15 @@ static void squeezebox_update_dbus(DBusGProxy *proxy, const gchar* Name,
 	const gchar *OldOwner, const gchar* NewOwner, SqueezeBoxData *sd)
 {
     if(sd->backend) {
-        gboolean appeared = (NULL != NewOwner && 0 != NewOwner[0]);
-        const gchar *dbusName = squeezebox_get_backends()[sd->backend-1].BACKEND_dbusName();
-	    if( sd->player.UpdateDBUS && !g_ascii_strcasecmp(Name, dbusName)) {
-            LOG("DBUS name change %s: '%s'->'%s'", Name, OldOwner, NewOwner);
-		    sd->player.UpdateDBUS(sd->player.db, appeared);
+        const Backend *ptr = squeezebox_get_backends();
+        ptr += (sd->backend - 1);
+        if(ptr->BACKEND_dbusName) {
+            gboolean appeared = (NULL != NewOwner && 0 != NewOwner[0]);
+            const gchar *dbusName = ptr->BACKEND_dbusName();
+            if( sd->player.UpdateDBUS && !g_ascii_strcasecmp(Name, dbusName)) {
+                LOG("DBUS name change %s: '%s'->'%s'", Name, OldOwner, NewOwner);
+		        sd->player.UpdateDBUS(sd->player.db, appeared);
+            }
         }
     }
 }
