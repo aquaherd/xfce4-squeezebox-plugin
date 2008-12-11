@@ -527,7 +527,7 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
                 const Backend *ptr = squeezebox_get_backends();
                 g_string_printf(
                     sd->toolTipText, _("%s: No info"), 
-                    ptr[sd->backend-1].BACKEND_name(&sd->player));
+                    ptr[sd->backend-1].BACKEND_name());
             }
 #if HAVE_GTK_2_12
 			gtk_tooltip_trigger_tooltip_query(

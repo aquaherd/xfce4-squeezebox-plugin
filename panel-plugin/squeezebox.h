@@ -119,24 +119,24 @@ typedef struct {
  
 typedef struct {
     void*( *BACKEND_attach)(SPlayer *player);
-    gchar*( *BACKEND_name)();
+    const gchar*( *BACKEND_name)();
     GdkPixbuf*( *BACKEND_icon)();
     PropDef*( *BACKEND_properties)();
-    gchar*( *BACKEND_dbusName)();
+    const gchar*( *BACKEND_dbusName)();
 }Backend;
 
 #define IMPORT_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
- 	extern gchar * t##_name(); \
+ 	extern const gchar * t##_name(); \
     extern GdkPixbuf * t##_icon(); \
     extern PropDef* t##_properties();
  
 #define IMPORT_DBUS_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
- 	extern gchar * t##_name(); \
+ 	extern const gchar * t##_name(); \
     extern GdkPixbuf * t##_icon(); \
     extern PropDef* t##_properties(); \
-    extern gchar * t##_dbusName();
+    extern const gchar * t##_dbusName();
 
 extern const Backend* squeezebox_get_backends();
 
@@ -151,15 +151,24 @@ extern const Backend* squeezebox_get_backends();
     return &ret[0]; \
 }
 
-#define DEFINE_BACKEND(t,n) gchar* t##_name(){ return _(n);} \
-    GdkPixbuf *t##_icon(){ return gdk_pixbuf_new_from_inline( \
-        sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); }
+#define DEFINE_BACKEND(t,n) \
+    const gchar* t##_name(){ \
+        return _(n); \
+    } \
+    GdkPixbuf *t##_icon(){ \
+        return gdk_pixbuf_new_from_inline(sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); \
+    }
     
-#define DEFINE_DBUS_BACKEND(t,n,d) gchar* t##_name(){ return _(n);} \
-    GdkPixbuf *t##_icon(){ return gdk_pixbuf_new_from_inline( \
-        sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); } \
-    gchar *t##_dbusName(){return d;}
-    
+#define DEFINE_DBUS_BACKEND(t,n,d)  \
+    const gchar* t##_name(){ \
+        return _(n); \
+    } \
+    GdkPixbuf *t##_icon(){ \
+        return gdk_pixbuf_new_from_inline(sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); \
+    } \
+    const gchar* t##_dbusName(){ \
+        return d; \
+    }    
 // Properties
 
 #define BEGIN_PROP_MAP(bk) const PropDef* bk##_properties() \

@@ -245,7 +245,7 @@ static gboolean csAssure(gpointer thsPtr) {
             g_error_free(error);
         }
     }
-    if(!db->intervalID) {
+    if(db->con_dbus && db->csPlayer && !db->intervalID) {
         // establish the callback functions
         db->intervalID = 
 	        g_timeout_add(1000, csCallback, db);

@@ -183,18 +183,18 @@ static gboolean auAssure(gpointer thsPtr) {
 			{
 				DBusGProxy *bus_proxy;
 				guint start_service_reply;
-				LOG("\tstarting new instance");
+				LOG("starting new instance");
 
 				bus_proxy = dbus_g_proxy_new_for_name (db->parent->bus,
-							  AU_dbusName(),
-							  "/Player",
-							  "org.freedesktop.Mediaplayer");
+									   "org.freedesktop.DBus",
+									   "/org/freedesktop/DBus",
+									   "org.freedesktop.DBus");
 		
                 g_error_free(error); 
                 error = NULL;
 
 				if (!dbus_g_proxy_call (bus_proxy, "StartServiceByName", &error,
-							G_TYPE_STRING, "org.mpris.audacious",
+							G_TYPE_STRING, AU_dbusName(),
 							G_TYPE_UINT, 0,
 							G_TYPE_INVALID,
 							G_TYPE_UINT, &start_service_reply,

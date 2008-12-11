@@ -67,6 +67,8 @@ END_PROP_MAP()
 
 #define MKTHIS rbData *db = (rbData *)thsPtr;
 
+gboolean rbAssure(gpointer thsPtr);
+
 static void rbCallbackPlayPause(DBusGProxy *proxy, const gboolean playing, 
 								  gpointer thsPtr) {
 	MKTHIS;
@@ -155,6 +157,25 @@ static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
 	
 }
  
+gboolean rbIsPlaying(gpointer thsPtr) {
+	MKTHIS;
+	gboolean bRes = FALSE;
+	if( !rbAssure(db) )
+		return FALSE;
+	if( !dbus_g_proxy_call(db->rbPlayer, "getPlaying", NULL,
+		G_TYPE_INVALID,
+		G_TYPE_BOOLEAN, &bRes, G_TYPE_INVALID)) {
+		LOGERR("Failed to complete getPlaying");
+		return FALSE;
+	}
+	return bRes;
+}
+
+gboolean rbIsVisible(gpointer thsPtr) {
+    MKTHIS;
+    return db->Visibility;   
+}
+
 static void rbCallbackFake(gpointer thsPtr) {
     MKTHIS;
 	char *uri = NULL;
@@ -207,46 +228,42 @@ gboolean rbAssure(gpointer thsPtr) {
 	{
 		GError *error = NULL;
 		db->rbShell = dbus_g_proxy_new_for_name_owner(db->parent->bus,
-							  "org.gnome.Rhythmbox",
+							  RB_dbusName(),
 							  "/org/gnome/Rhythmbox/Shell",
 							  "org.gnome.Rhythmbox.Shell",
 							  &error);
-		
-		
 		if( error )
 		{
-			LOGWARN("\tCouldn't connect to shell proxy '%s' ",
+			LOGWARN("Couldn't connect to DBUS proxy '%s' ",
 				error->message);
+            g_error_free(error); 
+            error = NULL;
 			if( db->noCreate )
 				bRet = FALSE;
 			else 
 			{
 				DBusGProxy *bus_proxy;
 				guint start_service_reply;
-				LOG("\tstarting new instance");
+				LOG("starting new instance");
 
 				bus_proxy = dbus_g_proxy_new_for_name (db->parent->bus,
 									   "org.freedesktop.DBus",
 									   "/org/freedesktop/DBus",
 									   "org.freedesktop.DBus");
 		
-                g_error_free(error); 
-                error = NULL;
-
 				if (!dbus_g_proxy_call (bus_proxy, "StartServiceByName", &error,
-							G_TYPE_STRING, "org.gnome.Rhythmbox",
+							G_TYPE_STRING, RB_dbusName(),
 							G_TYPE_UINT, 0,
 							G_TYPE_INVALID,
 							G_TYPE_UINT, &start_service_reply,
 							G_TYPE_INVALID)) 
-				{
+                {
 					LOGWARN("Could'n start service '%s'", error->message);
 					bRet = FALSE;
-                    errLine = g_strdup(error->message);
+                    g_error_free(error); 
+                    error = NULL;
 				}
 			}
-            g_error_free(error); 
-            error = NULL;
 		}
 		if( db->rbShell && !db->rbPlayer )
 		{
@@ -350,20 +367,6 @@ gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
 	return TRUE;
 }
 
-gboolean rbIsPlaying(gpointer thsPtr) {
-	MKTHIS;
-	gboolean bRes = FALSE;
-	if( !rbAssure(db) )
-		return FALSE;
-	if( !dbus_g_proxy_call(db->rbPlayer, "getPlaying", NULL,
-		G_TYPE_INVALID,
-		G_TYPE_BOOLEAN, &bRes, G_TYPE_INVALID)) {
-		LOGERR("Failed to complete getPlaying");
-		return FALSE;
-	}
-	return bRes;
-}
-
 gboolean rbToggle(gpointer thsPtr, gboolean *newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
@@ -395,11 +398,6 @@ gboolean rbDetach(gpointer thsPtr) {
 	LOG("Leave rbDetach");
 	
 	return TRUE;
-}
-
-gboolean rbIsVisible(gpointer thsPtr) {
-    MKTHIS;
-    return db->Visibility;   
 }
 
 gboolean rbShow(gpointer thsPtr, gboolean newState) {
