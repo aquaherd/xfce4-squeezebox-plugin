@@ -121,7 +121,7 @@ static void rbCallback(DBusGProxy * proxy, const gchar * uri, gpointer thsPtr) {
 					g_get_home_dir(),
 					db->parent->artist->str,
 					db->parent->album->str);
-			LOG("\tCheck 1: '%s'", artLocation->str);
+			LOG("Check 1: '%s'", artLocation->str);
 
 			gboolean bFound = FALSE;
 			if (g_file_test(artLocation->str, G_FILE_TEST_EXISTS)) {

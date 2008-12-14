@@ -358,7 +358,7 @@ static gboolean exUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 		if (!db->exPlayer && exAssure(thsPtr))
 			exCallbackFake(thsPtr);
 	} else {
-		LOG("Audacious has died");
+		LOG("Exaile has died");
 		if (db->exPlayer) {
 			g_object_unref(G_OBJECT(db->exPlayer));
 			db->exPlayer = NULL;

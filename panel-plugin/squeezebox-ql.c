@@ -116,11 +116,11 @@ void qlCurrentChanged(ThunarVfsMonitor * monitor,
 			    g_strfreev(set);
 
 			    gchar *tmpArtist =
-				g_hash_table_lookup(this->current, "artist");
+				    g_hash_table_lookup(this->current, "artist");
 			    gchar *tmpAlbum =
-				g_hash_table_lookup(this->current, "album");
+				    g_hash_table_lookup(this->current, "album");
 			    gchar *tmpTitle =
-				g_hash_table_lookup(this->current, "title");
+				    g_hash_table_lookup(this->current, "title");
 
 			    if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
 				    g_string_assign(this->parent->albumArt,

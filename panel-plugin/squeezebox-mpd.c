@@ -69,7 +69,7 @@ BEGIN_PROP_MAP(MPD)
     PROP_ENTRY("mpd_pass", G_TYPE_STRING, mpdData, pass)
     PROP_ENTRY("mpd_usemusicfolder", G_TYPE_BOOLEAN, mpdData, bUseMPDFolder)
     PROP_ENTRY("mpd_musicfolder", G_TYPE_STRING, mpdData, path)
-    END_PROP_MAP()
+END_PROP_MAP()
 #define MKTHIS mpdData *this = (mpdData *)thsPtr;
 void *MPD_attach(SPlayer * player);
 void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
