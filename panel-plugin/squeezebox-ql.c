@@ -48,491 +48,494 @@ DEFINE_BACKEND(QL, _("QuodLibet (pipe)"))
 /* --- */
 #define QL_MAP(a) player->a = ql##a;
 #define MKTHIS qlData *this = (qlData *)thsPtr;
+#define QL_BIN_PATH "/usr/bin/quodlibet"
 #define QL_FIFO_PATH "/.quodlibet/control"
 #define QL_STAT_PATH "/.quodlibet/current"
 #define QL_ALBUM_ART_PATH "/.quodlibet/current.cover"
 typedef struct {
-    SPlayer *parent;
-    void *player;
-    FILE *fp;
-    char fifo[256];
-    char stat[256];
-    char cover[256];
-    ThunarVfsPath *statPath;
-    ThunarVfsMonitorHandle *statMon;
-    GHashTable *current;
-    gboolean isPlaying;
-    gboolean isVisible;
-    gboolean isShuffle;
-    gboolean isRepeat;
-    WnckScreen *wnckScreen;
-    int connections[2];
+	SPlayer *parent;
+	void *player;
+	FILE *fp;
+	char fifo[256];
+	char stat[256];
+	char cover[256];
+	ThunarVfsPath *statPath;
+	ThunarVfsMonitorHandle *statMon;
+	GHashTable *current;
+	gboolean isPlaying;
+	gboolean isVisible;
+	gboolean isShuffle;
+	gboolean isRepeat;
+	WnckScreen *wnckScreen;
+	int connections[2];
 } qlData;
 
 // MFCish property map -- currently none
 BEGIN_PROP_MAP(QL)
-END_PROP_MAP()                
+    END_PROP_MAP()
 
 void *QL_attach(SPlayer * player);
-void qlStatus(gpointer thsPtr);
+void qlStatus(gpointer thsPtr, const gchar * args);
 
 void qlCurrentChanged(ThunarVfsMonitor * monitor,
 		      ThunarVfsMonitorHandle * handle,
 		      ThunarVfsMonitorEvent event,
 		      ThunarVfsPath * handle_path,
-		      ThunarVfsPath * event_path, gpointer thsPtr)
-{
-    
-    char *fc = NULL;
-    const gchar *unknown = _("[Unknown]");
-    MKTHIS;
-    switch (event) {
-        case THUNAR_VFS_MONITOR_EVENT_CREATED:
-        case THUNAR_VFS_MONITOR_EVENT_CHANGED:
-            LOG("CHANGEDETECT...%s", this->stat);
-            if (g_file_get_contents(this->stat, &fc, NULL, NULL)) {
-                if (!this->current)
-                    this->current = g_hash_table_new(g_str_hash, g_str_equal);
-                gchar **set = g_strsplit_set(fc, "\n", -1);
-                g_free(fc);
-                
-                LOG("...OK");
-                
-                gchar **ptr = set;
-                do {
-                    gchar **line = g_strsplit_set(*ptr, "=", 2);
-                    gchar *key = g_strdup(line[0]);
-                    gchar *value = g_strdup(line[1]);
-                    //LOG(key); LOG("="); LOG(value); LOG("");
-                    
-                    g_hash_table_replace(this->current, key, value);
-                    ptr++;
-                    g_strfreev(line);
-                }
-                while (**ptr);
-                g_strfreev(set);
-                
-                gchar *tmpArtist = g_hash_table_lookup(this->current, "artist");
-                gchar *tmpAlbum = g_hash_table_lookup(this->current, "album");
-                gchar *tmpTitle = g_hash_table_lookup(this->current, "title");
-                
-                if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
-                    g_string_assign(this->parent->albumArt, this->cover);
-                else
-                    g_string_assign(this->parent->albumArt, "");
-                
-                g_string_assign(this->parent->artist, 
-                                (tmpArtist)?tmpArtist:unknown);
-                g_string_assign(this->parent->album, 
-                                (tmpAlbum)?tmpAlbum:unknown);
-                g_string_assign(this->parent->title, 
-                                (tmpTitle)?tmpTitle:unknown);
-                
-                this->parent->Update(this->parent->sd, TRUE,
-                                     (this->isPlaying) ? estPlay : estPause,
-                                     NULL);
-            } else {
-                LOG("...KO");
-                g_string_assign(this->parent->artist, "");
-                g_string_assign(this->parent->album, "");
-                g_string_assign(this->parent->title, "");
-                g_string_assign(this->parent->albumArt, "");
-                this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
-            }
-            break;
-        case THUNAR_VFS_MONITOR_EVENT_DELETED:
-            LOG("...fifo has died");
-            g_string_assign(this->parent->artist, "");
-            g_string_assign(this->parent->album, "");
-            g_string_assign(this->parent->title, "");
-            g_string_assign(this->parent->albumArt, "");
-            this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
-            break;
-    }
+		      ThunarVfsPath * event_path, gpointer thsPtr) {
+
+	char *fc = NULL;
+	const gchar *unknown = _("[Unknown]");
+	MKTHIS;
+	switch (event) {
+	    case THUNAR_VFS_MONITOR_EVENT_CREATED:
+	    case THUNAR_VFS_MONITOR_EVENT_CHANGED:
+		    LOG("CHANGEDETECT...%s", this->stat);
+		    if (g_file_get_contents(this->stat, &fc, NULL, NULL)) {
+			    if (!this->current)
+				    this->current =
+					g_hash_table_new(g_str_hash,
+							 g_str_equal);
+			    gchar **set = g_strsplit_set(fc, "\n", -1);
+			    g_free(fc);
+
+			    LOG("...OK");
+
+			    gchar **ptr = set;
+			    do {
+				    gchar **line = g_strsplit_set(*ptr, "=", 2);
+				    gchar *key = g_strdup(line[0]);
+				    gchar *value = g_strdup(line[1]);
+				    //LOG(key); LOG("="); LOG(value); LOG("");
+
+				    g_hash_table_replace(this->current, key,
+							 value);
+				    ptr++;
+				    g_strfreev(line);
+			    }
+			    while (**ptr);
+			    g_strfreev(set);
+
+			    gchar *tmpArtist =
+				g_hash_table_lookup(this->current, "artist");
+			    gchar *tmpAlbum =
+				g_hash_table_lookup(this->current, "album");
+			    gchar *tmpTitle =
+				g_hash_table_lookup(this->current, "title");
+
+			    if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
+				    g_string_assign(this->parent->albumArt,
+						    this->cover);
+			    else
+				    g_string_assign(this->parent->albumArt, "");
+
+			    g_string_assign(this->parent->artist,
+					    (tmpArtist) ? tmpArtist : unknown);
+			    g_string_assign(this->parent->album,
+					    (tmpAlbum) ? tmpAlbum : unknown);
+			    g_string_assign(this->parent->title,
+					    (tmpTitle) ? tmpTitle : unknown);
+
+			    this->parent->Update(this->parent->sd, TRUE,
+						 (this->isPlaying) ? estPlay :
+						 estPause, NULL);
+		    } else {
+			    LOG("...KO");
+			    g_string_assign(this->parent->artist, "");
+			    g_string_assign(this->parent->album, "");
+			    g_string_assign(this->parent->title, "");
+			    g_string_assign(this->parent->albumArt, "");
+			    this->parent->Update(this->parent->sd, FALSE,
+						 estStop, NULL);
+		    }
+		    break;
+	    case THUNAR_VFS_MONITOR_EVENT_DELETED:
+		    LOG("...fifo has died");
+		    g_string_assign(this->parent->artist, "");
+		    g_string_assign(this->parent->album, "");
+		    g_string_assign(this->parent->title, "");
+		    g_string_assign(this->parent->albumArt, "");
+		    this->parent->Update(this->parent->sd, FALSE, estStop,
+					 NULL);
+		    break;
+	}
 }
 
-gboolean qlAssure(gpointer thsPtr)
-{
-    MKTHIS;
-    LOG("Enter qlAssure");
-    if (g_file_test(this->fifo, G_FILE_TEST_EXISTS)) {
-        if (!this->fp) {
-            LOG("Opening %s", this->fifo);
-            this->fp = g_fopen(this->fifo, "w");
-            LOG("%s", (this->fp) ? " OK" : " KO");
+gboolean qlAssure(gpointer thsPtr) {
+	MKTHIS;
+	LOG("Enter qlAssure");
+	if (g_file_test(this->fifo, G_FILE_TEST_EXISTS)) {
+		if (!this->fp) {
+			LOG("Opening %s", this->fifo);
+			this->fp = g_fopen(this->fifo, "w");
+			LOG("%s", (this->fp) ? " OK" : " KO");
 
-            if (this->fp) {
-                GError *err = NULL;
-                LOG("enter VFS...");
-                this->statPath = thunar_vfs_path_new(this->stat, &err);
-                if (!this->statPath) {
-                    LOG("...VFS KO '%s'", err->message);
-                } else {
-                    LOG("...VFS OK");
-                    ThunarVfsMonitor *monitor =
-                    thunar_vfs_monitor_get_default();
+			if (this->fp) {
+				GError *err = NULL;
+				LOG("enter VFS...");
+				this->statPath =
+				    thunar_vfs_path_new(this->stat, &err);
+				if (!this->statPath) {
+					LOG("...VFS KO '%s'", err->message);
+				} else {
+					LOG("...VFS OK");
+					ThunarVfsMonitor *monitor =
+					    thunar_vfs_monitor_get_default();
 
-                    this->statMon = thunar_vfs_monitor_add_file(monitor,
-                                        this->statPath,
-                                        qlCurrentChanged,
-                                        thsPtr);
-                    if (!this->statMon) {
-                        LOG("VFS KO2");
-                    } else {
-                        LOG("VFS OK2");
-                        /* --- this is too late for this->noUpdate
-                           thunar_vfs_monitor_feed(
-                           monitor,
-                           THUNAR_VFS_MONITOR_EVENT_CHANGED,
-                           this->statPath);
-                           --- we fake it instead.
-                        */
-                        qlCurrentChanged(monitor,
-                                 NULL,
-                                 THUNAR_VFS_MONITOR_EVENT_CHANGED,
-                                 this->statPath,
-                                 this->statPath, thsPtr);
-                    }
-                }
-            }
-        }
-        LOG("Leave qlAssure OK");
-        return TRUE;
-    } else if (this->fp) {
-        LOG("Anomaly in qlAssure: FIFO disappeared!");
-        fclose(this->fp);
-        this->fp = NULL;
-        g_string_truncate(this->parent->artist, 0);
-        g_string_truncate(this->parent->album, 0);
-        g_string_truncate(this->parent->title, 0);
-        g_string_truncate(this->parent->albumArt, 0);
-        this->parent->Update(this->parent->sd, TRUE, estStop, NULL);
-    }
-    LOG("Leave qlAssure KO");
-    return FALSE;
+					this->statMon =
+					    thunar_vfs_monitor_add_file(monitor,
+									this->statPath,
+									qlCurrentChanged,
+									thsPtr);
+					if (!this->statMon) {
+						LOG("VFS KO2");
+					} else {
+						LOG("VFS OK2");
+						/* --- this is too late for this->noUpdate
+						   thunar_vfs_monitor_feed(
+						   monitor,
+						   THUNAR_VFS_MONITOR_EVENT_CHANGED,
+						   this->statPath);
+						   --- we fake it instead.
+						 */
+						qlCurrentChanged(monitor,
+								 NULL,
+								 THUNAR_VFS_MONITOR_EVENT_CHANGED,
+								 this->statPath,
+								 this->statPath,
+								 thsPtr);
+					}
+				}
+			}
+		}
+		LOG("Leave qlAssure OK");
+		return TRUE;
+	} else if (this->fp) {
+		LOG("Anomaly in qlAssure: FIFO disappeared!");
+		fclose(this->fp);
+		this->fp = NULL;
+		g_string_truncate(this->parent->artist, 0);
+		g_string_truncate(this->parent->album, 0);
+		g_string_truncate(this->parent->title, 0);
+		g_string_truncate(this->parent->albumArt, 0);
+		this->parent->Update(this->parent->sd, TRUE, estStop, NULL);
+	}
+	LOG("Leave qlAssure KO");
+	return FALSE;
 }
 
 gboolean qlPrintFlush(FILE * fp, const char *str) {
-    int iLen = strlen(str);
-    int iRet = fputs(str, fp);
-    fflush(fp);
-    return (iLen == iRet);
+	int iLen = strlen(str);
+	int iRet = fputs(str, fp);
+	fflush(fp);
+	return (iLen == iRet);
 }
 
 gboolean qlNext(gpointer thsPtr) {
-    MKTHIS;
-    gboolean bRet = FALSE;
-    LOG("Enter qlNext");
-    if (qlAssure(this))
-        bRet = qlPrintFlush(this->fp, "next");
-    else
-        bRet = FALSE;
-    LOG("Leave qlNext");
-    return bRet;
+	MKTHIS;
+	gboolean bRet = FALSE;
+	LOG("Enter qlNext");
+	if (qlAssure(this))
+		bRet = qlPrintFlush(this->fp, "next");
+	else
+		bRet = FALSE;
+	LOG("Leave qlNext");
+	return bRet;
 }
 
-gboolean qlPrevious(gpointer thsPtr)
-{
-    MKTHIS;
-    gboolean bRet = FALSE;
-    LOG("Enter qlPrevious");
-    if (qlAssure(this))
-        bRet = qlPrintFlush(this->fp, "previous");
-    else
-        bRet = FALSE;
-    LOG("Leave qlPrevious");
-    return bRet;
+gboolean qlPrevious(gpointer thsPtr) {
+	MKTHIS;
+	gboolean bRet = FALSE;
+	LOG("Enter qlPrevious");
+	if (qlAssure(this))
+		bRet = qlPrintFlush(this->fp, "previous");
+	else
+		bRet = FALSE;
+	LOG("Leave qlPrevious");
+	return bRet;
 }
 
-gboolean qlPlayPause(gpointer thsPtr, gboolean newState)
-{
-    MKTHIS;
-    LOG("Enter qlPlayPause");
-    gboolean bRet = FALSE;
-    if (qlAssure(this))
-        bRet = qlPrintFlush(this->fp, "play-pause");
-    else {
-        LOG("Running...");
-        xfce_exec("quodlibet", FALSE, TRUE, NULL);
-        bRet = FALSE;
-    }
-    LOG("LEAVE qlPlayPause");
-    return bRet;
+gboolean qlPlayPause(gpointer thsPtr, gboolean newState) {
+	MKTHIS;
+	LOG("Enter qlPlayPause");
+	gboolean bRet = FALSE;
+	if (qlAssure(this))
+		bRet = qlPrintFlush(this->fp, "play-pause");
+	else {
+		LOG("Running...");
+		xfce_exec("quodlibet", FALSE, TRUE, NULL);
+		bRet = FALSE;
+	}
+	LOG("LEAVE qlPlayPause");
+	return bRet;
 }
 
-gboolean qlIsPlaying(gpointer thsPtr)
-{
-    MKTHIS;
-    LOG("Enter qlIsPlaying");
-    qlStatus(thsPtr);
-    LOG("Leave qlIsPlaying");
-    return this->isPlaying;
+gboolean qlIsPlaying(gpointer thsPtr) {
+	MKTHIS;
+	LOG("Enter qlIsPlaying");
+	qlStatus(thsPtr, "--status");
+	LOG("Leave qlIsPlaying");
+	return this->isPlaying;
 }
 
-void
-qlWindowOpened(WnckScreen * screen, WnckWindow * window, gpointer thsPtr)
-{
-    MKTHIS;
-    const gchar *windowName = wnck_window_get_name(window);
-    if (windowName && windowName[0] == '[')	// minimized but visible
-        windowName++;
-    if (g_str_has_prefix(windowName, "Quod Libet")) {
-        this->isVisible = TRUE;
-        LOG("QL:Appeared");
-        this->parent->UpdateVisibility(this->parent->sd, this->isVisible);
-    }
+void qlWindowOpened(WnckScreen * screen, WnckWindow * window, gpointer thsPtr) {
+	MKTHIS;
+	const gchar *windowName = wnck_window_get_name(window);
+	if (windowName && windowName[0] == '[')	// minimized but visible
+		windowName++;
+	if (g_str_has_prefix(windowName, "Quod Libet")) {
+		this->isVisible = TRUE;
+		LOG("QL:Appeared");
+		this->parent->UpdateVisibility(this->parent->sd,
+					       this->isVisible);
+	}
 }
 
-void
-qlWindowClosed(WnckScreen * screen, WnckWindow * window, gpointer thsPtr)
-{
-    MKTHIS;
-    const gchar *windowName = wnck_window_get_name(window);
-    if (windowName && windowName[0] == '[')	// minimized but visible
-        windowName++;
-    if (g_str_has_prefix(windowName, "Quod Libet")) {
-        this->isVisible = FALSE;
-        LOG("QL:Disappeared");
-        this->parent->UpdateVisibility(this->parent->sd, this->isVisible);
-    }
+void qlWindowClosed(WnckScreen * screen, WnckWindow * window, gpointer thsPtr) {
+	MKTHIS;
+	const gchar *windowName = wnck_window_get_name(window);
+	if (windowName && windowName[0] == '[')	// minimized but visible
+		windowName++;
+	if (g_str_has_prefix(windowName, "Quod Libet")) {
+		this->isVisible = FALSE;
+		LOG("QL:Disappeared");
+		this->parent->UpdateVisibility(this->parent->sd,
+					       this->isVisible);
+	}
 }
 
+void qlStatus(gpointer thsPtr, const gchar * args) {
+	MKTHIS;
+	gchar *outText = NULL;
+	const gchar *argv[] = {
+		QL_BIN_PATH,
+		args,
+		NULL
+	};
+	gint exit_status = 0;
+	this->isPlaying = TRUE;
+	if (g_spawn_sync(NULL, (gchar **) argv, NULL,
+			 G_SPAWN_STDERR_TO_DEV_NULL,
+			 NULL, NULL, &outText, NULL, &exit_status, NULL)) {
 
-void qlStatus(gpointer thsPtr)
-{
-    MKTHIS;
-    gchar *outText = NULL;
-    const gchar *argv[] = {
-	"/usr/bin/quodlibet",
-	"--status",
-	NULL
-    };
-    gint exit_status = 0;
-    this->isPlaying = TRUE;
-    if (g_spawn_sync(NULL, (gchar **) argv, NULL,
-		     G_SPAWN_STDERR_TO_DEV_NULL,
-		     NULL, NULL, &outText, NULL, &exit_status, NULL)) {
+		LOG("QL says: '%s'", outText);
 
-        LOG("QL says: '%s'", outText);
+		// QL generally says things like "paused AlbumList 1.000 inorder off"
 
-        // QL generally says things like "paused AlbumList 1.000 inorder on"
-
-        if (strlen(outText)) {
-            gchar *ptr = strtok(outText, " ");
-            this->isPlaying = !g_ascii_strncasecmp(ptr, "playing", 7);
-            this->parent->Update(this->parent->sd, FALSE,
-                     (this->isPlaying) ? estPlay : estPause,
-                     NULL);
-            if ((ptr = strtok(NULL, " "))) {
-                //current view
-                if ((ptr = strtok(NULL, " "))) {
-                    //1.000 whatever
-                    if ((ptr = strtok(NULL, " "))) {
-                        //shuffle
-                        this->isShuffle =
-                            g_ascii_strncasecmp(ptr, "inorder", 7);
-                        this->parent->UpdateShuffle(this->parent->sd,
-                                        this->isShuffle);
-                        if ((ptr = strtok(NULL, " "))) {
-                            //repeat
-                            this->isRepeat =
-                            g_ascii_strncasecmp(ptr, "on", 2);
-                            this->parent->UpdateRepeat(this->parent->sd,
-                                           this->isRepeat);
-                        }
-                    }
-                }
-            }
-        }
-        g_free(outText);
-    }
+		if (strlen(outText)) {
+			gchar *ptr = strtok(outText, " ");
+			this->isPlaying =
+			    !g_ascii_strncasecmp(ptr, "playing", 7);
+			this->parent->Update(this->parent->sd, FALSE,
+					     (this->isPlaying) ? estPlay :
+					     estPause, NULL);
+			if ((ptr = strtok(NULL, " "))) {
+				//current view
+				if ((ptr = strtok(NULL, " "))) {
+					//1.000 whatever
+					if ((ptr = strtok(NULL, " "))) {
+						//shuffle
+						this->isShuffle =
+						    g_ascii_strncasecmp(ptr,
+									"inorder",
+									7);
+						this->
+						    parent->UpdateShuffle(this->
+									  parent->sd,
+									  this->isShuffle);
+						if ((ptr = strtok(NULL, " "))) {
+							//repeat
+							this->isRepeat =
+							    g_ascii_strncasecmp
+							    (ptr, "off", 2);
+							this->
+							    parent->UpdateRepeat
+							    (this->parent->sd,
+							     this->isRepeat);
+						}
+					}
+				}
+			}
+		}
+		g_free(outText);
+	}
 }
 
-gboolean qlToggle(gpointer thsPtr, gboolean * newState)
-{
-    MKTHIS;
-    gboolean bRet = FALSE;
-    LOG("Enter qlToggle");
-    if (qlAssure(this)) {
-        bRet = qlPrintFlush(this->fp, "play-pause");
-        qlStatus(thsPtr);
-    } else {
-        LOG("Running...");
-        xfce_exec("quodlibet", FALSE, TRUE, NULL);
-        bRet = FALSE;
-    }
-    LOG("Leave qlToggle");
-    return bRet;
+gboolean qlToggle(gpointer thsPtr, gboolean * newState) {
+	MKTHIS;
+	gboolean bRet = FALSE;
+	LOG("Enter qlToggle");
+	if (qlAssure(this)) {
+		bRet = qlPrintFlush(this->fp, "play-pause");
+		qlStatus(thsPtr, "--status");
+	} else {
+		LOG("Running...");
+		xfce_exec("quodlibet", FALSE, TRUE, NULL);
+		bRet = FALSE;
+	}
+	LOG("Leave qlToggle");
+	return bRet;
 }
 
-gboolean qlDetach(gpointer thsPtr)
-{
-    MKTHIS;
-    gboolean bRet = FALSE;
-    LOG("Enter qlDetach");
-    if (this->fp) {
-        fclose(this->fp);
-        this->fp = NULL;
-    }
-    if (this->statPath) {
-        thunar_vfs_path_unref(this->statPath);
-        this->statPath = NULL;
-    }
-    if (this->statMon) {
-        thunar_vfs_monitor_remove(thunar_vfs_monitor_get_default(),
-				  this->statMon);
-        this->statMon = NULL;
-    }
-    if (this->current)
-        g_hash_table_destroy(this->current);
-    
-    thunar_vfs_shutdown();
+gboolean qlDetach(gpointer thsPtr) {
+	MKTHIS;
+	gboolean bRet = FALSE;
+	LOG("Enter qlDetach");
+	if (this->fp) {
+		fclose(this->fp);
+		this->fp = NULL;
+	}
+	if (this->statPath) {
+		thunar_vfs_path_unref(this->statPath);
+		this->statPath = NULL;
+	}
+	if (this->statMon) {
+		thunar_vfs_monitor_remove(thunar_vfs_monitor_get_default(),
+					  this->statMon);
+		this->statMon = NULL;
+	}
+	if (this->current)
+		g_hash_table_destroy(this->current);
 
-    if (this->connections[0])
-        g_signal_handler_disconnect(this->wnckScreen, this->connections[0]);
+	thunar_vfs_shutdown();
 
-    if (this->connections[1])
-	    g_signal_handler_disconnect(this->wnckScreen, this->connections[1]);
+	if (this->connections[0])
+		g_signal_handler_disconnect(this->wnckScreen,
+					    this->connections[0]);
 
-    LOG("Leave qlDetach");
-    return bRet;
+	if (this->connections[1])
+		g_signal_handler_disconnect(this->wnckScreen,
+					    this->connections[1]);
+
+	LOG("Leave qlDetach");
+	return bRet;
 }
 
-gboolean qlGetRepeat(gpointer thsPtr)
-{
-    MKTHIS;
-    qlStatus(thsPtr);
-    return this->isRepeat;
+gboolean qlGetRepeat(gpointer thsPtr) {
+	MKTHIS;
+	qlStatus(thsPtr, "--status");
+	return this->isRepeat;
 }
 
-gboolean qlSetRepeat(gpointer thsPtr, gboolean newRepeat)
-{
-    MKTHIS;
-    LOG("Enter qlSetRepeat");
-    gboolean bRet = FALSE;
-    this->isShuffle = newRepeat;
-    if (qlAssure(this))
-        bRet = qlPrintFlush(this->fp,(newRepeat) ? 
-                            "repeat=1\n" : "repeat=0\n");
-    else {
-        bRet = FALSE;
-    }
-    LOG("LEAVE qlSetRepeat");
-    return bRet;
+gboolean qlSetRepeat(gpointer thsPtr, gboolean newRepeat) {
+	MKTHIS;
+	LOG("Enter qlSetRepeat");
+	gboolean bRet = FALSE;
+	if (qlAssure(this)) {
+		qlStatus(thsPtr, (newRepeat) ? "--repeat=1" : "--repeat=0");
+		bRet = TRUE;
+	} else {
+		bRet = FALSE;
+	}
+	LOG("LEAVE qlSetRepeat");
+	return bRet;
 }
 
-gboolean qlGetShuffle(gpointer thsPtr)
-{
-    MKTHIS;
-    qlStatus(thsPtr);
-    return this->isShuffle;
+gboolean qlGetShuffle(gpointer thsPtr) {
+	MKTHIS;
+	qlStatus(thsPtr, "--status");
+	return this->isShuffle;
 }
 
-gboolean qlSetShuffle(gpointer thsPtr, gboolean newRepeat)
-{
-    MKTHIS;
-    LOG("Enter qlSetShuffle");
-    gboolean bRet = FALSE;
-    this->isRepeat = newRepeat;
-    if (qlAssure(this))
-        bRet = qlPrintFlush(this->fp, (newRepeat) ? 
-                            "order=shuffle\n" : "order=inorder\n");
-    else {
-        bRet = FALSE;
-    }
-    LOG("LEAVE qlSetShuffle");
-    return bRet;
+gboolean qlSetShuffle(gpointer thsPtr, gboolean newShuffle) {
+	MKTHIS;
+	LOG("Enter qlSetShuffle");
+	gboolean bRet = FALSE;
+	if (qlAssure(this)) {
+		qlStatus(thsPtr, (newShuffle) ?
+			 "--order=shuffle" : "--order=inorder");
+		bRet = TRUE;
+	} else {
+		bRet = FALSE;
+	}
+	LOG("LEAVE qlSetShuffle");
+	return bRet;
 }
 
-gboolean qlIsVisible(gpointer thsPtr)
-{
-    MKTHIS;
-    qlStatus(thsPtr);
-    return this->isVisible;
+gboolean qlIsVisible(gpointer thsPtr) {
+	MKTHIS;
+	qlStatus(thsPtr, "--status");
+	return this->isVisible;
 }
 
-gboolean qlShow(gpointer thsPtr, gboolean bShow)
-{
-    MKTHIS;
-    LOG("Enter qlShow");
-    gboolean bRet = FALSE;
-    if (qlAssure(this))
-        bRet = qlPrintFlush(this->fp, "toggle-window\n");
-    else
-        bRet = FALSE;
-    LOG("Leave qlShow");
-    return bRet;
+gboolean qlShow(gpointer thsPtr, gboolean bShow) {
+	MKTHIS;
+	LOG("Enter qlShow");
+	gboolean bRet = FALSE;
+	if (qlAssure(this))
+		bRet = qlPrintFlush(this->fp, "toggle-window\n");
+	else
+		bRet = FALSE;
+	LOG("Leave qlShow");
+	return bRet;
 }
 
-void *QL_attach(SPlayer * player)
-{
-    qlData *this = g_new0(qlData, 1);
-    LOG("Enter QL_attach");
+void *QL_attach(SPlayer * player) {
+	qlData *this = g_new0(qlData, 1);
+	LOG("Enter QL_attach");
 
-    QL_MAP(Assure);
-    QL_MAP(Next);
-    QL_MAP(Previous);
-    QL_MAP(PlayPause);
-    QL_MAP(IsPlaying);
-    QL_MAP(Toggle);
-    QL_MAP(Detach);
-     NOMAP(Persist);
-     NOMAP(Configure);
-    QL_MAP(IsVisible);
-    QL_MAP(Show);
-     NOMAP(UpdateDBUS);
-    QL_MAP(GetRepeat);
-    QL_MAP(SetRepeat);
-    QL_MAP(GetShuffle);
-    QL_MAP(SetShuffle);
+	QL_MAP(Assure);
+	QL_MAP(Next);
+	QL_MAP(Previous);
+	QL_MAP(PlayPause);
+	QL_MAP(IsPlaying);
+	QL_MAP(Toggle);
+	QL_MAP(Detach);
+	NOMAP(Persist);
+	NOMAP(Configure);
+	QL_MAP(IsVisible);
+	QL_MAP(Show);
+	NOMAP(UpdateDBUS);
+	QL_MAP(GetRepeat);
+	QL_MAP(SetRepeat);
+	QL_MAP(GetShuffle);
+	QL_MAP(SetShuffle);
 
-    // we init default values 
-    this->parent = player;
-    this->fp = NULL;
-    strcpy(this->fifo, g_get_home_dir());
-    strcat(this->fifo, QL_FIFO_PATH);
+	// we init default values 
+	this->parent = player;
+	this->fp = NULL;
+	strcpy(this->fifo, g_get_home_dir());
+	strcat(this->fifo, QL_FIFO_PATH);
 
-    strcpy(this->stat, g_get_home_dir());
-    strcat(this->stat, QL_STAT_PATH);
+	strcpy(this->stat, g_get_home_dir());
+	strcat(this->stat, QL_STAT_PATH);
 
-    strcpy(this->cover, g_get_home_dir());
-    strcat(this->cover, QL_ALBUM_ART_PATH);
-    thunar_vfs_init();
+	strcpy(this->cover, g_get_home_dir());
+	strcat(this->cover, QL_ALBUM_ART_PATH);
+	thunar_vfs_init();
 
-    // connect to notification events
-    int i = 0;
-    GList *windows, *l;
+	// connect to notification events
+	int i = 0;
+	GList *windows, *l;
 
-    wnck_screen_force_update(this->wnckScreen);
+	wnck_screen_force_update(this->wnckScreen);
 
-    this->wnckScreen =
-	wnck_screen_get(gdk_screen_get_number(gdk_screen_get_default()));
+	this->wnckScreen =
+	    wnck_screen_get(gdk_screen_get_number(gdk_screen_get_default()));
 
-    this->connections[i++] =
-	g_signal_connect(this->wnckScreen, "window_opened",
-			 G_CALLBACK(qlWindowOpened), this);
+	this->connections[i++] =
+	    g_signal_connect(this->wnckScreen, "window_opened",
+			     G_CALLBACK(qlWindowOpened), this);
 
-    this->connections[i++] =
-	g_signal_connect(this->wnckScreen, "window_closed",
-			 G_CALLBACK(qlWindowClosed), this);
+	this->connections[i++] =
+	    g_signal_connect(this->wnckScreen, "window_closed",
+			     G_CALLBACK(qlWindowClosed), this);
 
-    // update data
-    if( qlAssure(this) ) {
-        qlStatus (this);
-    } else {
-        this->parent->Update(this->parent->sd, FALSE, 
-            estStop, NULL);        
-    }
+	// update data
+	if (qlAssure(this)) {
+		qlStatus(this, "--status");
+	} else {
+		this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
+	}
 
-    windows = wnck_screen_get_windows(this->wnckScreen);
+	windows = wnck_screen_get_windows(this->wnckScreen);
 
-    for (l = windows; l != NULL; l = l->next) {
-        WnckWindow *w = l->data;
-        qlWindowOpened(this->wnckScreen, w, this);
-    }
+	for (l = windows; l != NULL; l = l->next) {
+		WnckWindow *w = l->data;
+		qlWindowOpened(this->wnckScreen, w, this);
+	}
 
-    LOG("Leave QL_attach");
-    return this;
+	LOG("Leave QL_attach");
+	return this;
 }
 
 #endif

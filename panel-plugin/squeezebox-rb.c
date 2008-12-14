@@ -21,7 +21,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
- 
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -51,30 +51,26 @@
 
 DEFINE_DBUS_BACKEND(RB, _("Rhythmbox 0.9.x (via DBUS)"), "org.gnome.Rhythmbox")
 
-typedef struct 
-{
-	SPlayer			*parent;
-	DBusGProxy 		*rbPlayer;
-	DBusGProxy		*rbShell;
-	gboolean		noCreate;
-    gboolean        Visibility;
-}rbData;
+typedef struct {
+	SPlayer *parent;
+	DBusGProxy *rbPlayer;
+	DBusGProxy *rbShell;
+	gboolean noCreate;
+	gboolean Visibility;
+} rbData;
 
 // MFCish property map -- currently none
 BEGIN_PROP_MAP(RB)
-END_PROP_MAP()                
-
-
+    END_PROP_MAP()
 #define MKTHIS rbData *db = (rbData *)thsPtr;
-
 gboolean rbAssure(gpointer thsPtr);
 
-static void rbCallbackPlayPause(DBusGProxy *proxy, const gboolean playing, 
-								  gpointer thsPtr) {
+static void rbCallbackPlayPause(DBusGProxy * proxy, const gboolean playing,
+				gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter rbCallback: StateChanged %d", playing);
 	eSynoptics eStat;
-	if(playing)
+	if (playing)
 		eStat = estPlay;
 	else
 		eStat = estPause;
@@ -82,89 +78,93 @@ static void rbCallbackPlayPause(DBusGProxy *proxy, const gboolean playing,
 	LOG("Leave rbCallback: StateChanged");
 }
 
-static void rbCallbackVisibility(DBusGProxy *proxy, const gboolean visible, 
-								   gpointer thsPtr) {
-    MKTHIS;
-    LOG("rbCallback: Visibility %d", visible);
-    db->Visibility = visible;
+static void rbCallbackVisibility(DBusGProxy * proxy, const gboolean visible,
+				 gpointer thsPtr) {
+	MKTHIS;
+	LOG("rbCallback: Visibility %d", visible);
+	db->Visibility = visible;
 	db->parent->UpdateVisibility(db->parent->sd, visible);
 }
 
-static void rbCallback(DBusGProxy *proxy, const gchar* uri, gpointer thsPtr) {
+static void rbCallback(DBusGProxy * proxy, const gchar * uri, gpointer thsPtr) {
 	MKTHIS;
 	LOG("rbCallback: SongChanged '%s'", uri);
-	
-	if( db->rbShell )
-	{
-		GHashTable 	*table = NULL;
-		GError		*err = NULL;
+
+	if (db->rbShell) {
+		GHashTable *table = NULL;
+		GError *err = NULL;
 		/*
-		char 		*newUri = NULL;
-		if( org_gnome_Rhythmbox_Player_get_playing_uri(db->rbPlayer, &newUri, &err) )
-		{
-			LOG("OutValues work.");
-		}
-		*/
-		if( org_gnome_Rhythmbox_Shell_get_song_properties(db->rbShell, uri, &table, &err) )
-		{
-			GValue *tmpArtist = g_hash_table_lookup(table, "artist");
+		   char                 *newUri = NULL;
+		   if( org_gnome_Rhythmbox_Player_get_playing_uri(db->rbPlayer, &newUri, &err) )
+		   {
+		   LOG("OutValues work.");
+		   }
+		 */
+		if (org_gnome_Rhythmbox_Shell_get_song_properties
+		    (db->rbShell, uri, &table, &err)) {
+			GValue *tmpArtist =
+			    g_hash_table_lookup(table, "artist");
 			GValue *tmpAlbum = g_hash_table_lookup(table, "album");
 			GValue *tmpTitle = g_hash_table_lookup(table, "title");
-			
+
 			GString *artLocation = g_string_new("");
-			
-			g_string_assign(db->parent->artist, g_value_get_string(tmpArtist));
-			g_string_assign(db->parent->album, g_value_get_string(tmpAlbum));
-			g_string_assign(db->parent->title, g_value_get_string(tmpTitle));
+
+			g_string_assign(db->parent->artist,
+					g_value_get_string(tmpArtist));
+			g_string_assign(db->parent->album,
+					g_value_get_string(tmpAlbum));
+			g_string_assign(db->parent->title,
+					g_value_get_string(tmpTitle));
 			g_string_truncate(db->parent->albumArt, 0);
-			g_string_printf(artLocation, 
-                "%s/.cache/rhythmbox/covers/%s - %s.jpg", 
-				g_get_home_dir(),
-				db->parent->artist->str, 
-				db->parent->album->str);
+			g_string_printf(artLocation,
+					"%s/.cache/rhythmbox/covers/%s - %s.jpg",
+					g_get_home_dir(),
+					db->parent->artist->str,
+					db->parent->album->str);
 			LOG("\tCheck 1: '%s'", artLocation->str);
-			
-            gboolean bFound = FALSE;
-			if( g_file_test(artLocation->str, G_FILE_TEST_EXISTS) )
-			{
+
+			gboolean bFound = FALSE;
+			if (g_file_test(artLocation->str, G_FILE_TEST_EXISTS)) {
 				bFound = TRUE;
+			} else {
+				//rb 0.11 can read folder.jpg and so should we
+				gchar *str =
+				    g_filename_from_uri(uri, NULL, NULL);
+				if (str && str[0])
+					db->parent->
+					    FindAlbumArtByFilePath
+					    (db->parent->sd, str);
+				g_free(str);
 			}
-            else
-            {
-                //rb 0.11 can read folder.jpg and so should we
-	            gchar *str = g_filename_from_uri(uri, NULL, NULL);
-                if(str && str[0])
-                    db->parent->FindAlbumArtByFilePath(db->parent->sd, str);
-	            g_free(str);
-            }
-            if(bFound) {
-                // just assign here, scaling is done in callee
-				g_string_assign(db->parent->albumArt, artLocation->str);
-                LOG("Found :'%s'", artLocation->str);
-            }
+			if (bFound) {
+				// just assign here, scaling is done in callee
+				g_string_assign(db->parent->albumArt,
+						artLocation->str);
+				LOG("Found :'%s'", artLocation->str);
+			}
 
 			g_hash_table_destroy(table);
 			g_string_free(artLocation, TRUE);
-			
+
 			db->parent->Update(db->parent->sd, TRUE, estPlay, NULL);
 		}
-		if( err )
-		{
-			fprintf (stderr, "Unable to get Properties: '%s'", err->message);
+		if (err) {
+			fprintf(stderr, "Unable to get Properties: '%s'",
+				err->message);
 			g_error_free(err);
 		}
 	}
-	
+
 }
- 
+
 gboolean rbIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRes = FALSE;
-	if( !rbAssure(db) )
+	if (!rbAssure(db))
 		return FALSE;
-	if( !dbus_g_proxy_call(db->rbPlayer, "getPlaying", NULL,
-		G_TYPE_INVALID,
-		G_TYPE_BOOLEAN, &bRes, G_TYPE_INVALID)) {
+	if (!dbus_g_proxy_call(db->rbPlayer, "getPlaying", NULL,
+			       G_TYPE_INVALID,
+			       G_TYPE_BOOLEAN, &bRes, G_TYPE_INVALID)) {
 		LOGERR("Failed to complete getPlaying");
 		return FALSE;
 	}
@@ -172,152 +172,150 @@ gboolean rbIsPlaying(gpointer thsPtr) {
 }
 
 gboolean rbIsVisible(gpointer thsPtr) {
-    MKTHIS;
-    return db->Visibility;   
+	MKTHIS;
+	return db->Visibility;
 }
 
 static void rbCallbackFake(gpointer thsPtr) {
-    MKTHIS;
+	MKTHIS;
 	char *uri = NULL;
 	rbCallbackPlayPause(db->rbPlayer, rbIsPlaying(db), db);
-	
-	if( org_gnome_Rhythmbox_Player_get_playing_uri(
-		db->rbPlayer, &uri, NULL) && uri )
-	{
+
+	if (org_gnome_Rhythmbox_Player_get_playing_uri(db->rbPlayer, &uri, NULL)
+	    && uri) {
 		LOG("!!!");
 		rbCallback(db->rbPlayer, uri, db);
 	}
-    rbCallbackVisibility(db->rbPlayer, rbIsVisible(db), db);
+	rbCallbackVisibility(db->rbPlayer, rbIsVisible(db), db);
 }
 
-static gboolean
-rbUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+static gboolean rbUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	MKTHIS;
-	if(appeared){
-        LOG("Rhythmbox has started");
-        if( !db->rbPlayer && rbAssure(thsPtr))
-           rbCallbackFake(thsPtr);
-    }
-    else {
-        LOG("Rhythmbox has died");
-        if( db->rbPlayer )
-        {
-            g_object_unref (G_OBJECT (db->rbPlayer));		
-            db->rbPlayer = NULL;
-        }
-        if( db->rbShell )
-        {
-            g_object_unref (G_OBJECT (db->rbShell));		
-            db->rbShell = NULL;
-        }
-        g_string_truncate(db->parent->artist, 0);
-        g_string_truncate(db->parent->album, 0);
-        g_string_truncate(db->parent->title, 0);
-        g_string_truncate(db->parent->albumArt, 0);
-        db->parent->Update(db->parent->sd, TRUE, estStop, NULL);
-    }
-    return TRUE;
+	if (appeared) {
+		LOG("Rhythmbox has started");
+		if (!db->rbPlayer && rbAssure(thsPtr))
+			rbCallbackFake(thsPtr);
+	} else {
+		LOG("Rhythmbox has died");
+		if (db->rbPlayer) {
+			g_object_unref(G_OBJECT(db->rbPlayer));
+			db->rbPlayer = NULL;
+		}
+		if (db->rbShell) {
+			g_object_unref(G_OBJECT(db->rbShell));
+			db->rbShell = NULL;
+		}
+		g_string_truncate(db->parent->artist, 0);
+		g_string_truncate(db->parent->album, 0);
+		g_string_truncate(db->parent->title, 0);
+		g_string_truncate(db->parent->albumArt, 0);
+		db->parent->Update(db->parent->sd, TRUE, estStop, NULL);
+	}
+	return TRUE;
 }
 
 gboolean rbAssure(gpointer thsPtr) {
 	gboolean bRet = TRUE;
-    gchar *errLine = NULL;
+	gchar *errLine = NULL;
 	MKTHIS;
 	LOG("Enter rbAssure");
-	if( db->parent->bus && !db->rbShell )
-	{
+	if (db->parent->bus && !db->rbShell) {
 		GError *error = NULL;
 		db->rbShell = dbus_g_proxy_new_for_name_owner(db->parent->bus,
-							  RB_dbusName(),
-							  "/org/gnome/Rhythmbox/Shell",
-							  "org.gnome.Rhythmbox.Shell",
-							  &error);
-		if( error )
-		{
+							      RB_dbusName(),
+							      "/org/gnome/Rhythmbox/Shell",
+							      "org.gnome.Rhythmbox.Shell",
+							      &error);
+		if (error) {
 			LOGWARN("Couldn't connect to DBUS proxy '%s' ",
 				error->message);
-            g_error_free(error); 
-            error = NULL;
-			if( db->noCreate )
+			g_error_free(error);
+			error = NULL;
+			if (db->noCreate)
 				bRet = FALSE;
-			else 
-			{
+			else {
 				DBusGProxy *bus_proxy;
 				guint start_service_reply;
 				LOG("starting new instance");
 
-				bus_proxy = dbus_g_proxy_new_for_name (db->parent->bus,
-									   "org.freedesktop.DBus",
-									   "/org/freedesktop/DBus",
-									   "org.freedesktop.DBus");
-		
-				if (!dbus_g_proxy_call (bus_proxy, "StartServiceByName", &error,
-							G_TYPE_STRING, RB_dbusName(),
-							G_TYPE_UINT, 0,
-							G_TYPE_INVALID,
-							G_TYPE_UINT, &start_service_reply,
-							G_TYPE_INVALID)) 
-                {
-					LOGWARN("Could'n start service '%s'", error->message);
+				bus_proxy =
+				    dbus_g_proxy_new_for_name(db->parent->bus,
+							      "org.freedesktop.DBus",
+							      "/org/freedesktop/DBus",
+							      "org.freedesktop.DBus");
+
+				if (!dbus_g_proxy_call
+				    (bus_proxy, "StartServiceByName", &error,
+				     G_TYPE_STRING, RB_dbusName(), G_TYPE_UINT,
+				     0, G_TYPE_INVALID, G_TYPE_UINT,
+				     &start_service_reply, G_TYPE_INVALID)) {
+					LOGWARN("Could'n start service '%s'",
+						error->message);
 					bRet = FALSE;
-                    g_error_free(error); 
-                    error = NULL;
+					g_error_free(error);
+					error = NULL;
 				}
 			}
 		}
-		if( db->rbShell && !db->rbPlayer )
-		{
+		if (db->rbShell && !db->rbPlayer) {
 			db->rbPlayer = dbus_g_proxy_new_from_proxy(db->rbShell,
-						     "org.gnome.Rhythmbox.Player",
-						     "/org/gnome/Rhythmbox/Player");
-			if(!db->rbPlayer)
-			{
-				g_object_unref (G_OBJECT (db->rbShell));
+								   "org.gnome.Rhythmbox.Player",
+								   "/org/gnome/Rhythmbox/Player");
+			if (!db->rbPlayer) {
+				g_object_unref(G_OBJECT(db->rbShell));
 				db->rbShell = NULL;
 				db->rbPlayer = NULL;
 				LOGERR("Couldn't connect to player proxy");
 				bRet = FALSE;
-			}
-			else
-			{
+			} else {
 				// state changes
-                //  playing change
-				dbus_g_proxy_add_signal(db->rbPlayer, "playingChanged", 
-					G_TYPE_BOOLEAN, G_TYPE_INVALID);
-				dbus_g_proxy_connect_signal(db->rbPlayer, "playingChanged", 
-					G_CALLBACK(rbCallbackPlayPause), db, NULL);	
-		
+				//  playing change
+				dbus_g_proxy_add_signal(db->rbPlayer,
+							"playingChanged",
+							G_TYPE_BOOLEAN,
+							G_TYPE_INVALID);
+				dbus_g_proxy_connect_signal(db->rbPlayer,
+							    "playingChanged",
+							    G_CALLBACK
+							    (rbCallbackPlayPause),
+							    db, NULL);
+
 				//  song change
-				dbus_g_proxy_add_signal(db->rbPlayer, "playingUriChanged", 
-					G_TYPE_STRING, G_TYPE_INVALID);
-				dbus_g_proxy_connect_signal(db->rbPlayer, "playingUriChanged", 
-					G_CALLBACK(rbCallback), db, NULL);
-				
+				dbus_g_proxy_add_signal(db->rbPlayer,
+							"playingUriChanged",
+							G_TYPE_STRING,
+							G_TYPE_INVALID);
+				dbus_g_proxy_connect_signal(db->rbPlayer,
+							    "playingUriChanged",
+							    G_CALLBACK
+							    (rbCallback), db,
+							    NULL);
+
 				//  player change
-				dbus_g_proxy_add_signal(db->rbShell, "visibilityChanged", 
-					G_TYPE_BOOLEAN, G_TYPE_INVALID);
-				dbus_g_proxy_connect_signal(db->rbShell, "visibilityChanged", 
-					G_CALLBACK(rbCallbackVisibility), db, NULL);
+				dbus_g_proxy_add_signal(db->rbShell,
+							"visibilityChanged",
+							G_TYPE_BOOLEAN,
+							G_TYPE_INVALID);
+				dbus_g_proxy_connect_signal(db->rbShell,
+							    "visibilityChanged",
+							    G_CALLBACK
+							    (rbCallbackVisibility),
+							    db, NULL);
 			}
 		}
 	}
-
-    // reflect UI
-    if( bRet == FALSE )
-    {        
-        if( db->noCreate )
-        {
-            db->parent->Update(db->parent->sd, FALSE, 
-                estStop, NULL);        
-        }
-        else
-        {
-            db->parent->Update(db->parent->sd, FALSE, 
-                estErr, errLine);        
-            if( errLine )
-                g_free(errLine);
-        }
-    }
+	// reflect UI
+	if (bRet == FALSE) {
+		if (db->noCreate) {
+			db->parent->Update(db->parent->sd, FALSE,
+					   estStop, NULL);
+		} else {
+			db->parent->Update(db->parent->sd, FALSE,
+					   estErr, errLine);
+			if (errLine)
+				g_free(errLine);
+		}
+	}
 
 	LOG("Leave rbAssure");
 	return bRet;
@@ -326,12 +324,10 @@ gboolean rbAssure(gpointer thsPtr) {
 gboolean rbNext(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter rbNext");
-	if( !rbAssure(db) )
+	if (!rbAssure(db))
 		return FALSE;
-	if (!dbus_g_proxy_call (db->rbPlayer, "next", NULL, 
-		G_TYPE_INVALID, 
-		G_TYPE_INVALID
-		)){
+	if (!dbus_g_proxy_call(db->rbPlayer, "next", NULL,
+			       G_TYPE_INVALID, G_TYPE_INVALID)) {
 		LOGERR("Failed to complete Next");
 		return FALSE;
 	}
@@ -341,12 +337,10 @@ gboolean rbNext(gpointer thsPtr) {
 
 gboolean rbPrevious(gpointer thsPtr) {
 	MKTHIS;
-	if( !rbAssure(db) )
+	if (!rbAssure(db))
 		return FALSE;
-	if (!dbus_g_proxy_call (db->rbPlayer, "previous", NULL, 
-		G_TYPE_INVALID, 
-		G_TYPE_INVALID
-		)){
+	if (!dbus_g_proxy_call(db->rbPlayer, "previous", NULL,
+			       G_TYPE_INVALID, G_TYPE_INVALID)) {
 		LOGERR("Failed to complete Prev");
 		return FALSE;
 	}
@@ -355,58 +349,56 @@ gboolean rbPrevious(gpointer thsPtr) {
 
 gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	if( !rbAssure(db) )
+	if (!rbAssure(db))
 		return FALSE;
-	if( !dbus_g_proxy_call(db->rbPlayer, "playPause", NULL,
-		G_TYPE_BOOLEAN, newState, G_TYPE_INVALID,
-		G_TYPE_INVALID
-		)){
+	if (!dbus_g_proxy_call(db->rbPlayer, "playPause", NULL,
+			       G_TYPE_BOOLEAN, newState, G_TYPE_INVALID,
+			       G_TYPE_INVALID)) {
 		LOGERR("Failed to complete playPause");
 		return FALSE;
 	}
 	return TRUE;
 }
 
-gboolean rbToggle(gpointer thsPtr, gboolean *newState) {
+gboolean rbToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
-	if( !rbAssure(db) )
+	if (!rbAssure(db))
 		return FALSE;
 	oldState = rbIsPlaying(db);
-	if( !rbPlayPause(db, !oldState) )
+	if (!rbPlayPause(db, !oldState))
 		return FALSE;
-	if( newState )
+	if (newState)
 		*newState = !oldState;
-	
+
 	return TRUE;
 }
 
 gboolean rbDetach(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter rbDetach");
-	if( db->rbPlayer )
-	{
-		g_object_unref (G_OBJECT (db->rbPlayer));		
+	if (db->rbPlayer) {
+		g_object_unref(G_OBJECT(db->rbPlayer));
 		db->rbPlayer = NULL;
 	}
-	if( db->rbShell )
-	{
-		g_object_unref (G_OBJECT (db->rbShell));		
+	if (db->rbShell) {
+		g_object_unref(G_OBJECT(db->rbShell));
 		db->rbShell = NULL;
 	}
 	//g_free(db);
 	LOG("Leave rbDetach");
-	
+
 	return TRUE;
 }
 
 gboolean rbShow(gpointer thsPtr, gboolean newState) {
-    MKTHIS;
-    if( rbAssure(thsPtr) ) {
-        org_gnome_Rhythmbox_Shell_present(db->rbPlayer, (newState)? 1 : 0, NULL);
-        return TRUE;
-    }
-    return FALSE;
+	MKTHIS;
+	if (rbAssure(thsPtr)) {
+		org_gnome_Rhythmbox_Shell_present(db->rbPlayer,
+						  (newState) ? 1 : 0, NULL);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 /*
@@ -415,9 +407,9 @@ gboolean rbGetRepeat(gpointer thsPtr) {
 	org_gnome_Rhythmbox_Shell_get_playlist_manager(
 }
 */
-rbData * RB_attach(SPlayer *player) {
+rbData *RB_attach(SPlayer * player) {
 	rbData *db = NULL;
-	
+
 	LOG("Enter RB_attach");
 	RB_MAP(Assure);
 	RB_MAP(Next);
@@ -425,27 +417,27 @@ rbData * RB_attach(SPlayer *player) {
 	RB_MAP(PlayPause);
 	RB_MAP(IsPlaying);
 	RB_MAP(Toggle);
-	 NOMAP(Configure); // no settings
+	NOMAP(Configure);	// no settings
 	RB_MAP(Detach);
-	 NOMAP(Persist);
-    RB_MAP(IsVisible);
-    RB_MAP(Show);
-    RB_MAP(UpdateDBUS);
-    //The DBUS API does not provide:
-     NOMAP(GetRepeat);
-     NOMAP(SetRepeat);
-     NOMAP(GetShuffle);
-     NOMAP(SetShuffle);
-	
+	NOMAP(Persist);
+	RB_MAP(IsVisible);
+	RB_MAP(Show);
+	RB_MAP(UpdateDBUS);
+	//The DBUS API does not provide:
+	NOMAP(GetRepeat);
+	NOMAP(SetRepeat);
+	NOMAP(GetShuffle);
+	NOMAP(SetShuffle);
+
 	db = g_new0(rbData, 1);
 	db->parent = player;
 	db->rbPlayer = NULL;
 	db->noCreate = TRUE;
-	
+
 	// check if rhythmbox is running
-	
-	if( rbAssure(db) ) {
-        rbCallbackFake(db);
+
+	if (rbAssure(db)) {
+		rbCallbackFake(db);
 	}
 	db->noCreate = FALSE;
 	LOG("Leave RB_attach");
