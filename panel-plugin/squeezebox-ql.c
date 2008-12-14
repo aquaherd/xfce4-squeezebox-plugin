@@ -402,7 +402,7 @@ gboolean qlGetRepeat(gpointer thsPtr)
 {
     MKTHIS;
     qlStatus(thsPtr);
-    return this->isShuffle;
+    return this->isRepeat;
 }
 
 gboolean qlSetRepeat(gpointer thsPtr, gboolean newRepeat)

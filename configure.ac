@@ -283,10 +283,10 @@ else
 	echo " MPD support ...................disabled"
 fi
 
-if test x$enable_QUODLIBET = xyes; then
+if test x$enable_quodlibet = xyes; then
 	echo " QuodLibet support .............enabled"
 else
-	echo " QuodLibet support ..... .......disabled"
+	echo " QuodLibet support .............disabled"
 fi
 
 if test x$enable_audacious = xyes && test x$enable_DBUS = xyes; then

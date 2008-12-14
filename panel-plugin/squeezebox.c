@@ -1216,6 +1216,18 @@ gboolean squeezebox_play(SqueezeBoxData *sd) {
     LOG("Leave squeezebox_play");
 	return bRet;
 }
+gboolean on_btn_clicked(GtkWidget *button, GdkEventButton *event, SqueezeBoxData *sd) {
+    if(3 == event->button) {
+        sd->noUI = TRUE;
+        if(NULL != sd->player.GetRepeat)
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuRepeat), sd->player.GetRepeat(sd->player.db));
+        if(NULL != sd->player.GetShuffle)
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuShuffle), sd->player.GetShuffle(sd->player.db));
+        sd->noUI = FALSE;
+    }
+    return FALSE;
+}
+
 void on_btnPlay_clicked(GtkButton  *button, SqueezeBoxData *sd) {
     squeezebox_play(sd);
 }
@@ -1374,6 +1386,13 @@ squeezebox_create (SqueezeBoxData *sd)
 					G_CALLBACK (on_btnPlay_clicked), sd);
     g_signal_connect ((gpointer) sd->button[ebtnNext], "clicked",
 					G_CALLBACK (on_btnNext_clicked), sd);
+
+    g_signal_connect ((gpointer) sd->button[ebtnPrev], "button-press-event",
+					G_CALLBACK(on_btn_clicked), sd);
+    g_signal_connect ((gpointer) sd->button[ebtnPlay], "button-press-event",
+					G_CALLBACK (on_btn_clicked), sd);
+    g_signal_connect ((gpointer) sd->button[ebtnNext], "button-press-event",
+					G_CALLBACK (on_btn_clicked), sd);
     
     // toaster handling
 #if HAVE_NOTIFY
