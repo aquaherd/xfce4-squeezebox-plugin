@@ -44,7 +44,7 @@
 #define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
 #endif
 */
-#define RB_MAP(a) player->a = rb##a;
+#define RB_MAP(a) parent->a = rb##a;
 
 // pixmap
 #include "squeezebox-rb.png.h"
@@ -55,7 +55,6 @@ typedef struct {
 	SPlayer *parent;
 	DBusGProxy *rbPlayer;
 	DBusGProxy *rbShell;
-	gboolean noCreate;
 	gboolean Visibility;
 } rbData;
 
@@ -63,7 +62,7 @@ typedef struct {
 BEGIN_PROP_MAP(RB)
     END_PROP_MAP()
 #define MKTHIS rbData *db = (rbData *)thsPtr;
-gboolean rbAssure(gpointer thsPtr);
+gboolean rbAssure(gpointer thsPtr, gboolean noCreate);
 
 static void rbCallbackPlayPause(DBusGProxy * proxy, const gboolean playing,
 				gpointer thsPtr) {
@@ -160,7 +159,7 @@ static void rbCallback(DBusGProxy * proxy, const gchar * uri, gpointer thsPtr) {
 gboolean rbIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRes = FALSE;
-	if (!rbAssure(db))
+	if (!rbAssure(db, TRUE))
 		return FALSE;
 	if (!dbus_g_proxy_call(db->rbPlayer, "getPlaying", NULL,
 			       G_TYPE_INVALID,
@@ -193,7 +192,7 @@ static gboolean rbUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("Rhythmbox has started");
-		if (!db->rbPlayer && rbAssure(thsPtr))
+		if (!db->rbPlayer && rbAssure(thsPtr, TRUE))
 			rbCallbackFake(thsPtr);
 	} else {
 		LOG("Rhythmbox has died");
@@ -214,7 +213,7 @@ static gboolean rbUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	return TRUE;
 }
 
-gboolean rbAssure(gpointer thsPtr) {
+gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 	gboolean bRet = TRUE;
 	gchar *errLine = NULL;
 	MKTHIS;
@@ -231,7 +230,7 @@ gboolean rbAssure(gpointer thsPtr) {
 				error->message);
 			g_error_free(error);
 			error = NULL;
-			if (db->noCreate)
+			if (noCreate)
 				bRet = FALSE;
 			else {
 				DBusGProxy *bus_proxy;
@@ -306,7 +305,7 @@ gboolean rbAssure(gpointer thsPtr) {
 	}
 	// reflect UI
 	if (bRet == FALSE) {
-		if (db->noCreate) {
+		if (noCreate) {
 			db->parent->Update(db->parent->sd, FALSE,
 					   estStop, NULL);
 		} else {
@@ -324,7 +323,7 @@ gboolean rbAssure(gpointer thsPtr) {
 gboolean rbNext(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter rbNext");
-	if (!rbAssure(db))
+	if (!rbAssure(db, TRUE))
 		return FALSE;
 	if (!dbus_g_proxy_call(db->rbPlayer, "next", NULL,
 			       G_TYPE_INVALID, G_TYPE_INVALID)) {
@@ -337,7 +336,7 @@ gboolean rbNext(gpointer thsPtr) {
 
 gboolean rbPrevious(gpointer thsPtr) {
 	MKTHIS;
-	if (!rbAssure(db))
+	if (!rbAssure(db, TRUE))
 		return FALSE;
 	if (!dbus_g_proxy_call(db->rbPlayer, "previous", NULL,
 			       G_TYPE_INVALID, G_TYPE_INVALID)) {
@@ -349,7 +348,7 @@ gboolean rbPrevious(gpointer thsPtr) {
 
 gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	if (!rbAssure(db))
+	if (!rbAssure(db, FALSE))
 		return FALSE;
 	if (!dbus_g_proxy_call(db->rbPlayer, "playPause", NULL,
 			       G_TYPE_BOOLEAN, newState, G_TYPE_INVALID,
@@ -363,7 +362,7 @@ gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
 gboolean rbToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
-	if (!rbAssure(db))
+	if (!rbAssure(db, FALSE))
 		return FALSE;
 	oldState = rbIsPlaying(db);
 	if (!rbPlayPause(db, !oldState))
@@ -393,7 +392,7 @@ gboolean rbDetach(gpointer thsPtr) {
 
 gboolean rbShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	if (rbAssure(thsPtr)) {
+	if (rbAssure(thsPtr, FALSE)) {
 		org_gnome_Rhythmbox_Shell_present(db->rbPlayer,
 						  (newState) ? 1 : 0, NULL);
 		return TRUE;
@@ -407,7 +406,7 @@ gboolean rbGetRepeat(gpointer thsPtr) {
 	org_gnome_Rhythmbox_Shell_get_playlist_manager(
 }
 */
-rbData *RB_attach(SPlayer * player) {
+rbData *RB_attach(SPlayer * parent) {
 	rbData *db = NULL;
 
 	LOG("Enter RB_attach");
@@ -430,16 +429,9 @@ rbData *RB_attach(SPlayer * player) {
 	NOMAP(SetShuffle);
 
 	db = g_new0(rbData, 1);
-	db->parent = player;
+	db->parent = parent;
 	db->rbPlayer = NULL;
-	db->noCreate = TRUE;
 
-	// check if rhythmbox is running
-
-	if (rbAssure(db)) {
-		rbCallbackFake(db);
-	}
-	db->noCreate = FALSE;
 	LOG("Leave RB_attach");
 	return db;
 }

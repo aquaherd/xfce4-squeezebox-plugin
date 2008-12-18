@@ -199,9 +199,9 @@ static void grab_mmkey(MmKeys * object, guint index, GdkWindow * root) {
 	gint iErr = gdk_error_trap_pop();
 #if DEBUG_TRACE
 	if (iErr) {
-		g_warning("Error grabbing key %d, %p\n", key_code, root);
+		g_warning("Error grabbing key %d, %p", key_code, root);
 	} else
-		g_message("Grabbed key %d\n", key_code);
+		g_message("Grabbed key %d", key_code);
 #endif
 	object->errcodes[index] = iErr;
 }

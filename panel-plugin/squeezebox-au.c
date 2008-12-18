@@ -38,7 +38,7 @@
 #define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
 #endif
 
-#define AU_MAP(a) player->a = au##a;
+#define AU_MAP(a) parent->a = au##a;
 
 // pixmap
 #include "squeezebox-au.png.h"
@@ -49,7 +49,6 @@ typedef struct {
 	SPlayer *parent;
 	DBusGProxy *auPlayer;
 	DBusGProxy *auTheme;
-	gboolean noCreate;
 	gboolean Visibility;
 	gboolean Shuffle;
 	gboolean Repeat;
@@ -60,7 +59,7 @@ BEGIN_PROP_MAP(AU)
     END_PROP_MAP()
 #define MKTHIS auData *db = (auData *)thsPtr;
 // implementation
-static gboolean auAssure(gpointer thsPtr);
+static gboolean auAssure(gpointer thsPtr, gboolean noCreate);
 
 static void auCallbackCapsChange(DBusGProxy * proxy, gint caps, gpointer thsPtr) {
 	// MKTHIS;
@@ -145,7 +144,7 @@ static gboolean auUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("Audacious has started");
-		if (!db->auPlayer && auAssure(thsPtr))
+		if (!db->auPlayer && auAssure(thsPtr, FALSE))
 			auCallbackFake(thsPtr);
 	} else {
 		LOG("Audacious has died");
@@ -162,7 +161,7 @@ static gboolean auUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	return TRUE;
 }
 
-static gboolean auAssure(gpointer thsPtr) {
+static gboolean auAssure(gpointer thsPtr, gboolean noCreate) {
 	gboolean bRet = TRUE;
 	gchar *errLine = NULL;
 	auData *db = (auData *) thsPtr;
@@ -178,7 +177,7 @@ static gboolean auAssure(gpointer thsPtr) {
 		if (error) {
 			LOGWARN("\tCouldn't connect to shell proxy '%s' ",
 				error->message);
-			if (db->noCreate)
+			if (noCreate)
 				bRet = FALSE;
 			else {
 				DBusGProxy *bus_proxy;
@@ -251,7 +250,7 @@ static gboolean auAssure(gpointer thsPtr) {
 	}
 	// reflect UI
 	if (bRet == FALSE) {
-		if (db->noCreate) {
+		if (noCreate) {
 			db->parent->Update(db->parent->sd, FALSE,
 					   estStop, NULL);
 		} else {
@@ -269,7 +268,7 @@ static gboolean auAssure(gpointer thsPtr) {
 static gboolean auNext(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter auNext");
-	if (!auAssure(db))
+	if (!auAssure(db, FALSE))
 		return FALSE;
 	if (!org_freedesktop_MediaPlayer_next(db->auPlayer, NULL)) {
 		LOGERR("Failed to complete Next");
@@ -281,7 +280,7 @@ static gboolean auNext(gpointer thsPtr) {
 static gboolean auPrevious(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter auPrevious");
-	if (!auAssure(db))
+	if (!auAssure(db, FALSE))
 		return FALSE;
 	if (!org_freedesktop_MediaPlayer_prev(db->auPlayer, NULL)) {
 		LOGERR("Failed to complete Previous");
@@ -292,7 +291,7 @@ static gboolean auPrevious(gpointer thsPtr) {
 
 static gboolean auPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	if (!auAssure(db))
+	if (!auAssure(db, FALSE))
 		return FALSE;
 	if (newState)
 		org_freedesktop_MediaPlayer_play(db->auPlayer, NULL);
@@ -304,7 +303,7 @@ static gboolean auPlayPause(gpointer thsPtr, gboolean newState) {
 static gboolean auIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	gint status = 0;
-	if (!auAssure(db))
+	if (!auAssure(db, FALSE))
 		return FALSE;
 	if (!org_freedesktop_MediaPlayer_get_status
 	    (db->auPlayer, &status, NULL)) {
@@ -317,7 +316,7 @@ static gboolean auIsPlaying(gpointer thsPtr) {
 static gboolean auToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
-	if (!auAssure(db))
+	if (!auAssure(db, FALSE))
 		return FALSE;
 	oldState = auIsPlaying(db);
 	auPlayPause(db, !oldState);
@@ -341,7 +340,7 @@ static gboolean auDetach(gpointer thsPtr) {
 
 gboolean auIsVisible(gpointer thsPtr) {
 	MKTHIS;
-	if (auAssure(thsPtr) && NULL != db->auTheme) {
+	if (auAssure(thsPtr, FALSE) && NULL != db->auTheme) {
 		org_atheme_audacious_main_win_visible(db->auTheme,
 						      &db->Visibility, NULL);
 	}
@@ -350,7 +349,7 @@ gboolean auIsVisible(gpointer thsPtr) {
 
 gboolean auShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	if (auAssure(thsPtr) && NULL != db->auTheme) {
+	if (auAssure(thsPtr, FALSE) && NULL != db->auTheme) {
 		org_atheme_audacious_show_main_win(db->auTheme,
 						   (newState) ? 1 : 0, NULL);
 		return TRUE;
@@ -360,15 +359,16 @@ gboolean auShow(gpointer thsPtr, gboolean newState) {
 
 gboolean auGetShuffle(gpointer thsPtr) {
 	MKTHIS;
-	if (auAssure(thsPtr) && NULL != db->auTheme) {
+	if (db->auTheme) 
 		org_atheme_audacious_shuffle(db->auTheme, &db->Shuffle, NULL);
-	}
+	else
+        db->Shuffle = FALSE;
 	return db->Shuffle;
 }
 
 gboolean auSetShuffle(gpointer thsPtr, gboolean newShuffle) {
 	MKTHIS;
-	if (auAssure(thsPtr) && NULL != db->auTheme) {
+	if (auAssure(thsPtr, FALSE) && NULL != db->auTheme) {
 		org_atheme_audacious_toggle_shuffle(db->auTheme, NULL);
 	}
 	return TRUE;
@@ -376,21 +376,22 @@ gboolean auSetShuffle(gpointer thsPtr, gboolean newShuffle) {
 
 gboolean auGetRepeat(gpointer thsPtr) {
 	MKTHIS;
-	if (auAssure(thsPtr) && NULL != db->auTheme) {
+	if (db->auTheme)
 		org_atheme_audacious_repeat(db->auTheme, &db->Repeat, NULL);
-	}
+	else
+        db->Repeat = FALSE;
 	return db->Repeat;
 }
 
 gboolean auSetRepeat(gpointer thsPtr, gboolean newRepeat) {
 	MKTHIS;
-	if (auAssure(thsPtr) && NULL != db->auTheme) {
+	if (auAssure(thsPtr, FALSE) && NULL != db->auTheme) {
 		return org_atheme_audacious_toggle_repeat(db->auTheme, NULL);
 	}
 	return FALSE;
 }
 
-auData *AU_attach(SPlayer * player) {
+auData *AU_attach(SPlayer * parent) {
 	auData *db = NULL;
 
 	LOG("Enter AU_attach");
@@ -412,17 +413,9 @@ auData *AU_attach(SPlayer * player) {
 	AU_MAP(SetShuffle);
 
 	db = g_new0(auData, 1);
-	db->parent = player;
+	db->parent = parent;
 	db->auPlayer = NULL;
 	db->auTheme = NULL;
-	db->noCreate = TRUE;
-
-	// check if audacious is running
-
-	if (auAssure(db)) {
-		auCallbackFake(db);
-	}
-	db->noCreate = FALSE;
 	LOG("Leave AU_attach");
 	return db;
 }

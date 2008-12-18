@@ -49,7 +49,7 @@ typedef enum {
 	estErr = 10
 }eSynoptics;
 
-#define NOMAP(a) player->a = NULL;
+#define NOMAP(a) parent->a = NULL;
 
 typedef struct {
 	// this is the 'API'
@@ -60,7 +60,7 @@ typedef struct {
     gint secTot;     // Current track length in seconds
 	
 	// backend implementations
-	gboolean(* Assure)(gpointer thsPtr);
+	gboolean(* Assure)(gpointer thsPtr, gboolean noCreate);
 	gboolean(* Next)(gpointer thsPtr);
 	gboolean(* Previous)(gpointer thsPtr);
 	gboolean(* PlayPause)(gpointer thsPtr, gboolean newState);
@@ -107,14 +107,15 @@ typedef struct {
     void(* AddSubItem)(gpointer thsPlayer, gpointer newPlayer);
     void(* MonitorFile)(gpointer thsPlayer, GString filePath); 
     void(* FindAlbumArtByFilePath)(gpointer thsPlayer, const gchar * path);
+    void(* MapProperty)(gpointer thsPlayer, const gchar *propName, gpointer address);
 }SPlayer;
 
 // Backend definitions
 
 typedef struct {
-    const gchar* Name;
-    gint Type;
-    gint Offset;
+    const gchar *Name;
+    const gint Type;
+    const gchar *Default;
 }PropDef;
  
 typedef struct {
@@ -174,11 +175,14 @@ extern const Backend* squeezebox_get_backends();
 #define BEGIN_PROP_MAP(bk) const PropDef* bk##_properties() \
 { \
     static const PropDef props[] = {
-#define PROP_ENTRY(name,type,struct,member) {name,type,G_STRUCT_OFFSET(struct,member)},
-#define END_PROP_MAP() {"",0,0} \
+#define PROP_ENTRY(name,type,default) {name,type,default},
+#define END_PROP_MAP() {"",0,NULL} \
     }; \
     return &props[0]; \
 }
+
+//     PROP_MAP("mpd_usedefault", this->bUseDefault)
+#define PROP_MAP(name,address) parent->MapProperty(parent->sd, name, address);
 
 #if DEBUG_TRACE
 #define LOGERR g_error

@@ -34,14 +34,13 @@
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
 
-#define CS_MAP(a) player->a = cs##a;
+#define CS_MAP(a) parent->a = cs##a;
 
 // pixmap
 #include "squeezebox-cs.png.h"
 
 typedef struct {
 	SPlayer *parent;
-	gboolean noCreate;
 	gboolean Visibility;
 	gboolean Shuffle;
 	gboolean Repeat;
@@ -222,7 +221,7 @@ static gint csCallback(gpointer thsPtr) {
 	return ret;
 }
 
-static gboolean csAssure(gpointer thsPtr) {
+static gboolean csAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
 	LOG("Enter csAssure");
 	if (NULL != db->parent->bus && !db->con_dbus) {
@@ -253,7 +252,7 @@ static gboolean csAssure(gpointer thsPtr) {
 static gboolean csNext(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter csNext");
-	if (!csAssure(db))
+	if (!csAssure(db, TRUE))
 		return FALSE;
 	dbus_send_signal(DBUS_SIG_NEXT, db);
 	LOG("Leave csNext");
@@ -263,7 +262,7 @@ static gboolean csNext(gpointer thsPtr) {
 static gboolean csPrevious(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter csPrevious");
-	if (!csAssure(db))
+	if (!csAssure(db, TRUE))
 		return FALSE;
 	dbus_send_signal(DBUS_SIG_PREV, db);
 	LOG("Leave csPrevious");
@@ -273,7 +272,7 @@ static gboolean csPrevious(gpointer thsPtr) {
 static gboolean csPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	LOG("Enter csPlayPause %d", newState);
-	if (csAssure(thsPtr)) {
+	if (csAssure(thsPtr, FALSE)) {
 		dbus_send_signal((newState) ? DBUS_SIG_PLAY : DBUS_SIG_PAUSE,
 				 db);
 	}
@@ -289,7 +288,7 @@ static gboolean csIsPlaying(gpointer thsPtr) {
 static gboolean csToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	LOG("Enter csToggle");
-	if (!csAssure(db))
+	if (!csAssure(db, TRUE))
 		return FALSE;
 	gboolean newStat = FALSE;
 	switch (db->oldStat) {
@@ -336,7 +335,7 @@ static gboolean csUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("consonance has started");
-		if (!db->csPlayer && csAssure(thsPtr))
+		if (!db->csPlayer && csAssure(thsPtr, TRUE))
 			csPoll(thsPtr);
 	} else {
 		LOG("consonance has died");
@@ -353,7 +352,7 @@ static gboolean csUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	return TRUE;
 }
 
-csData *CS_attach(SPlayer * player) {
+csData *CS_attach(SPlayer * parent) {
 	csData *db = NULL;
 
 	LOG("Enter CS_attach");
@@ -375,8 +374,7 @@ csData *CS_attach(SPlayer * player) {
 	NOMAP(SetShuffle);
 
 	db = g_new0(csData, 1);
-	db->parent = player;
-	db->noCreate = TRUE;
+	db->parent = parent;
 	db->file = g_string_new("");
 
 	// quarks
@@ -384,11 +382,6 @@ csData *CS_attach(SPlayer * player) {
 	db->csPaused = g_quark_from_string("Paused");
 	db->csStopped = g_quark_from_string("Stopped");
 
-	// check if consonance is running
-	if (csAssure(db)) {
-		;
-	}
-	db->noCreate = FALSE;
 	LOG("Leave CS_attach");
 	return db;
 }

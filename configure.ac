@@ -183,6 +183,9 @@ if test x$enable_MPD = xyes; then
 	fi
 	AC_SUBST([LIBMPD_CFLAGS])
 	AC_SUBST([LIBMPD_LIBS])
+	PKG_CHECK_MODULES([LIBGIO], [gio-unix-2.0 >= 2.18.0])
+	AC_SUBST([LIBGIO_CFLAGS])
+	AC_SUBST([LIBGIO_LIBS])
 fi
 
 AC_ARG_ENABLE(quodlibet,[  --disable-quodlibet           disable QuodLibet support (default: enable)],[enable_quodlibet=$enableval],[enable_quodlibet=yes])

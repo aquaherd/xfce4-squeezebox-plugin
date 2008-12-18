@@ -38,7 +38,7 @@
 #define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
 #endif
 
-#define EX_MAP(a) player->a = ex##a;
+#define EX_MAP(a) parent->a = ex##a;
 
 // pixmap
 #include "squeezebox-ex.png.h"
@@ -49,7 +49,6 @@ DEFINE_DBUS_BACKEND(EX, _("exaile 0.2.x (via DBUS)"),
 typedef struct {
 	SPlayer *parent;
 	DBusGProxy *exPlayer;
-	gboolean noCreate;
 	gboolean Visibility;
 	gboolean isPlaying;
 	gint intervalID;
@@ -190,7 +189,7 @@ static void exCallbackFake(gpointer thsPtr) {
 	exCallbackStatusChange(db->exPlayer, thsPtr);
 }
 
-static gboolean exAssure(gpointer thsPtr) {
+static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
 	gboolean bRet = TRUE;
 	gchar *errLine = NULL;
@@ -206,7 +205,7 @@ static gboolean exAssure(gpointer thsPtr) {
 		if (error) {
 			LOGWARN("\tCouldn't connect to shell proxy '%s' ",
 				error->message);
-			if (db->noCreate)
+			if (noCreate)
 				bRet = FALSE;
 			else {
 				DBusGProxy *bus_proxy;
@@ -261,7 +260,7 @@ static gboolean exAssure(gpointer thsPtr) {
 	}
 	// reflect UI
 	if (bRet == FALSE) {
-		if (db->noCreate) {
+		if (noCreate) {
 			db->parent->Update(db->parent->sd, FALSE,
 					   estStop, NULL);
 		} else {
@@ -271,7 +270,7 @@ static gboolean exAssure(gpointer thsPtr) {
 				g_free(errLine);
 		}
 	} else {
-		if (db->noCreate)
+		if (noCreate)
 			db->parent->Update(db->parent->sd, FALSE, estPlay,
 					   NULL);
 
@@ -284,7 +283,7 @@ static gboolean exAssure(gpointer thsPtr) {
 static gboolean exNext(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter exNext");
-	if (!exAssure(db))
+	if (!exAssure(db, FALSE))
 		return FALSE;
 	if (!org_exaile_DBusInterface_next_track(db->exPlayer, NULL)) {
 		LOGERR("Failed to complete Next");
@@ -296,7 +295,7 @@ static gboolean exNext(gpointer thsPtr) {
 static gboolean exPrevious(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter exPrevious");
-	if (!exAssure(db))
+	if (!exAssure(db, FALSE))
 		return FALSE;
 	if (!org_exaile_DBusInterface_prev_track(db->exPlayer, NULL)) {
 		LOGERR("Failed to complete Previous");
@@ -307,7 +306,7 @@ static gboolean exPrevious(gpointer thsPtr) {
 
 static gboolean exPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	if (!exAssure(db))
+	if (!exAssure(db, TRUE))
 		return FALSE;
 	return org_exaile_DBusInterface_play_pause(db->exPlayer, NULL);
 }
@@ -320,7 +319,7 @@ static gboolean exIsPlaying(gpointer thsPtr) {
 static gboolean exToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
-	if (!exAssure(db))
+	if (!exAssure(db, FALSE))
 		return FALSE;
 	oldState = exIsPlaying(db);
 	exPlayPause(db, !oldState);
@@ -331,7 +330,7 @@ static gboolean exToggle(gpointer thsPtr, gboolean * newState) {
 
 gboolean exShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	if (exAssure(thsPtr)) {
+	if (exAssure(thsPtr, FALSE)) {
 		org_exaile_DBusInterface_toggle_visibility(db->exPlayer, NULL);
 		return TRUE;
 	}
@@ -355,7 +354,7 @@ static gboolean exUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("Exaile has started");
-		if (!db->exPlayer && exAssure(thsPtr))
+		if (!db->exPlayer && exAssure(thsPtr, FALSE))
 			exCallbackFake(thsPtr);
 	} else {
 		LOG("Exaile has died");
@@ -372,7 +371,7 @@ static gboolean exUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	return TRUE;
 }
 
-exData *EX_attach(SPlayer * player) {
+exData *EX_attach(SPlayer * parent) {
 	exData *db = NULL;
 
 	LOG("Enter EX_attach");
@@ -395,21 +394,13 @@ exData *EX_attach(SPlayer * player) {
 	NOMAP(SetShuffle);
 
 	db = g_new0(exData, 1);
-	db->parent = player;
+	db->parent = parent;
 	db->exPlayer = NULL;
-	db->noCreate = TRUE;
 
 	// init Quarks
 	stopped = g_quark_from_static_string("stopped");
 	paused = g_quark_from_static_string("paused");
 	playing = g_quark_from_static_string("playing");
-
-	// check if exaile is running
-	if (exAssure(db)) {
-		// emulate state change
-		exCallbackFake(db);
-	}
-	db->noCreate = FALSE;
 
 	LOG("Leave EX_attach");
 	return db;

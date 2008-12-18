@@ -91,6 +91,10 @@ typedef struct {
 	MmKeys *mmkeys;
 	gboolean grabmedia;
 	gulong mmhandlers[4];
+    
+    // property handling
+    GHashTable *properties;
+    GHashTable *propertyAddresses;
 } SqueezeBoxData;
 
 /* some small helpers - unused for now
@@ -159,7 +163,10 @@ IMPORT_DBUS_BACKEND(RB)
 #define UNSET(t) sd->player.t = NULL
 static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 	// clear previous backend
-	if (sd->player.Detach) {
+	const Backend *ptr = squeezebox_get_backends();
+    PropDef *prop = NULL;
+    LOG("Enter init backend");
+    if (sd->player.Detach) {
 		sd->player.Detach(sd->player.db);
 		g_free(sd->player.db);
 	}
@@ -178,6 +185,12 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 	UNSET(Show);
 	UNSET(Persist);
 	UNSET(Configure);
+    
+    // clear old property address map
+    if(g_hash_table_size(sd->propertyAddresses)) {
+        g_hash_table_remove_all(sd->propertyAddresses);
+    }
+    
 
 	// clear current song info
 	g_string_set_size(sd->player.artist, 0);
@@ -187,7 +200,6 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 
 	// call init of backend
 	sd->backend = nBackend;
-	const Backend *ptr = squeezebox_get_backends();
 	sd->player.db = ptr[nBackend - 1].BACKEND_attach(&sd->player);
 
 	// have menu populated
@@ -201,8 +213,35 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 				 (NULL != sd->player.GetShuffle
 				  && NULL != sd->player.SetShuffle));
 
+    // apply new properties, if applicable
+    prop = ptr[nBackend - 1].BACKEND_properties();  
+    while(*prop->Name) {
+        gchar *propValue = NULL;
+        if(g_hash_table_lookup_extended(sd->properties, prop->Name, NULL, (gpointer)&propValue)) {
+            switch(prop->Type) {
+                case G_TYPE_BOOLEAN: {
+                    gboolean *boolVal = (gboolean*)g_hash_table_lookup(sd->propertyAddresses, prop->Name);
+                    if(boolVal)
+                        *boolVal = ('0' == propValue[0]) ? FALSE : TRUE;
+                }break;
+                case G_TYPE_INT: {
+                    gint *gintVal = (gint*)g_hash_table_lookup(sd->propertyAddresses, prop->Name);
+                    if(gintVal)
+                        *gintVal = (gint)g_ascii_strtoll(propValue, NULL, 10);
+                }break;
+                case G_TYPE_STRING: {
+                    GString *strVal = (GString*)g_hash_table_lookup(sd->propertyAddresses, prop->Name);
+                    if(strVal)
+                        g_string_assign(strVal, propValue);
+                }break;
+            }
+            //? g_free(propValue);
+        }
+        prop++;
+    }
+    
 	// try connect happens in created backend
-
+    LOG("Leave init backend");
 }
 
 static void squeezebox_update_playbtn(SqueezeBoxData * sd) {
@@ -275,6 +314,7 @@ static gboolean on_timer(gpointer thsPlayer) {
 
 	return TRUE;
 }
+
 static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	LOG("show_toaster ");
 	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
@@ -426,8 +466,7 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 				id3_ucs4_t const *str =
 				    id3_field_getstrings(&frm->fields[1], 0);
 				if (str) {
-					gchar *artist =
-					    (gchar *)
+					gchar *artist = (gchar *)
 					    id3_ucs4_utf8duplicate(str);
 					LOG(artist);
 				}
@@ -588,6 +627,37 @@ squeezebox_style_set(XfcePanelPlugin * plugin, gpointer ignored,
 }
 
 static void
+squeezebox_persist_properties(SqueezeBoxData * sd, XfceRc *rc, gboolean isStoring) {
+    // apply property map
+    const Backend *ptr = squeezebox_get_backends();
+    LOG("Enter persist");
+    while(ptr->BACKEND_attach) {
+        LOG("Properties of %s", ptr->BACKEND_name());
+        PropDef *prop = ptr->BACKEND_properties();
+        gchar *propValue =  NULL;
+        while(*prop->Name) {
+            if(isStoring) {
+                if(g_hash_table_lookup_extended(sd->properties, prop->Name, NULL, (gpointer)&propValue)) {
+                    xfce_rc_write_entry(rc, prop->Name, propValue);
+                } else {
+                    xfce_rc_write_entry(rc, prop->Name, prop->Default);
+                }
+            } else {
+                if(rc)
+                    propValue =  strdup(xfce_rc_read_entry(rc, prop->Name, prop->Default));
+                else
+                    propValue = strdup(prop->Default);
+                g_hash_table_insert(sd->properties, strdup(prop->Name), propValue);
+            }
+            LOG("\t%s->'%s'", prop->Name, propValue);
+            prop++;
+        }
+        ptr++;
+    }
+    LOG("Leave persist");
+}
+
+static void
 squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	char *file;
 	XfceRc *rc = NULL;
@@ -625,8 +695,12 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 			    xfce_rc_read_int_entry(rc, "tooltips", 1);
 			if (toolTipStyle < 0)
 				toolTipStyle = 0;
+
 		}
 	}
+    // backend properties
+    squeezebox_persist_properties(sd, rc, FALSE);
+    
 	// Always init backend
 	sd->player.sd = sd;
 	squeezebox_init_backend(sd, nBackend);
@@ -662,8 +736,8 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 #endif
 
 	if (rc != NULL) {
-		if (sd->player.Persist)
-			sd->player.Persist(sd->player.db, rc, FALSE);
+		//if (sd->player.Persist)
+			//sd->player.Persist(sd->player.db, rc, FALSE);
 		xfce_rc_close(rc);
 
 		if (bShowPrev)
@@ -675,9 +749,9 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 			gtk_widget_show(sd->button[ebtnNext]);
 		else
 			gtk_widget_hide(sd->button[ebtnNext]);
-
 	}
-
+    if(sd->player.Assure)
+        sd->player.Assure(sd->player.db, TRUE);
 	LOG("Leave squeezebox_read_rc_file");
 }
 
@@ -713,8 +787,10 @@ squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 						sd->notifytimeout);
 #endif
 
-			if (sd->player.Persist)
-				sd->player.Persist(sd->player.db, rc, TRUE);
+			squeezebox_persist_properties(sd, rc, TRUE);
+            
+            //if (sd->player.Persist)
+				//sd->player.Persist(sd->player.db, rc, TRUE);
 
 			xfce_rc_close(rc);
 			LOG("OK");
@@ -726,11 +802,40 @@ squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 static void
 squeezebox_dialog_response(GtkWidget * dlg, int reponse, SqueezeBoxData * sd) {
 	g_object_set_data(G_OBJECT(sd->plugin), "dialog", NULL);
-
 	gtk_widget_destroy(dlg);
+    LOG("Enter DialogResponse");
 	xfce_panel_plugin_unblock_menu(sd->plugin);
+    // apply new properties, if applicable
+	const Backend *ptr = squeezebox_get_backends();
+    PropDef *prop = ptr[sd->backend - 1].BACKEND_properties();  
+    while(*prop->Name) {
+        gchar *propValue = NULL;
+        switch(prop->Type) {
+            case G_TYPE_BOOLEAN: {
+                gboolean *boolVal = (gboolean*)g_hash_table_lookup(sd->propertyAddresses, prop->Name);
+                LOG("Apply property %s, %p", prop->Name, boolVal);
+                if(boolVal)
+                    propValue = g_strdup_printf("%d", *boolVal);
+            }break;
+            case G_TYPE_INT: {
+                gint *gintVal = g_hash_table_lookup(sd->propertyAddresses, prop->Name);
+                if(gintVal)
+                    propValue = g_strdup_printf("%d", *gintVal);
+            }break;
+            case G_TYPE_STRING: {
+                GString *strVal = g_hash_table_lookup(sd->propertyAddresses, prop->Name);
+                if(strVal)
+                    propValue = g_strdup(strVal->str);
+            }break;
+        }
+        if(propValue) {
+            g_hash_table_insert(sd->properties, g_strdup(prop->Name), propValue);
+            //g_free(propValue);
+        }
+        prop++;
+    }
 	squeezebox_write_rc_file(sd->plugin, sd);
-
+    LOG("Leave DialogResponse");
 }
 
 static void config_show_backend_properties(GtkButton * btn, SqueezeBoxData * sd) {
@@ -756,6 +861,7 @@ static void config_show_backend_properties(GtkButton * btn, SqueezeBoxData * sd)
 enum {
 	PIXBUF_COLUMN,
 	TEXT_COLUMN,
+    INDEX_COLUMN,
 	N_COLUMNS,
 };
 
@@ -786,9 +892,20 @@ static void config_show_grab_properties(GtkButton * btn, SqueezeBoxData * sd) {
 }
 
 static void config_change_backend(GtkComboBox * cb, SqueezeBoxData * sd) {
-	int nBackend = gtk_combo_box_get_active(cb) + 1;
-	squeezebox_init_backend(sd, nBackend);
-	gtk_widget_set_sensitive(sd->btnDet, (NULL != sd->player.Configure));
+	GtkTreeIter iter = {0};
+    LOG("Backend change...");
+    if( gtk_combo_box_get_active_iter(cb, &iter)) {
+        gint nBackend = -1;
+        LOG("Have iter %d", iter.stamp);
+        GtkTreeModel *model = gtk_combo_box_get_model(cb);
+        if(model) {
+            gchar *backend = NULL;
+            gtk_tree_model_get(model, &iter, TEXT_COLUMN, &backend, INDEX_COLUMN, &nBackend, -1);
+            LOG("Have model %s %d", backend, nBackend);
+	        squeezebox_init_backend(sd, nBackend + 1);
+	        gtk_widget_set_sensitive(sd->btnDet, (NULL != sd->player.Configure));
+        }
+    }
 }
 
 #if HAVE_NOTIFY
@@ -802,8 +919,10 @@ static void config_toggle_notify(GtkToggleButton * tb, SqueezeBoxData * sd) {
 #if HAVE_NOTIFY
 	if (sd->toolTipStyle == ettFull) {
 		sd->timerHandle = g_timeout_add(1000, on_timer, sd);
-	} else if (sd->timerHandle != 0)
+	} else if (sd->timerHandle != 0) {
 		g_source_remove(sd->timerHandle);
+        sd->timerHandle = 0;
+    }
 #endif
 
 }
@@ -875,7 +994,8 @@ squeezebox_update_grab(gboolean bGrab, gboolean bShowErr, SqueezeBoxData * sd) {
 			for (i = 0; i < 4; i++) {
 				if (sd->mmhandlers[i]) {
 					g_signal_handler_disconnect(sd->mmkeys,
-								    sd->mmhandlers
+								    sd->
+								    mmhandlers
 								    [i]);
 					sd->mmhandlers[i] = 0;
 				}
@@ -1093,19 +1213,23 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	GtkListStore *store;
 
 	/* make a new list store */
-	store = gtk_list_store_new(N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+	store = gtk_list_store_new(N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
+    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), TEXT_COLUMN, GTK_SORT_ASCENDING);
 
 	/* fill the store with data */
 	GtkTreeIter iter = { 0 };
 	const Backend *ptr = squeezebox_get_backends();
+    gint idx = 0;
 	for (;;) {
 		LOG("Have %s", ptr->BACKEND_name());
 		gtk_list_store_append(store, &iter);
 		GdkPixbuf *pix =
 		    exo_gdk_pixbuf_scale_down(ptr->BACKEND_icon(), TRUE, 24,
 					      32);
-		gtk_list_store_set(store, &iter, PIXBUF_COLUMN, pix,
-				   TEXT_COLUMN, ptr->BACKEND_name(), -1);
+		gtk_list_store_set(store, &iter, 
+                   PIXBUF_COLUMN, pix,
+				   TEXT_COLUMN, ptr->BACKEND_name(), 
+                   INDEX_COLUMN, idx++, -1);
 		ptr++;
 		if (!ptr->BACKEND_name)
 			break;
@@ -1130,7 +1254,16 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 				      "text", TEXT_COLUMN);
 
 	g_object_unref(G_OBJECT(store));
-	gtk_combo_box_set_active(GTK_COMBO_BOX(cbBackend), sd->backend - 1);
+    
+    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
+    do {
+        gint nBackend = -1;
+        gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, INDEX_COLUMN, &nBackend, -1);
+        if(nBackend == (sd->backend -1)) {
+	        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(cbBackend), &iter);
+            break;
+        }
+    }while(gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter));
 
 	g_signal_connect(cbBackend, "changed",
 			 G_CALLBACK(config_change_backend), sd);
@@ -1175,21 +1308,34 @@ gboolean squeezebox_play(SqueezeBoxData * sd) {
 }
 gboolean on_btn_clicked(GtkWidget * button, GdkEventButton * event,
 			SqueezeBoxData * sd) {
-	if (3 == event->button) {
+	if (3 == event->button && sd->state != estStop) {
+        LOG("RightClick");
+	    gtk_widget_set_sensitive(sd->mnuPlayer, (NULL != sd->player.Show));
+	    gtk_check_menu_item_set_inconsistent(GTK_CHECK_MENU_ITEM(sd->mnuPlayer),
+					         (NULL == sd->player.IsVisible));
 		sd->noUI = TRUE;
 		if (NULL != sd->player.GetRepeat)
 			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM
 						       (sd->mnuRepeat),
-						       sd->player.
-						       GetRepeat
+						       sd->player.GetRepeat
 						       (sd->player.db));
 		if (NULL != sd->player.GetShuffle)
 			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM
 						       (sd->mnuShuffle),
-						       sd->
-						       player.GetShuffle(sd->
-									 player.db));
+						       sd->player.
+						       GetShuffle(sd->player.
+								  db));
 		sd->noUI = FALSE;
+	} else if (2 == event->button) {
+        LOG("MiddleClick");
+		if (NULL != sd->player.IsVisible && NULL != sd->player.Show) {
+			sd->player.Show(sd->player.db,
+					!sd->player.IsVisible(sd->player.db));
+			squeezebox_update_visibility(sd,
+						     sd->player.IsVisible(sd->
+									  player.
+									  db));
+		}
 	}
 	return FALSE;
 }
@@ -1207,6 +1353,13 @@ void squeezebox_next(SqueezeBoxData * sd) {
 		sd->player.Next(sd->player.db);
 	LOG("Leave squeezebox_next");
 }
+
+void squeezebox_map_property(gpointer thsPlayer, const gchar *propName, gpointer address) {
+    LOG("Mapping property %s to %p", propName, address);
+	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
+    g_hash_table_insert(sd->propertyAddresses, g_strdup(propName), address);
+}
+
 void on_btnNext_clicked(GtkButton * button, SqueezeBoxData * sd) {
 	squeezebox_next(sd);
 }
@@ -1246,8 +1399,9 @@ void on_mnuPlayerToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) 
 		sd->player.Show(sd->player.db, checkmenuitem->active);
 		if (sd->player.IsVisible)
 			squeezebox_update_visibility(sd,
-						     sd->player.
-						     IsVisible(sd->player.db));
+						     sd->player.IsVisible(sd->
+									  player.
+									  db));
 	}
 }
 
@@ -1256,8 +1410,9 @@ void on_mnuShuffleToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd)
 		sd->player.SetShuffle(sd->player.db, checkmenuitem->active);
 		if (sd->player.GetShuffle)
 			squeezebox_update_shuffle(sd,
-						  sd->player.
-						  GetShuffle(sd->player.db));
+						  sd->player.GetShuffle(sd->
+									player.
+									db));
 	}
 }
 
@@ -1267,16 +1422,15 @@ void on_mnuRepeatToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) 
 }
 
 #if HAVE_GTK_2_12
-gboolean on_query_tooltip(GtkWidget * widget,
-			  gint x,
-			  gint y,
-			  gboolean keyboard_mode,
-			  GtkTooltip * tooltip, SqueezeBoxData * sd) {
-	if (sd->toolTipStyle == ettSimple &&
-	    //sd->inCreate == FALSE && 
-	    sd->toolTipText->str != NULL && sd->toolTipText->str[0] != 0) {
-
+gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
+			  gboolean keyboard_mode, GtkTooltip * tooltip,
+			  SqueezeBoxData * sd) {
+	if (sd->toolTipStyle == ettSimple && sd->toolTipText->str != NULL
+	    && sd->toolTipText->str[0] != 0) {
 		gtk_tooltip_set_text(tooltip, sd->toolTipText->str);
+		gtk_tooltip_set_icon(tooltip,
+				     squeezebox_get_backends(sd)[sd->backend -
+								 1].BACKEND_icon());
 		return TRUE;
 	}
 	return FALSE;
@@ -1435,6 +1589,8 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 	SqueezeBoxData *sd = g_new0(SqueezeBoxData, 1);
 
 	sd->plugin = plugin;
+    sd->properties = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+    sd->propertyAddresses = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	sd->player.artist = g_string_new(_("(unknown)"));
 	sd->player.album = g_string_new(_("(unknown)"));
 	sd->player.title = g_string_new(_("(unknown)"));
@@ -1467,6 +1623,7 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 	sd->player.MonitorFile = NULL;	//tbd
 	sd->player.FindAlbumArtByFilePath =
 	    squeezebox_find_albumart_by_filepath;
+    sd->player.MapProperty = squeezebox_map_property;
 #if HAVE_NOTIFY
 	sd->inEnter = FALSE;
 	sd->notifytimeout = 5;

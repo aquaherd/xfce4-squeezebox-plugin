@@ -46,19 +46,19 @@
 
 DEFINE_BACKEND(QL, _("QuodLibet (pipe)"))
 /* --- */
-#define QL_MAP(a) player->a = ql##a;
+#define QL_MAP(a) parent->a = ql##a;
 #define MKTHIS qlData *this = (qlData *)thsPtr;
-#define QL_BIN_PATH "/usr/bin/quodlibet"
 #define QL_FIFO_PATH "/.quodlibet/control"
 #define QL_STAT_PATH "/.quodlibet/current"
 #define QL_ALBUM_ART_PATH "/.quodlibet/current.cover"
 typedef struct {
 	SPlayer *parent;
-	void *player;
+	gpointer *player;
 	FILE *fp;
-	char fifo[256];
-	char stat[256];
-	char cover[256];
+	gchar *fifo;
+	gchar *stat;
+	gchar *cover;
+    gchar *bin;
 	ThunarVfsPath *statPath;
 	ThunarVfsMonitorHandle *statMon;
 	GHashTable *current;
@@ -67,14 +67,14 @@ typedef struct {
 	gboolean isShuffle;
 	gboolean isRepeat;
 	WnckScreen *wnckScreen;
-	int connections[2];
+	gint connections[2];
 } qlData;
 
 // MFCish property map -- currently none
 BEGIN_PROP_MAP(QL)
     END_PROP_MAP()
 
-void *QL_attach(SPlayer * player);
+void *QL_attach(SPlayer * parent);
 void qlStatus(gpointer thsPtr, const gchar * args);
 
 void qlCurrentChanged(ThunarVfsMonitor * monitor,
@@ -160,7 +160,7 @@ void qlCurrentChanged(ThunarVfsMonitor * monitor,
 	}
 }
 
-gboolean qlAssure(gpointer thsPtr) {
+gboolean qlAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
 	LOG("Enter qlAssure");
 	if (g_file_test(this->fifo, G_FILE_TEST_EXISTS)) {
@@ -234,7 +234,7 @@ gboolean qlNext(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlNext");
-	if (qlAssure(this))
+	if (qlAssure(this, FALSE))
 		bRet = qlPrintFlush(this->fp, "next");
 	else
 		bRet = FALSE;
@@ -246,7 +246,7 @@ gboolean qlPrevious(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlPrevious");
-	if (qlAssure(this))
+	if (qlAssure(this, FALSE))
 		bRet = qlPrintFlush(this->fp, "previous");
 	else
 		bRet = FALSE;
@@ -258,7 +258,7 @@ gboolean qlPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	LOG("Enter qlPlayPause");
 	gboolean bRet = FALSE;
-	if (qlAssure(this))
+	if (qlAssure(this, FALSE))
 		bRet = qlPrintFlush(this->fp, "play-pause");
 	else {
 		LOG("Running...");
@@ -271,9 +271,7 @@ gboolean qlPlayPause(gpointer thsPtr, gboolean newState) {
 
 gboolean qlIsPlaying(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter qlIsPlaying");
 	qlStatus(thsPtr, "--status");
-	LOG("Leave qlIsPlaying");
 	return this->isPlaying;
 }
 
@@ -307,7 +305,7 @@ void qlStatus(gpointer thsPtr, const gchar * args) {
 	MKTHIS;
 	gchar *outText = NULL;
 	const gchar *argv[] = {
-		QL_BIN_PATH,
+		this->bin,
 		args,
 		NULL
 	};
@@ -364,7 +362,7 @@ gboolean qlToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlToggle");
-	if (qlAssure(this)) {
+	if (qlAssure(this, FALSE)) {
 		bRet = qlPrintFlush(this->fp, "play-pause");
 		qlStatus(thsPtr, "--status");
 	} else {
@@ -395,8 +393,25 @@ gboolean qlDetach(gpointer thsPtr) {
 	}
 	if (this->current)
 		g_hash_table_destroy(this->current);
+    
+    if(this->fifo) {
+        g_free(this->fifo);
+        this->fifo = NULL;
+    }
+    if(this->stat) {
+        g_free(this->stat);
+        this->stat = NULL;
+    }
+    if(this->cover) {
+        g_free(this->cover);
+        this->cover = NULL;
+    }
+    if(this->bin) {
+        g_free(this->bin);
+        this->bin = NULL;
+    }
 
-	thunar_vfs_shutdown();
+    thunar_vfs_shutdown();
 
 	if (this->connections[0])
 		g_signal_handler_disconnect(this->wnckScreen,
@@ -420,7 +435,7 @@ gboolean qlSetRepeat(gpointer thsPtr, gboolean newRepeat) {
 	MKTHIS;
 	LOG("Enter qlSetRepeat");
 	gboolean bRet = FALSE;
-	if (qlAssure(this)) {
+	if (qlAssure(this, FALSE)) {
 		qlStatus(thsPtr, (newRepeat) ? "--repeat=1" : "--repeat=0");
 		bRet = TRUE;
 	} else {
@@ -440,7 +455,7 @@ gboolean qlSetShuffle(gpointer thsPtr, gboolean newShuffle) {
 	MKTHIS;
 	LOG("Enter qlSetShuffle");
 	gboolean bRet = FALSE;
-	if (qlAssure(this)) {
+	if (qlAssure(this, FALSE)) {
 		qlStatus(thsPtr, (newShuffle) ?
 			 "--order=shuffle" : "--order=inorder");
 		bRet = TRUE;
@@ -461,7 +476,7 @@ gboolean qlShow(gpointer thsPtr, gboolean bShow) {
 	MKTHIS;
 	LOG("Enter qlShow");
 	gboolean bRet = FALSE;
-	if (qlAssure(this))
+	if (qlAssure(this, FALSE))
 		bRet = qlPrintFlush(this->fp, "toggle-window\n");
 	else
 		bRet = FALSE;
@@ -469,7 +484,7 @@ gboolean qlShow(gpointer thsPtr, gboolean bShow) {
 	return bRet;
 }
 
-void *QL_attach(SPlayer * player) {
+void *QL_attach(SPlayer * parent) {
 	qlData *this = g_new0(qlData, 1);
 	LOG("Enter QL_attach");
 
@@ -491,16 +506,19 @@ void *QL_attach(SPlayer * player) {
 	QL_MAP(SetShuffle);
 
 	// we init default values 
-	this->parent = player;
+	this->parent = parent;
 	this->fp = NULL;
-	strcpy(this->fifo, g_get_home_dir());
-	strcat(this->fifo, QL_FIFO_PATH);
+	this->fifo = g_strdup_printf("%s%s", 
+        g_get_home_dir(), QL_FIFO_PATH);
 
-	strcpy(this->stat, g_get_home_dir());
-	strcat(this->stat, QL_STAT_PATH);
+	this->stat = g_strdup_printf("%s%s", 
+        g_get_home_dir(), QL_STAT_PATH);
 
-	strcpy(this->cover, g_get_home_dir());
-	strcat(this->cover, QL_ALBUM_ART_PATH);
+	this->cover = g_strdup_printf("%s%s", 
+        g_get_home_dir(), QL_ALBUM_ART_PATH);
+    
+    this->bin = g_find_program_in_path("quodlibet");
+    
 	thunar_vfs_init();
 
 	// connect to notification events
@@ -521,7 +539,7 @@ void *QL_attach(SPlayer * player) {
 			     G_CALLBACK(qlWindowClosed), this);
 
 	// update data
-	if (qlAssure(this)) {
+	if (qlAssure(this, FALSE)) {
 		qlStatus(this, "--status");
 	} else {
 		this->parent->Update(this->parent->sd, FALSE, estStop, NULL);

@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <gio/gdesktopappinfo.h>
 
 #include <string.h>
 
@@ -43,39 +44,43 @@
 #include "squeezebox-mpd.png.h"
 
 DEFINE_BACKEND(MPD, _("Music Player Daemon (libmpd)"))
-#define MPD_MAP(a) player->a = mpd##a;
+#define MPD_MAP(a) parent->a = mpd##a;
 typedef struct {
 	SPlayer *parent;
 	gint port;
 	GString *host;
 	GString *pass;
 	GString *path;
+	GString *pmanager;
 	MpdObj *player;
 	gboolean bUseDefault;
 	gboolean bUseMPDFolder;
+	gboolean bUsePManager;
 	gboolean bAutoConnect;
 	gboolean bRequireReconnect;
 	gint intervalID;
 	gint songID;
 	gint songLength;
-	GtkWidget *wHost, *wPass, *wPort, *wDlg, *wPath;
+	GtkWidget *wHost, *wPass, *wPort, *wDlg, *wPath, *wPMgr;
 } mpdData;
 
 // MFCish property map
 BEGIN_PROP_MAP(MPD)
-    PROP_ENTRY("mpd_usedefault", G_TYPE_BOOLEAN, mpdData, bUseDefault)
-    PROP_ENTRY("mpd_port", G_TYPE_INT, mpdData, port)
-    PROP_ENTRY("mpd_host", G_TYPE_STRING, mpdData, host)
-    PROP_ENTRY("mpd_pass", G_TYPE_STRING, mpdData, pass)
-    PROP_ENTRY("mpd_usemusicfolder", G_TYPE_BOOLEAN, mpdData, bUseMPDFolder)
-    PROP_ENTRY("mpd_musicfolder", G_TYPE_STRING, mpdData, path)
+    PROP_ENTRY("mpd_usedefault", G_TYPE_BOOLEAN, "1")
+    PROP_ENTRY("mpd_port", G_TYPE_INT, "6600")
+    PROP_ENTRY("mpd_host", G_TYPE_STRING, "localhost")
+    PROP_ENTRY("mpd_pass", G_TYPE_STRING, "")
+    PROP_ENTRY("mpd_usemusicfolder", G_TYPE_BOOLEAN, "0")
+    PROP_ENTRY("mpd_musicfolder", G_TYPE_STRING, "")
+	PROP_ENTRY("mpd_usepmanager", G_TYPE_BOOLEAN, "0")
+	PROP_ENTRY("mpd_pmanager", G_TYPE_STRING, "")
 END_PROP_MAP()
 #define MKTHIS mpdData *this = (mpdData *)thsPtr;
 void *MPD_attach(SPlayer * player);
 void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 			     gpointer thsPtr);
 
-gboolean mpdAssure(gpointer thsPtr) {
+gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 
 	MKTHIS;
 	gboolean gConnect = FALSE;
@@ -109,8 +114,7 @@ gboolean mpdAssure(gpointer thsPtr) {
 			g_string_assign(this->parent->title, "");
 			g_string_assign(this->parent->albumArt, "");
 			this->parent->Update(this->parent->sd, TRUE, estErr,
-					     _
-					     ("Can't connect to music player daemon."));
+					     _("Can't connect to music player daemon."));
 			mpd_disconnect(this->player);
 			mpd_free(this->player);
 			this->player = NULL;
@@ -143,7 +147,7 @@ gboolean mpdNext(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdNext");
-	if (!mpdAssure(this))
+	if (!mpdAssure(this, TRUE))
 		return FALSE;
 	else
 		bRet = (MPD_OK == mpd_player_next(this->player));
@@ -155,7 +159,7 @@ gboolean mpdPrevious(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdPrevious");
-	if (!mpdAssure(this))
+	if (!mpdAssure(this, TRUE))
 		return FALSE;
 	else
 		bRet = (MPD_OK == mpd_player_prev(this->player));
@@ -167,7 +171,7 @@ gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	LOG("Enter mpdPlayPause");
 	int iRet = MPD_OK;
-	if (!mpdAssure(this))
+	if (!mpdAssure(this, FALSE))
 		return FALSE;
 	else if (newState)
 		iRet = mpd_player_play(this->player);
@@ -182,7 +186,7 @@ gboolean mpdIsPlaying(gpointer thsPtr) {
 	MpdState sStat = MPD_STATUS_STATE_STOP;
 
 	LOG("Enter mpdIsPlaying");
-	if (!mpdAssure(this))
+	if (!mpdAssure(this, TRUE))
 		return FALSE;
 	if (this->player) {
 		sStat = mpd_player_get_state(this->player);
@@ -195,7 +199,7 @@ gboolean mpdToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
 	LOG("Enter mpdToggle");
-	if (!mpdAssure(this))
+	if (!mpdAssure(this, FALSE))
 		return FALSE;
 	oldState = mpdIsPlaying(this);
 	if (!mpdPlayPause(this, !oldState))
@@ -221,10 +225,21 @@ gboolean mpdDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
+gboolean mpdIsVisible(gpointer thsPtr) {
+	MKTHIS;
+	return this->bUsePManager;
+}
+
+gboolean mpdShow(gpointer thsPtr, gboolean newState) {
+	MKTHIS;
+	return this->bUsePManager;
+}
+
 void mpdPersist(gpointer thsPtr, XfceRc * rc, gboolean bIsStoring) {
 	MKTHIS;
 	LOG("Enter mpdPersist");
 	if (bIsStoring) {
+        SPlayer * parent = this->parent;
 		xfce_rc_write_int_entry(rc, "mpd_usedefault",
 					(this->bUseDefault) ? TRUE : FALSE);
 		xfce_rc_write_int_entry(rc, "mpd_port", this->port);
@@ -233,6 +248,17 @@ void mpdPersist(gpointer thsPtr, XfceRc * rc, gboolean bIsStoring) {
 		xfce_rc_write_int_entry(rc, "mpd_usemusicfolder",
 					(this->bUseMPDFolder) ? TRUE : FALSE);
 		xfce_rc_write_entry(rc, "mpd_musicfolder", this->path->str);
+		xfce_rc_write_int_entry(rc, "mpd_usepmanager",
+					(this->bUsePManager) ? TRUE : FALSE);
+		xfce_rc_write_entry(rc, "mpd_pmanager", this->pmanager->str);
+        
+        if(this->bUsePManager) {
+            MPD_MAP(IsVisible);
+            MPD_MAP(Show);
+        } else {
+            NOMAP(IsVisible);
+            NOMAP(Show);
+        }
 	} else {
 		this->bUseDefault =
 		    (xfce_rc_read_int_entry(rc, "mpd_usedefault", 1) ? TRUE :
@@ -245,28 +271,30 @@ void mpdPersist(gpointer thsPtr, XfceRc * rc, gboolean bIsStoring) {
 				xfce_rc_read_entry(rc, "mpd_pass", "")
 		    );
 		this->bUseMPDFolder =
-		    (xfce_rc_read_int_entry(rc, "mpd_usemusicfolder", 1) ? TRUE
+		    (xfce_rc_read_int_entry(rc, "mpd_usemusicfolder", 0) ? TRUE
 		     : FALSE);
-
 		g_string_assign(this->path,
 				xfce_rc_read_entry(rc, "mpd_musicfolder",
-						   xfce_get_homedir())
-		    );
+						   xfce_get_homedir()));
+        this->bUsePManager = 
+		    (xfce_rc_read_int_entry(rc, "mpd_usepmanager", 0) ? TRUE
+		     : FALSE);
+		g_string_assign(this->pmanager,
+				xfce_rc_read_entry(rc, "mpd_pmanager", ""));
 	}
 	LOG("Leave mpdPersist");
 }
 
 gboolean mpdGetRepeat(gpointer thsPtr) {
 	MKTHIS;
-	if (mpdAssure(thsPtr)) {
+	if (this->player)
 		return mpd_player_get_repeat(this->player);
-	}
 	return FALSE;
 }
 
 gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
 	MKTHIS;
-	if (mpdAssure(thsPtr)) {
+	if (mpdAssure(thsPtr, TRUE)) {
 		return (MPD_OK ==
 			mpd_player_set_repeat(this->player,
 					      (newShuffle) ? 1 : 0));
@@ -276,15 +304,14 @@ gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
 
 gboolean mpdGetShuffle(gpointer thsPtr) {
 	MKTHIS;
-	if (mpdAssure(thsPtr)) {
+	if (this->player)
 		return mpd_player_get_random(this->player);
-	}
 	return FALSE;
 }
 
 gboolean mpdSetShuffle(gpointer thsPtr, gboolean newRandom) {
 	MKTHIS;
-	if (mpdAssure(thsPtr)) {
+	if (mpdAssure(thsPtr, TRUE)) {
 		return (MPD_OK ==
 			mpd_player_set_random(this->player,
 					      (newRandom) ? 1 : 0));
@@ -298,7 +325,7 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 	if (sType & MPD_CST_SONGID) {
 		LOG("Enter mpdCallback: SongChanged");
 		mpd_Song *song = mpd_playlist_get_current_song(this->player);
-		if (mpdAssure(thsPtr) && song != NULL
+		if (mpdAssure(thsPtr, TRUE) && song != NULL
 		    && song->id != this->songID) {
 			GString *artLocation = NULL;
 			gboolean bFound = FALSE;
@@ -402,6 +429,11 @@ static void mpdSettingsDialogResponse(GtkWidget * dlg, int reponse,
 
 	const gchar *tmpPath =
 	    gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(this->wPath));
+                          
+    const gchar *tmpPManager = 
+        gtk_combo_box_get_active_text(GTK_COMBO_BOX(this->wPMgr));
+                          
+    LOG("MPD PManager: %s", tmpPManager);
 
 	if (g_strcasecmp(tmpHost, this->host->str)) {
 		g_string_assign(this->host, tmpHost);
@@ -416,7 +448,11 @@ static void mpdSettingsDialogResponse(GtkWidget * dlg, int reponse,
 	if (!g_str_equal(this->path, tmpPath)) {
 		g_string_assign(this->path, tmpPath);
 	}
-	// reconnect if changed
+
+	if (!g_str_equal(this->pmanager, tmpPManager)) {
+		g_string_assign(this->pmanager, tmpPManager);
+	}
+    // reconnect if changed
 	if (0)	// this->bRequireReconnect )
 	{
 		LOG("    Reconnecting to %s/%s", tmpHost, this->host->str);
@@ -426,9 +462,25 @@ static void mpdSettingsDialogResponse(GtkWidget * dlg, int reponse,
 		MPD_attach(p);
 		LOG("    Done reconnect.");
 	}
-
+    
+    // don't allow bogus playlist manager
+    if(this->bUsePManager && this->pmanager->len) {
+        gchar *binPath = g_find_program_in_path(this->pmanager->str);
+        if(NULL == binPath) {
+             GtkWidget *dialog = gtk_message_dialog_new (NULL,
+                                              GTK_DIALOG_DESTROY_WITH_PARENT,
+                                              GTK_MESSAGE_ERROR,
+                                              GTK_BUTTONS_CLOSE,
+                                              _("Can't find binary '%s'"),
+                                              this->pmanager->str);
+            gtk_dialog_run (GTK_DIALOG (dialog));
+            gtk_widget_destroy (dialog);
+            gtk_widget_grab_focus(this->wPMgr);
+            goto errExit;
+        }
+    }
 	gtk_widget_destroy(dlg);
-
+errExit:
 	LOG("Leave mpdSettingsDialogResponse");
 }
 
@@ -455,11 +507,21 @@ static void mpdConfigureUseMPDFolder(GtkToggleButton * tb, gpointer thsPtr) {
 	LOG("Leave mpdConfigureUseMPDFolder");
 }
 
+static void mpdConfigureUsePManager(GtkToggleButton * tb, gpointer thsPtr) {
+	LOG("Enter mpdConfigureUsePMgr");
+	MKTHIS;
+	this->bUsePManager = gtk_toggle_button_get_active(tb);
+	gtk_widget_set_sensitive(this->wPMgr, this->bUsePManager);
+	LOG("Leave mpdConfigureUsePMgr");
+}
+
 static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	LOG("Enter mpdConfigure");
 	MKTHIS;
-	GtkWidget *dlg, *header, *vbox, *cb1, *label1, *label2, *label3, *cb2;
+	GtkWidget *dlg, *header, *vbox, *cb1, *label1, *label2, *label3, *cb2, *cb3;
 	GtkTable *table;
+    GtkListStore *store;
+    GtkTreeIter iter = {0};
 
 	this->bRequireReconnect = FALSE;
 
@@ -488,17 +550,14 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 							 NULL));
 	xfce_heading_set_subtitle(XFCE_HEADING(header),
 				  _("music player daemon"));
-	gtk_widget_show(header);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dlg)->vbox), header,
 			   FALSE, TRUE, 0);
 
 	vbox = gtk_vbox_new(FALSE, 8);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);
-	gtk_widget_show(vbox);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dlg)->vbox), vbox, TRUE, TRUE, 0);
 
 	cb1 = gtk_check_button_new_with_mnemonic(_("Use _defaults"));
-	gtk_widget_show(cb1);
 	gtk_box_pack_start(GTK_BOX(vbox), cb1, FALSE, FALSE, 0);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb1), this->bUseDefault);
 	g_signal_connect(cb1, "toggled", G_CALLBACK(mpdConfigureUseDefault),
@@ -508,25 +567,20 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	gtk_container_set_border_width(GTK_CONTAINER(table), 6);
 	gtk_table_set_row_spacings(table, 6);
 	gtk_table_set_col_spacings(table, 6);
-	gtk_widget_show(GTK_WIDGET(table));
 	gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(table), FALSE, FALSE, 0);
 
 	label1 = gtk_label_new_with_mnemonic(_("_Host:"));
-	gtk_widget_show(label1);
 	gtk_table_attach_defaults(table, label1, 0, 1, 0, 1);
 
 	this->wHost = gtk_entry_new();
-	gtk_widget_show(this->wHost);
 	gtk_table_attach_defaults(table, this->wHost, 1, 2, 0, 1);
 	gtk_entry_set_text(GTK_ENTRY(this->wHost), this->host->str);
 	gtk_label_set_mnemonic_widget(GTK_LABEL(label1), this->wHost);
 
 	label2 = gtk_label_new_with_mnemonic(_("_Port:"));
-	gtk_widget_show(label2);
 	gtk_table_attach_defaults(table, label2, 0, 1, 1, 2);
 
 	this->wPort = gtk_spin_button_new_with_range(1.0, 65536.0, 1.0);
-	gtk_widget_show(this->wPort);
 	gtk_table_attach_defaults(table, this->wPort, 1, 2, 1, 2);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(this->wPort), this->port);
 	g_signal_connect(this->wPort, "value-changed",
@@ -534,11 +588,9 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	gtk_label_set_mnemonic_widget(GTK_LABEL(label2), this->wPort);
 
 	label3 = gtk_label_new_with_mnemonic(_("Pass_word:"));
-	gtk_widget_show(label3);
 	gtk_table_attach_defaults(table, label3, 0, 1, 2, 3);
 
 	this->wPass = gtk_entry_new();
-	gtk_widget_show(this->wPass);
 	gtk_table_attach_defaults(table, this->wPass, 1, 2, 2, 3);
 	gtk_entry_set_visibility(GTK_ENTRY(this->wPass), FALSE);
 	gtk_entry_set_text(GTK_ENTRY(this->wPass), this->pass->str);
@@ -548,7 +600,6 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	cb2 =
 	    gtk_check_button_new_with_mnemonic(_
 					       ("Use MPD Music _folder as cover source"));
-	gtk_widget_show(cb2);
 	gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(cb2), FALSE, FALSE, 0);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb2),
 				     this->bUseMPDFolder);
@@ -562,17 +613,72 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER
 						    (this->wPath),
 						    this->path->str);
-	gtk_widget_show(this->wPath);
 	gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(this->wPath), FALSE, FALSE,
 			   0);
+    
+    // player selection
+    cb3 = gtk_check_button_new_with_mnemonic(_("Use a playlist _manager:"));
+	gtk_box_pack_start(GTK_BOX(vbox), cb3, FALSE, FALSE, 0);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb3),
+				     this->bUsePManager);
+    store = gtk_list_store_new(1, G_TYPE_STRING);
+    this->wPMgr = gtk_combo_box_entry_new_with_model(
+         GTK_TREE_MODEL(store), 0);
+    if(this->pmanager->len) {
+        gtk_list_store_append(store, &iter);
+        gtk_list_store_set(store, &iter, 0, this->pmanager->str, -1);
+        gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), 0, GTK_SORT_ASCENDING);
+        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(this->wPMgr), &iter);
+    }
+	gtk_box_pack_start(GTK_BOX(vbox), this->wPMgr, FALSE, FALSE, 0);
+	g_signal_connect(cb3, "toggled", G_CALLBACK(mpdConfigureUsePManager),
+			 thsPtr);
+    // cheapo tracker search
+    {
+        gchar *tracker = g_find_program_in_path("tracker-search");
+        if(tracker) {
+            GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+            if(this->pmanager->len)
+                g_hash_table_insert(table, this->pmanager->str, g_strdup("!"));
+	        gchar *outText = NULL;
+	        const gchar *argv[] = {
+		        tracker,
+		        "--service",
+                "Applications",
+                "mpd",
+		        NULL
+	        };
+	        gint exit_status = 0;
+	        if (g_spawn_sync(NULL, (gchar **) argv, NULL,
+			         G_SPAWN_STDERR_TO_DEV_NULL,
+			         NULL, NULL, &outText, NULL, &exit_status, NULL)) {
+                 gchar *ptr = strtok(outText, "\n");
+                 while(ptr) {
+                     GDesktopAppInfo *app = g_desktop_app_info_new_from_filename(ptr);
+                     if(app) {
+                         const gchar *binPath = g_app_info_get_executable(
+                                                G_APP_INFO(app));   
+                         if(!g_hash_table_lookup_extended(table, binPath, NULL, NULL)) {
+                             LOG("Found: %s", binPath);
+                             gtk_list_store_append(store, &iter);
+                             gtk_list_store_set(store, &iter, 0, binPath, -1);
+                             g_hash_table_insert(table, (gchar*)binPath, g_strdup("."));
+                         }
+                     }
+                     ptr = strtok(NULL, "\n");
+                 }
+            }
+        }
+    }
 
 	// apply checkboxes
 	gtk_widget_set_sensitive(this->wHost, !this->bUseDefault);
 	gtk_widget_set_sensitive(this->wPort, !this->bUseDefault);
 	gtk_widget_set_sensitive(this->wPass, !this->bUseDefault);
 	gtk_widget_set_sensitive(this->wPath, this->bUseMPDFolder);
+    gtk_widget_set_sensitive(this->wPMgr, this->bUsePManager);
 
-	gtk_widget_show(dlg);
+	gtk_widget_show_all(dlg);
 	LOG("Leave mpdConfigure");
 }
 
@@ -583,24 +689,7 @@ static const char *dotDesktopCategories[] = {
 	NULL
 };
 
-void mpdPopulateClient(GList * list, const gchar * name) {
-	XfceDesktopEntry *info =
-	    xfce_desktop_entry_new(name, dotDesktopCategories, 3);
-	if (NULL != info) {
-		const gchar *file = xfce_desktop_entry_get_file(info);
-		LOG("Found MPD Client: %s", file);
-		g_object_unref(info);
-	} else {
-		LOG("Not found: %s", name);
-	}
-}
-void mpdPopulateClientList() {
-	GList *list = g_list_alloc();
-	mpdPopulateClient(list, "/usr/share/applications/gmpc.desktop");
-	mpdPopulateClient(list, "/usr/share/applications/sonata.desktop");
-}
-
-void *MPD_attach(SPlayer * player) {
+void *MPD_attach(SPlayer * parent) {
 	mpdData *this = g_new0(mpdData, 1);
 	LOG("Enter MPD_attach");
 	MPD_MAP(Assure);
@@ -620,6 +709,12 @@ void *MPD_attach(SPlayer * player) {
 	MPD_MAP(GetShuffle);
 	MPD_MAP(SetShuffle);
 
+	this->host = g_string_new("");
+	this->pass = g_string_new("");
+	this->path = g_string_new("");
+	this->pmanager = g_string_new("");
+    
+    /*
 	// we init default values 
 	this->bAutoConnect = TRUE;
 	this->bUseDefault = TRUE;
@@ -628,24 +723,31 @@ void *MPD_attach(SPlayer * player) {
 	this->pass = g_string_new("");
 	this->bUseMPDFolder = FALSE;
 	this->path = g_string_new("");
+	this->bUsePManager = FALSE;
+	this->pmanager = g_string_new("");
 	this->intervalID = 0;
-
+    */
 	// always assign
-	this->parent = player;
+	this->parent = parent;
 
 	// force our own update rate
-	if (player->updateRateMS < 500)
-		player->updateRateMS = 500;
+	if (parent->updateRateMS < 500)
+		parent->updateRateMS = 500;
 
 	// establish the callback function
 	this->intervalID =
-	    g_timeout_add(player->updateRateMS, mpdCallback, this);
+	    g_timeout_add(parent->updateRateMS, mpdCallback, this);
+    
+    // initialize property addresses
+    PROP_MAP("mpd_usedefault", &this->bUseDefault)
+    PROP_MAP("mpd_port", &this->port)
+    PROP_MAP("mpd_host", this->host)
+    PROP_MAP("mpd_pass", this->pass)
+    PROP_MAP("mpd_usemusicfolder", &this->bUseMPDFolder)
+    PROP_MAP("mpd_musicfolder", this->path)
+	PROP_MAP("mpd_usepmanager", &this->bUsePManager)
+	PROP_MAP("mpd_pmanager", this->pmanager)
 
-	// populate playlist managers
-	mpdPopulateClientList();
-
-	// attach to daemon
-	mpdAssure(this);
 
 	LOG("Leave MPD_attach");
 	return this;
