@@ -33,7 +33,7 @@ static void ungrab_mmkey(int key_code, GdkWindow * root);
 static GdkFilterReturn filter_mmkeys(GdkXEvent * xevent,
 				     GdkEvent * event, gpointer data);
 
-enum {
+enum mmSignals{
 	MM_PLAYPAUSE,
 	MM_NEXT,
 	MM_PREV,

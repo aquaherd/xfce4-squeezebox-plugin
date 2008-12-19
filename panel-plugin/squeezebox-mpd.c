@@ -46,7 +46,8 @@
 #include "squeezebox-mpd.png.h"
 
 DEFINE_BACKEND(MPD, _("Music Player Daemon (libmpd)"))
-#define MPD_MAP(a) parent->a = mpd##a;
+#define MPD_MAP(a) parent->a = mpd##a
+#define MPD_SQ_ALL (MPD_CST_SONGID|MPD_CST_STATE|MPD_CST_REPEAT|MPD_CST_RANDOM)
 typedef struct {
 	SPlayer *parent;
 	gint port;
@@ -218,6 +219,7 @@ gboolean mpdDetach(gpointer thsPtr) {
 	if (this->player) {
 		mpd_disconnect(this->player);
 		mpd_free(this->player);
+		this->player = NULL;
 	}
 	if (this->intervalID) {
 		g_source_remove(this->intervalID);
@@ -227,64 +229,19 @@ gboolean mpdDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
-gboolean mpdIsVisible(gpointer thsPtr) {
-	MKTHIS;
-	return this->bUsePManager;
-}
-
 gboolean mpdShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
+	LOG("Enter mpdShow");
+	const gchar *argv[] = {
+		this->pmanager->str,
+		// here we could have arguments
+		NULL
+	};
+	g_spawn_async(NULL, (gchar**)argv, NULL, 
+		G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL,
+		NULL, NULL, NULL, NULL);
+	LOG("Leave mpdShow");
 	return this->bUsePManager;
-}
-
-void mpdPersist(gpointer thsPtr, XfceRc * rc, gboolean bIsStoring) {
-	MKTHIS;
-	LOG("Enter mpdPersist");
-	if (bIsStoring) {
-        SPlayer * parent = this->parent;
-		xfce_rc_write_int_entry(rc, "mpd_usedefault",
-					(this->bUseDefault) ? TRUE : FALSE);
-		xfce_rc_write_int_entry(rc, "mpd_port", this->port);
-		xfce_rc_write_entry(rc, "mpd_host", this->host->str);
-		xfce_rc_write_entry(rc, "mpd_pass", this->pass->str);
-		xfce_rc_write_int_entry(rc, "mpd_usemusicfolder",
-					(this->bUseMPDFolder) ? TRUE : FALSE);
-		xfce_rc_write_entry(rc, "mpd_musicfolder", this->path->str);
-		xfce_rc_write_int_entry(rc, "mpd_usepmanager",
-					(this->bUsePManager) ? TRUE : FALSE);
-		xfce_rc_write_entry(rc, "mpd_pmanager", this->pmanager->str);
-        
-        if(this->bUsePManager) {
-            MPD_MAP(IsVisible);
-            MPD_MAP(Show);
-        } else {
-            NOMAP(IsVisible);
-            NOMAP(Show);
-        }
-	} else {
-		this->bUseDefault =
-		    (xfce_rc_read_int_entry(rc, "mpd_usedefault", 1) ? TRUE :
-		     FALSE);
-		this->port = xfce_rc_read_int_entry(rc, "mpd_port", 6600);
-		g_string_assign(this->host,
-				xfce_rc_read_entry(rc, "mpd_host", "localhost")
-		    );
-		g_string_assign(this->pass,
-				xfce_rc_read_entry(rc, "mpd_pass", "")
-		    );
-		this->bUseMPDFolder =
-		    (xfce_rc_read_int_entry(rc, "mpd_usemusicfolder", 0) ? TRUE
-		     : FALSE);
-		g_string_assign(this->path,
-				xfce_rc_read_entry(rc, "mpd_musicfolder",
-						   xfce_get_homedir()));
-        this->bUsePManager = 
-		    (xfce_rc_read_int_entry(rc, "mpd_usepmanager", 0) ? TRUE
-		     : FALSE);
-		g_string_assign(this->pmanager,
-				xfce_rc_read_entry(rc, "mpd_pmanager", ""));
-	}
-	LOG("Leave mpdPersist");
 }
 
 gboolean mpdGetRepeat(gpointer thsPtr) {
@@ -685,12 +642,24 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	LOG("Leave mpdConfigure");
 }
 
-static const char *dotDesktopCategories[] = {
-	N_("GNOME"),
-	N_("Application"),
-	N_("AudioVideo"),
-	NULL
-};
+void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
+	LOG("Enter mpdPersist");
+	MKTHIS;
+	if(bIsStoring){
+		// nothing to do
+	} else {
+		SPlayer * parent = this->parent;
+		if(this->bUsePManager && (NULL != g_find_program_in_path(this->pmanager->str))) {
+			MPD_MAP(Show);
+		} else {
+			NOMAP(Show);
+		}
+		if(mpdAssure(thsPtr, FALSE) && NULL != this->player) {
+			mpdCallbackStateChanged(this->player, MPD_SQ_ALL, thsPtr);
+		}
+	}	
+	LOG("Leave mpdPersist");
+}
 
 void *MPD_attach(SPlayer * parent) {
 	mpdData *this = g_new0(mpdData, 1);
@@ -717,19 +686,6 @@ void *MPD_attach(SPlayer * parent) {
 	this->path = g_string_new("");
 	this->pmanager = g_string_new("");
     
-    /*
-	// we init default values 
-	this->bAutoConnect = TRUE;
-	this->bUseDefault = TRUE;
-	this->port = 6600;
-	this->host = g_string_new("localhost");
-	this->pass = g_string_new("");
-	this->bUseMPDFolder = FALSE;
-	this->path = g_string_new("");
-	this->bUsePManager = FALSE;
-	this->pmanager = g_string_new("");
-	this->intervalID = 0;
-    */
 	// always assign
 	this->parent = parent;
 

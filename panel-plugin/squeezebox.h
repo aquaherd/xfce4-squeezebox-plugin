@@ -42,16 +42,16 @@
 #include <libxfce4panel/xfce-panel-convenience.h>
 #define EXO_API_SUBJECT_TO_CHANGE
 #include <exo/exo.h>
-typedef enum {
+typedef enum eSynoptics{
 	estPlay = 0,
 	estPause = 1,
 	estStop = 2,
 	estErr = 10
 }eSynoptics;
 
-#define NOMAP(a) parent->a = NULL;
+#define NOMAP(a) parent->a = NULL
 
-typedef struct {
+typedef struct SPlayer{
 	// this is the 'API'
 	
     // yet unused
@@ -76,7 +76,7 @@ typedef struct {
 #if HAVE_DBUS
     gboolean(* UpdateDBUS)(gpointer thsPtr, gboolean appeared);
 #endif
-	void(* Persist)(gpointer thsPtr, XfceRc *rc, gboolean bIsStoring);
+	void(* Persist)(gpointer thsPtr, gboolean bIsStoring);
 	void(* Configure)(gpointer thsPtr, GtkWidget *parent);
 	
 	// data provided by backend
@@ -112,13 +112,13 @@ typedef struct {
 
 // Backend definitions
 
-typedef struct {
+typedef struct PropDef{
     const gchar *Name;
     const gint Type;
     const gchar *Default;
 }PropDef;
  
-typedef struct {
+typedef struct Backend{
     void*( *BACKEND_attach)(SPlayer *player);
     const gchar*( *BACKEND_name)();
     GdkPixbuf*( *BACKEND_icon)();

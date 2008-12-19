@@ -38,13 +38,13 @@
 
 #include <libintl.h>
 
-typedef enum tag_eButtons {
+typedef enum eButtons {
 	ebtnPrev = 0,
 	ebtnPlay = 1,
 	ebtnNext = 2
 } eButtons;
 
-typedef enum tag_eTTStyle {
+typedef enum eTTStyle {
 	ettNone = 0,
 	ettSimple = 1,
 #if HAVE_NOTIFY
@@ -52,7 +52,7 @@ typedef enum tag_eTTStyle {
 #endif
 } eTTStyle;
 
-typedef struct {
+typedef struct SqueezeBoxData{
 	XfcePanelPlugin *plugin;
 	gulong style_id;
 
@@ -165,7 +165,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 	// clear previous backend
 	const Backend *ptr = squeezebox_get_backends();
     PropDef *prop = NULL;
-    LOG("Enter init backend");
+    LOG("Enter squeezebox_init_backend");
     if (sd->player.Detach) {
 		sd->player.Detach(sd->player.db);
 		g_free(sd->player.db);
@@ -185,6 +185,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 	UNSET(Show);
 	UNSET(Persist);
 	UNSET(Configure);
+	UNSET(UpdateDBUS);
     
     // clear old property address map
     if(g_hash_table_size(sd->propertyAddresses)) {
@@ -241,7 +242,27 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
     }
     
 	// try connect happens in created backend
-    LOG("Leave init backend");
+    // notify properties are ready
+    if(sd->player.Persist)
+        sd->player.Persist(sd->player.db, FALSE);
+    
+    // dbus backends need a trigger to awake
+    // BOOLEAN NameHasOwner (in STRING name)
+	if(ptr[nBackend - 1].BACKEND_dbusName && sd->player.UpdateDBUS) {
+		const gchar *dbusName = ptr[nBackend - 1].BACKEND_dbusName();
+		gboolean activated = FALSE;
+		GError *error = NULL;
+		if(dbus_g_proxy_call(sd->player.dbService, "NameHasOwner", &error,
+			G_TYPE_STRING, dbusName, G_TYPE_INVALID,
+			G_TYPE_BOOLEAN, &activated, G_TYPE_INVALID)) {
+			LOG("Fake DBusAppearance %s %s", dbusName, (activated)?"True":"False");
+			sd->player.UpdateDBUS(sd->player.db, activated);
+		} else {
+			LOG("Can't ask DBUS: %s", error->message);
+			g_error_free(error);
+		}
+    }
+    LOG("Leave squeezebox_init_backend");
 }
 
 static void squeezebox_update_playbtn(SqueezeBoxData * sd) {
@@ -630,7 +651,7 @@ static void
 squeezebox_persist_properties(SqueezeBoxData * sd, XfceRc *rc, gboolean isStoring) {
     // apply property map
     const Backend *ptr = squeezebox_get_backends();
-    LOG("Enter persist");
+    LOG("Enter squeezebox_persist_properties");
     while(ptr->BACKEND_attach) {
         LOG("Properties of %s", ptr->BACKEND_name());
         PropDef *prop = ptr->BACKEND_properties();
@@ -654,7 +675,7 @@ squeezebox_persist_properties(SqueezeBoxData * sd, XfceRc *rc, gboolean isStorin
         }
         ptr++;
     }
-    LOG("Leave persist");
+    LOG("Leave squeezebox_persist_properties");
 }
 
 static void
@@ -736,8 +757,6 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 #endif
 
 	if (rc != NULL) {
-		//if (sd->player.Persist)
-			//sd->player.Persist(sd->player.db, rc, FALSE);
 		xfce_rc_close(rc);
 
 		if (bShowPrev)
@@ -750,8 +769,6 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 		else
 			gtk_widget_hide(sd->button[ebtnNext]);
 	}
-    if(sd->player.Assure)
-        sd->player.Assure(sd->player.db, TRUE);
 	LOG("Leave squeezebox_read_rc_file");
 }
 
@@ -762,6 +779,9 @@ squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	XfceRc *rc;
 
 	LOG("Enter squeezebox_write_rc_file");
+    // notify properties are about to be written
+    if(sd->player.Persist)
+        sd->player.Persist(sd->player.db, TRUE);
 
 	if ((file = xfce_panel_plugin_save_location(plugin, TRUE))) {
 
@@ -789,9 +809,6 @@ squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 
 			squeezebox_persist_properties(sd, rc, TRUE);
             
-            //if (sd->player.Persist)
-				//sd->player.Persist(sd->player.db, rc, TRUE);
-
 			xfce_rc_close(rc);
 			LOG("OK");
 		}
@@ -858,12 +875,12 @@ static void config_show_backend_properties(GtkButton * btn, SqueezeBoxData * sd)
 	LOG("Leave config_show_backend_properties");
 }
 
-enum {
+typedef enum eColumns{
 	PIXBUF_COLUMN,
 	TEXT_COLUMN,
     INDEX_COLUMN,
 	N_COLUMNS,
-};
+}eColumns;
 
 static void config_show_grab_properties(GtkButton * btn, SqueezeBoxData * sd) {
 	GtkWidget *dlg = xfce_titled_dialog_new_with_buttons(_("Media buttons"),
@@ -1328,6 +1345,9 @@ gboolean on_btn_clicked(GtkWidget * button, GdkEventButton * event,
 		sd->noUI = FALSE;
 	} else if (2 == event->button) {
         LOG("MiddleClick");
+		if (NULL == sd->player.IsVisible && NULL != sd->player.Show) {
+			sd->player.Show(sd->player.db, TRUE);
+		}
 		if (NULL != sd->player.IsVisible && NULL != sd->player.Show) {
 			sd->player.Show(sd->player.db,
 					!sd->player.IsVisible(sd->player.db));
