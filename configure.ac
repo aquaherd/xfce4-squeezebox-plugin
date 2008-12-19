@@ -56,6 +56,15 @@ PKG_CHECK_MODULES(GTK,                            \
 if test x$have_newtooltips = xyes ; then
     AC_DEFINE(HAVE_GTK_2_12, 1, [Define if GtkTooltips is deprecated])
 fi
+PKG_CHECK_MODULES([LIBGIO], 
+	[gio-unix-2.0 >= 2.18.0],
+	have_gio=yes,
+	have_gio=no)
+if test x$have_gio = xyes ; then
+	AC_DEFINE(HAVE_GIO, 1, [Define if havin gio-unix-2.0])
+	AC_SUBST([LIBGIO_CFLAGS])
+	AC_SUBST([LIBGIO_LIBS])
+fi
 
 dnl check for libnotify, taken from rhythmbox 0.9.5
 LIBNOTIFY_REQUIRED=0.2.2
@@ -183,9 +192,6 @@ if test x$enable_MPD = xyes; then
 	fi
 	AC_SUBST([LIBMPD_CFLAGS])
 	AC_SUBST([LIBMPD_LIBS])
-	PKG_CHECK_MODULES([LIBGIO], [gio-unix-2.0 >= 2.18.0])
-	AC_SUBST([LIBGIO_CFLAGS])
-	AC_SUBST([LIBGIO_LIBS])
 fi
 
 AC_ARG_ENABLE(quodlibet,[  --disable-quodlibet           disable QuodLibet support (default: enable)],[enable_quodlibet=$enableval],[enable_quodlibet=yes])

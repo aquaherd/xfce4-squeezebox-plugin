@@ -33,7 +33,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#if HAVE_GIO
 #include <gio/gdesktopappinfo.h>
+#endif
 
 #include <string.h>
 
@@ -633,7 +635,8 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	gtk_box_pack_start(GTK_BOX(vbox), this->wPMgr, FALSE, FALSE, 0);
 	g_signal_connect(cb3, "toggled", G_CALLBACK(mpdConfigureUsePManager),
 			 thsPtr);
-    // cheapo tracker search
+    // cheapo tracker search, requires gio-unix for now
+    #if HAVE_GIO
     {
         gchar *tracker = g_find_program_in_path("tracker-search");
         if(tracker) {
@@ -670,7 +673,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
             }
         }
     }
-
+	#endif
 	// apply checkboxes
 	gtk_widget_set_sensitive(this->wHost, !this->bUseDefault);
 	gtk_widget_set_sensitive(this->wPort, !this->bUseDefault);

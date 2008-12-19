@@ -45,6 +45,9 @@
 /* Define if the GNU gettext() function is already present or preinstalled. */
 #undef HAVE_GETTEXT
 
+/* Define if havin gio-unix-2.0 */
+#undef HAVE_GIO
+
 /* Define if GtkTooltips is deprecated */
 #undef HAVE_GTK_2_12
 
@@ -89,10 +92,6 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
-
-/* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
-#undef LT_OBJDIR
 
 /* Name of package */
 #undef PACKAGE
