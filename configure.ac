@@ -32,7 +32,7 @@ AC_HEADER_STDC
 dnl configure the panel plugin
 XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.3.99])
 
-dnl check for dbus for rhythmbox 0.9.5
+dnl check for dbus
 XDT_CHECK_PACKAGE([DBUSGLIB], [dbus-glib-1], [0.60])
 AC_ARG_ENABLE(DBUS,[  --disable-DBUS     disable DBUS backends support (default: enable)],[enable_DBUS=$enableval],[enable_DBUS=yes])
 if test x$enable_DBUS = xyes; then
@@ -56,14 +56,24 @@ PKG_CHECK_MODULES(GTK,                            \
 if test x$have_newtooltips = xyes ; then
     AC_DEFINE(HAVE_GTK_2_12, 1, [Define if GtkTooltips is deprecated])
 fi
+
+dnl check for gvfs presence
 PKG_CHECK_MODULES([LIBGIO], 
 	[gio-unix-2.0 >= 2.18.0],
 	have_gio=yes,
 	have_gio=no)
 if test x$have_gio = xyes ; then
-	AC_DEFINE(HAVE_GIO, 1, [Define if havin gio-unix-2.0])
+	AC_DEFINE(HAVE_GIO, 1, [Define if having gio-unix-2.0])
 	AC_SUBST([LIBGIO_CFLAGS])
 	AC_SUBST([LIBGIO_LIBS])
+fi
+
+XDT_CHECK_PACKAGE([ID3TAG], [id3tag], [0.14])
+AC_ARG_ENABLE(ID3TAG,[  --enable-ID3TAG     disable ID3TAG support (default: disable)],[enable_ID3TAG=$enableval],[enable_ID3TAG=no])
+if test x$enable_ID3TAG = xyes; then
+	AC_DEFINE(HAVE_ID3TAG,1,[Define to use ID3TAG])
+    AC_SUBST([ID3TAG_CFLAGS])
+    AC_SUBST([ID3TAG_LIBS])
 fi
 
 dnl check for libnotify, taken from rhythmbox 0.9.5
@@ -108,62 +118,6 @@ if test x$enable_libnotify = xyes ; then
     AC_DEFINE(HAVE_NOTIFY, 1, [Define if libnotify support is enabled])
     AC_SUBST(NOTIFY_CFLAGS)
     AC_SUBST(NOTIFY_LIBS)
-fi
-
-dnl in case we should ever need our own mp3 tag lookup, use this and make it default
-dnl AC_ARG_ENABLE(id3,[  --disable-id3           disable id3 support (default: enable)],[enable_id3=$enableval],[enable_id3=yes])
-AC_ARG_ENABLE(id3,[  --disable-id3           disable id3 support (default: disable)],[enable_id3=$enableval],[enable_id3=no])
-
-AC_ARG_WITH(id3tag,[  --with-id3tag=PFX           Prefix where libid3tag is installed (optional)], id3tag_prefix="$withval", id3tag_prefix="")
-AC_ARG_WITH(id3tag-libraries,[  --with-id3tag-libraries=DIR Directory where libid3tag library is installed (optional)], id3tag_libraries="$withval", id3tag_libraries="")
-AC_ARG_WITH(id3tag-includes,[  --with-id3tag-includes=DIR  Directory where libid3tag header files are installed (optional)], id3tag_includes="$withval", id3tag_includes="")
-
-ID3_SUBDIR=""
-
-if test x$enable_id3 = xyes; then
-	if test "x$id3tag_libraries" != "x" ; then
-		ID3TAG_LIBS="-L$id3tag_libraries"
-	elif test "x$id3tag_prefix" != "x" ; then
-		ID3TAG_LIBS="-L$id3tag_prefix/lib"
-	elif test "x$prefix" != "xNONE"; then
-		ID3TAG_LIBS="-L$libdir"
-	fi
-
-	ID3TAG_LIBS="$ID3TAG_LIBS -lid3tag -lz"
-
-	if test "x$id3tag_includes" != "x" ; then
-		ID3TAG_CFLAGS="-I$id3tag_includes"
-	elif test "x$id3tag_prefix" != "x" ; then
-		ID3TAG_CFLAGS="-I$id3tag_prefix/include"
-	elif test "x$prefix" != "xNONE"; then
-		ID3TAG_CFLAGS="-I$includedir"
-	fi
-
-	ID3TAG_CFLAGS="$ID3TAG_CFLAGS"
-
-	oldcflags=$CFLAGS
-	oldlibs=$LIBS
-	oldcppflags=$CPPFLAGS
-	CFLAGS="$CFLAGS $MPD_CFLAGS $ID3TAG_CFLAGS"
-	LIBS="$LIBS $MPD_LIBS $ID3TAG_LIBS"
-	CPPFLAGS=$CFLAGS
-	AC_CHECK_HEADERS(id3tag.h,use_libid3tag=yes,
-		[use_libid3tag=no])
-	if test x$use_libid3tag = xyes; then
-		AC_CHECK_LIB(id3tag,id3_file_open,
-			[LIBMPD_LIBS="$LIBMPD_LIBS $ID3TAG_LIBS";
-			LIBMPD_CFLAGS="$LIBMPD_CFLAGS $ID3TAG_CFLAGS";
-			use_libid3tag=yes],
-			[use_libid3tag=no])
-	fi
-	CFLAGS=$oldcflags
-	LIBS=$oldlibs
-	CPPFLAGS=$oldcppflags
-	if test x$use_libid3tag = xyes; then
-		AC_DEFINE(HAVE_ID3TAG,1,[Define to use id3tag])
-	else
-		enable_id3=no
-	fi
 fi
 
 dnl Add backends here
@@ -258,7 +212,7 @@ else
 	echo " DBUS support ..................disabled"
 fi
 
-if test x$enable_id3 = xyes; then
+if test x$enable_ID3TAG = xyes; then
 	echo " ID3 tag support ...............enabled"
 else
 	echo " ID3 tag support ...............disabled"

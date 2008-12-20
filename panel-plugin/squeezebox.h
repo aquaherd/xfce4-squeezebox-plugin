@@ -111,6 +111,13 @@ typedef struct SPlayer{
 }SPlayer;
 
 // Backend definitions
+typedef enum eBackendType{
+	dbusBackend,
+	daemonBackend,
+	networkBackend,
+	otherBackend,
+	numBackendTypes
+}eBackendType;
 
 typedef struct PropDef{
     const gchar *Name;
@@ -119,11 +126,14 @@ typedef struct PropDef{
 }PropDef;
  
 typedef struct Backend{
+	const eBackendType BACKEND_TYPE;
     void*( *BACKEND_attach)(SPlayer *player);
     const gchar*( *BACKEND_name)();
     GdkPixbuf*( *BACKEND_icon)();
     PropDef*( *BACKEND_properties)();
+    #if HAVE_DBUS
     const gchar*( *BACKEND_dbusName)();
+    #endif
 }Backend;
 
 #define IMPORT_BACKEND(t) \
@@ -132,6 +142,7 @@ typedef struct Backend{
     extern GdkPixbuf * t##_icon(); \
     extern PropDef* t##_properties();
  
+#if HAVE_DBUS
 #define IMPORT_DBUS_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
  	extern const gchar * t##_name(); \
@@ -139,15 +150,25 @@ typedef struct Backend{
     extern PropDef* t##_properties(); \
     extern const gchar * t##_dbusName();
 
-extern const Backend* squeezebox_get_backends();
+#define DEFINE_DBUS_BACKEND(t,n,d)  \
+    const gchar* t##_name(){ \
+        return _(n); \
+    } \
+    GdkPixbuf *t##_icon(){ \
+        return gdk_pixbuf_new_from_inline(sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); \
+    } \
+    const gchar* t##_dbusName(){ \
+        return d; \
+    }    
+#define DBUS_BACKEND(t) {dbusBackend, t##_attach, t##_name, t##_icon, t##_properties, t##_dbusName},
+#endif
 
 #define BEGIN_BACKEND_MAP() const Backend* squeezebox_get_backends() \
 { \
     static const Backend ret[] = { 
-#define BACKEND(t) {t##_attach, t##_name, t##_icon, t##_properties, NULL},
-#define DBUS_BACKEND(t) {t##_attach, t##_name, t##_icon, t##_properties, t##_dbusName},
+#define BACKEND(t) {otherBackend, t##_attach, t##_name, t##_icon, t##_properties, NULL},
 #define END_BACKEND_MAP() \
-        {NULL, NULL} \
+        {numBackendTypes, NULL} \
     }; \
     return &ret[0]; \
 }
@@ -160,16 +181,6 @@ extern const Backend* squeezebox_get_backends();
         return gdk_pixbuf_new_from_inline(sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); \
     }
     
-#define DEFINE_DBUS_BACKEND(t,n,d)  \
-    const gchar* t##_name(){ \
-        return _(n); \
-    } \
-    GdkPixbuf *t##_icon(){ \
-        return gdk_pixbuf_new_from_inline(sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); \
-    } \
-    const gchar* t##_dbusName(){ \
-        return d; \
-    }    
 // Properties
 
 #define BEGIN_PROP_MAP(bk) const PropDef* bk##_properties() \
@@ -181,7 +192,7 @@ extern const Backend* squeezebox_get_backends();
     return &props[0]; \
 }
 
-//     PROP_MAP("mpd_usedefault", this->bUseDefault)
+//e.g.  PROP_MAP("mpd_usedefault", &this->bUseDefault)
 #define PROP_MAP(name,address) parent->MapProperty(parent->sd, name, address);
 
 #if DEBUG_TRACE

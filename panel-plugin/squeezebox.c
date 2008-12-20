@@ -35,7 +35,9 @@
 #if HAVE_NOTIFY
 #include <libnotify/notify.h>
 #endif
-
+#if HAVE_ID3TAG
+#include <id3tag.h>
+#endif
 #include <libintl.h>
 
 typedef enum eButtons {
@@ -163,7 +165,7 @@ IMPORT_DBUS_BACKEND(RB)
 #define UNSET(t) sd->player.t = NULL
 static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 	// clear previous backend
-	const Backend *ptr = squeezebox_get_backends();
+	const Backend *ptr = &squeezebox_get_backends()[nBackend - 1];
     PropDef *prop = NULL;
     LOG("Enter squeezebox_init_backend");
     if (sd->player.Detach) {
@@ -201,7 +203,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 
 	// call init of backend
 	sd->backend = nBackend;
-	sd->player.db = ptr[nBackend - 1].BACKEND_attach(&sd->player);
+	sd->player.db = ptr->BACKEND_attach(&sd->player);
 
 	// have menu populated
 	gtk_widget_set_sensitive(sd->mnuPlayer, (NULL != sd->player.Show));
@@ -215,7 +217,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 				  && NULL != sd->player.SetShuffle));
 
     // apply new properties, if applicable
-    prop = ptr[nBackend - 1].BACKEND_properties();  
+    prop = ptr->BACKEND_properties();  
     while(*prop->Name) {
         gchar *propValue = NULL;
         if(g_hash_table_lookup_extended(sd->properties, prop->Name, NULL, (gpointer)&propValue)) {
@@ -246,10 +248,12 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
     if(sd->player.Persist)
         sd->player.Persist(sd->player.db, FALSE);
     
+	#if HAVE_DBUS
     // dbus backends need a trigger to awake
     // BOOLEAN NameHasOwner (in STRING name)
-	if(ptr[nBackend - 1].BACKEND_dbusName && sd->player.UpdateDBUS) {
-		const gchar *dbusName = ptr[nBackend - 1].BACKEND_dbusName();
+    if(dbusBackend == ptr->BACKEND_TYPE) {
+    	// this type must have ptr->BACKEND_dbusName && sd->player.UpdateDBUS
+		const gchar *dbusName = ptr->BACKEND_dbusName();
 		gboolean activated = FALSE;
 		GError *error = NULL;
 		if(dbus_g_proxy_call(sd->player.dbService, "NameHasOwner", &error,
@@ -258,10 +262,11 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 			LOG("Fake DBusAppearance %s %s", dbusName, (activated)?"True":"False");
 			sd->player.UpdateDBUS(sd->player.db, activated);
 		} else {
-			LOG("Can't ask DBUS: %s", error->message);
+			LOGWARN("Can't ask DBUS: %s", error->message);
 			g_error_free(error);
 		}
     }
+    #endif
     LOG("Leave squeezebox_init_backend");
 }
 
@@ -355,11 +360,6 @@ static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 
 	if (bAct) {
 		GString *albumArt = g_string_new(sd->player.albumArt->str);
-		gint icon_size;
-		GtkIconTheme *theme;
-
-		theme = gtk_icon_theme_get_default();
-		gtk_icon_size_lookup(GTK_ICON_SIZE_DIALOG, &icon_size, NULL);
 		gchar *ntTitle = sd->player.title->str;
 		//happily, we easily can escape ampersands and other usual suspects.
 		gchar *ntDetails =
@@ -370,14 +370,11 @@ static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		if (albumArt->len) {
 			pixbuf =
 			    gdk_pixbuf_new_from_file_at_size(albumArt->str,
-							     icon_size,
-							     icon_size, NULL);
+							     64,
+							     64, NULL);
 		} else {
-			pixbuf = gtk_icon_theme_load_icon(theme,
-							  "media-cdrom",
-							  icon_size, 0, NULL);
-			if (NULL == pixbuf)
-				LOG("Stock Icon mismatch!");;
+			const Backend *ptr = &squeezebox_get_backends()[sd->backend -1];
+			pixbuf = ptr->BACKEND_icon();
 		}
 		//squeezebox_update_UI_hide_toaster(thsPlayer);
 		if (!bExisted) {
@@ -468,61 +465,124 @@ squeezebox_update_visibility(gpointer thsPlayer, gboolean newVisible) {
 	sd->noUI = FALSE;
 	LOG("Leave squeezebox_update_visibility");
 }
+// this shippet is from gtkpod
+static const gchar* id3_get_binary (struct id3_tag const *tag,
+				    char *frame_name,
+				    id3_length_t *len,
+				    int index)
+{
+    const id3_byte_t *binary = NULL;
+    struct id3_frame *frame;
+    union id3_field *field;
+
+    g_return_val_if_fail (len, NULL);
+
+    *len = 0;
+
+    frame = id3_tag_findframe (tag, frame_name, index);
+
+    if (!frame) 
+    	return NULL;
+
+    /* The last field contains the data */
+    field = id3_frame_field (frame, frame->nfields-1);
+
+    if (!field) 
+    	return NULL;
+
+    switch (field->type) {
+		case ID3_FIELD_TYPE_BINARYDATA:
+			binary = id3_field_getbinarydata(field, len);
+			break;
+		default:
+			break;
+    }
+
+    return binary;
+}
+
+
 
 static void
 squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	gchar *strNext = g_path_get_dirname(path);
 	gboolean bFound = FALSE;
 #if HAVE_ID3TAG	// how to query artist with id3tag
-	LOG("SB Enter Check:'%s' embedded art", strNext);
-	struct id3_file *fp = id3_file_open(str, ID3_FILE_MODE_READONLY);
+
+	LOG("SB Enter Check #1:'%s' embedded art", path);
+	struct id3_file *fp = id3_file_open(path, ID3_FILE_MODE_READONLY);
 	if (fp) {
-		struct id3_tag *tag = id3_file_tag(fp);
+		struct id3_tag const *tag = id3_file_tag(fp);
 		if (tag) {
-			struct id3_frame *frm = id3_tag_findframe(tag,
-								  ID3_FRAME_ARTIST,
-								  0);
-			if (frm) {
-				id3_ucs4_t const *str =
-				    id3_field_getstrings(&frm->fields[1], 0);
-				if (str) {
-					gchar *artist = (gchar *)
-					    id3_ucs4_utf8duplicate(str);
-					LOG(artist);
+			const gchar *coverart = NULL;
+			int i;
+			id3_length_t len = 0;
+			struct id3_frame *frame = NULL;
+			/* Loop through APIC tags and set coverart. The picture type should be
+			* 3 -- Cover (front), but iTunes has been known to use 0 -- Other. */
+			for (i = 0; (frame = id3_tag_findframe(tag, "APIC", i)) != NULL; i++) {
+				union id3_field *field = id3_frame_field (frame, 2);
+				if(field) {
+					int pictype = field->number.value;
+					LOG("Found apic type %d\n", pictype);
+
+					/* We'll prefer type 3 (cover) over type 0 (other) */
+					if (pictype == 3) {
+						coverart = id3_get_binary(tag, "APIC", &len, i);
+					}
+					if ((pictype == 0) && !coverart) {
+						coverart = id3_get_binary(tag, "APIC", &len, i);
+						break;
+					}
 				}
 			}
+			if(coverart) {
+				gchar *tmpName = g_strdup_printf("%s/squeezeboxaa",
+					g_get_tmp_dir());
+				if(tmpName && g_file_set_contents(tmpName, coverart, len, NULL)) {
+					g_string_assign(sd->player.albumArt, tmpName);
+					GdkPixbuf *pic = gdk_pixbuf_new_from_file_at_size(tmpName,
+						 64, 64, NULL);
+					if(pic) {
+						bFound = TRUE;
+						g_object_unref(pic);
+					}
+					LOG("Image is %s", (bFound)?"valid":"invalid");
+				}
+				g_free(tmpName);
+			}		
 		}
 		id3_file_close(fp);
 	}
 #endif
-
-	LOG("SB Enter Check:'%s/[.][folder|cover|front].jpg'", strNext);
-
-	GDir *dir = g_dir_open(strNext, 0, NULL);
-	if (NULL != dir) {
-		const gchar *fnam = NULL;
-		while ((fnam = g_dir_read_name(dir))) {
-			const gchar *fnam2 = fnam;
-			if ('.' == *fnam2)
-				fnam2++;
-			if (!g_ascii_strcasecmp(fnam2, "folder.jpg") ||
-			    !g_ascii_strcasecmp(fnam2, "front.jpg") ||
-			    !g_ascii_strcasecmp(fnam2, "cover.jpg")) {
-				bFound = TRUE;
-				break;
+	if(!bFound) {
+		gchar *strNext = g_path_get_dirname(path);
+		LOG("SB Enter Check #2:'%s/[.][folder|cover|front].jpg'", strNext);
+		GDir *dir = g_dir_open(strNext, 0, NULL);
+		if (NULL != dir) {
+			const gchar *fnam = NULL;
+			while ((fnam = g_dir_read_name(dir))) {
+				const gchar *fnam2 = fnam;
+				if ('.' == *fnam2)
+					fnam2++;
+				if (!g_ascii_strcasecmp(fnam2, "folder.jpg") ||
+					!g_ascii_strcasecmp(fnam2, "front.jpg") ||
+					!g_ascii_strcasecmp(fnam2, "cover.jpg")) {
+					bFound = TRUE;
+					break;
+				}
 			}
+			if (bFound) {
+				gchar *fnam3 = g_build_filename(strNext, fnam, NULL);
+				g_string_assign(sd->player.albumArt, fnam3);
+				g_free(fnam3);
+			} else {
+				g_string_truncate(sd->player.albumArt, 0);
+			}
+			g_dir_close(dir);
 		}
-		if (bFound) {
-			gchar *fnam3 = g_build_filename(strNext, fnam, NULL);
-			g_string_assign(sd->player.albumArt, fnam3);
-			g_free(fnam3);
-		} else {
-			g_string_truncate(sd->player.albumArt, 0);
-		}
-		g_dir_close(dir);
+		g_free(strNext);
 	}
-	g_free(strNext);
 	LOG("SB: Leave Check");
 }
 
@@ -1448,9 +1508,13 @@ gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
 	if (sd->toolTipStyle == ettSimple && sd->toolTipText->str != NULL
 	    && sd->toolTipText->str[0] != 0) {
 		gtk_tooltip_set_text(tooltip, sd->toolTipText->str);
-		gtk_tooltip_set_icon(tooltip,
-				     squeezebox_get_backends(sd)[sd->backend -
-								 1].BACKEND_icon());
+		GdkPixbuf *pic = NULL;
+		GString * albumArt = sd->player.albumArt;
+		if (albumArt->len && g_file_test(albumArt->str, G_FILE_TEST_EXISTS))
+			pic = gdk_pixbuf_new_from_file_at_size(albumArt->str, 32, 32, NULL);
+		else
+			pic = squeezebox_get_backends(sd)[sd->backend - 1].BACKEND_icon();
+		gtk_tooltip_set_icon(tooltip, pic);
 		return TRUE;
 	}
 	return FALSE;

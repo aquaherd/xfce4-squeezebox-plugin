@@ -45,17 +45,14 @@
 /* Define if the GNU gettext() function is already present or preinstalled. */
 #undef HAVE_GETTEXT
 
-/* Define if havin gio-unix-2.0 */
+/* Define if having gio-unix-2.0 */
 #undef HAVE_GIO
 
 /* Define if GtkTooltips is deprecated */
 #undef HAVE_GTK_2_12
 
-/* Define to use id3tag */
+/* Define to use ID3TAG */
 #undef HAVE_ID3TAG
-
-/* Define to 1 if you have the <id3tag.h> header file. */
-#undef HAVE_ID3TAG_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H

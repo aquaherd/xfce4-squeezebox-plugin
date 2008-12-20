@@ -378,6 +378,25 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 	//MPD_CST_TOTAL_TIME
 }
 
+void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
+	LOG("Enter mpdPersist");
+	MKTHIS;
+	if(bIsStoring){
+		// nothing to do
+	} else {
+		SPlayer * parent = this->parent;
+		if(this->bUsePManager && (NULL != g_find_program_in_path(this->pmanager->str))) {
+			MPD_MAP(Show);
+		} else {
+			NOMAP(Show);
+		}
+		if(mpdAssure(thsPtr, FALSE) && NULL != this->player) {
+			mpdCallbackStateChanged(this->player, MPD_SQ_ALL, thsPtr);
+		}
+	}	
+	LOG("Leave mpdPersist");
+}
+
 static void mpdSettingsDialogResponse(GtkWidget * dlg, int reponse,
 				      gpointer thsPtr) {
 	LOG("Enter mpdSettingsDialogResponse");
@@ -438,6 +457,9 @@ static void mpdSettingsDialogResponse(GtkWidget * dlg, int reponse,
             goto errExit;
         }
     }
+	
+	// force update
+	mpdPersist(thsPtr, FALSE);    
 	gtk_widget_destroy(dlg);
 errExit:
 	LOG("Leave mpdSettingsDialogResponse");
@@ -640,25 +662,6 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 
 	gtk_widget_show_all(dlg);
 	LOG("Leave mpdConfigure");
-}
-
-void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
-	LOG("Enter mpdPersist");
-	MKTHIS;
-	if(bIsStoring){
-		// nothing to do
-	} else {
-		SPlayer * parent = this->parent;
-		if(this->bUsePManager && (NULL != g_find_program_in_path(this->pmanager->str))) {
-			MPD_MAP(Show);
-		} else {
-			NOMAP(Show);
-		}
-		if(mpdAssure(thsPtr, FALSE) && NULL != this->player) {
-			mpdCallbackStateChanged(this->player, MPD_SQ_ALL, thsPtr);
-		}
-	}	
-	LOG("Leave mpdPersist");
 }
 
 void *MPD_attach(SPlayer * parent) {

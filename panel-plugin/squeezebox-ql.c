@@ -51,7 +51,7 @@ DEFINE_BACKEND(QL, _("QuodLibet (pipe)"))
 #define QL_FIFO_PATH "/.quodlibet/control"
 #define QL_STAT_PATH "/.quodlibet/current"
 #define QL_ALBUM_ART_PATH "/.quodlibet/current.cover"
-typedef struct {
+typedef struct qlData {
 	SPlayer *parent;
 	gpointer *player;
 	FILE *fp;
@@ -484,6 +484,19 @@ gboolean qlShow(gpointer thsPtr, gboolean bShow) {
 	return bRet;
 }
 
+void qlPersist(gpointer thsPtr, gboolean bIsStoring) {
+	LOG("Enter mpdPersist");
+	MKTHIS;
+	if(bIsStoring){
+		// nothing to do
+	} else {
+		if (qlAssure(this, FALSE)) {
+			qlStatus(thsPtr, "--status");
+		}
+	}	
+	LOG("Leave mpdPersist");
+}
+
 void *QL_attach(SPlayer * parent) {
 	qlData *this = g_new0(qlData, 1);
 	LOG("Enter QL_attach");
@@ -495,7 +508,7 @@ void *QL_attach(SPlayer * parent) {
 	QL_MAP(IsPlaying);
 	QL_MAP(Toggle);
 	QL_MAP(Detach);
-	NOMAP(Persist);
+	QL_MAP(Persist);
 	NOMAP(Configure);
 	QL_MAP(IsVisible);
 	QL_MAP(Show);
