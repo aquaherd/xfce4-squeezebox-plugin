@@ -44,9 +44,9 @@
 #include "squeezebox-ex.png.h"
 
 DEFINE_DBUS_BACKEND(EX, _("exaile 0.2.x (via DBUS)"),
-		    "org.exaile.DBusInterface")
+		    "org.exaile.DBusInterface", "exaile")
 
-typedef struct {
+typedef struct exData{
 	SPlayer *parent;
 	DBusGProxy *exPlayer;
 	gboolean Visibility;
@@ -65,40 +65,6 @@ GQuark playing = 0;
 BEGIN_PROP_MAP(EX)
     END_PROP_MAP()
 // implementation
-gint exCallback(gpointer thsPtr) {
-	MKTHIS;
-	gboolean doAct = FALSE;
-	/* -- current_position is currently broken in exaile 0.2.99.1
-	   guchar actPos = 0;
-	   gboolean actState = db->isPlaying;
-	   if( db->exPlayer != NULL ) {
-	   db->isPlaying = FALSE;
-	   if( org_exaile_ExaileInterface_current_position(db->exPlayer, &actPos, NULL)) {
-	   LOG(".");
-	   actState = (actPos != db->lastPosition);
-	   db->lastPosition = actPos;
-	   if(actState != db->isPlaying) {
-	   db->isPlaying = actState;
-	   doAct = TRUE;
-	   }
-	   }
-	   }
-	   if(doAct) {
-	   db->parent->Update(db->parent->sd, FALSE, 
-	   db->isPlaying?estPlay:estPause, NULL);        
-	   }
-	 */
-
-	/* getting track attributes seems broken too :( */
-	if (db->exPlayer != NULL) {
-		db->isPlaying = TRUE;
-	}
-	if (doAct) {
-		db->parent->Update(db->parent->sd, TRUE, estPlay, NULL);
-	}
-
-	return TRUE;
-}
 
 static eSynoptics exTranslateStatus(gchar * exStatus) {
 
@@ -192,7 +158,6 @@ static void exCallbackFake(gpointer thsPtr) {
 static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
 	gboolean bRet = TRUE;
-	gchar *errLine = NULL;
 	LOG("Enter exAssure");
 	if (db->parent->bus && !db->exPlayer) {
 		GError *error = NULL;
@@ -208,30 +173,7 @@ static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
 			if (noCreate)
 				bRet = FALSE;
 			else {
-				DBusGProxy *bus_proxy;
-				guint start_service_reply;
-				LOG("\tstarting new instance");
-
-				bus_proxy =
-				    dbus_g_proxy_new_for_name(db->parent->bus,
-							      "org.exaile.DBusInterface",
-							      "/DBusInterfaceObject",
-							      "org.exaile.DBusInterface");
-
-				g_error_free(error);
-				error = NULL;
-
-				if (!dbus_g_proxy_call
-				    (bus_proxy, "StartServiceByName", &error,
-				     G_TYPE_STRING, "org.exaile.DBusInterface",
-				     G_TYPE_UINT, 0, G_TYPE_INVALID,
-				     G_TYPE_UINT, &start_service_reply,
-				     G_TYPE_INVALID)) {
-					LOGWARN("Could'n start service '%s'",
-						error->message);
-					bRet = FALSE;
-					errLine = g_strdup(error->message);
-				}
+				bRet = db->parent->StartService(db->parent->sd);
 			}
 			g_error_free(error);
 			error = NULL;
@@ -259,23 +201,11 @@ static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
 
 	}
 	// reflect UI
+	// reflect UI
 	if (bRet == FALSE) {
-		if (noCreate) {
-			db->parent->Update(db->parent->sd, FALSE,
-					   estStop, NULL);
-		} else {
-			db->parent->Update(db->parent->sd, FALSE,
-					   estErr, errLine);
-			if (errLine)
-				g_free(errLine);
-		}
-	} else {
-		if (noCreate)
-			db->parent->Update(db->parent->sd, FALSE, estPlay,
-					   NULL);
-
+		db->parent->Update(db->parent->sd, FALSE,
+				   (noCreate)?estStop:estErr, NULL);
 	}
-
 	LOG("Leave exAssure");
 	return bRet;
 }
@@ -379,6 +309,7 @@ exData *EX_attach(SPlayer * parent) {
 	EX_MAP(Next);
 	EX_MAP(Previous);
 	EX_MAP(PlayPause);
+	NOMAP(PlayPlaylist);
 	EX_MAP(IsPlaying);
 	EX_MAP(Toggle);
 	EX_MAP(Detach);

@@ -49,9 +49,9 @@
 // pixmap
 #include "squeezebox-rb.png.h"
 
-DEFINE_DBUS_BACKEND(RB, _("Rhythmbox 0.9.x (via DBUS)"), "org.gnome.Rhythmbox")
+DEFINE_DBUS_BACKEND(RB, _("Rhythmbox 0.9.x (via DBUS)"), "org.gnome.Rhythmbox", "ryhthmbox")
 
-typedef struct {
+typedef struct rbData{
 	SPlayer *parent;
 	DBusGProxy *rbPlayer;
 	DBusGProxy *rbShell;
@@ -215,7 +215,6 @@ static gboolean rbUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 
 gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 	gboolean bRet = TRUE;
-	gchar *errLine = NULL;
 	MKTHIS;
 	LOG("Enter rbAssure");
 	if (db->parent->bus && !db->rbShell) {
@@ -233,27 +232,7 @@ gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 			if (noCreate)
 				bRet = FALSE;
 			else {
-				DBusGProxy *bus_proxy;
-				guint start_service_reply;
-				LOG("starting new instance");
-
-				bus_proxy =
-				    dbus_g_proxy_new_for_name(db->parent->bus,
-							      "org.freedesktop.DBus",
-							      "/org/freedesktop/DBus",
-							      "org.freedesktop.DBus");
-
-				if (!dbus_g_proxy_call
-				    (bus_proxy, "StartServiceByName", &error,
-				     G_TYPE_STRING, RB_dbusName(), G_TYPE_UINT,
-				     0, G_TYPE_INVALID, G_TYPE_UINT,
-				     &start_service_reply, G_TYPE_INVALID)) {
-					LOGWARN("Could'n start service '%s'",
-						error->message);
-					bRet = FALSE;
-					g_error_free(error);
-					error = NULL;
-				}
+				bRet = db->parent->StartService(db->parent->sd);
 			}
 		}
 		if (db->rbShell && !db->rbPlayer) {
@@ -305,17 +284,9 @@ gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 	}
 	// reflect UI
 	if (bRet == FALSE) {
-		if (noCreate) {
-			db->parent->Update(db->parent->sd, FALSE,
-					   estStop, NULL);
-		} else {
-			db->parent->Update(db->parent->sd, FALSE,
-					   estErr, errLine);
-			if (errLine)
-				g_free(errLine);
-		}
+		db->parent->Update(db->parent->sd, FALSE,
+				   (noCreate)?estStop:estErr, NULL);
 	}
-
 	LOG("Leave rbAssure");
 	return bRet;
 }
@@ -414,6 +385,7 @@ rbData *RB_attach(SPlayer * parent) {
 	RB_MAP(Next);
 	RB_MAP(Previous);
 	RB_MAP(PlayPause);
+	NOMAP(PlayPlaylist);
 	RB_MAP(IsPlaying);
 	RB_MAP(Toggle);
 	NOMAP(Configure);	// no settings

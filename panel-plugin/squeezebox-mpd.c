@@ -47,8 +47,8 @@
 
 DEFINE_BACKEND(MPD, _("Music Player Daemon (libmpd)"))
 #define MPD_MAP(a) parent->a = mpd##a
-#define MPD_SQ_ALL (MPD_CST_SONGID|MPD_CST_STATE|MPD_CST_REPEAT|MPD_CST_RANDOM)
-typedef struct {
+#define MPD_SQ_ALL (MPD_CST_SONGID|MPD_CST_STATE|MPD_CST_REPEAT|MPD_CST_RANDOM|MPD_CST_STORED_PLAYLIST|MPD_CST_PLAYLIST)
+typedef struct mpdData{
 	SPlayer *parent;
 	gint port;
 	GString *host;
@@ -130,9 +130,7 @@ gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 		mpd_signal_connect_status_changed(this->player,
 						  mpdCallbackStateChanged,
 						  this);
-		mpdCallbackStateChanged(this->player,
-					MPD_CST_SONGID | MPD_CST_STATE |
-					MPD_CST_RANDOM | MPD_CST_REPEAT, this);
+		mpdCallbackStateChanged(this->player, MPD_SQ_ALL, this);
 	}
 
 	LOG("Leave mpdAssure");
@@ -182,6 +180,19 @@ gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
 		iRet = mpd_player_pause(this->player);
 	LOG("Leave mpdPlayPause");
 	return (iRet == MPD_OK);
+}
+
+gboolean mpdPlayPlaylist(gpointer thsPtr, gchar *playlistName) {
+	MKTHIS;
+	MpdState state = mpd_player_get_state(this->player);
+	LOG("Enter mpdPlayPlaylist");
+	mpd_playlist_clear(this->player);
+	mpd_playlist_queue_load(this->player, playlistName);
+	mpd_playlist_queue_commit(this->player);
+	if(MPD_PLAYER_PLAY == state)
+		mpd_player_play(this->player);
+	LOG("Leave mpdPlayPlaylist");
+	return TRUE;
 }
 
 gboolean mpdIsPlaying(gpointer thsPtr) {
@@ -375,7 +386,32 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 		   this->parent->UpdateTimePosition(this->parent->sd);
 		 */
 	}
-	//MPD_CST_TOTAL_TIME
+	if(sType & (MPD_CST_STORED_PLAYLIST)) {
+		mpd_Connection * conn = NULL;
+		mpd_InfoEntity * entity = NULL;
+		char * ls = "";
+		LOG("Enter mpdCallback: PlaylistChanged");
+		if(this->bUseDefault)
+			conn = mpd_newConnection("localhost", 6600, 150);
+		else
+			conn = mpd_newConnection(this->host->str, this->port, 150);
+		if(conn) {
+			g_hash_table_remove_all(this->parent->playLists);
+			mpd_sendLsInfoCommand(conn,ls);
+
+			while((entity = mpd_getNextInfoEntity(conn))) {
+				if(entity->type==
+						MPD_INFO_ENTITY_TYPE_PLAYLISTFILE) {
+					mpd_PlaylistFile * pl = entity->info.playlistFile;
+					g_hash_table_insert(this->parent->playLists, 
+						g_strdup(pl->path), g_strdup("ind"));
+				}
+				mpd_freeInfoEntity(entity);
+			}
+			this->parent->UpdatePlaylists(this->parent->sd);
+		}
+		LOG("Leave mpdCallback: PlaylistChanged");
+	}
 }
 
 void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
@@ -671,6 +707,7 @@ void *MPD_attach(SPlayer * parent) {
 	MPD_MAP(Next);
 	MPD_MAP(Previous);
 	MPD_MAP(PlayPause);
+	MPD_MAP(PlayPlaylist);
 	MPD_MAP(IsPlaying);
 	MPD_MAP(Toggle);
 	MPD_MAP(Detach);

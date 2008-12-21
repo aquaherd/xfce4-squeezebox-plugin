@@ -64,6 +64,7 @@ typedef struct SPlayer{
 	gboolean(* Next)(gpointer thsPtr);
 	gboolean(* Previous)(gpointer thsPtr);
 	gboolean(* PlayPause)(gpointer thsPtr, gboolean newState);
+	gboolean(* PlayPlaylist)(gpointer thsPtr, gchar *playListName);
 	gboolean(* IsPlaying)(gpointer thsPtr);
 	gboolean(* Toggle)(gpointer thsPtr, gboolean *newState);
 	gboolean(* Detach)(gpointer thsPtr);
@@ -84,6 +85,7 @@ typedef struct SPlayer{
 	GString *album;
 	GString *title;
 	GString *albumArt;  // path to image file
+	GHashTable *playLists; // Playlistname:State
 	
 	// backend "this" pointer, first param of above functions
 	gpointer db;
@@ -96,11 +98,13 @@ typedef struct SPlayer{
 #if HAVE_DBUS
 	DBusGConnection *bus;
     DBusGProxy		*dbService;
+    gboolean(* StartService)(gpointer thsPlayer);
 #endif
 
 	// frontend callbacks
 	void(* Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State, 
                    const gchar* playerMessage);
+    void(* UpdatePlaylists)(gpointer thsPlayer);
     void(* UpdateRepeat)(gpointer thsPlayer, gboolean newRepeat);
     void(* UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
     void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
@@ -134,6 +138,7 @@ typedef struct Backend{
     #if HAVE_DBUS
     const gchar*( *BACKEND_dbusName)();
     #endif
+    const gchar*( *BACKEND_commandLine)();
 }Backend;
 
 #define IMPORT_BACKEND(t) \
@@ -148,9 +153,10 @@ typedef struct Backend{
  	extern const gchar * t##_name(); \
     extern GdkPixbuf * t##_icon(); \
     extern PropDef* t##_properties(); \
-    extern const gchar * t##_dbusName();
+    extern const gchar * t##_dbusName(); \
+    extern const gchar * t##_commandLine();
 
-#define DEFINE_DBUS_BACKEND(t,n,d)  \
+#define DEFINE_DBUS_BACKEND(t,n,d,c)  \
     const gchar* t##_name(){ \
         return _(n); \
     } \
@@ -159,8 +165,11 @@ typedef struct Backend{
     } \
     const gchar* t##_dbusName(){ \
         return d; \
-    }    
-#define DBUS_BACKEND(t) {dbusBackend, t##_attach, t##_name, t##_icon, t##_properties, t##_dbusName},
+    } \
+    const gchar* t##_commandLine(){ \
+    	return c; \
+	}    
+#define DBUS_BACKEND(t) {dbusBackend, t##_attach, t##_name, t##_icon, t##_properties, t##_dbusName, t##_commandLine},
 #endif
 
 #define BEGIN_BACKEND_MAP() const Backend* squeezebox_get_backends() \

@@ -76,7 +76,7 @@ typedef struct SqueezeBoxData{
 #endif
 
 	// menu items
-	GtkWidget *mnuShuffle, *mnuRepeat, *mnuPlayer;
+	GtkWidget *mnuShuffle, *mnuRepeat, *mnuPlayer, *mnuPlayLists;
 	gboolean noUI;
 
 	gint toolTipStyle;
@@ -122,6 +122,7 @@ static void squeezebox_construct(XfcePanelPlugin * plugin);
 //XFCE_PANEL_PLUGIN_REGISTER_INTERNAL (squeezebox_construct);
 
 /* Backend mapping */
+const Backend* squeezebox_get_backends();
 #if HAVE_BACKEND_RHYTHMBOX
 IMPORT_DBUS_BACKEND(RB)
 #endif
@@ -176,6 +177,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 	UNSET(Next);
 	UNSET(Previous);
 	UNSET(PlayPause);
+	UNSET(PlayPlaylist);
 	UNSET(IsPlaying);
 	UNSET(Toggle);
 	UNSET(Detach);
@@ -266,6 +268,8 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 			g_error_free(error);
 		}
     }
+	gtk_widget_set_sensitive(sd->mnuPlayLists, g_hash_table_size(sd->player.playLists));
+    
     #endif
     LOG("Leave squeezebox_init_backend");
 }
@@ -434,6 +438,39 @@ static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	}
 }
 #endif
+
+void on_mnuPlaylistItemActivated(GtkMenuItem *menuItem, SqueezeBoxData *sd) {
+	gchar *playlistName = (gchar*)gtk_object_get_data(GTK_OBJECT(menuItem), "listname");
+	LOG("Switch to playlist '%s'", playlistName);
+	if(sd->player.PlayPlaylist)
+		sd->player.PlayPlaylist(sd->player.db, playlistName);
+}
+
+void addMenu(gchar *key, gchar *value, SqueezeBoxData *sd) {
+	LOG("Adding submenu %s", key);
+	GtkWidget *menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(sd->mnuPlayLists));
+	GtkWidget *subMenuItem = gtk_menu_item_new_with_label(key);
+	gtk_widget_show(subMenuItem);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), subMenuItem);
+	g_object_ref(subMenuItem);
+	gtk_object_set_data(GTK_OBJECT(subMenuItem), "listname", g_strdup(key));
+	g_signal_connect(G_OBJECT(subMenuItem), "activate",
+			 G_CALLBACK(on_mnuPlaylistItemActivated), sd);
+}
+
+static void squeezebox_update_playlists(gpointer thsPlayer) {
+	LOG("Enter squeezebox_update_playlists");
+	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
+	gboolean hasItems = (g_hash_table_size(sd->player.playLists));
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), NULL);
+	if(hasItems) {
+		GtkWidget *menu = gtk_menu_new();
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), menu);	
+		g_hash_table_foreach(sd->player.playLists, (GHFunc)addMenu, sd);
+	}
+	gtk_widget_set_sensitive(sd->mnuPlayLists, hasItems);
+	LOG("Leave squeezebox_update_playlists");
+}
 
 static void squeezebox_update_repeat(gpointer thsPlayer, gboolean newRepeat) {
 	LOG("Enter squeezebox_update_repeat");
@@ -1145,7 +1182,8 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	g_object_set_data(G_OBJECT(plugin), "dialog", dlg);
 
 	gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
-	gtk_window_set_icon_name(GTK_WINDOW(dlg), "xfce-sound");
+	gtk_window_set_icon_name(GTK_WINDOW(dlg), "xfce4-settings");
+	//gtk_window_set_resizable(GTK_WINDOW(dlg), FALSE);
 
 	g_signal_connect(dlg, "response",
 			 G_CALLBACK(squeezebox_dialog_response), sd);
@@ -1154,7 +1192,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 
 	header = xfce_heading_new();
 	xfce_heading_set_title(XFCE_HEADING(header), _("Squeezebox"));
-	xfce_heading_set_icon_name(XFCE_HEADING(header), "xfce-sound");
+	xfce_heading_set_icon_name(XFCE_HEADING(header), "sound");
 	xfce_heading_set_subtitle(XFCE_HEADING(header),
 				  _("media player remote"));
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dlg)->vbox), header, FALSE, TRUE,
@@ -1643,7 +1681,7 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 }
 
 #if HAVE_DBUS
-static void squeezebox_update_dbus(DBusGProxy * proxy, const gchar * Name,
+static void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 				   const gchar * OldOwner,
 				   const gchar * NewOwner,
 				   SqueezeBoxData * sd) {
@@ -1663,6 +1701,36 @@ static void squeezebox_update_dbus(DBusGProxy * proxy, const gchar * Name,
 		}
 	}
 }
+static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
+	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
+	GError *error = NULL;
+	guint start_service_reply;
+	gboolean bRet = TRUE;
+	Backend const *ptr = &squeezebox_get_backends()[sd->backend -1];
+	
+	LOG("\tstarting new instance");
+	if (!dbus_g_proxy_call(sd->player.dbService, "StartServiceByName", &error,
+			 G_TYPE_STRING, ptr->BACKEND_dbusName(),
+			 G_TYPE_UINT, 0, G_TYPE_INVALID,
+			 G_TYPE_UINT, &start_service_reply,
+			 G_TYPE_INVALID)) {
+		bRet = FALSE;
+		LOGWARN("Could'n start service '%s'", error->message);
+		g_error_free(error);
+		gchar *path = g_find_program_in_path(ptr->BACKEND_commandLine());
+		if(NULL != path) {
+			const gchar *argv[] = {
+				path,
+				// here we could have arguments
+				NULL
+			};
+			bRet = g_spawn_async(NULL, (gchar**)argv, NULL, 
+				G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL,
+				NULL, NULL, NULL, NULL);
+		}
+	}
+	return bRet;
+}
 #endif
 static void squeezebox_construct(XfcePanelPlugin * plugin) {
 	int i = 0;
@@ -1679,13 +1747,15 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 	sd->player.album = g_string_new(_("(unknown)"));
 	sd->player.title = g_string_new(_("(unknown)"));
 	sd->player.albumArt = g_string_new("");
-	sd->toolTipText = g_string_new("");
+    sd->player.playLists = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	sd->player.Update = squeezebox_update_UI;
+	sd->player.UpdatePlaylists = squeezebox_update_playlists;
 	sd->player.UpdateShuffle = squeezebox_update_shuffle;
 	sd->player.UpdateRepeat = squeezebox_update_repeat;
 	sd->player.UpdateVisibility = squeezebox_update_visibility;
 #if HAVE_DBUS
 	sd->player.bus = dbus_g_bus_get(DBUS_BUS_SESSION, NULL);
+	sd->player.StartService = squeezebox_dbus_start_service;
 	if (!sd->player.bus) {
 		LOGERR("\tCouldn't connect to dbus");
 	} else {
@@ -1700,7 +1770,7 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 					G_TYPE_INVALID);
 		dbus_g_proxy_connect_signal(sd->player.dbService,
 					    "NameOwnerChanged",
-					    G_CALLBACK(squeezebox_update_dbus),
+					    G_CALLBACK(squeezebox_dbus_update),
 					    sd, NULL);
 	}
 #endif
@@ -1714,6 +1784,7 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 	sd->timerHandle = 0;
 	sd->inCreate = TRUE;
 #endif
+	sd->toolTipText = g_string_new("");
 
 	squeezebox_create(sd);
 
@@ -1744,6 +1815,13 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 	g_signal_connect(G_OBJECT(sd->mnuPlayer), "toggled",
 			 G_CALLBACK(on_mnuPlayerToggled), sd);
 	g_object_ref(sd->mnuPlayer);
+
+	sd->mnuPlayLists = gtk_menu_item_new_with_label(_("Playlists"));
+	gtk_widget_show(sd->mnuPlayLists);
+	gtk_widget_set_sensitive(sd->mnuPlayLists, FALSE);
+	xfce_panel_plugin_menu_insert_item(sd->plugin,
+					   GTK_MENU_ITEM(sd->mnuPlayLists));
+	g_object_ref(sd->mnuPlayLists);
 
 	sd->mnuShuffle = gtk_check_menu_item_new_with_label(_("Shuffle"));
 	gtk_widget_show(sd->mnuShuffle);

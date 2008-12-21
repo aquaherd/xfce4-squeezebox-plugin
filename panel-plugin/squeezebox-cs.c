@@ -39,7 +39,7 @@
 // pixmap
 #include "squeezebox-cs.png.h"
 
-typedef struct {
+typedef struct csData{
 	SPlayer *parent;
 	gboolean Visibility;
 	gboolean Shuffle;
@@ -70,7 +70,7 @@ BEGIN_PROP_MAP(CS)
 #define DBUS_SIG_SHOW_OSD   "show_osd"
 #define DBUS_SIG_ADD_FILE   "add_files"
 #define DBUS_METHOD_CURRENT_STATE "curent_state"
-    DEFINE_DBUS_BACKEND(CS, _("consonance 0.3.x (via DBUS)"), DBUS_NAME);
+    DEFINE_DBUS_BACKEND(CS, _("consonance 0.3.x (via DBUS)"), DBUS_NAME, "consonance");
 
 /* Send a signal to a running instance */
 void dbus_send_signal(const gchar * signal, void *thsPtr) {
@@ -223,6 +223,7 @@ static gint csCallback(gpointer thsPtr) {
 
 static gboolean csAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
+	gboolean bRet = TRUE;
 	LOG("Enter csAssure");
 	if (NULL != db->parent->bus && !db->con_dbus) {
 		db->con_dbus =
@@ -236,14 +237,23 @@ static gboolean csAssure(gpointer thsPtr, gboolean noCreate) {
 							       DBUS_INTERFACE,
 							       &error);
 		if (error) {
+			bRet = FALSE;
 			LOGWARN("Could'n connect to consonance '%s'",
 				error->message);
 			g_error_free(error);
+			if (!noCreate) {
+				bRet = db->parent->StartService(db->parent->sd);
+			}
 		}
 	}
 	if (db->con_dbus && db->csPlayer && !db->intervalID) {
 		// establish the callback functions
 		db->intervalID = g_timeout_add(1000, csCallback, db);
+	}
+	// reflect UI
+	if (bRet == FALSE) {
+		db->parent->Update(db->parent->sd, FALSE,
+				   (noCreate)?estStop:estErr, NULL);
 	}
 	LOG("Leave csAssure");
 	return (NULL != db->con_dbus);
@@ -360,6 +370,7 @@ csData *CS_attach(SPlayer * parent) {
 	CS_MAP(Next);
 	CS_MAP(Previous);
 	CS_MAP(PlayPause);
+	NOMAP(PlayPlaylist);
 	CS_MAP(IsPlaying);
 	CS_MAP(Toggle);
 	CS_MAP(Detach);
