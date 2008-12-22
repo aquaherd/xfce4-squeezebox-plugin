@@ -43,7 +43,7 @@
 // pixmap
 #include "squeezebox-ex.png.h"
 
-DEFINE_DBUS_BACKEND(EX, _("exaile 0.2.x (via DBUS)"),
+DEFINE_DBUS_BACKEND(EX, _("exaile 0.2.14"),
 		    "org.exaile.DBusInterface", "exaile")
 
 typedef struct exData{

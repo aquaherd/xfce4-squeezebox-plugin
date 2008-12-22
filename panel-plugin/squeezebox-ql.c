@@ -44,13 +44,18 @@
 // pixmap
 #include "squeezebox-ql.png.h"
 
-DEFINE_BACKEND(QL, _("QuodLibet (pipe)"))
+DEFINE_BACKEND(QL, _("QuodLibet"))
 /* --- */
 #define QL_MAP(a) parent->a = ql##a;
 #define MKTHIS qlData *this = (qlData *)thsPtr;
 #define QL_FIFO_PATH "/.quodlibet/control"
 #define QL_STAT_PATH "/.quodlibet/current"
 #define QL_ALBUM_ART_PATH "/.quodlibet/current.cover"
+#define QL_FREE(t)     if(this->t) { \
+        g_free(this->t); \
+        this->t = NULL; \
+    } \
+
 typedef struct qlData {
 	SPlayer *parent;
 	gpointer *player;
@@ -391,25 +396,15 @@ gboolean qlDetach(gpointer thsPtr) {
 					  this->statMon);
 		this->statMon = NULL;
 	}
-	if (this->current)
+	if (this->current) {
 		g_hash_table_destroy(this->current);
+		this->current = NULL;
+	}
     
-    if(this->fifo) {
-        g_free(this->fifo);
-        this->fifo = NULL;
-    }
-    if(this->stat) {
-        g_free(this->stat);
-        this->stat = NULL;
-    }
-    if(this->cover) {
-        g_free(this->cover);
-        this->cover = NULL;
-    }
-    if(this->bin) {
-        g_free(this->bin);
-        this->bin = NULL;
-    }
+    QL_FREE(fifo);
+    QL_FREE(stat);
+    QL_FREE(cover);
+    QL_FREE(bin);
 
     thunar_vfs_shutdown();
 
@@ -499,12 +494,14 @@ void qlPersist(gpointer thsPtr, gboolean bIsStoring) {
 
 void *QL_attach(SPlayer * parent) {
 	qlData *this = g_new0(qlData, 1);
+	const gchar *homePath = g_get_home_dir();
 	LOG("Enter QL_attach");
 
 	QL_MAP(Assure);
 	QL_MAP(Next);
 	QL_MAP(Previous);
 	QL_MAP(PlayPause);
+	NOMAP(PlayPlaylist);
 	QL_MAP(IsPlaying);
 	QL_MAP(Toggle);
 	QL_MAP(Detach);
@@ -521,15 +518,9 @@ void *QL_attach(SPlayer * parent) {
 	// we init default values 
 	this->parent = parent;
 	this->fp = NULL;
-	this->fifo = g_strdup_printf("%s%s", 
-        g_get_home_dir(), QL_FIFO_PATH);
-
-	this->stat = g_strdup_printf("%s%s", 
-        g_get_home_dir(), QL_STAT_PATH);
-
-	this->cover = g_strdup_printf("%s%s", 
-        g_get_home_dir(), QL_ALBUM_ART_PATH);
-    
+	this->fifo = g_strdup_printf("%s%s", homePath, QL_FIFO_PATH);
+	this->stat = g_strdup_printf("%s%s", homePath, QL_STAT_PATH);
+	this->cover = g_strdup_printf("%s%s", homePath, QL_ALBUM_ART_PATH);
     this->bin = g_find_program_in_path("quodlibet");
     
 	thunar_vfs_init();
@@ -537,8 +528,6 @@ void *QL_attach(SPlayer * parent) {
 	// connect to notification events
 	int i = 0;
 	GList *windows, *l;
-
-	wnck_screen_force_update(this->wnckScreen);
 
 	this->wnckScreen =
 	    wnck_screen_get(gdk_screen_get_number(gdk_screen_get_default()));
@@ -568,5 +557,4 @@ void *QL_attach(SPlayer * parent) {
 	LOG("Leave QL_attach");
 	return this;
 }
-
 #endif

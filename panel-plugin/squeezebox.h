@@ -117,7 +117,6 @@ typedef struct SPlayer{
 // Backend definitions
 typedef enum eBackendType{
 	dbusBackend,
-	daemonBackend,
 	networkBackend,
 	otherBackend,
 	numBackendTypes

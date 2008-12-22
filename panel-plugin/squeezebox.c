@@ -195,13 +195,19 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
     if(g_hash_table_size(sd->propertyAddresses)) {
         g_hash_table_remove_all(sd->propertyAddresses);
     }
-    
 
 	// clear current song info
 	g_string_set_size(sd->player.artist, 0);
 	g_string_set_size(sd->player.album, 0);
 	g_string_set_size(sd->player.title, 0);
 	g_string_set_size(sd->player.albumArt, 0);
+	
+	// clear playlists
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), NULL);
+    if(g_hash_table_size(sd->player.playLists)) {
+        g_hash_table_remove_all(sd->player.playLists);
+    }
+	
 
 	// call init of backend
 	sd->backend = nBackend;
@@ -445,17 +451,27 @@ void on_mnuPlaylistItemActivated(GtkMenuItem *menuItem, SqueezeBoxData *sd) {
 	if(sd->player.PlayPlaylist)
 		sd->player.PlayPlaylist(sd->player.db, playlistName);
 }
-
 void addMenu(gchar *key, gchar *value, SqueezeBoxData *sd) {
-	LOG("Adding submenu %s", key);
+	LOG("Adding submenu '%s' with icon '%s'", key, value);
 	GtkWidget *menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(sd->mnuPlayLists));
-	GtkWidget *subMenuItem = gtk_menu_item_new_with_label(key);
+	GtkWidget *subMenuItem = gtk_image_menu_item_new_with_label(key);
+	/*
+	GtkPixmap *pixbuf = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+							  value, GTK_ICON_SIZE_MENU, 0, NULL);
+							  */
+	GtkWidget *image = gtk_image_new_from_icon_name(value, GTK_ICON_SIZE_MENU);
+	if(image)
+		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subMenuItem), image);
 	gtk_widget_show(subMenuItem);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), subMenuItem);
 	g_object_ref(subMenuItem);
 	gtk_object_set_data(GTK_OBJECT(subMenuItem), "listname", g_strdup(key));
 	g_signal_connect(G_OBJECT(subMenuItem), "activate",
 			 G_CALLBACK(on_mnuPlaylistItemActivated), sd);
+}
+
+void add(gchar *key, SqueezeBoxData *sd) {
+	addMenu(key, g_hash_table_lookup(sd->player.playLists, key), sd);
 }
 
 static void squeezebox_update_playlists(gpointer thsPlayer) {
@@ -465,8 +481,11 @@ static void squeezebox_update_playlists(gpointer thsPlayer) {
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), NULL);
 	if(hasItems) {
 		GtkWidget *menu = gtk_menu_new();
-		gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), menu);	
-		g_hash_table_foreach(sd->player.playLists, (GHFunc)addMenu, sd);
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), menu);
+		GList *list = 
+			g_list_sort(g_list_copy(g_hash_table_get_keys(sd->player.playLists)), (GCompareFunc)g_ascii_strcasecmp);	
+		g_list_foreach(list, (GFunc)add, sd);
+		g_list_free(list);
 	}
 	gtk_widget_set_sensitive(sd->mnuPlayLists, hasItems);
 	LOG("Leave squeezebox_update_playlists");

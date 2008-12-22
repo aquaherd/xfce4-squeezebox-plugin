@@ -45,7 +45,7 @@
 // pixmap
 #include "squeezebox-mpd.png.h"
 
-DEFINE_BACKEND(MPD, _("Music Player Daemon (libmpd)"))
+DEFINE_BACKEND(MPD, _("Music Player Daemon"))
 #define MPD_MAP(a) parent->a = mpd##a
 #define MPD_SQ_ALL (MPD_CST_SONGID|MPD_CST_STATE|MPD_CST_REPEAT|MPD_CST_RANDOM|MPD_CST_STORED_PLAYLIST|MPD_CST_PLAYLIST)
 typedef struct mpdData{
@@ -189,8 +189,15 @@ gboolean mpdPlayPlaylist(gpointer thsPtr, gchar *playlistName) {
 	mpd_playlist_clear(this->player);
 	mpd_playlist_queue_load(this->player, playlistName);
 	mpd_playlist_queue_commit(this->player);
-	if(MPD_PLAYER_PLAY == state)
-		mpd_player_play(this->player);
+	switch(state) {
+		case MPD_STATUS_STATE_PLAY:
+			mpd_player_play(this->player);
+			break;
+		case MPD_STATUS_STATE_PAUSE:
+			mpd_player_play(this->player);
+			mpd_player_pause(this->player);
+			break;
+	}
 	LOG("Leave mpdPlayPlaylist");
 	return TRUE;
 }
@@ -404,7 +411,7 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 						MPD_INFO_ENTITY_TYPE_PLAYLISTFILE) {
 					mpd_PlaylistFile * pl = entity->info.playlistFile;
 					g_hash_table_insert(this->parent->playLists, 
-						g_strdup(pl->path), g_strdup("ind"));
+						g_strdup(pl->path), g_strdup("stock_playlist"));
 				}
 				mpd_freeInfoEntity(entity);
 			}
