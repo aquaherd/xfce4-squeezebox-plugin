@@ -47,6 +47,9 @@
 
 DEFINE_BACKEND(MPD, _("Music Player Daemon"))
 #define MPD_MAP(a) parent->a = mpd##a
+#ifndef MPD_CST_STORED_PLAYLIST
+#define MPD_CST_STORED_PLAYLIST 0x20000
+#endif
 #define MPD_SQ_ALL (MPD_CST_SONGID|MPD_CST_STATE|MPD_CST_REPEAT|MPD_CST_RANDOM|MPD_CST_STORED_PLAYLIST|MPD_CST_PLAYLIST)
 typedef struct mpdData{
 	SPlayer *parent;

@@ -421,9 +421,10 @@ static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 
 			// did we get an icon?
 			if (pixbuf) {
+				LOG("We got an icon.");
 #if (LIBNOTIFY_VERSION_MAJOR == 0 && \
-    LIBNOTIFY_VERSION_MINOR <=3 && \
-    LIBNOTIFY_VERSION_MICRO < 2)
+    LIBNOTIFY_VERSION_MINOR <=6 && \
+    LIBNOTIFY_VERSION_MICRO < 0)
 				notify_notification_set_icon_data_from_pixbuf
 				    (sd->note, pixbuf);
 #else
@@ -474,6 +475,10 @@ void add(gchar *key, SqueezeBoxData *sd) {
 	addMenu(key, g_hash_table_lookup(sd->player.playLists, key), sd);
 }
 
+void addList(gchar *key, gpointer *value, GList **list) {
+	*list = g_list_append(*list, g_strdup(key));
+}
+
 static void squeezebox_update_playlists(gpointer thsPlayer) {
 	LOG("Enter squeezebox_update_playlists");
 	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
@@ -482,8 +487,9 @@ static void squeezebox_update_playlists(gpointer thsPlayer) {
 	if(hasItems) {
 		GtkWidget *menu = gtk_menu_new();
 		gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), menu);
-		GList *list = 
-			g_list_sort(g_list_copy(g_hash_table_get_keys(sd->player.playLists)), (GCompareFunc)g_ascii_strcasecmp);	
+		GList *list = NULL;
+		g_hash_table_foreach(sd->player.playLists, (GHFunc)addList, &list);
+		list = g_list_sort(list, (GCompareFunc)g_ascii_strcasecmp);
 		g_list_foreach(list, (GFunc)add, sd);
 		g_list_free(list);
 	}
@@ -781,10 +787,10 @@ squeezebox_persist_properties(SqueezeBoxData * sd, XfceRc *rc, gboolean isStorin
                 }
             } else {
                 if(rc)
-                    propValue =  strdup(xfce_rc_read_entry(rc, prop->Name, prop->Default));
+                    propValue =  g_strdup(xfce_rc_read_entry(rc, prop->Name, prop->Default));
                 else
-                    propValue = strdup(prop->Default);
-                g_hash_table_insert(sd->properties, strdup(prop->Name), propValue);
+                    propValue = g_strdup(prop->Default);
+                g_hash_table_insert(sd->properties, g_strdup(prop->Name), propValue);
             }
             LOG("\t%s->'%s'", prop->Name, propValue);
             prop++;
