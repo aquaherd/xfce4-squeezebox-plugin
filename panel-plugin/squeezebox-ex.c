@@ -43,7 +43,7 @@
 // pixmap
 #include "squeezebox-ex.png.h"
 
-DEFINE_DBUS_BACKEND(EX, _("exaile 0.2.14"),
+DEFINE_DBUS_BACKEND(EX, _("exaile 0.2.13+"),
 		    "org.exaile.DBusInterface", "exaile")
 
 typedef struct exData{
@@ -51,8 +51,10 @@ typedef struct exData{
 	DBusGProxy *exPlayer;
 	gboolean Visibility;
 	gboolean isPlaying;
+	gboolean needsPolling;
 	gint intervalID;
-	guchar lastPosition;
+	gchar *lastTrack;
+	gchar *lastStatus;
 } exData;
 
 #define MKTHIS exData *db = (exData *)thsPtr;
@@ -149,10 +151,34 @@ static void exCallbackTrackChange(DBusGProxy * proxy, gpointer thsPtr) {
 	LOG("Leave auCallback: TrackChange");
 }
 
-static void exCallbackFake(gpointer thsPtr) {
+static gint exCallbackFake(gpointer thsPtr) {
 	MKTHIS;
-	exCallbackTrackChange(db->exPlayer, thsPtr);
-	exCallbackStatusChange(db->exPlayer, thsPtr);
+	if(db->needsPolling) {
+		gchar *loc = NULL;
+		if(org_exaile_DBusInterface_get_track_attr(db->exPlayer, "loc", &loc, NULL)) {
+			if(!db->lastTrack || g_ascii_strcasecmp(db->lastTrack, loc)) {
+				if(db->lastTrack)
+					g_free(db->lastTrack);
+				db->lastTrack = loc;
+				exCallbackTrackChange(db->exPlayer, thsPtr);
+			} else
+				g_free(loc);
+		}
+		gchar *status = NULL;
+		if(org_exaile_DBusInterface_status(db->exPlayer, &status, NULL)) {
+			if(!db->lastStatus || g_ascii_strcasecmp(db->lastStatus, loc)) {
+				if(db->lastStatus)
+					g_free(db->lastStatus);
+				db->lastStatus = status;
+				exCallbackStatusChange(db->exPlayer, thsPtr);
+			} else
+				g_free(status);
+		}
+	} else {
+		exCallbackTrackChange(db->exPlayer, thsPtr);
+		exCallbackStatusChange(db->exPlayer, thsPtr);
+	}
+	return TRUE;
 }
 
 static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
@@ -179,28 +205,41 @@ static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
 			error = NULL;
 		}
 		if (db->exPlayer) {
-			// state changes
-			//  playing change
-			dbus_g_proxy_add_signal(db->exPlayer, "state_changed",
-						G_TYPE_INVALID);
-			dbus_g_proxy_connect_signal(db->exPlayer,
-						    "state_changed",
-						    G_CALLBACK
-						    (exCallbackStatusChange),
-						    db, NULL);
+			gchar *version = NULL;
+			db->needsPolling = TRUE;
+			if(org_exaile_DBusInterface_get_version(db->exPlayer, &version, NULL)) {
+				LOG("Attached to exaile version '%s'", version);
+				if(!g_ascii_strcasecmp(version, "0.2.14devel")) {
+					LOG("Lucky us we have events");
+					db->needsPolling = FALSE;
+					// state changes
+					//  playing change
+					dbus_g_proxy_add_signal(db->exPlayer, "state_changed",
+								G_TYPE_INVALID);
+					dbus_g_proxy_connect_signal(db->exPlayer,
+									"state_changed",
+									G_CALLBACK
+									(exCallbackStatusChange),
+									db, NULL);
 
-			//  song change
-			dbus_g_proxy_add_signal(db->exPlayer, "track_changed",
-						G_TYPE_INVALID);
-			dbus_g_proxy_connect_signal(db->exPlayer,
-						    "track_changed",
-						    G_CALLBACK
-						    (exCallbackTrackChange), db,
-						    NULL);
+					//  song change
+					dbus_g_proxy_add_signal(db->exPlayer, "track_changed",
+								G_TYPE_INVALID);
+					dbus_g_proxy_connect_signal(db->exPlayer,
+									"track_changed",
+									G_CALLBACK
+									(exCallbackTrackChange), db,
+									NULL);
+				}
+				g_free(version);
+			}
+			if(db->needsPolling) {
+				db->intervalID =
+					g_timeout_add(1500, exCallbackFake, db);
+			}
 		}
 
 	}
-	// reflect UI
 	// reflect UI
 	if (bRet == FALSE) {
 		db->parent->Update(db->parent->sd, FALSE,
@@ -271,6 +310,22 @@ static gboolean exDetach(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter exDetach");
 	if (db->exPlayer) {
+		if(!db->needsPolling) {
+			dbus_g_proxy_disconnect_signal(db->exPlayer,
+							"state_changed",
+							G_CALLBACK
+							(exCallbackStatusChange),
+							db);
+			dbus_g_proxy_disconnect_signal(db->exPlayer,
+							"track_changed",
+							G_CALLBACK
+							(exCallbackTrackChange), db);
+		} else {
+			if(db->lastTrack)
+				g_free(db->lastTrack);
+			if(db->lastStatus)
+				g_free(db->lastStatus);
+		}
 		g_object_unref(G_OBJECT(db->exPlayer));
 		db->exPlayer = NULL;
 	}

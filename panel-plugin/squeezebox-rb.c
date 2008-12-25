@@ -85,24 +85,17 @@ static void rbCallbackVisibility(DBusGProxy * proxy, const gboolean visible,
 	db->parent->UpdateVisibility(db->parent->sd, visible);
 }
 
-static void rbCallback(DBusGProxy * proxy, const gchar * uri, gpointer thsPtr) {
+static void 
+rbCallback(DBusGProxy * proxy, const gchar * uri, gpointer thsPtr) {
 	MKTHIS;
 	LOG("rbCallback: SongChanged '%s'", uri);
 
 	if (db->rbShell) {
 		GHashTable *table = NULL;
 		GError *err = NULL;
-		/*
-		   char                 *newUri = NULL;
-		   if( org_gnome_Rhythmbox_Player_get_playing_uri(db->rbPlayer, &newUri, &err) )
-		   {
-		   LOG("OutValues work.");
-		   }
-		 */
 		if (org_gnome_Rhythmbox_Shell_get_song_properties
 		    (db->rbShell, uri, &table, &err)) {
-			GValue *tmpArtist =
-			    g_hash_table_lookup(table, "artist");
+			GValue *tmpArtist = g_hash_table_lookup(table, "artist");
 			GValue *tmpAlbum = g_hash_table_lookup(table, "album");
 			GValue *tmpTitle = g_hash_table_lookup(table, "title");
 
@@ -130,15 +123,12 @@ static void rbCallback(DBusGProxy * proxy, const gchar * uri, gpointer thsPtr) {
 				gchar *str =
 				    g_filename_from_uri(uri, NULL, NULL);
 				if (str && str[0])
-					db->parent->
-					    FindAlbumArtByFilePath
-					    (db->parent->sd, str);
+					db->parent->FindAlbumArtByFilePath(db->parent->sd, str);
 				g_free(str);
 			}
 			if (bFound) {
 				// just assign here, scaling is done in callee
-				g_string_assign(db->parent->albumArt,
-						artLocation->str);
+				g_string_assign(db->parent->albumArt, artLocation->str);
 				LOG("Found :'%s'", artLocation->str);
 			}
 
