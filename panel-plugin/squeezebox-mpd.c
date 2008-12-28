@@ -85,7 +85,7 @@ END_PROP_MAP()
 void *MPD_attach(SPlayer * player);
 void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 			     gpointer thsPtr);
-
+gint mpdCallback(gpointer thsPtr);
 gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 
 	MKTHIS;
@@ -142,8 +142,12 @@ gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 
 gint mpdCallback(gpointer thsPtr) {
 	MKTHIS;
-	if (this->player != NULL)
-		mpd_status_update(this->player);
+	if (this->player != NULL) {
+		gint stat = mpd_status_update(this->player);
+		if(MPD_OK != stat) {
+			LOG("Unexpected mpd status %d", stat);
+		}
+	}
 	return TRUE;
 }
 
@@ -477,13 +481,16 @@ static void mpdSettingsDialogResponse(GtkWidget * dlg, int reponse,
 		g_string_assign(this->pmanager, tmpPManager);
 	}
     // reconnect if changed
-	if (0)	// this->bRequireReconnect )
+	if (this->bRequireReconnect )
 	{
 		LOG("    Reconnecting to %s/%s", tmpHost, this->host->str);
-		SPlayer *p = this->parent;
 		this->bRequireReconnect = FALSE;
-		mpdDetach(thsPtr);
-		MPD_attach(p);
+		if (this->player) {
+			mpd_disconnect(this->player);
+			mpd_free(this->player);
+			this->player = NULL;
+		}
+		mpdAssure(thsPtr, FALSE);
 		LOG("    Done reconnect.");
 	}
     
@@ -740,13 +747,13 @@ void *MPD_attach(SPlayer * parent) {
 	this->parent = parent;
 
 	// force our own update rate
-	if (parent->updateRateMS < 500)
-		parent->updateRateMS = 500;
+	if (parent->updateRateMS < 1000)
+		parent->updateRateMS = 1000;
 
 	// establish the callback function
 	this->intervalID =
-	    g_timeout_add(parent->updateRateMS, mpdCallback, this);
-    
+		g_timeout_add(this->parent->updateRateMS, mpdCallback, this);
+
     // initialize property addresses
     PROP_MAP("mpd_usedefault", &this->bUseDefault)
     PROP_MAP("mpd_port", &this->port)

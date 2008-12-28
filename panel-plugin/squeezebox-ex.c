@@ -129,11 +129,16 @@ static void exCallbackTrackChange(DBusGProxy * proxy, gpointer thsPtr) {
 		    }
 		    if (org_exaile_DBusInterface_get_cover_path
 			(db->exPlayer, &cover, NULL)) {
-			    if (g_file_test(cover, G_FILE_TEST_EXISTS))
+			    if (g_file_test(cover, G_FILE_TEST_EXISTS) && !g_str_has_suffix(cover, "/nocover.png")) {
 				    g_string_assign(db->parent->albumArt,
 						    cover);
-			    else
-				    g_string_truncate(db->parent->albumArt, 0);
+					LOG("Cover art: %s", cover);
+			    } else {
+			    	if(org_exaile_DBusInterface_get_track_attr(db->exPlayer, "loc", &db->lastTrack, NULL)) {
+						g_string_truncate(db->parent->albumArt, 0);
+						db->parent->FindAlbumArtByFilePath(db->parent->sd, db->lastTrack);
+			    	}
+			    }
 			    g_free(cover);
 			    act = TRUE;
 		    }
