@@ -59,7 +59,7 @@ fi
 
 dnl check for gvfs presence
 PKG_CHECK_MODULES([LIBGIO], 
-	[gio-unix-2.0 >= 2.18.0],
+	[gio-unix-2.0 >= 2.16.6],
 	have_gio=yes,
 	have_gio=no)
 if test x$have_gio = xyes ; then
@@ -69,7 +69,7 @@ if test x$have_gio = xyes ; then
 fi
 
 XDT_CHECK_PACKAGE([ID3TAG], [id3tag], [0.14])
-AC_ARG_ENABLE(ID3TAG,[  --enable-ID3TAG     disable ID3TAG support (default: disable)],[enable_ID3TAG=$enableval],[enable_ID3TAG=no])
+AC_ARG_ENABLE(ID3TAG,[  --disable-ID3TAG     disable ID3TAG support (default: enable)],[enable_ID3TAG=$enableval],[enable_ID3TAG=yes])
 if test x$enable_ID3TAG = xyes; then
 	AC_DEFINE(HAVE_ID3TAG,1,[Define to use ID3TAG])
     AC_SUBST([ID3TAG_CFLAGS])
