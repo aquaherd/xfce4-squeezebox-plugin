@@ -2,7 +2,7 @@
  *            squeezebox.c - frontend of xfce4-squeezebox-plugin
  *
  *  Fri Aug 25 17:20:09 2006
- *  Copyright  2006  Hakan Erduman
+ *  Copyright  2006-2009  Hakan Erduman
  *  Email Hakan.Erduman@web.de
  ****************************************************************************/
 
@@ -119,12 +119,11 @@ static void squeezebox_properties_dialog(XfcePanelPlugin * plugin,
 					 SqueezeBoxData * sd);
 static void squeezebox_construct(XfcePanelPlugin * plugin);
 
-//XFCE_PANEL_PLUGIN_REGISTER_INTERNAL (squeezebox_construct);
 
-/* Backend mapping */
+/* Backend import */
 const Backend* squeezebox_get_backends();
 #if HAVE_BACKEND_RHYTHMBOX
-IMPORT_DBUS_BACKEND(RB)
+	IMPORT_DBUS_BACKEND(RB)
 #endif
 #if HAVE_BACKEND_MPD
     IMPORT_BACKEND(MPD)
@@ -141,7 +140,11 @@ IMPORT_DBUS_BACKEND(RB)
 #if HAVE_BACKEND_CONSONANCE
     IMPORT_DBUS_BACKEND(CS)
 #endif
-    BEGIN_BACKEND_MAP()
+#if HAVE_BACKEND_BMPX
+    IMPORT_DBUS_BACKEND(BMP)
+#endif
+/* Backend mapping */
+BEGIN_BACKEND_MAP()
 #if HAVE_BACKEND_RHYTHMBOX
     DBUS_BACKEND(RB)
 #endif
@@ -160,7 +163,10 @@ IMPORT_DBUS_BACKEND(RB)
 #if HAVE_BACKEND_CONSONANCE
     DBUS_BACKEND(CS)
 #endif
-    END_BACKEND_MAP()
+#if HAVE_BACKEND_BMPX
+    DBUS_BACKEND(BMP)
+#endif
+END_BACKEND_MAP()
 
 /* internal functions */
 #define UNSET(t) sd->player.t = NULL
@@ -1883,4 +1889,5 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 
 }
 
+//XFCE_PANEL_PLUGIN_REGISTER_INTERNAL (squeezebox_construct);
 XFCE_PANEL_PLUGIN_REGISTER_EXTERNAL(squeezebox_construct);

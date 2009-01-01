@@ -1,5 +1,5 @@
 /***************************************************************************
- *            sqqueezebox-cs.c
+ *            squeezebox-cs.c
  *
  *  Sat Dec 06 22:00:00 2008
  *  Copyright  2008 by Hakan Erduman

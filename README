@@ -36,10 +36,12 @@ long term goal. Currently, one can select one in the plugin properties.
     - audacious 1.5.x (via DBUS)
     - exaile 0.2.14devel [r1629] (via DBUS, see README.exaile below)
     - consonance (via DBUS, polls)
+    - bmpx (via DBUS, can't pause)
     
     Queued backends:
-    - Xfmedia (future uncertain)
-    - Banshee (DBUS interface in flow yet)
+    - Muine
+    - Banshee
+    - Xfmedia (has no info)
     - decibel-audio-player (DBUS interface lacklustre)
     - listen (dito)
     - amarok (won't introduce DCOP dependency, awaiting DBUS interface)
@@ -51,7 +53,6 @@ long term goal. Currently, one can select one in the plugin properties.
     - Shuffle anything audio from a tracker query (should be nice)
     - xmms (need to catch up with reading)
     - xmms2 (dito)
-    - bmpx (dito)
 
     If not listed above:
     - anything GTK+-ish that plays audio and has a DBUS interface or
@@ -65,12 +66,19 @@ README.exaile
 =============
 I have reported the sorry state of the DBUS-interface on 2008-04-20.
 Nothing has yet emerged into the mainline bzr; the interface has gotten worse
-instead, so I can only support a specific version of exaile: 0.2.14devel [r1629]
-Thanks to Caio Alonso.
+instead, so I can fully support a specific version of exaile: 0.2.14devel [r1629]
+Thanks to Caio Alonso. If this version isn't detected, the backend will actively 
+poll for change detection causing constant noise on the dbus.
 
-You can get it here:
+
+You can get the best fit here:
 $ bzr branch lp:~caio-alonso/exaile/missing-signals
 
+
+=============
+README.bmpx
+=============
+Version 0.40 of bmpx ignores the pause command.
 
 ===============
 README.xubuntu:

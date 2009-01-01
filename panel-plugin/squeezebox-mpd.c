@@ -1,5 +1,5 @@
 /***************************************************************************
- *            rythmbox-mpd.c
+ *            squeezebox-mpd.c
  *
  *  Fri Aug 25 17:20:09 2006
  *  Copyright  2006  Hakan Erduman
@@ -408,7 +408,7 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 		if(this->bUseDefault)
 			conn = mpd_newConnection("localhost", 6600, 150);
 		else
-			conn = mpd_newConnection(this->host->str, this->port, 150);
+			conn = mpd_newConnection(this->host->str, this->port, 1500);
 		if(conn) {
 			g_hash_table_remove_all(this->parent->playLists);
 			mpd_sendLsInfoCommand(conn,ls);

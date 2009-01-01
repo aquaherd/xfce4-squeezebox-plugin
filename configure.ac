@@ -176,6 +176,11 @@ if test x$enable_consonance = xyes && test x$enable_DBUS = xyes; then
 	AC_DEFINE(HAVE_BACKEND_CONSONANCE,1,[Define to use consonance])
 fi
 
+AC_ARG_ENABLE(bmpx,[  --disable-bmpx     disable Beep Media PLayer support (default: enable)],[enable_bmpx=$enableval],[enable_bmpx=yes])
+if test x$enable_bmpx = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_BMPX,1,[Define to use Beep Media Player])
+fi
+
 dnl Translations
 XDT_I18N([de fr tr])
 
@@ -268,6 +273,12 @@ if test x$enable_consonance = xyes && test x$enable_DBUS = xyes; then
 	echo " consonance support ............enabled"
 else
 	echo " consonance support ............disabled"
+fi
+
+if test x$enable_bmpx = xyes && test x$enable_DBUS = xyes; then
+	echo " BMPX support ..................enabled"
+else
+	echo " BMPX support ..................disabled"
 fi
 
 echo ""

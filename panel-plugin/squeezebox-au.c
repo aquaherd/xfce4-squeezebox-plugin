@@ -1,5 +1,5 @@
 /***************************************************************************
- *            rythmbox-au.c
+ *            squeezebox-au.c
  *
  *  Sat Nov 29 23:00:09 2008
  *  Copyright  2008 by Hakan Erduman

@@ -1,16 +1,22 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define for debugging support */
+#undef DEBUG
+
 /* Set this to 1 to enable full trace debugging. */
 #undef DEBUG_TRACE
 
 /* always defined to indicate that i18n is enabled */
 #undef ENABLE_NLS
 
-/* Define to the Gettext package name */
+/* Name of default gettext domain */
 #undef GETTEXT_PACKAGE
 
 /* Define to use audacious */
 #undef HAVE_BACKEND_AUDACIOUS
+
+/* Define to use Beep Media Player */
+#undef HAVE_BACKEND_BMPX
 
 /* Define to use consonance */
 #undef HAVE_BACKEND_CONSONANCE
@@ -86,6 +92,10 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
 
 /* Name of package */
 #undef PACKAGE
