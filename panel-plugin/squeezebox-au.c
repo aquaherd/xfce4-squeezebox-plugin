@@ -43,7 +43,7 @@
 // pixmap
 #include "squeezebox-au.png.h"
 
-DEFINE_DBUS_BACKEND(AU, _("audacious 1.5.x"), "org.mpris.audacious", "audacious")
+DEFINE_DBUS_BACKEND(AU, _("Audacious"), "org.mpris.audacious", "audacious")
 
 typedef struct auData {
 	SPlayer *parent;

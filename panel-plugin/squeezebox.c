@@ -143,6 +143,9 @@ const Backend* squeezebox_get_backends();
 #if HAVE_BACKEND_BMPX
     IMPORT_DBUS_BACKEND(BMP)
 #endif
+#if HAVE_BACKEND_MUINE
+    IMPORT_DBUS_BACKEND(MU)
+#endif
 /* Backend mapping */
 BEGIN_BACKEND_MAP()
 #if HAVE_BACKEND_RHYTHMBOX
@@ -165,6 +168,9 @@ BEGIN_BACKEND_MAP()
 #endif
 #if HAVE_BACKEND_BMPX
     DBUS_BACKEND(BMP)
+#endif
+#if HAVE_BACKEND_MUINE
+    DBUS_BACKEND(MU)
 #endif
 END_BACKEND_MAP()
 

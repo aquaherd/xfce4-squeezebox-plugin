@@ -27,6 +27,9 @@
 /* Define to use MPD */
 #undef HAVE_BACKEND_MPD
 
+/* Define to use Muine */
+#undef HAVE_BACKEND_MUINE
+
 /* Define to use QL */
 #undef HAVE_BACKEND_QUODLIBET
 

@@ -70,7 +70,7 @@ BEGIN_PROP_MAP(CS)
 #define DBUS_SIG_SHOW_OSD   "show_osd"
 #define DBUS_SIG_ADD_FILE   "add_files"
 #define DBUS_METHOD_CURRENT_STATE "curent_state"
-    DEFINE_DBUS_BACKEND(CS, _("consonance 0.3.x"), DBUS_NAME, "consonance");
+    DEFINE_DBUS_BACKEND(CS, _("Consonance"), DBUS_NAME, "consonance");
 
 /* Send a signal to a running instance */
 void dbus_send_signal(const gchar * signal, void *thsPtr) {

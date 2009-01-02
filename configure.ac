@@ -181,6 +181,11 @@ if test x$enable_bmpx = xyes && test x$enable_DBUS = xyes; then
 	AC_DEFINE(HAVE_BACKEND_BMPX,1,[Define to use Beep Media Player])
 fi
 
+AC_ARG_ENABLE(muine,[  --disable-muine     disable Muine support (default: enable)],[enable_muine=$enableval],[enable_muine=yes])
+if test x$enable_muine = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_MUINE,1,[Define to use Muine])
+fi
+
 dnl Translations
 XDT_I18N([de fr tr])
 
@@ -279,6 +284,12 @@ if test x$enable_bmpx = xyes && test x$enable_DBUS = xyes; then
 	echo " BMPX support ..................enabled"
 else
 	echo " BMPX support ..................disabled"
+fi
+
+if test x$enable_muine = xyes && test x$enable_DBUS = xyes; then
+	echo " Muine support .................enabled"
+else
+	echo " Muine support .................disabled"
 fi
 
 echo ""

@@ -49,7 +49,7 @@
 // pixmap
 #include "squeezebox-rb.png.h"
 
-DEFINE_DBUS_BACKEND(RB, _("Rhythmbox 0.9.x"), "org.gnome.Rhythmbox", "ryhthmbox")
+DEFINE_DBUS_BACKEND(RB, _("Rhythmbox"), "org.gnome.Rhythmbox", "ryhthmbox")
 
 typedef struct rbData{
 	SPlayer *parent;
