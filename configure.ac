@@ -186,6 +186,11 @@ if test x$enable_muine = xyes && test x$enable_DBUS = xyes; then
 	AC_DEFINE(HAVE_BACKEND_MUINE,1,[Define to use Muine])
 fi
 
+AC_ARG_ENABLE(banshee,[  --disable-banshee     disable Banshee support (default: enable)],[enable_banshee=$enableval],[enable_banshee=yes])
+if test x$enable_banshee = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_BANSHEE,1,[Define to use Banshee])
+fi
+
 dnl Translations
 XDT_I18N([de fr tr])
 
@@ -290,6 +295,12 @@ if test x$enable_muine = xyes && test x$enable_DBUS = xyes; then
 	echo " Muine support .................enabled"
 else
 	echo " Muine support .................disabled"
+fi
+
+if test x$enable_banshee = xyes && test x$enable_DBUS = xyes; then
+	echo " Banshee support ...............enabled"
+else
+	echo " Banshee support ...............disabled"
 fi
 
 echo ""

@@ -146,6 +146,9 @@ const Backend* squeezebox_get_backends();
 #if HAVE_BACKEND_MUINE
     IMPORT_DBUS_BACKEND(MU)
 #endif
+#if HAVE_BACKEND_BANSHEE
+    IMPORT_DBUS_BACKEND(BA)
+#endif
 /* Backend mapping */
 BEGIN_BACKEND_MAP()
 #if HAVE_BACKEND_RHYTHMBOX
@@ -171,6 +174,9 @@ BEGIN_BACKEND_MAP()
 #endif
 #if HAVE_BACKEND_MUINE
     DBUS_BACKEND(MU)
+#endif
+#if HAVE_BACKEND_BANSHEE
+    DBUS_BACKEND(BA)
 #endif
 END_BACKEND_MAP()
 

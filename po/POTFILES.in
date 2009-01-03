@@ -7,5 +7,6 @@ panel-plugin/squeezebox-ex.c
 panel-plugin/squeezebox-cs.c
 panel-plugin/squeezebox-bmp.c
 panel-plugin/squeezebox-mu.c
+panel-plugin/squeezebox-ba.c
 panel-plugin/squeezebox.desktop.in.in
 

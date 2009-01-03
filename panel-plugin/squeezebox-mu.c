@@ -25,7 +25,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#ifdef HAVE_BACKEND_AUDACIOUS
+#ifdef HAVE_BACKEND_MUINE
 
 // default
 #include "squeezebox.h"
@@ -33,10 +33,6 @@
 // libdbus-glib for muine remote
 #include <dbus/dbus-glib.h>
 #include "muine-player-binding.h"
-
-#ifndef DBUS_TYPE_G_STRING_VALUE_HASHTABLE
-#define DBUS_TYPE_G_STRING_VALUE_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
-#endif
 
 #define MU_MAP(a) parent->a = mu##a;
 

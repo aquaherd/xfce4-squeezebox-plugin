@@ -15,6 +15,9 @@
 /* Define to use audacious */
 #undef HAVE_BACKEND_AUDACIOUS
 
+/* Define to use Banshee */
+#undef HAVE_BACKEND_BANSHEE
+
 /* Define to use Beep Media Player */
 #undef HAVE_BACKEND_BMPX
 
