@@ -314,6 +314,7 @@ muData *MU_attach(SPlayer * parent) {
 	NOMAP(SetRepeat);
 	NOMAP(GetShuffle);
 	NOMAP(SetShuffle);
+	NOMAP(UpdateWindow);
 
 	db = g_new0(muData, 1);
 	db->parent = parent;

@@ -380,6 +380,7 @@ auData *AU_attach(SPlayer * parent) {
 	AU_MAP(SetRepeat);
 	AU_MAP(GetShuffle);
 	AU_MAP(SetShuffle);
+	NOMAP(UpdateWindow);
 
 	db = g_new0(auData, 1);
 	db->parent = parent;

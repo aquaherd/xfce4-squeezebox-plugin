@@ -34,6 +34,8 @@
 #include <gdk/gdkx.h>
 
 #if HAVE_DBUS
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib-lowlevel.h>
 #include <dbus/dbus-glib.h>
 #endif
 
@@ -42,6 +44,10 @@
 #include <libxfce4panel/xfce-panel-convenience.h>
 #define EXO_API_SUBJECT_TO_CHANGE
 #include <exo/exo.h>
+
+#define WNCK_I_KNOW_THIS_IS_UNSTABLE
+#include <libwnck/libwnck.h>
+
 typedef enum eSynoptics{
 	estPlay = 0,
 	estPause = 1,
@@ -79,6 +85,7 @@ typedef struct SPlayer{
 #endif
 	void(* Persist)(gpointer thsPtr, gboolean bIsStoring);
 	void(* Configure)(gpointer thsPtr, GtkWidget *parent);
+	void(* UpdateWindow)(gpointer thsPtr, WnckWindow *window, gboolean appeared);
 	
 	// data provided by backend
 	GString *artist;
@@ -100,6 +107,7 @@ typedef struct SPlayer{
     DBusGProxy		*dbService;
     gboolean(* StartService)(gpointer thsPlayer);
 #endif
+	guint playerPID;
 
 	// frontend callbacks
 	void(* Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State, 
@@ -109,7 +117,6 @@ typedef struct SPlayer{
     void(* UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
     void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
     void(* AddSubItem)(gpointer thsPlayer, gpointer newPlayer);
-    void(* MonitorFile)(gpointer thsPlayer, GString filePath); 
     void(* FindAlbumArtByFilePath)(gpointer thsPlayer, const gchar * path);
     void(* MapProperty)(gpointer thsPlayer, const gchar *propName, gpointer address);
 }SPlayer;
@@ -169,6 +176,51 @@ typedef struct Backend{
     	return c; \
 	}    
 #define DBUS_BACKEND(t) {dbusBackend, t##_attach, t##_name, t##_icon, t##_properties, t##_dbusName, t##_commandLine},
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_DBus_get_connection_unix_process_id (DBusGProxy *proxy, const char * IN_arg0, guint* OUT_arg1, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetConnectionUnixProcessID", error, G_TYPE_STRING, IN_arg0, G_TYPE_INVALID, G_TYPE_UINT, OUT_arg1, G_TYPE_INVALID);
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_DBus_get_name_owner (DBusGProxy *proxy, const char * IN_arg0, char ** OUT_arg1, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetNameOwner", error, G_TYPE_STRING, IN_arg0, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg1, G_TYPE_INVALID);
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_DBus_start_service_by_name (DBusGProxy *proxy, const char * IN_arg0, const guint IN_arg1, guint* OUT_arg2, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "StartServiceByName", error, G_TYPE_STRING, IN_arg0, G_TYPE_UINT, IN_arg1, G_TYPE_INVALID, G_TYPE_UINT, OUT_arg2, G_TYPE_INVALID);
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_DBus_name_has_owner (DBusGProxy *proxy, const char * IN_arg0, gboolean* OUT_arg1, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "NameHasOwner", error, G_TYPE_STRING, IN_arg0, G_TYPE_INVALID, G_TYPE_BOOLEAN, OUT_arg1, G_TYPE_INVALID);
+}
+
 #endif
 
 #define BEGIN_BACKEND_MAP() const Backend* squeezebox_get_backends() \

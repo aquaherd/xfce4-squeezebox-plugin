@@ -737,6 +737,7 @@ void *MPD_attach(SPlayer * parent) {
 	MPD_MAP(SetRepeat);
 	MPD_MAP(GetShuffle);
 	MPD_MAP(SetShuffle);
+	NOMAP(UpdateWindow);
 
 	this->host = g_string_new("");
 	this->pass = g_string_new("");

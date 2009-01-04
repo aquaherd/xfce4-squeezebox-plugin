@@ -120,6 +120,12 @@ if test x$enable_libnotify = xyes ; then
     AC_SUBST(NOTIFY_LIBS)
 fi
 
+dnl Checking for libwnck
+XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.14.3])
+AC_SUBST([LIBWNCK_CFLAGS])
+AC_SUBST([LIBWNCK_LIBS])
+
+
 dnl Add backends here
 AC_ARG_ENABLE(rhythmbox,[  --disable-rhythmbox     disable rhythmbox support (default: enable)],[enable_rhythmbox=$enableval],[enable_rhythmbox=yes])
 if test x$enable_rhythmbox = xyes && test x$enable_DBUS = xyes; then
@@ -155,10 +161,6 @@ if test x$enable_quodlibet = xyes; then
 	XDT_CHECK_PACKAGE([THUNARVFS], [thunar-vfs-1], [0.4.0])
 	AC_SUBST([THUNARVFS_CFLAGS])
 	AC_SUBST([THUNARVFS_LIBS])
-	dnl Checking for libwnck
-	XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.14.3])
-	AC_SUBST([LIBWNCK_CFLAGS])
-	AC_SUBST([LIBWNCK_LIBS])
 fi
 
 AC_ARG_ENABLE(audacious,[  --disable-audacious     disable audacious support (default: enable)],[enable_audacious=$enableval],[enable_audacious=yes])

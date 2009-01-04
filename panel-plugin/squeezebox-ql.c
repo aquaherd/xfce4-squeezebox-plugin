@@ -38,8 +38,6 @@
 #include <glib/gstdio.h>
 
 #include <thunar-vfs/thunar-vfs.h>
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE
-#include <libwnck/libwnck.h>
 
 // pixmap
 #include "squeezebox-ql.png.h"
@@ -514,6 +512,7 @@ void *QL_attach(SPlayer * parent) {
 	QL_MAP(SetRepeat);
 	QL_MAP(GetShuffle);
 	QL_MAP(SetShuffle);
+	NOMAP(UpdateWindow);
 
 	// we init default values 
 	this->parent = parent;

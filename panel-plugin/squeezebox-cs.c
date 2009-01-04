@@ -383,6 +383,7 @@ csData *CS_attach(SPlayer * parent) {
 	NOMAP(SetRepeat);
 	NOMAP(GetShuffle);
 	NOMAP(SetShuffle);
+	NOMAP(UpdateWindow);
 
 	db = g_new0(csData, 1);
 	db->parent = parent;

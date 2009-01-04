@@ -97,6 +97,8 @@ typedef struct SqueezeBoxData{
     // property handling
     GHashTable *properties;
     GHashTable *propertyAddresses;
+    
+    WnckScreen *wnckScreen;
 } SqueezeBoxData;
 
 /* some small helpers - unused for now
@@ -107,6 +109,12 @@ static void config_toggle_next(GtkToggleButton * tb, SqueezeBoxData * sd);
 static void config_toggle_prev(GtkToggleButton * tb, SqueezeBoxData * sd);
 static void
 squeezebox_update_grab(gboolean bGrab, gboolean bShowErr, SqueezeBoxData * sd);
+#if HAVE_DBUS
+static void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
+				   const gchar * OldOwner,
+				   const gchar * NewOwner,
+				   SqueezeBoxData * sd);
+#endif
 
 void on_keyPrev_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
@@ -280,13 +288,16 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
     if(dbusBackend == ptr->BACKEND_TYPE) {
     	// this type must have ptr->BACKEND_dbusName && sd->player.UpdateDBUS
 		const gchar *dbusName = ptr->BACKEND_dbusName();
-		gboolean activated = FALSE;
+		gboolean hasOwner = FALSE;
 		GError *error = NULL;
-		if(dbus_g_proxy_call(sd->player.dbService, "NameHasOwner", &error,
-			G_TYPE_STRING, dbusName, G_TYPE_INVALID,
-			G_TYPE_BOOLEAN, &activated, G_TYPE_INVALID)) {
-			LOG("Fake DBusAppearance %s %s", dbusName, (activated)?"True":"False");
-			sd->player.UpdateDBUS(sd->player.db, activated);
+		if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, dbusName, &hasOwner, NULL)) {
+			if(hasOwner) {
+				gchar *ownerName = NULL;
+				org_freedesktop_DBus_get_name_owner(sd->player.dbService, dbusName, &ownerName, NULL);
+				squeezebox_dbus_update(sd->player.dbService, dbusName, "", ownerName, sd);
+			} else {
+				squeezebox_dbus_update(sd->player.dbService, dbusName, "zzz", "", sd);
+			}
 		} else {
 			LOGWARN("Can't ask DBUS: %s", error->message);
 			g_error_free(error);
@@ -369,6 +380,19 @@ static gboolean on_timer(gpointer thsPlayer) {
 	return TRUE;
 }
 
+void on_window_opened(WnckScreen * screen, WnckWindow * window, SqueezeBoxData *sd) {
+	if(sd->player.playerPID && sd->player.UpdateWindow ) 
+		if(sd->player.playerPID == wnck_window_get_pid (window))
+			sd->player.UpdateWindow(sd->player.db, window, TRUE);
+}
+
+void on_window_closed(WnckScreen * screen, WnckWindow * window, SqueezeBoxData *sd) {
+	if(sd->player.playerPID && sd->player.UpdateWindow ) 
+		if(sd->player.playerPID == wnck_window_get_pid (window))
+			sd->player.UpdateWindow(sd->player.db, window, FALSE);
+}
+
+
 static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	LOG("show_toaster ");
 	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
@@ -388,7 +412,8 @@ static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 
 	if (bAct) {
 		GString *albumArt = g_string_new(sd->player.albumArt->str);
-		gchar *ntTitle = sd->player.title->str;
+		gchar *ntTitle = 
+			g_markup_printf_escaped("%s", sd->player.title->str);
 		//happily, we easily can escape ampersands and other usual suspects.
 		gchar *ntDetails =
 		    g_markup_printf_escaped("by <b>%s</b>\nfrom <i>%s</i>\n",
@@ -457,7 +482,7 @@ static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 
 			sd->timerCount = sd->notifytimeout;
 		}
-		//g_free(ntTitle);
+		g_free(ntTitle);
 		g_free(ntDetails);
 		g_string_free(albumArt, TRUE);
 	}
@@ -1483,6 +1508,9 @@ gboolean on_btn_clicked(GtkWidget * button, GdkEventButton * event,
 						       sd->player.
 						       GetShuffle(sd->player.
 								  db));
+		if(NULL != sd->player.IsVisible)
+			squeezebox_update_visibility(sd,
+						     sd->player.IsVisible(sd->player.db));
 		sd->noUI = FALSE;
 	} else if (2 == event->button) {
         LOG("MiddleClick");
@@ -1493,9 +1521,7 @@ gboolean on_btn_clicked(GtkWidget * button, GdkEventButton * event,
 			sd->player.Show(sd->player.db,
 					!sd->player.IsVisible(sd->player.db));
 			squeezebox_update_visibility(sd,
-						     sd->player.IsVisible(sd->
-									  player.
-									  db));
+						     sd->player.IsVisible(sd->player.db));
 		}
 	}
 	return FALSE;
@@ -1735,11 +1761,18 @@ static void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 			gboolean appeared = (NULL != NewOwner
 					     && 0 != NewOwner[0]);
 			const gchar *dbusName = ptr->BACKEND_dbusName();
-			if (sd->player.UpdateDBUS
-			    && !g_ascii_strcasecmp(Name, dbusName)) {
+			if (!g_ascii_strcasecmp(Name, dbusName)) {
 				LOG("DBUS name change %s: '%s'->'%s'", Name,
 				    OldOwner, NewOwner);
-				sd->player.UpdateDBUS(sd->player.db, appeared);
+				if(sd->player.UpdateDBUS)	
+					sd->player.UpdateDBUS(sd->player.db, appeared);
+				sd->player.playerPID = 0;
+				if(appeared 
+				    && org_freedesktop_DBus_get_connection_unix_process_id(
+					sd->player.dbService, NewOwner, &sd->player.playerPID, NULL)
+					&& sd->player.playerPID) {
+					
+				}
 			}
 		}
 	}
@@ -1751,14 +1784,14 @@ static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 	gboolean bRet = TRUE;
 	Backend const *ptr = &squeezebox_get_backends()[sd->backend -1];
 	
-	LOG("\tstarting new instance");
+	LOG("Starting new instance of '%s'", ptr->BACKEND_dbusName());
 	if (!dbus_g_proxy_call(sd->player.dbService, "StartServiceByName", &error,
 			 G_TYPE_STRING, ptr->BACKEND_dbusName(),
 			 G_TYPE_UINT, 0, G_TYPE_INVALID,
 			 G_TYPE_UINT, &start_service_reply,
 			 G_TYPE_INVALID)) {
 		bRet = FALSE;
-		LOGWARN("Could'n start service '%s'", error->message);
+		LOG("Could'n start service '%s'", error->message);
 		g_error_free(error);
 		gchar *path = g_find_program_in_path(ptr->BACKEND_commandLine());
 		if(NULL != path) {
@@ -1770,6 +1803,7 @@ static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 			bRet = g_spawn_async(NULL, (gchar**)argv, NULL, 
 				G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL,
 				NULL, NULL, NULL, NULL);
+			LOG("Spawn '%s' %s", path, (bRet)?"OK.":"failed.");
 		}
 	}
 	return bRet;
@@ -1817,7 +1851,6 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 					    sd, NULL);
 	}
 #endif
-	sd->player.MonitorFile = NULL;	//tbd
 	sd->player.FindAlbumArtByFilePath =
 	    squeezebox_find_albumart_by_filepath;
     sd->player.MapProperty = squeezebox_map_property;
@@ -1828,6 +1861,16 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 	sd->inCreate = TRUE;
 #endif
 	sd->toolTipText = g_string_new("");
+	sd->wnckScreen =
+	    wnck_screen_get(gdk_screen_get_number(gdk_screen_get_default()));
+
+	/* wnck */
+	g_signal_connect(sd->wnckScreen, "window_opened",
+			 G_CALLBACK(on_window_opened), sd);
+
+	g_signal_connect(sd->wnckScreen, "window_closed",
+			 G_CALLBACK(on_window_closed), sd);
+	
 
 	squeezebox_create(sd);
 
