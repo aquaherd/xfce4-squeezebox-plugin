@@ -32,15 +32,15 @@ long term goal. Currently, one can select one in the plugin properties.
     Currently available backends: (in order of appearance)
     - Rhythmbox 0.95 (via DBUS)
     - Music Player Daemon (via libmpd)
-    - QuodLibet (via pipe)
+    - QuodLibet (via pipe and DBUS)
     - audacious 1.5.x (via DBUS)
     - exaile 0.2.14devel [r1629] (via DBUS, see README.exaile below)
     - consonance (via DBUS, polls)
     - bmpx (via DBUS, can't pause)
+    - muine (via DBUS)
+    - banshee (via DBUS)
     
     Queued backends:
-    - Muine
-    - Banshee
     - Xfmedia (has no info)
     - decibel-audio-player (DBUS interface lacklustre)
     - listen (dito)
