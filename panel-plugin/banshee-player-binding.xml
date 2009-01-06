@@ -42,20 +42,4 @@
     <property name="CanPause" type="b" access="read" />
     <property name="Length" type="u" access="read" />
   </interface>
-  <interface name="org.freedesktop.DBus.Properties">
-    <method name="Get">
-      <arg name="interface" direction="in" type="s"/>
-      <arg name="propname" direction="in" type="s"/>
-      <arg name="value" direction="out" type="v"/>
-    </method>
-    <method name="Set">
-      <arg name="interface" direction="in" type="s"/>
-      <arg name="propname" direction="in" type="s"/>
-      <arg name="value" direction="in" type="v"/>
-    </method>
-    <method name="GetAll">
-      <arg name="interface" direction="in" type="s"/>
-      <arg name="props" direction="out" type="a{sv}"/>
-    </method>
-  </interface>
 </node>

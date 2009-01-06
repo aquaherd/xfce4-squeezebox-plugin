@@ -50,12 +50,9 @@ DEFINE_DBUS_BACKEND(QL, _("QuodLibet"), "net.sacredchao.QuodLibet", "quodlibet")
 #define QL_MAP(a) parent->a = ql##a;
 #define MKTHIS qlData *this = (qlData *)thsPtr;
 #define QL_FIFO_PATH "/.quodlibet/control"
-#define QL_STAT_PATH "/.quodlibet/current"
+//#define QL_STAT_PATH "/.quodlibet/current"
 #define QL_ALBUM_ART_PATH "/.quodlibet/current.cover"
-#define QL_FREE(t)     if(this->t) { \
-        g_free(this->t); \
-        this->t = NULL; \
-    } \
+#define QL_FREE(t) if(this->t) { g_free(this->t); this->t = NULL; }
 
 typedef struct qlData {
 	SPlayer *parent;
@@ -73,17 +70,24 @@ typedef struct qlData {
 
 // MFCish property map -- currently none
 BEGIN_PROP_MAP(QL)
-    END_PROP_MAP()
+END_PROP_MAP()
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
-gboolean
-qlCurrentSong (DBusGProxy *proxy, GHashTable** OUT_songProps, GError **error) {
-  return dbus_g_proxy_call (proxy, "CurrentSong", error, G_TYPE_INVALID, dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_STRING), OUT_songProps, G_TYPE_INVALID);
+static gboolean ql_CurrentSong (DBusGProxy *proxy, GHashTable** OUT_songProps) {
+	return dbus_g_proxy_call(proxy, "CurrentSong", NULL, G_TYPE_INVALID, 
+		DBUS_TYPE_G_STRING_STRING_HASHTABLE, OUT_songProps, G_TYPE_INVALID);
 }
 
+static gboolean ql_Next(DBusGProxy *proxy) {
+	return dbus_g_proxy_call(proxy, "Next", NULL, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+static gboolean ql_Previous(DBusGProxy *proxy) {
+	return dbus_g_proxy_call(proxy, "Previous", NULL, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+static gboolean ql_PlayPause(DBusGProxy *proxy) {
+	return dbus_g_proxy_call(proxy, "PlayPause", NULL, G_TYPE_INVALID, G_TYPE_INVALID);
+}
 
 void *QL_attach(SPlayer * parent);
 void qlStatus(gpointer thsPtr, const gchar * args);
@@ -106,42 +110,40 @@ static void qlCallbackUnpaused(DBusGProxy * proxy, gpointer thsPtr) {
 static void qlCallbackSongStarted(DBusGProxy * proxy, GHashTable *table, gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter qlCallback: SongStarted");
+	const gchar *unknown = _("[Unknown]");
 	gchar *tmpArtist = g_hash_table_lookup(table, "artist");
 	gchar *tmpAlbum = g_hash_table_lookup(table, "album");
 	gchar *tmpTitle = g_hash_table_lookup(table, "title");
 
-	const gchar *unknown = _("[Unknown]");
 	if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
-		g_string_assign(this->parent->albumArt,
-				this->cover);
+		g_string_assign(this->parent->albumArt, this->cover);
 	else
 		g_string_assign(this->parent->albumArt, "");
 
-	g_string_assign(this->parent->artist,
-			(tmpArtist) ? tmpArtist : unknown);
-	g_string_assign(this->parent->album,
-			(tmpAlbum) ? tmpAlbum : unknown);
-	g_string_assign(this->parent->title,
-			(tmpTitle) ? tmpTitle : unknown);
+	g_string_assign(this->parent->artist, (tmpArtist) ? tmpArtist : unknown);
+	g_string_assign(this->parent->album, (tmpAlbum) ? tmpAlbum : unknown);
+	g_string_assign(this->parent->title, (tmpTitle) ? tmpTitle : unknown);
 
 	this->parent->Update(this->parent->sd, TRUE,
-			 (this->isPlaying) ? estPlay :
-			 estPause, NULL);
+			 (this->isPlaying) ? estPlay : estPause, NULL);
 	LOG("Leave qlCallback: SongStarted");
 }
 
 static void qlCallbackFake(gpointer thsPtr) {
 	MKTHIS;
+	LOG("Enter qlCallback: Fake");
 	GHashTable *table = NULL;
-	if(qlCurrentSong(this->qlPlayer, &table, NULL) && table){
+	if(ql_CurrentSong(this->qlPlayer, &table) && table){
 		qlCallbackSongStarted(this->qlPlayer, table, thsPtr);
 		g_hash_table_destroy(table);
 	}
+	// update status
+	qlStatus(this, "--status");
+	LOG("Enter qlCallback: Fake");
 }
 
 gboolean qlAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
-	gboolean bRet = TRUE;
 	LOG("Enter qlAssure");
 	if (this->parent->bus && !this->qlPlayer) {
 		GError *error = NULL;
@@ -155,52 +157,39 @@ gboolean qlAssure(gpointer thsPtr, gboolean noCreate) {
 				error->message);
 			g_error_free(error);
 			error = NULL;
-			if (noCreate)
-				bRet = FALSE;
-			else {
-				bRet = this->parent->StartService(this->parent->sd);
-			}
+			if (!noCreate)
+				this->parent->StartService(this->parent->sd);
 		}
 		if (this->qlPlayer) {
 			// state changes
 			dbus_g_proxy_add_signal(this->qlPlayer, "Paused",
 						G_TYPE_INVALID);
-			dbus_g_proxy_connect_signal(this->qlPlayer,
-						    "Paused",
-						    G_CALLBACK
-						    (qlCallbackPaused),
-						    this, NULL);
+			dbus_g_proxy_connect_signal(this->qlPlayer, "Paused", 
+						G_CALLBACK (qlCallbackPaused), this, NULL);
 
 			dbus_g_proxy_add_signal(this->qlPlayer, "Unpaused",
 						G_TYPE_INVALID);
-			dbus_g_proxy_connect_signal(this->qlPlayer,
-						    "Unpaused",
-						    G_CALLBACK
-						    (qlCallbackUnpaused),
-						    this, NULL);
+			dbus_g_proxy_connect_signal(this->qlPlayer, "Unpaused", 
+						G_CALLBACK (qlCallbackUnpaused), this, NULL);
 
 			//  song change
 			dbus_g_proxy_add_signal(this->qlPlayer, "SongStarted",
-						DBUS_TYPE_G_STRING_STRING_HASHTABLE,
-						G_TYPE_INVALID);
+						DBUS_TYPE_G_STRING_STRING_HASHTABLE, G_TYPE_INVALID);
 			dbus_g_proxy_connect_signal(this->qlPlayer, "SongStarted",
-						    G_CALLBACK
-						    (qlCallbackSongStarted), this,
-						    NULL);
-			// command queue
-			if (!this->fp) {
-				if (g_file_test(this->fifo, G_FILE_TEST_EXISTS)) {
-					LOG("Opening %s", this->fifo);
-					this->fp = g_fopen(this->fifo, "w");
-					LOG("%s", (this->fp) ? " OK" : " KO");
-				} else
-					bRet = FALSE;
-			}
+						    G_CALLBACK (qlCallbackSongStarted), this, NULL);
 			
 		}
 	}
-	LOG("Leave qlAssure %s", (bRet)?"OK":"KO");
-	return bRet;
+	// command queue
+	if (!this->fp) {
+		if (g_file_test(this->fifo, G_FILE_TEST_EXISTS)) {
+			LOG("Opening %s", this->fifo);
+			this->fp = g_fopen(this->fifo, "w");
+			LOG("%s", (this->fp) ? " OK" : " KO");
+		} 
+	}
+	LOG("Leave qlAssure");
+	return (NULL != this->qlPlayer && 0 != this->fp);
 }
 
 gboolean qlPrintFlush(FILE * fp, const char *str) {
@@ -215,9 +204,7 @@ gboolean qlNext(gpointer thsPtr) {
 	gboolean bRet = FALSE;
 	LOG("Enter qlNext");
 	if (qlAssure(this, FALSE))
-		bRet = qlPrintFlush(this->fp, "next");
-	else
-		bRet = FALSE;
+		bRet = ql_Next(this->qlPlayer);
 	LOG("Leave qlNext");
 	return bRet;
 }
@@ -227,9 +214,7 @@ gboolean qlPrevious(gpointer thsPtr) {
 	gboolean bRet = FALSE;
 	LOG("Enter qlPrevious");
 	if (qlAssure(this, FALSE))
-		bRet = qlPrintFlush(this->fp, "previous");
-	else
-		bRet = FALSE;
+		bRet = ql_Previous(this->qlPlayer);
 	LOG("Leave qlPrevious");
 	return bRet;
 }
@@ -239,12 +224,7 @@ gboolean qlPlayPause(gpointer thsPtr, gboolean newState) {
 	LOG("Enter qlPlayPause");
 	gboolean bRet = FALSE;
 	if (qlAssure(this, FALSE))
-		bRet = qlPrintFlush(this->fp, "play-pause");
-	else {
-		LOG("Running...");
-		xfce_exec("quodlibet", FALSE, TRUE, NULL);
-		bRet = FALSE;
-	}
+		bRet = ql_PlayPause(this->qlPlayer);
 	LOG("LEAVE qlPlayPause");
 	return bRet;
 }
@@ -257,23 +237,17 @@ gboolean qlIsPlaying(gpointer thsPtr) {
 void qlStatus(gpointer thsPtr, const gchar * args) {
 	MKTHIS;
 	gchar *outText = NULL;
-	const gchar *argv[] = {
-		this->bin,
-		args,
-		NULL
-	};
+	const gchar *argv[] = { this->bin, args, NULL };
 	gint exit_status = 0;
 	this->isPlaying = TRUE;
-	if (g_spawn_sync(NULL, (gchar **) argv, NULL,
-			 G_SPAWN_STDERR_TO_DEV_NULL,
+	if (g_spawn_sync(NULL, (gchar **) argv, NULL, G_SPAWN_STDERR_TO_DEV_NULL,
 			 NULL, NULL, &outText, NULL, &exit_status, NULL)) {
 
 		LOG("QL says: '%s'", outText);
 		// QL generally says things like "paused AlbumList 1.000 inorder off"
 		if (strlen(outText)) {
 			gchar *ptr = strtok(outText, " ");
-			this->isPlaying =
-			    !g_ascii_strncasecmp(ptr, "playing", 7);
+			this->isPlaying = !g_ascii_strncasecmp(ptr, "playing", 7);
 			this->parent->Update(this->parent->sd, FALSE, (this->isPlaying) ? 
 				estPlay : estPause, NULL);
 			if ((ptr = strtok(NULL, " "))) {
@@ -282,14 +256,14 @@ void qlStatus(gpointer thsPtr, const gchar * args) {
 					//1.000 whatever
 					if ((ptr = strtok(NULL, " "))) {
 						//shuffle
-						this->isShuffle = 
-							g_ascii_strncasecmp(ptr, "inorder",7);
+						this->isShuffle = g_ascii_strncasecmp(
+												ptr, "inorder",7);
 						this->parent->UpdateShuffle(
 							this->parent->sd, this->isShuffle);
 						if ((ptr = strtok(NULL, " "))) {
 							//repeat
-							this->isRepeat =
-							    g_ascii_strncasecmp(ptr, "off", 2);
+							this->isRepeat = g_ascii_strncasecmp(
+													ptr, "off", 2);
 							this->parent->UpdateRepeat(
 								this->parent->sd, this->isRepeat);
 						}
@@ -309,10 +283,6 @@ gboolean qlToggle(gpointer thsPtr, gboolean * newState) {
 	LOG("Enter qlToggle");
 	if (qlAssure(this, FALSE)) {
 		bRet = qlPrintFlush(this->fp, "play-pause");
-	} else {
-		LOG("Executing...");
-		xfce_exec("quodlibet", FALSE, TRUE, NULL);
-		bRet = FALSE;
 	}
 	LOG("Leave qlToggle");
 	return bRet;
@@ -329,14 +299,6 @@ gboolean qlDetach(gpointer thsPtr) {
     QL_FREE(cover);
     QL_FREE(bin);
 	if (this->qlPlayer) {
-			dbus_g_proxy_disconnect_signal(this->qlPlayer, "Paused",
-						    G_CALLBACK(qlCallbackPaused), this);
-
-			dbus_g_proxy_disconnect_signal(this->qlPlayer, "Unpaused",
-						    G_CALLBACK(qlCallbackUnpaused), this);
-
-			dbus_g_proxy_disconnect_signal(this->qlPlayer, "SongStarted",
-						    G_CALLBACK(qlCallbackSongStarted), this);
 		g_object_unref(G_OBJECT(this->qlPlayer));
 		this->qlPlayer = NULL;
 	}
@@ -358,9 +320,7 @@ gboolean qlSetRepeat(gpointer thsPtr, gboolean newRepeat) {
 	if (qlAssure(this, FALSE)) {
 		qlStatus(thsPtr, (newRepeat) ? "--repeat=1" : "--repeat=0");
 		bRet = TRUE;
-	} else {
-		bRet = FALSE;
-	}
+	} 
 	LOG("LEAVE qlSetRepeat");
 	return bRet;
 }
@@ -379,8 +339,6 @@ gboolean qlSetShuffle(gpointer thsPtr, gboolean newShuffle) {
 		qlStatus(thsPtr, (newShuffle) ?
 			 "--order=shuffle" : "--order=inorder");
 		bRet = TRUE;
-	} else {
-		bRet = FALSE;
 	}
 	LOG("LEAVE qlSetShuffle");
 	return bRet;
@@ -396,9 +354,7 @@ gboolean qlShow(gpointer thsPtr, gboolean bShow) {
 	LOG("Enter qlShow");
 	gboolean bRet = FALSE;
 	if (qlAssure(this, FALSE))
-		bRet = qlPrintFlush(this->fp, "toggle-window\n");
-	else
-		bRet = FALSE;
+		bRet = qlPrintFlush(this->fp, "toggle-window");
 	LOG("Leave qlShow");
 	return bRet;
 }
@@ -465,12 +421,6 @@ void *QL_attach(SPlayer * parent) {
 	this->cover = g_strdup_printf("%s%s", homePath, QL_ALBUM_ART_PATH);
     this->bin = g_find_program_in_path("quodlibet");
     
-	// update data
-	if (qlAssure(this, TRUE)) {
-		qlStatus(this, "--status");
-	} else {
-		this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
-	}
 	LOG("Leave QL_attach");
 	return this;
 }

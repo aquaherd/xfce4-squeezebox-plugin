@@ -1185,7 +1185,6 @@ squeezebox_update_grab(gboolean bGrab, gboolean bShowErr, SqueezeBoxData * sd) {
 			LOG("unref-");
 			g_object_unref(sd->mmkeys);
 			sd->mmkeys = NULL;
-			LOG("-");
 		}
 	}
 }
