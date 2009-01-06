@@ -37,12 +37,15 @@
 #include <string.h>
 #include <glib/gstdio.h>
 
-#include <thunar-vfs/thunar-vfs.h>
-
 // pixmap
 #include "squeezebox-ql.png.h"
 
-DEFINE_BACKEND(QL, _("QuodLibet"))
+#ifndef DBUS_TYPE_G_STRING_STRING_HASHTABLE
+#define DBUS_TYPE_G_STRING_STRING_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_STRING))
+#endif
+
+
+DEFINE_DBUS_BACKEND(QL, _("QuodLibet"), "net.sacredchao.QuodLibet", "quodlibet")
 /* --- */
 #define QL_MAP(a) parent->a = ql##a;
 #define MKTHIS qlData *this = (qlData *)thsPtr;
@@ -59,171 +62,145 @@ typedef struct qlData {
 	gpointer *player;
 	FILE *fp;
 	gchar *fifo;
-	gchar *stat;
 	gchar *cover;
     gchar *bin;
-	ThunarVfsPath *statPath;
-	ThunarVfsMonitorHandle *statMon;
-	GHashTable *current;
 	gboolean isPlaying;
 	gboolean isVisible;
 	gboolean isShuffle;
 	gboolean isRepeat;
-	WnckScreen *wnckScreen;
-	gint connections[2];
+	DBusGProxy *qlPlayer;
 } qlData;
 
 // MFCish property map -- currently none
 BEGIN_PROP_MAP(QL)
     END_PROP_MAP()
 
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+qlCurrentSong (DBusGProxy *proxy, GHashTable** OUT_songProps, GError **error) {
+  return dbus_g_proxy_call (proxy, "CurrentSong", error, G_TYPE_INVALID, dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_STRING), OUT_songProps, G_TYPE_INVALID);
+}
+
+
 void *QL_attach(SPlayer * parent);
 void qlStatus(gpointer thsPtr, const gchar * args);
-
-void qlCurrentChanged(ThunarVfsMonitor * monitor,
-		      ThunarVfsMonitorHandle * handle,
-		      ThunarVfsMonitorEvent event,
-		      ThunarVfsPath * handle_path,
-		      ThunarVfsPath * event_path, gpointer thsPtr) {
-
-	char *fc = NULL;
-	const gchar *unknown = _("[Unknown]");
+static void qlCallbackPaused(DBusGProxy * proxy, gpointer thsPtr) {
 	MKTHIS;
-	switch (event) {
-	    case THUNAR_VFS_MONITOR_EVENT_CREATED:
-	    case THUNAR_VFS_MONITOR_EVENT_CHANGED:
-		    LOG("CHANGEDETECT...%s", this->stat);
-		    if (g_file_get_contents(this->stat, &fc, NULL, NULL)) {
-			    if (!this->current)
-				    this->current =
-					g_hash_table_new(g_str_hash,
-							 g_str_equal);
-			    gchar **set = g_strsplit_set(fc, "\n", -1);
-			    g_free(fc);
+	LOG("Enter qlCallback: Paused");
+	this->isPlaying = FALSE;
+	this->parent->Update(this->parent->sd, FALSE, estPause, NULL);	
+	LOG("Leave qlCallback: Paused");
+}
 
-			    LOG("...OK");
+static void qlCallbackUnpaused(DBusGProxy * proxy, gpointer thsPtr) {
+	MKTHIS;
+	LOG("Enter qlCallback: Unpaused");
+	this->isPlaying = TRUE;
+	this->parent->Update(this->parent->sd, FALSE, estPlay, NULL);	
+	LOG("Leave qlCallback: Unpaused");
+}
 
-			    gchar **ptr = set;
-			    do {
-				    gchar **line = g_strsplit_set(*ptr, "=", 2);
-				    gchar *key = g_strdup(line[0]);
-				    gchar *value = g_strdup(line[1]);
-				    //LOG(key); LOG("="); LOG(value); LOG("");
+static void qlCallbackSongStarted(DBusGProxy * proxy, GHashTable *table, gpointer thsPtr) {
+	MKTHIS;
+	LOG("Enter qlCallback: SongStarted");
+	gchar *tmpArtist = g_hash_table_lookup(table, "artist");
+	gchar *tmpAlbum = g_hash_table_lookup(table, "album");
+	gchar *tmpTitle = g_hash_table_lookup(table, "title");
 
-				    g_hash_table_replace(this->current, key,
-							 value);
-				    ptr++;
-				    g_strfreev(line);
-			    }
-			    while (**ptr);
-			    g_strfreev(set);
+	const gchar *unknown = _("[Unknown]");
+	if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
+		g_string_assign(this->parent->albumArt,
+				this->cover);
+	else
+		g_string_assign(this->parent->albumArt, "");
 
-			    gchar *tmpArtist =
-				    g_hash_table_lookup(this->current, "artist");
-			    gchar *tmpAlbum =
-				    g_hash_table_lookup(this->current, "album");
-			    gchar *tmpTitle =
-				    g_hash_table_lookup(this->current, "title");
+	g_string_assign(this->parent->artist,
+			(tmpArtist) ? tmpArtist : unknown);
+	g_string_assign(this->parent->album,
+			(tmpAlbum) ? tmpAlbum : unknown);
+	g_string_assign(this->parent->title,
+			(tmpTitle) ? tmpTitle : unknown);
 
-			    if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
-				    g_string_assign(this->parent->albumArt,
-						    this->cover);
-			    else
-				    g_string_assign(this->parent->albumArt, "");
+	this->parent->Update(this->parent->sd, TRUE,
+			 (this->isPlaying) ? estPlay :
+			 estPause, NULL);
+	LOG("Leave qlCallback: SongStarted");
+}
 
-			    g_string_assign(this->parent->artist,
-					    (tmpArtist) ? tmpArtist : unknown);
-			    g_string_assign(this->parent->album,
-					    (tmpAlbum) ? tmpAlbum : unknown);
-			    g_string_assign(this->parent->title,
-					    (tmpTitle) ? tmpTitle : unknown);
-
-			    this->parent->Update(this->parent->sd, TRUE,
-						 (this->isPlaying) ? estPlay :
-						 estPause, NULL);
-		    } else {
-			    LOG("...KO");
-			    g_string_assign(this->parent->artist, "");
-			    g_string_assign(this->parent->album, "");
-			    g_string_assign(this->parent->title, "");
-			    g_string_assign(this->parent->albumArt, "");
-			    this->parent->Update(this->parent->sd, FALSE,
-						 estStop, NULL);
-		    }
-		    break;
-	    case THUNAR_VFS_MONITOR_EVENT_DELETED:
-		    LOG("...fifo has died");
-		    g_string_assign(this->parent->artist, "");
-		    g_string_assign(this->parent->album, "");
-		    g_string_assign(this->parent->title, "");
-		    g_string_assign(this->parent->albumArt, "");
-		    this->parent->Update(this->parent->sd, FALSE, estStop,
-					 NULL);
-		    break;
+static void qlCallbackFake(gpointer thsPtr) {
+	MKTHIS;
+	GHashTable *table = NULL;
+	if(qlCurrentSong(this->qlPlayer, &table, NULL) && table){
+		qlCallbackSongStarted(this->qlPlayer, table, thsPtr);
+		g_hash_table_destroy(table);
 	}
 }
 
 gboolean qlAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
+	gboolean bRet = TRUE;
 	LOG("Enter qlAssure");
-	if (g_file_test(this->fifo, G_FILE_TEST_EXISTS)) {
-		if (!this->fp) {
-			LOG("Opening %s", this->fifo);
-			this->fp = g_fopen(this->fifo, "w");
-			LOG("%s", (this->fp) ? " OK" : " KO");
-
-			if (this->fp) {
-				GError *err = NULL;
-				LOG("enter VFS...");
-				this->statPath =
-				    thunar_vfs_path_new(this->stat, &err);
-				if (!this->statPath) {
-					LOG("...VFS KO '%s'", err->message);
-				} else {
-					LOG("...VFS OK");
-					ThunarVfsMonitor *monitor =
-					    thunar_vfs_monitor_get_default();
-
-					this->statMon =
-					    thunar_vfs_monitor_add_file(monitor,
-									this->statPath,
-									qlCurrentChanged,
-									thsPtr);
-					if (!this->statMon) {
-						LOG("VFS KO2");
-					} else {
-						LOG("VFS OK2");
-						/* --- this is too late for this->noUpdate
-						   thunar_vfs_monitor_feed(
-						   monitor,
-						   THUNAR_VFS_MONITOR_EVENT_CHANGED,
-						   this->statPath);
-						   --- we fake it instead.
-						 */
-						qlCurrentChanged(monitor,
-								 NULL,
-								 THUNAR_VFS_MONITOR_EVENT_CHANGED,
-								 this->statPath,
-								 this->statPath,
-								 thsPtr);
-					}
-				}
+	if (this->parent->bus && !this->qlPlayer) {
+		GError *error = NULL;
+		this->qlPlayer = dbus_g_proxy_new_for_name_owner(this->parent->bus,
+							       QL_dbusName(),
+							       "/net/sacredchao/QuodLibet",
+							       "net.sacredchao.QuodLibet",
+							       &error);
+		if (error) {
+			LOGWARN("\tCouldn't connect to shell proxy '%s' ",
+				error->message);
+			g_error_free(error);
+			error = NULL;
+			if (noCreate)
+				bRet = FALSE;
+			else {
+				bRet = this->parent->StartService(this->parent->sd);
 			}
 		}
-		LOG("Leave qlAssure OK");
-		return TRUE;
-	} else if (this->fp) {
-		LOG("Anomaly in qlAssure: FIFO disappeared!");
-		fclose(this->fp);
-		this->fp = NULL;
-		g_string_truncate(this->parent->artist, 0);
-		g_string_truncate(this->parent->album, 0);
-		g_string_truncate(this->parent->title, 0);
-		g_string_truncate(this->parent->albumArt, 0);
-		this->parent->Update(this->parent->sd, TRUE, estStop, NULL);
+		if (this->qlPlayer) {
+			// state changes
+			dbus_g_proxy_add_signal(this->qlPlayer, "Paused",
+						G_TYPE_INVALID);
+			dbus_g_proxy_connect_signal(this->qlPlayer,
+						    "Paused",
+						    G_CALLBACK
+						    (qlCallbackPaused),
+						    this, NULL);
+
+			dbus_g_proxy_add_signal(this->qlPlayer, "Unpaused",
+						G_TYPE_INVALID);
+			dbus_g_proxy_connect_signal(this->qlPlayer,
+						    "Unpaused",
+						    G_CALLBACK
+						    (qlCallbackUnpaused),
+						    this, NULL);
+
+			//  song change
+			dbus_g_proxy_add_signal(this->qlPlayer, "SongStarted",
+						DBUS_TYPE_G_STRING_STRING_HASHTABLE,
+						G_TYPE_INVALID);
+			dbus_g_proxy_connect_signal(this->qlPlayer, "SongStarted",
+						    G_CALLBACK
+						    (qlCallbackSongStarted), this,
+						    NULL);
+			// command queue
+			if (!this->fp) {
+				if (g_file_test(this->fifo, G_FILE_TEST_EXISTS)) {
+					LOG("Opening %s", this->fifo);
+					this->fp = g_fopen(this->fifo, "w");
+					LOG("%s", (this->fp) ? " OK" : " KO");
+				} else
+					bRet = FALSE;
+			}
+			
+		}
 	}
-	LOG("Leave qlAssure KO");
-	return FALSE;
+	LOG("Leave qlAssure %s", (bRet)?"OK":"KO");
+	return bRet;
 }
 
 gboolean qlPrintFlush(FILE * fp, const char *str) {
@@ -274,34 +251,7 @@ gboolean qlPlayPause(gpointer thsPtr, gboolean newState) {
 
 gboolean qlIsPlaying(gpointer thsPtr) {
 	MKTHIS;
-	qlStatus(thsPtr, "--status");
 	return this->isPlaying;
-}
-
-void qlWindowOpened(WnckScreen * screen, WnckWindow * window, gpointer thsPtr) {
-	MKTHIS;
-	const gchar *windowName = wnck_window_get_name(window);
-	if (windowName && windowName[0] == '[')	// minimized but visible
-		windowName++;
-	if (g_str_has_prefix(windowName, "Quod Libet")) {
-		this->isVisible = TRUE;
-		LOG("QL:Appeared");
-		this->parent->UpdateVisibility(this->parent->sd,
-					       this->isVisible);
-	}
-}
-
-void qlWindowClosed(WnckScreen * screen, WnckWindow * window, gpointer thsPtr) {
-	MKTHIS;
-	const gchar *windowName = wnck_window_get_name(window);
-	if (windowName && windowName[0] == '[')	// minimized but visible
-		windowName++;
-	if (g_str_has_prefix(windowName, "Quod Libet")) {
-		this->isVisible = FALSE;
-		LOG("QL:Disappeared");
-		this->parent->UpdateVisibility(this->parent->sd,
-					       this->isVisible);
-	}
 }
 
 void qlStatus(gpointer thsPtr, const gchar * args) {
@@ -319,45 +269,37 @@ void qlStatus(gpointer thsPtr, const gchar * args) {
 			 NULL, NULL, &outText, NULL, &exit_status, NULL)) {
 
 		LOG("QL says: '%s'", outText);
-
 		// QL generally says things like "paused AlbumList 1.000 inorder off"
-
 		if (strlen(outText)) {
 			gchar *ptr = strtok(outText, " ");
 			this->isPlaying =
 			    !g_ascii_strncasecmp(ptr, "playing", 7);
-			this->parent->Update(this->parent->sd, FALSE,
-					     (this->isPlaying) ? estPlay :
-					     estPause, NULL);
+			this->parent->Update(this->parent->sd, FALSE, (this->isPlaying) ? 
+				estPlay : estPause, NULL);
 			if ((ptr = strtok(NULL, " "))) {
 				//current view
 				if ((ptr = strtok(NULL, " "))) {
 					//1.000 whatever
 					if ((ptr = strtok(NULL, " "))) {
 						//shuffle
-						this->isShuffle =
-						    g_ascii_strncasecmp(ptr,
-									"inorder",
-									7);
-						this->
-						    parent->UpdateShuffle(this->
-									  parent->sd,
-									  this->isShuffle);
+						this->isShuffle = 
+							g_ascii_strncasecmp(ptr, "inorder",7);
+						this->parent->UpdateShuffle(
+							this->parent->sd, this->isShuffle);
 						if ((ptr = strtok(NULL, " "))) {
 							//repeat
 							this->isRepeat =
-							    g_ascii_strncasecmp
-							    (ptr, "off", 2);
-							this->
-							    parent->UpdateRepeat
-							    (this->parent->sd,
-							     this->isRepeat);
+							    g_ascii_strncasecmp(ptr, "off", 2);
+							this->parent->UpdateRepeat(
+								this->parent->sd, this->isRepeat);
 						}
 					}
 				}
 			}
 		}
 		g_free(outText);
+	} else {
+		LOG("Could not spawn.");
 	}
 }
 
@@ -367,9 +309,8 @@ gboolean qlToggle(gpointer thsPtr, gboolean * newState) {
 	LOG("Enter qlToggle");
 	if (qlAssure(this, FALSE)) {
 		bRet = qlPrintFlush(this->fp, "play-pause");
-		qlStatus(thsPtr, "--status");
 	} else {
-		LOG("Running...");
+		LOG("Executing...");
 		xfce_exec("quodlibet", FALSE, TRUE, NULL);
 		bRet = FALSE;
 	}
@@ -385,34 +326,20 @@ gboolean qlDetach(gpointer thsPtr) {
 		fclose(this->fp);
 		this->fp = NULL;
 	}
-	if (this->statPath) {
-		thunar_vfs_path_unref(this->statPath);
-		this->statPath = NULL;
-	}
-	if (this->statMon) {
-		thunar_vfs_monitor_remove(thunar_vfs_monitor_get_default(),
-					  this->statMon);
-		this->statMon = NULL;
-	}
-	if (this->current) {
-		g_hash_table_destroy(this->current);
-		this->current = NULL;
-	}
-    
-    QL_FREE(fifo);
-    QL_FREE(stat);
     QL_FREE(cover);
     QL_FREE(bin);
+	if (this->qlPlayer) {
+			dbus_g_proxy_disconnect_signal(this->qlPlayer, "Paused",
+						    G_CALLBACK(qlCallbackPaused), this);
 
-    thunar_vfs_shutdown();
+			dbus_g_proxy_disconnect_signal(this->qlPlayer, "Unpaused",
+						    G_CALLBACK(qlCallbackUnpaused), this);
 
-	if (this->connections[0])
-		g_signal_handler_disconnect(this->wnckScreen,
-					    this->connections[0]);
-
-	if (this->connections[1])
-		g_signal_handler_disconnect(this->wnckScreen,
-					    this->connections[1]);
+			dbus_g_proxy_disconnect_signal(this->qlPlayer, "SongStarted",
+						    G_CALLBACK(qlCallbackSongStarted), this);
+		g_object_unref(G_OBJECT(this->qlPlayer));
+		this->qlPlayer = NULL;
+	}
 
 	LOG("Leave qlDetach");
 	return bRet;
@@ -461,7 +388,6 @@ gboolean qlSetShuffle(gpointer thsPtr, gboolean newShuffle) {
 
 gboolean qlIsVisible(gpointer thsPtr) {
 	MKTHIS;
-	qlStatus(thsPtr, "--status");
 	return this->isVisible;
 }
 
@@ -477,17 +403,35 @@ gboolean qlShow(gpointer thsPtr, gboolean bShow) {
 	return bRet;
 }
 
-void qlPersist(gpointer thsPtr, gboolean bIsStoring) {
-	LOG("Enter mpdPersist");
+static gboolean qlUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	MKTHIS;
-	if(bIsStoring){
-		// nothing to do
+	if (appeared) {
+		LOG("QuodLibet has started");
+		qlAssure(thsPtr, FALSE);
+		qlCallbackFake(thsPtr);
 	} else {
-		if (qlAssure(this, FALSE)) {
-			qlStatus(thsPtr, "--status");
+		LOG("QuodLibet has died");
+		if (this->fp) {
+			fclose(this->fp);
+			this->fp = NULL;
 		}
-	}	
-	LOG("Leave mpdPersist");
+		if (this->qlPlayer) {
+			g_object_unref(G_OBJECT(this->qlPlayer));
+			this->qlPlayer = NULL;
+		}
+		g_string_truncate(this->parent->artist, 0);
+		g_string_truncate(this->parent->album, 0);
+		g_string_truncate(this->parent->title, 0);
+		g_string_truncate(this->parent->albumArt, 0);
+		this->parent->Update(this->parent->sd, TRUE, estStop, NULL);
+	}
+	return TRUE;
+}
+
+void qlUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
+	MKTHIS;
+	LOG("QuodLibet is %s", (appeared)?"visible":"invisible");
+	this->isVisible = appeared;
 }
 
 void *QL_attach(SPlayer * parent) {
@@ -503,56 +447,30 @@ void *QL_attach(SPlayer * parent) {
 	QL_MAP(IsPlaying);
 	QL_MAP(Toggle);
 	QL_MAP(Detach);
-	QL_MAP(Persist);
+	NOMAP(Persist);
 	NOMAP(Configure);
 	QL_MAP(IsVisible);
 	QL_MAP(Show);
-	NOMAP(UpdateDBUS);
+	QL_MAP(UpdateDBUS);
 	QL_MAP(GetRepeat);
 	QL_MAP(SetRepeat);
 	QL_MAP(GetShuffle);
 	QL_MAP(SetShuffle);
-	NOMAP(UpdateWindow);
+	QL_MAP(UpdateWindow);
 
 	// we init default values 
 	this->parent = parent;
 	this->fp = NULL;
 	this->fifo = g_strdup_printf("%s%s", homePath, QL_FIFO_PATH);
-	this->stat = g_strdup_printf("%s%s", homePath, QL_STAT_PATH);
 	this->cover = g_strdup_printf("%s%s", homePath, QL_ALBUM_ART_PATH);
     this->bin = g_find_program_in_path("quodlibet");
     
-	thunar_vfs_init();
-
-	// connect to notification events
-	int i = 0;
-	GList *windows, *l;
-
-	this->wnckScreen =
-	    wnck_screen_get(gdk_screen_get_number(gdk_screen_get_default()));
-
-	this->connections[i++] =
-	    g_signal_connect(this->wnckScreen, "window_opened",
-			     G_CALLBACK(qlWindowOpened), this);
-
-	this->connections[i++] =
-	    g_signal_connect(this->wnckScreen, "window_closed",
-			     G_CALLBACK(qlWindowClosed), this);
-
 	// update data
-	if (qlAssure(this, FALSE)) {
+	if (qlAssure(this, TRUE)) {
 		qlStatus(this, "--status");
 	} else {
 		this->parent->Update(this->parent->sd, FALSE, estStop, NULL);
 	}
-
-	windows = wnck_screen_get_windows(this->wnckScreen);
-
-	for (l = windows; l != NULL; l = l->next) {
-		WnckWindow *w = l->data;
-		qlWindowOpened(this->wnckScreen, w, this);
-	}
-
 	LOG("Leave QL_attach");
 	return this;
 }

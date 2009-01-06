@@ -157,10 +157,6 @@ fi
 AC_ARG_ENABLE(quodlibet,[  --disable-quodlibet           disable QuodLibet support (default: enable)],[enable_quodlibet=$enableval],[enable_quodlibet=yes])
 if test x$enable_quodlibet = xyes; then
 	AC_DEFINE(HAVE_BACKEND_QUODLIBET,1,[Define to use QL])
-	dnl Checking for thunar-vfs
-	XDT_CHECK_PACKAGE([THUNARVFS], [thunar-vfs-1], [0.4.0])
-	AC_SUBST([THUNARVFS_CFLAGS])
-	AC_SUBST([THUNARVFS_LIBS])
 fi
 
 AC_ARG_ENABLE(audacious,[  --disable-audacious     disable audacious support (default: enable)],[enable_audacious=$enableval],[enable_audacious=yes])

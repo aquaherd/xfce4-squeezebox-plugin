@@ -214,7 +214,7 @@ static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
 			if(org_exaile_DBusInterface_get_version(db->exPlayer, &version, NULL)) {
 				LOG("Attached to exaile version '%s'", version);
 				if(!g_ascii_strcasecmp(version, "0.2.14devel")) {
-					LOG("Lucky us we have events");
+					LOG("Lucky us we have signals");
 					db->needsPolling = FALSE;
 					// state changes
 					//  playing change
@@ -301,6 +301,12 @@ static gboolean exToggle(gpointer thsPtr, gboolean * newState) {
 	return TRUE;
 }
 
+gboolean exIsVisible(gpointer thsPtr) {
+	MKTHIS;
+	return db->Visibility;
+}
+
+
 gboolean exShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if (exAssure(thsPtr, FALSE)) {
@@ -360,6 +366,13 @@ static gboolean exUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	return TRUE;
 }
 
+void exUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
+	MKTHIS;
+	LOG("exaile is %s", (appeared)?"visible":"invisible");
+	db->Visibility = appeared;
+}
+
+
 exData *EX_attach(SPlayer * parent) {
 	exData *db = NULL;
 
@@ -374,15 +387,14 @@ exData *EX_attach(SPlayer * parent) {
 	EX_MAP(Detach);
 	NOMAP(Configure);
 	NOMAP(Persist);
-	//The DBUS API does not yet provide:
-	NOMAP(IsVisible);
+	EX_MAP(IsVisible);
 	EX_MAP(Show);
 	EX_MAP(UpdateDBUS);
 	NOMAP(GetRepeat);
 	NOMAP(SetRepeat);
 	NOMAP(GetShuffle);
 	NOMAP(SetShuffle);
-	NOMAP(UpdateWindow);
+	EX_MAP(UpdateWindow);
 
 	db = g_new0(exData, 1);
 	db->parent = parent;
