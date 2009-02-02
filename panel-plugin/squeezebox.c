@@ -346,6 +346,18 @@ static void squeezebox_update_playbtn(SqueezeBoxData * sd) {
 	LOG("Leave squeezebox_update_playbtn");
 }
 
+void on_window_opened(WnckScreen * screen, WnckWindow * window, SqueezeBoxData *sd) {
+	if(sd->player.playerPID && sd->player.UpdateWindow ) 
+		if(sd->player.playerPID == wnck_window_get_pid (window))
+			sd->player.UpdateWindow(sd->player.db, window, TRUE);
+}
+
+void on_window_closed(WnckScreen * screen, WnckWindow * window, SqueezeBoxData *sd) {
+	if(sd->player.playerPID && sd->player.UpdateWindow ) 
+		if(sd->player.playerPID == wnck_window_get_pid (window))
+			sd->player.UpdateWindow(sd->player.db, window, FALSE);
+}
+
 #if HAVE_NOTIFY
 
 static void
@@ -378,18 +390,6 @@ static gboolean on_timer(gpointer thsPlayer) {
 	}
 
 	return TRUE;
-}
-
-void on_window_opened(WnckScreen * screen, WnckWindow * window, SqueezeBoxData *sd) {
-	if(sd->player.playerPID && sd->player.UpdateWindow ) 
-		if(sd->player.playerPID == wnck_window_get_pid (window))
-			sd->player.UpdateWindow(sd->player.db, window, TRUE);
-}
-
-void on_window_closed(WnckScreen * screen, WnckWindow * window, SqueezeBoxData *sd) {
-	if(sd->player.playerPID && sd->player.UpdateWindow ) 
-		if(sd->player.playerPID == wnck_window_get_pid (window))
-			sd->player.UpdateWindow(sd->player.db, window, FALSE);
 }
 
 
