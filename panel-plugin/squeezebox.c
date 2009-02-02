@@ -570,6 +570,8 @@ squeezebox_update_visibility(gpointer thsPlayer, gboolean newVisible) {
 	sd->noUI = FALSE;
 	LOG("Leave squeezebox_update_visibility");
 }
+
+#if HAVE_ID3TAG
 // this shippet is from gtkpod
 static const gchar* id3_get_binary (struct id3_tag const *tag,
 				    char *frame_name,
@@ -606,7 +608,7 @@ static const gchar* id3_get_binary (struct id3_tag const *tag,
     return binary;
 }
 
-
+#endif
 
 static void
 squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
