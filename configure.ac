@@ -68,12 +68,12 @@ if test x$have_gio = xyes ; then
 	AC_SUBST([LIBGIO_LIBS])
 fi
 
-XDT_CHECK_PACKAGE([ID3TAG], [id3tag], [0.14])
 AC_ARG_ENABLE(ID3TAG,[  --disable-ID3TAG     disable ID3TAG support (default: enable)],[enable_ID3TAG=$enableval],[enable_ID3TAG=yes])
 if test x$enable_ID3TAG = xyes; then
+	XDT_CHECK_PACKAGE([ID3TAG], [id3tag], [0.14])
 	AC_DEFINE(HAVE_ID3TAG,1,[Define to use ID3TAG])
-    AC_SUBST([ID3TAG_CFLAGS])
-    AC_SUBST([ID3TAG_LIBS])
+	AC_SUBST([ID3TAG_CFLAGS])
+	AC_SUBST([ID3TAG_LIBS])
 fi
 
 dnl check for libnotify, taken from rhythmbox 0.9.5
