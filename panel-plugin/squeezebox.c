@@ -425,7 +425,8 @@ static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 			    gdk_pixbuf_new_from_file_at_size(albumArt->str,
 							     64,
 							     64, NULL);
-		} else {
+		}
+		if(NULL == pixbuf) {
 			const Backend *ptr = &squeezebox_get_backends()[sd->backend -1];
 			pixbuf = ptr->BACKEND_icon();
 		}
@@ -605,7 +606,7 @@ static const gchar* id3_get_binary (struct id3_tag const *tag,
 			break;
     }
 
-    return binary;
+    return (gchar*)binary;
 }
 
 #endif
