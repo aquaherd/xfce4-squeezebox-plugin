@@ -81,7 +81,6 @@ const gchar* baFindTag(const gchar* tagName, const gchar* track) {
 }
 
 static void baDumpProp(gpointer key, gpointer value, gpointer thsPtr) {
-	MKTHIS;
 	GValue *val = (GValue*)value;
 	if(G_VALUE_HOLDS_STRING(val))
 		LOG("Property: %s=%s", (gchar*) key, g_value_get_string(val));
@@ -142,7 +141,6 @@ static void baCallbackFake(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter baCallback: Fake");
 	if(db->baPlayerEngine) {
-		GValue tmpTrack = {0};
 		GError *error = NULL;
 		gchar *state = NULL;
 		if(org_bansheeproject_Banshee_PlayerEngine_get_currentstate(db->baPlayerEngine, 
@@ -287,7 +285,6 @@ static gboolean baIsPlaying(gpointer thsPtr) {
 
 static gboolean baToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
-	gboolean oldState = FALSE;
 	if (!baAssure(db, FALSE))
 		return FALSE;
 	org_bansheeproject_Banshee_PlayerEngine_toggle_playing(db->baPlayerEngine, NULL);

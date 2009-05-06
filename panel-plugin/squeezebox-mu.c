@@ -33,6 +33,7 @@
 // libdbus-glib for muine remote
 #include <dbus/dbus-glib.h>
 #include "muine-player-binding.h"
+#include <glib/gstdio.h>
 
 #define MU_MAP(a) parent->a = mu##a;
 

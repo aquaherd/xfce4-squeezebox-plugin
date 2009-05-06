@@ -204,6 +204,9 @@ gboolean mpdPlayPlaylist(gpointer thsPtr, gchar *playlistName) {
 			mpd_player_play(this->player);
 			mpd_player_pause(this->player);
 			break;
+		case MPD_PLAYER_STOP:
+		case MPD_PLAYER_UNKNOWN:
+			break;
 	}
 	LOG("Leave mpdPlayPlaylist");
 	return TRUE;

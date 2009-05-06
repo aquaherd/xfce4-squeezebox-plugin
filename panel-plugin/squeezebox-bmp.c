@@ -269,7 +269,6 @@ static gboolean bmpPlayPause(gpointer thsPtr, gboolean newState) {
 
 static gboolean bmpIsPlaying(gpointer thsPtr) {
 	MKTHIS;
-	gint status = 0;
 	if (!bmpAssure(db, FALSE))
 		return FALSE;
 	return (db->eStat == estPlay);
