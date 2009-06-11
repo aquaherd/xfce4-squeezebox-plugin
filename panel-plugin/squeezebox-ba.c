@@ -284,6 +284,7 @@ static gboolean baIsPlaying(gpointer thsPtr) {
 }
 
 static gboolean baToggle(gpointer thsPtr, gboolean * newState) {
+	
 	MKTHIS;
 	if (!baAssure(db, FALSE))
 		return FALSE;
