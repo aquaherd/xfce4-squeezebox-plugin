@@ -4,6 +4,10 @@
  *  Fri Aug 25 17:20:09 2006
  *  Copyright  2006-2009  Hakan Erduman
  *  Email Hakan.Erduman@web.de
+ ****************************************************************************
+ *  $Rev::             $: Revision of last commit
+ *	$Author::          $: Author of last commit
+ *	$Date::            $: Date of last commit
  ****************************************************************************/
 
 /*
