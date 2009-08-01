@@ -143,3 +143,5 @@ README.Packagers:
   packaged.
 - 'weibullguy' from forum.xfce.org reports 'Cross Linux from Scratch' as 
   a distro this plugin is also known to build on.
+- A full build on debian Lenny needs:
+xfce4-dev-tools xfce4-panel-dev libdbus-glib-1-dev libmpd-dev libexo-0.3-dev libid3tag0-dev libwnck-dev
