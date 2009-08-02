@@ -692,15 +692,22 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 			         NULL, NULL, &outText, NULL, &exit_status, NULL)) {
                  gchar *ptr = strtok(outText, "\n");
                  while(ptr) {
-                     GDesktopAppInfo *app = g_desktop_app_info_new_from_filename(ptr);
-                     if(app) {
-                         const gchar *binPath = g_app_info_get_executable(
-                                                G_APP_INFO(app));   
-                         if(!g_hash_table_lookup_extended(table, binPath, NULL, NULL)) {
-                             LOG("Found: %s", binPath);
-                             gtk_list_store_append(store, &iter);
-                             gtk_list_store_set(store, &iter, 0, binPath, -1);
-                             g_hash_table_insert(table, (gchar*)binPath, g_strdup("."));
+                     gchar *trackerPath = ptr;
+                     while(*trackerPath && *trackerPath == ' ')
+                        trackerPath++;
+                     if(g_file_test(trackerPath, G_FILE_TEST_EXISTS))
+                     {
+                         GDesktopAppInfo *app = 
+                             g_desktop_app_info_new_from_filename(trackerPath);
+                         if(app) {
+                             const gchar *binPath = g_app_info_get_executable(
+                                                    G_APP_INFO(app));   
+                             if(!g_hash_table_lookup_extended(table, binPath, NULL, NULL)) {
+                                 LOG("Found: %s", binPath);
+                                 gtk_list_store_append(store, &iter);
+                                 gtk_list_store_set(store, &iter, 0, binPath, -1);
+                                 g_hash_table_insert(table, (gchar*)binPath, g_strdup("."));
+                             }
                          }
                      }
                      ptr = strtok(NULL, "\n");
