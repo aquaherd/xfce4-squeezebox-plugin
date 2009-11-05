@@ -147,6 +147,7 @@ typedef struct Backend{
     const gchar*( *BACKEND_commandLine)();
 }Backend;
 
+
 #define IMPORT_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
  	extern const gchar * t##_name(); \

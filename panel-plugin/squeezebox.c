@@ -30,15 +30,14 @@
 #include <config.h>
 #endif
 
-#include "squeezebox.h"
+#include "notifications.h"
 #include "mmkeys.h"
+#include "squeezebox.h"
+#include "squeezebox-private.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#if HAVE_NOTIFY
-#include <libnotify/notify.h>
-#endif
 #if HAVE_ID3TAG
 #include <id3tag.h>
 #endif
@@ -58,52 +57,6 @@ typedef enum eTTStyle {
 #endif
 } eTTStyle;
 
-typedef struct SqueezeBoxData{
-	XfcePanelPlugin *plugin;
-	gulong style_id;
-
-	GtkWidget *button[3];
-	GtkWidget *image[3];
-	GtkWidget *btnDet;
-	gboolean show[3];
-
-	GtkWidget *table;
-
-#if HAVE_NOTIFY
-	gboolean notify;
-	gboolean inEnter;
-	gboolean inCreate;
-	NotifyNotification *note;
-	gint notifytimeout;
-	gint timerCount;
-	guint timerHandle;
-#endif
-
-	// menu items
-	GtkWidget *mnuShuffle, *mnuRepeat, *mnuPlayer, *mnuPlayLists;
-	gboolean noUI;
-
-	gint toolTipStyle;
-#ifndef HAVE_GTK_2_12
-	GtkTooltips *tooltips;
-#endif
-	GString *toolTipText;
-
-	gint backend;
-	SPlayer player;
-	eSynoptics state;
-
-	// mmkeys.h
-	MmKeys *mmkeys;
-	gboolean grabmedia;
-	gulong mmhandlers[4];
-    
-    // property handling
-    GHashTable *properties;
-    GHashTable *propertyAddresses;
-    
-    WnckScreen *wnckScreen;
-} SqueezeBoxData;
 
 /* some small helpers - unused for now
 static void lose (const char *fmt, ...) G_GNUC_NORETURN G_GNUC_PRINTF (1, 2);
@@ -361,140 +314,6 @@ void on_window_closed(WnckScreen * screen, WnckWindow * window, SqueezeBoxData *
 		if(sd->player.playerPID == wnck_window_get_pid (window))
 			sd->player.UpdateWindow(sd->player.db, window, FALSE);
 }
-
-#if HAVE_NOTIFY
-
-static void
-toaster_closed(NotifyNotification * notification, SqueezeBoxData * sd) {
-	LOG("toaster_closed");
-	sd->note = NULL;
-}
-
-static void squeezebox_update_UI_hide_toaster(gpointer thsPlayer) {
-	LOG("hide_toaster");
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	if (sd->note) {
-		notify_notification_close(sd->note, NULL);
-		sd->note = NULL;
-	}
-}
-
-static gboolean on_timer(gpointer thsPlayer) {
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	if (NULL == sd->note) {
-		return TRUE;
-	}
-	LOG("CountDown %d %d", sd->timerCount, sd->notifytimeout);
-	if (sd->inEnter)
-		sd->timerCount = sd->notifytimeout;
-	else {
-		sd->timerCount--;
-		if (sd->timerCount < 1)
-			squeezebox_update_UI_hide_toaster(thsPlayer);
-	}
-
-	return TRUE;
-}
-
-
-static void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
-	LOG("show_toaster ");
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	gboolean bAct = TRUE;
-	gboolean bExisted = (sd->note != NULL);
-	GdkPixbuf *pixbuf = NULL;
-	if (!notify_is_initted())
-		if (!notify_init("xfce4-squeezebox-plugin"))
-			bAct = FALSE;
-
-	if (bAct) {
-		bAct = ((sd->player.title->str && sd->player.title->str[0]) ||
-			(sd->player.album->str && sd->player.album->str[0]) ||
-			(sd->player.artist->str && sd->player.artist->str[0])
-		    );
-	}
-
-	if (bAct) {
-		LOG("New track '%s' from '%s' by '%s'\n",
-			sd->player.title->str, sd->player.artist->str,
-			sd->player.album->str);
-		GString *albumArt = g_string_new(sd->player.albumArt->str);
-		gchar *ntTitle = g_strdup(sd->player.title->str);
-		//happily, we easily can escape ampersands and other usual suspects.
-		gchar *ntDetails =
-		    g_markup_printf_escaped("by <b>%s</b>\nfrom <i>%s</i>\n",
-					    sd->player.artist->str,
-					    sd->player.album->str);
-
-		if (albumArt->len) {
-			pixbuf =
-			    gdk_pixbuf_new_from_file_at_size(albumArt->str,
-							     64,
-							     64, NULL);
-		}
-		if(NULL == pixbuf) {
-			const Backend *ptr = &squeezebox_get_backends()[sd->backend -1];
-			pixbuf = ptr->BACKEND_icon();
-		}
-		//squeezebox_update_UI_hide_toaster(thsPlayer);
-		if (!bExisted) {
-			LOG("new");
-			sd->note = notify_notification_new(ntTitle,
-							   ntDetails, NULL,
-							   NULL);
-			g_signal_connect(G_OBJECT(sd->note), "closed",
-					 G_CALLBACK(toaster_closed), sd);
-
-		} else if (sd->note) {
-			LOG("update");
-			notify_notification_update(sd->note, ntTitle, ntDetails,
-						   NULL);
-		}
-		if (sd->note) {
-			gint x = 0, y = 0;
-			GtkRequisition size;
-			XfceScreenPosition pos =
-			    xfce_panel_plugin_get_screen_position(sd->plugin);
-
-			gdk_window_get_origin(GTK_WIDGET(sd->plugin)->window,
-					      &x, &y);
-			gtk_widget_size_request(GTK_WIDGET(sd->plugin), &size);
-			x += size.width / 2;
-			if (!xfce_screen_position_is_bottom(pos))
-				y += size.height;
-
-			notify_notification_set_hint_int32(sd->note, "x", x);
-			notify_notification_set_hint_int32(sd->note, "y", y);
-
-			//timeout? never - only on our control
-			notify_notification_set_timeout(sd->note, 0);
-
-			// did we get an icon?
-			if (pixbuf) {
-				LOG("We got an icon.");
-#if (LIBNOTIFY_VERSION_MAJOR == 0 && \
-    LIBNOTIFY_VERSION_MINOR <=6 && \
-    LIBNOTIFY_VERSION_MICRO < 0)
-				notify_notification_set_icon_data_from_pixbuf
-				    (sd->note, pixbuf);
-#else
-				notify_notification_set_icon_from_pixbuf
-				    (sd->note, pixbuf);
-#endif
-				g_object_unref(pixbuf);
-			}
-			// liftoff      
-			if (sd->inCreate == FALSE)
-				notify_notification_show(sd->note, NULL);
-
-			sd->timerCount = sd->notifytimeout;
-		}
-		g_free(ntTitle);
-		g_free(ntDetails);
-		g_string_free(albumArt, TRUE);
-	}
-}
-#endif
 
 void on_mnuPlaylistItemActivated(GtkMenuItem *menuItem, SqueezeBoxData *sd) {
 	gchar *playlistName = (gchar*)gtk_object_get_data(GTK_OBJECT(menuItem), "listname");

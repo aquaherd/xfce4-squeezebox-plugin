@@ -83,7 +83,7 @@ const gchar* baFindTag(const gchar* tagName, const gchar* track) {
 static void baDumpProp(gpointer key, gpointer value, gpointer thsPtr) {
 	GValue *val = (GValue*)value;
 	if(G_VALUE_HOLDS_STRING(val))
-		LOG("Property: %s=%s", (gchar*) key, g_value_get_string(val));
+		LOG("Property: %s=%s", (gchar*) key, (gchar*)g_value_get_string(val));
 }
 
 static const gchar *baGetProp(GHashTable *table, const gchar* propName) {
