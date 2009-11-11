@@ -70,7 +70,7 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		gchar *ntTitle = g_strdup(sd->player.title->str);
 		//happily, we easily can escape ampersands and other usual suspects.
 		gchar *ntDetails =
-		    g_markup_printf_escaped("by <b>%s</b><br>from <i>%s</i>",
+		    g_markup_printf_escaped("by <b>%s</b>\nfrom <i>%s</i>",
 					    sd->player.artist->str,
 					    sd->player.album->str);
 
