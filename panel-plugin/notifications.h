@@ -24,7 +24,7 @@
 #define SQUEEZEBOX_NOTIFICATIONS_H
 #include "squeezebox.h"
 #include "squeezebox-private.h"
-void toaster_closed(NotifyNotification * notification, SqueezeBoxData * sd);
+#include "notifications-binding.h"
 void squeezebox_update_UI_hide_toaster(gpointer thsPlayer);
 gboolean on_timer(gpointer thsPlayer);
 void squeezebox_update_UI_show_toaster(gpointer thsPlayer);

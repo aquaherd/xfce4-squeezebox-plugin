@@ -31,7 +31,6 @@
 #include "squeezebox.h"
 
 // libdbus-glib for beep remote
-#include <dbus/dbus-glib.h>
 #include "bmpx-player-binding.h"
 
 #ifndef DBUS_TYPE_G_STRING_VALUE_HASHTABLE

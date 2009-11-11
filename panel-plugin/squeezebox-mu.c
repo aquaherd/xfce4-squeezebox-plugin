@@ -31,7 +31,6 @@
 #include "squeezebox.h"
 
 // libdbus-glib for muine remote
-#include <dbus/dbus-glib.h>
 #include "muine-player-binding.h"
 #include <glib/gstdio.h>
 

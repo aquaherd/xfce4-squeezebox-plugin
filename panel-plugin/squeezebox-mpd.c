@@ -742,7 +742,9 @@ void *MPD_attach(SPlayer * parent) {
 	MPD_MAP(Configure);
 	NOMAP(IsVisible);
 	NOMAP(Show);
+#if HAVE_DBUS
 	NOMAP(UpdateDBUS);
+#endif
 	MPD_MAP(GetRepeat);
 	MPD_MAP(SetRepeat);
 	MPD_MAP(GetShuffle);

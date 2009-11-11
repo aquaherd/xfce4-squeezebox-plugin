@@ -31,7 +31,6 @@
 #include "squeezebox.h"
 
 // libdbus-glib for banshee remote
-#include <dbus/dbus-glib.h>
 #include "banshee-player-binding.h"
 
 #ifndef DBUS_TYPE_G_STRING_VALUE_HASHTABLE

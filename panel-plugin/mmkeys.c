@@ -19,7 +19,9 @@
  */
 
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 #include "mmkeys.h"
 
 static void mmkeys_class_init(MmKeysClass * klass);

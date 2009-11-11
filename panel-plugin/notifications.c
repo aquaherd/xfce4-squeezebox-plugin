@@ -19,52 +19,41 @@
  *      MA 02110-1301, USA.
  */
 
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include "notifications.h"
-
-#if HAVE_NOTIFY
-
-void toaster_closed(NotifyNotification * notification, SqueezeBoxData * sd) {
-	LOG("toaster_closed");
-	sd->note = NULL;
-}
+#if HAVE_DBUS
 
 void squeezebox_update_UI_hide_toaster(gpointer thsPlayer) {
 	LOG("hide_toaster");
 	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
+	/*
 	if (sd->note) {
 		notify_notification_close(sd->note, NULL);
 		sd->note = NULL;
 	}
+	*/
 }
-
-gboolean on_timer(gpointer thsPlayer) {
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	if (NULL == sd->note) {
-		return TRUE;
-	}
-	LOG("CountDown %d %d", sd->timerCount, sd->notifytimeout);
-	if (sd->inEnter)
-		sd->timerCount = sd->notifytimeout;
-	else {
-		sd->timerCount--;
-		if (sd->timerCount < 1)
-			squeezebox_update_UI_hide_toaster(thsPlayer);
-	}
-
-	return TRUE;
-}
-
 
 void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
+	/*
+	 "xfce", 
+	 12, 
+	 "/home/herd/Music/Faith No More/The Real Thing/folder.jpg", 
+	 "Faith no more", 
+	 "The Real Thing<br>The Real Thing",
+	 "",
+	 "",
+	 1200	 
+	 */
+
 	LOG("show_toaster ");
 	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
 	gboolean bAct = TRUE;
 	gboolean bExisted = (sd->note != NULL);
 	GdkPixbuf *pixbuf = NULL;
-	if (!notify_is_initted())
-		if (!notify_init("xfce4-squeezebox-plugin"))
-			bAct = FALSE;
+	gchar *pixPath = "/tmp/sqicon.png";
 
 	if (bAct) {
 		bAct = ((sd->player.title->str && sd->player.title->str[0]) ||
@@ -81,79 +70,38 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		gchar *ntTitle = g_strdup(sd->player.title->str);
 		//happily, we easily can escape ampersands and other usual suspects.
 		gchar *ntDetails =
-		    g_markup_printf_escaped("by <b>%s</b>\nfrom <i>%s</i>\n",
+		    g_markup_printf_escaped("by <b>%s</b><br>from <i>%s</i>",
 					    sd->player.artist->str,
 					    sd->player.album->str);
 
 		if (albumArt->len) {
 			pixbuf =
-			    gdk_pixbuf_new_from_file_at_size(albumArt->str,
-							     64,
-							     64, NULL);
+			    gdk_pixbuf_new_from_file_at_size(albumArt->str, 64, 64, NULL);
 		}
-		/*
 		if(NULL == pixbuf) {
 			const Backend *ptr = &squeezebox_get_backends()[sd->backend -1];
 			pixbuf = ptr->BACKEND_icon();
 		}
-		*/
-		//squeezebox_update_UI_hide_toaster(thsPlayer);
-		if (!bExisted) {
-			LOG("new");
-			sd->note = notify_notification_new(ntTitle,
-							   ntDetails, NULL,
-							   NULL);
-			g_signal_connect(G_OBJECT(sd->note), "closed",
-					 G_CALLBACK(toaster_closed), sd);
-
-		} else if (sd->note) {
-			LOG("update");
-			notify_notification_update(sd->note, ntTitle, ntDetails,
-						   NULL);
-		}
+		if(NULL != pixbuf)
+			gdk_pixbuf_save(pixbuf, "/tmp/sqicon.png", "png", NULL, NULL);
+		else
+			pixPath = NULL;
+		
+		
+		//Let's show
 		if (sd->note) {
-			gint x = 0, y = 0;
-			GtkRequisition size;
-			XfceScreenPosition pos =
-			    xfce_panel_plugin_get_screen_position(sd->plugin);
-
-			gdk_window_get_origin(GTK_WIDGET(sd->plugin)->window,
-					      &x, &y);
-			gtk_widget_size_request(GTK_WIDGET(sd->plugin), &size);
-			x += size.width / 2;
-			if (!xfce_screen_position_is_bottom(pos))
-				y += size.height;
-
-			notify_notification_set_hint_int32(sd->note, "x", x);
-			notify_notification_set_hint_int32(sd->note, "y", y);
-
-			//timeout? never - only on our control
-			notify_notification_set_timeout(sd->note, 0);
-
-			// did we get an icon?
-			if (pixbuf) {
-				LOG("We got an icon.");
-#if (LIBNOTIFY_VERSION_MAJOR == 0 && \
-    LIBNOTIFY_VERSION_MINOR <=6 && \
-    LIBNOTIFY_VERSION_MICRO < 0)
-				notify_notification_set_icon_data_from_pixbuf
-				    (sd->note, pixbuf);
-#else
-				notify_notification_set_icon_from_pixbuf
-				    (sd->note, pixbuf);
-#endif
-				g_object_unref(pixbuf);
-			}
-			// liftoff      
-			if (sd->inCreate == FALSE)
-				notify_notification_show(sd->note, NULL);
-
-			sd->timerCount = sd->notifytimeout;
-		}
+			LOG("notify");
+			if(sd->notifyID > 0)
+				notifications_close_notification(sd->note, sd->notifyID, NULL);
+			notifications_notify(sd->note, 
+				"xfce4-squeezebox-plugin", ++sd->notifyID, pixPath, 
+				ntTitle, ntDetails, NULL, NULL, sd->notifyTimeout * 1000, 
+				&sd->notifyID, NULL);
+		} 
 		g_free(ntTitle);
 		g_free(ntDetails);
 		g_string_free(albumArt, TRUE);
 	}
 }
-#endif
 
+#endif

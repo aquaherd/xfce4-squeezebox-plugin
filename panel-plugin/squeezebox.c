@@ -52,9 +52,6 @@ typedef enum eButtons {
 typedef enum eTTStyle {
 	ettNone = 0,
 	ettSimple = 1,
-#if HAVE_NOTIFY
-	ettFull = 2
-#endif
 } eTTStyle;
 
 
@@ -62,31 +59,8 @@ typedef enum eTTStyle {
 static void lose (const char *fmt, ...) G_GNUC_NORETURN G_GNUC_PRINTF (1, 2);
 static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
 */
-static void config_toggle_next(GtkToggleButton * tb, SqueezeBoxData * sd);
-static void config_toggle_prev(GtkToggleButton * tb, SqueezeBoxData * sd);
-static void
-squeezebox_update_grab(gboolean bGrab, gboolean bShowErr, SqueezeBoxData * sd);
-#if HAVE_DBUS
-static void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
-				   const gchar * OldOwner,
-				   const gchar * NewOwner,
-				   SqueezeBoxData * sd);
-#endif
-
-void on_keyPrev_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
-void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
-void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
-void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
-
-/* Panel Plugin Interface */
-
-static void squeezebox_properties_dialog(XfcePanelPlugin * plugin,
-					 SqueezeBoxData * sd);
-static void squeezebox_construct(XfcePanelPlugin * plugin);
-
 
 /* Backend import */
-const Backend* squeezebox_get_backends();
 #if HAVE_BACKEND_RHYTHMBOX
 	IMPORT_DBUS_BACKEND(RB)
 #endif
@@ -172,8 +146,9 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 	UNSET(Show);
 	UNSET(Persist);
 	UNSET(Configure);
+#if HAVE_DBUS
 	UNSET(UpdateDBUS);
-    
+#endif    
     // clear old property address map
     if(g_hash_table_size(sd->propertyAddresses)) {
         g_hash_table_remove_all(sd->propertyAddresses);
@@ -239,7 +214,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
     if(sd->player.Persist)
         sd->player.Persist(sd->player.db, FALSE);
     
-	#if HAVE_DBUS
+#if HAVE_DBUS
     // dbus backends need a trigger to awake
     // BOOLEAN NameHasOwner (in STRING name)
     if(dbusBackend == ptr->BACKEND_TYPE) {
@@ -262,7 +237,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
     }
 	gtk_widget_set_sensitive(sd->mnuPlayLists, g_hash_table_size(sd->player.playLists));
     
-    #endif
+ #endif
     LOG("Leave squeezebox_init_backend");
 }
 
@@ -569,12 +544,11 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 		} else {
 			g_string_assign(sd->toolTipText, "");
 		}
-
-#if HAVE_NOTIFY
+#if HAVE_DBUS
 		if (sd->notify) {
 			squeezebox_update_UI_show_toaster(thsPlayer);
 		}
-#endif
+#endif		
 	}
 }
 
@@ -625,10 +599,6 @@ static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) 
 		sd->player.Detach(sd->player.db);
 		g_free(sd->player.db);
 	}
-#if HAVE_NOTIFY
-	if (sd->timerHandle)
-		g_source_remove(sd->timerHandle);
-#endif
 	squeezebox_update_grab(FALSE, FALSE, sd);
 	g_free(sd);
 	LOG("Leave squeezebox_free_data");
@@ -680,10 +650,8 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	gboolean bShowPrev = TRUE;
 	gboolean bGrabMedia = TRUE;
 	gint toolTipStyle = 1;
-#if HAVE_NOTIFY
 	gboolean bNotify = TRUE;
 	gdouble dNotifyTimeout = 5.0;
-#endif
 	LOG("Enter squeezebox_read_rc_file");
 
 	if ((file = xfce_panel_plugin_lookup_rc_file(plugin)) != NULL) {
@@ -698,11 +666,7 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 			bShowPrev = xfce_rc_read_int_entry(rc, "show_prev", 1);
 			bGrabMedia =
 			    xfce_rc_read_int_entry(rc, "grab_media", 0);
-#if HAVE_NOTIFY
 			bNotify = xfce_rc_read_int_entry(rc, "notify", 1);
-			dNotifyTimeout =
-			    xfce_rc_read_int_entry(rc, "notify_timeout", 5);
-#endif
 			sd->player.updateRateMS =
 			    xfce_rc_read_int_entry(rc, "updateRateMS", 500);
 			toolTipStyle =
@@ -727,20 +691,17 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	   if(GTK_IS_WIDGET(sd->btnDet))
 	   gtk_widget_set_sensitive (sd->btnDet, (NULL != sd->player.Configure));
 	 */
-#if HAVE_NOTIFY
 	sd->notify = bNotify;
-	sd->notifytimeout = dNotifyTimeout;
-	if (toolTipStyle > ettFull)
-		toolTipStyle = ettFull;
-	sd->timerHandle = g_timeout_add(1000, on_timer, sd);
-	LOG("Attach %d", sd->timerHandle);
-#else
+#if HAVE_DBUS
+	sd->notifyTimeout = dNotifyTimeout;
+#endif
+	
+	LOG("Attach %d", sd->notify);
 	if (toolTipStyle > ettSimple)
 		toolTipStyle = ettSimple;
 
 	if (toolTipStyle < ettNone)
 		toolTipStyle = ettNone;
-#endif
 	sd->toolTipStyle = toolTipStyle;
 #ifndef HAVE_GTK_2_12
 	if (sd->toolTipStyle == ettSimple)
@@ -793,13 +754,12 @@ squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 						(sd->grabmedia) ? 1 : 0);
 			xfce_rc_write_int_entry(rc, "tooltips",
 						sd->toolTipStyle);
-#if HAVE_NOTIFY
 			xfce_rc_write_int_entry(rc, "notify",
 						(sd->notify) ? 1 : 0);
+#if HAVE_DBUS
 			xfce_rc_write_int_entry(rc, "notify_timeout",
-						sd->notifytimeout);
+						sd->notifyTimeout);
 #endif
-
 			squeezebox_persist_properties(sd, rc, TRUE);
             
 			xfce_rc_close(rc);
@@ -917,26 +877,15 @@ static void config_change_backend(GtkComboBox * cb, SqueezeBoxData * sd) {
         }
     }
 }
-
-#if HAVE_NOTIFY
+#if HAVE_DBUS
 static void
 config_change_notify_timeout(GtkSpinButton * sb, SqueezeBoxData * sd) {
-	sd->notifytimeout = gtk_spin_button_get_value(sb);
+	sd->notifyTimeout = gtk_spin_button_get_value(sb);
 }
-
+#endif
 static void config_toggle_notify(GtkToggleButton * tb, SqueezeBoxData * sd) {
 	sd->notify = gtk_toggle_button_get_active(tb);
-#if HAVE_NOTIFY
-	if (sd->toolTipStyle == ettFull) {
-		sd->timerHandle = g_timeout_add(1000, on_timer, sd);
-	} else if (sd->timerHandle != 0) {
-		g_source_remove(sd->timerHandle);
-        sd->timerHandle = 0;
-    }
-#endif
-
 }
-#endif
 
 static void
 config_toggle_tooltips_none(GtkToggleButton * opt, SqueezeBoxData * sd) {
@@ -957,18 +906,6 @@ config_toggle_tooltips_simple(GtkToggleButton * opt, SqueezeBoxData * sd) {
 #endif
 	}
 }
-
-#if HAVE_NOTIFY
-static void
-config_toggle_tooltips_full(GtkToggleButton * opt, SqueezeBoxData * sd) {
-	if (gtk_toggle_button_get_active(opt)) {
-		sd->toolTipStyle = ettFull;
-#ifndef HAVE_GTK_2_12
-		gtk_tooltips_disable(sd->tooltips);
-#endif
-	}
-}
-#endif
 
 static void
 squeezebox_update_grab(gboolean bGrab, gboolean bShowErr, SqueezeBoxData * sd) {
@@ -1058,11 +995,9 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	GtkWidget *dlg, *header, *vbox, *hbox1, *label0, *label1,
 	    *cb1, *cb2, *cb3, *btnView;
 	GtkWidget *cbBackend;
-	GtkWidget *opt[3];
-#if HAVE_NOTIFY
+	GtkWidget *opt[2];
 	GtkWidget *squeezebox_delay_spinner;
 	GtkWidget *cb4, *label2, *hbox2, *cbNotLoc;
-#endif
 
 	xfce_panel_plugin_block_menu(plugin);
 
@@ -1148,31 +1083,19 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 
 	opt[1] =
 	    gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON
-							   (opt[0]),
-							   _
-							   ("_Simple tooltips"));
+							   (opt[0]), _("_Simple tooltips"));
 	gtk_box_pack_start(GTK_BOX(hbox1), opt[1], FALSE, FALSE, 0);
 	g_signal_connect(opt[1], "toggled",
 			 G_CALLBACK(config_toggle_tooltips_simple), sd);
 
-#if HAVE_NOTIFY
-	opt[2] =
-	    gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON
-							   (opt[0]),
-							   _
-							   ("N_otification tooltips"));
-	g_signal_connect(opt[2], "toggled",
-			 G_CALLBACK(config_toggle_tooltips_full), sd);
-
-	// 0, 1 or 2
+	// 0, 1
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(opt[sd->toolTipStyle]),
 				     TRUE);
-
-	gtk_box_pack_start(GTK_BOX(hbox1), opt[2], FALSE, FALSE, 0);
 
 	//check4+cbNotLoc
 	hbox1 = gtk_hbox_new(FALSE, 8);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox1, FALSE, FALSE, 0);
+#if HAVE_DBUS
 	//cb4
 	cb4 =
 	    gtk_check_button_new_with_mnemonic(_
@@ -1180,13 +1103,6 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	gtk_box_pack_start(GTK_BOX(hbox1), cb4, FALSE, FALSE, 16);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb4), sd->notify);
 	g_signal_connect(cb4, "toggled", G_CALLBACK(config_toggle_notify), sd);
-	//cbNotLoc
-	cbNotLoc = gtk_combo_box_new_text();
-	gtk_combo_box_append_text(GTK_COMBO_BOX(cbNotLoc), "Located");
-	gtk_combo_box_append_text(GTK_COMBO_BOX(cbNotLoc), "System default");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(cbNotLoc), 0);
-	gtk_widget_set_sensitive(cbNotLoc, FALSE);	//tbd: implement location supp.
-	gtk_box_pack_start(GTK_BOX(hbox1), cbNotLoc, TRUE, TRUE, 0);
 
 	hbox2 = gtk_hbox_new(FALSE, 8);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox2, FALSE, FALSE, 0);
@@ -1197,7 +1113,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	squeezebox_delay_spinner =
 	    gtk_spin_button_new_with_range(0.0, 60.0, 1.0);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(squeezebox_delay_spinner),
-				  sd->notifytimeout);
+				  sd->notifyTimeout);
 	gtk_box_pack_start(GTK_BOX(hbox2), squeezebox_delay_spinner, FALSE,
 			   FALSE, 0);
 	gtk_label_set_mnemonic_widget(GTK_LABEL(label2),
@@ -1205,10 +1121,6 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 
 	g_signal_connect(squeezebox_delay_spinner, "value-changed",
 			 G_CALLBACK(config_change_notify_timeout), sd);
-#else
-	// force 0 or 1
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON
-				     (opt[(sd->toolTipStyle) ? 1 : 0]), TRUE);
 #endif
 	label1 = gtk_label_new_with_mnemonic(NULL);
 	gchar *markup1 = g_markup_printf_escaped("<b>%s</b>", _("_Backend"));
@@ -1381,33 +1293,6 @@ void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 	squeezebox_next(sd);
 }
 
-#if HAVE_NOTIFY
-static gboolean
-on_btn_any_enter(GtkWidget * widget, GdkEventCrossing * event,
-		 gpointer thsPlayer) {
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	if (sd->toolTipStyle == ettFull) {
-		sd->inEnter = TRUE;
-		if (NULL == sd->note)
-			squeezebox_update_UI_show_toaster(thsPlayer);
-	}
-	return FALSE;
-}
-
-static gboolean
-on_btn_any_leave(GtkWidget * widget, GdkEventCrossing * event,
-		 gpointer thsPlayer) {
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	if (sd->toolTipStyle == ettFull) {
-		sd->inEnter = FALSE;
-
-		if (sd->timerCount > 0)
-			sd->timerCount = 1;
-	}
-	return FALSE;
-}
-#endif
-
 void on_mnuPlayerToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
 	if (sd->noUI == FALSE && sd->player.Show) {
 		sd->player.Show(sd->player.db, checkmenuitem->active);
@@ -1536,25 +1421,6 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 	g_signal_connect((gpointer) sd->button[ebtnNext], "button-press-event",
 			 G_CALLBACK(on_btn_clicked), sd);
 
-	// toaster handling
-#if HAVE_NOTIFY
-	g_signal_connect(sd->button[ebtnPrev], "enter-notify-event",
-			 G_CALLBACK(on_btn_any_enter), sd);
-	g_signal_connect(sd->button[ebtnPrev], "leave-notify-event",
-			 G_CALLBACK(on_btn_any_leave), sd);
-
-	g_signal_connect(sd->button[ebtnPlay], "enter-notify-event",
-			 G_CALLBACK(on_btn_any_enter), sd);
-	g_signal_connect(sd->button[ebtnPlay], "leave-notify-event",
-			 G_CALLBACK(on_btn_any_leave), sd);
-
-	g_signal_connect(sd->button[ebtnNext], "enter-notify-event",
-			 G_CALLBACK(on_btn_any_enter), sd);
-	g_signal_connect(sd->button[ebtnNext], "leave-notify-event",
-			 G_CALLBACK(on_btn_any_leave), sd);
-
-#endif
-
 	/* Store pointers to all widgets, for use by lookup_widget().
 	   GLADE_HOOKUP_OBJECT_NO_REF (window1, window1, "window1");
 	   GLADE_HOOKUP_OBJECT (window1, table1, "table1");
@@ -1676,17 +1542,25 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 					    "NameOwnerChanged",
 					    G_CALLBACK(squeezebox_dbus_update),
 					    sd, NULL);
+					    
+		// notifications
+		sd->note = NULL;
+		sd->note = dbus_g_proxy_new_for_name(sd->player.bus,
+								 "org.freedesktop.Notifications",
+								 "/org/freedesktop/Notifications",
+								 "org.freedesktop.Notifications");
+							
 	}
 #endif
 	sd->player.FindAlbumArtByFilePath =
 	    squeezebox_find_albumart_by_filepath;
     sd->player.MapProperty = squeezebox_map_property;
-#if HAVE_NOTIFY
 	sd->inEnter = FALSE;
-	sd->notifytimeout = 5;
-	sd->timerHandle = 0;
-	sd->inCreate = TRUE;
+#if HAVE_DBUS
+	sd->notifyTimeout = 5;
+	sd->notifyID = 0;
 #endif
+	sd->inCreate = TRUE;
 	sd->toolTipText = g_string_new("");
 	sd->wnckScreen =
 	    wnck_screen_get(gdk_screen_get_number(gdk_screen_get_default()));
@@ -1764,9 +1638,7 @@ static void squeezebox_construct(XfcePanelPlugin * plugin) {
 
 	// the above will init & create the actual player backend
 	// and also init menu states
-#if HAVE_NOTIFY
 	sd->inCreate = FALSE;
-#endif
 	LOG("Leave squeezebox_construct");
 
 }
