@@ -8,5 +8,6 @@ panel-plugin/squeezebox-cs.c
 panel-plugin/squeezebox-bmp.c
 panel-plugin/squeezebox-mu.c
 panel-plugin/squeezebox-ba.c
+panel-plugin/notifications.c
 panel-plugin/squeezebox.desktop.in.in
 
