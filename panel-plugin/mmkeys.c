@@ -63,6 +63,7 @@ GType mmkeys_get_type(void) {
 			sizeof(MmKeys),
 			0,
 			(GInstanceInitFunc) mmkeys_init,
+			NULL    /* value_table */
 		};
 
 		type = g_type_register_static(G_TYPE_OBJECT, "MmKeys",
@@ -115,7 +116,8 @@ static void mmkeys_init(MmKeys * object) {
 	GdkDisplay *display;
 	GdkScreen *screen;
 	GdkWindow *root;
-	guint i, j;
+	gint i;
+	guint j;
 
 	display = gdk_display_get_default();
 
@@ -170,6 +172,7 @@ MmKeys *mmkeys_new(void) {
 
 static void grab_mmkey(MmKeys * object, guint index, GdkWindow * root) {
 	int key_code = object->keycodes[index];
+	gint iErr;
 
 	gdk_error_trap_push();
 
@@ -198,7 +201,7 @@ static void grab_mmkey(MmKeys * object, guint index, GdkWindow * root) {
 		 GDK_WINDOW_XID(root), True, GrabModeAsync, GrabModeAsync);
 
 	gdk_flush();
-	gint iErr = gdk_error_trap_pop();
+	iErr = gdk_error_trap_pop();
 #if DEBUG_TRACE
 	if (iErr) {
 		g_warning("Error grabbing key %d, %p", key_code, root);

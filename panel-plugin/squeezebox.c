@@ -59,6 +59,7 @@ typedef enum eTTStyle {
 static void lose (const char *fmt, ...) G_GNUC_NORETURN G_GNUC_PRINTF (1, 2);
 static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
 */
+#define MKTHIS SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer
 
 /* Backend import */
 #if HAVE_BACKEND_RHYTHMBOX
@@ -297,14 +298,15 @@ void on_mnuPlaylistItemActivated(GtkMenuItem *menuItem, SqueezeBoxData *sd) {
 		sd->player.PlayPlaylist(sd->player.db, playlistName);
 }
 void addMenu(gchar *key, gchar *value, SqueezeBoxData *sd) {
+	GtkWidget *menu, *subMenuItem, *image;
 	LOG("Adding submenu '%s' with icon '%s'", key, value);
-	GtkWidget *menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(sd->mnuPlayLists));
-	GtkWidget *subMenuItem = gtk_image_menu_item_new_with_label(key);
+	menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(sd->mnuPlayLists));
+	subMenuItem = gtk_image_menu_item_new_with_label(key);
 	/*
 	GtkPixmap *pixbuf = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
 							  value, GTK_ICON_SIZE_MENU, 0, NULL);
 							  */
-	GtkWidget *image = gtk_image_new_from_icon_name(value, GTK_ICON_SIZE_MENU);
+	image = gtk_image_new_from_icon_name(value, GTK_ICON_SIZE_MENU);
 	if(image)
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subMenuItem), image);
 	gtk_widget_show(subMenuItem);
@@ -324,14 +326,14 @@ void addList(gchar *key, gpointer *value, GList **list) {
 }
 
 static void squeezebox_update_playlists(gpointer thsPlayer) {
-	LOG("Enter squeezebox_update_playlists");
 	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
 	gboolean hasItems = (g_hash_table_size(sd->player.playLists));
+	LOG("Enter squeezebox_update_playlists");
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), NULL);
 	if(hasItems) {
 		GtkWidget *menu = gtk_menu_new();
-		gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), menu);
 		GList *list = NULL;
+		gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), menu);
 		g_hash_table_foreach(sd->player.playLists, (GHFunc)addList, &list);
 		list = g_list_sort(list, (GCompareFunc)g_ascii_strcasecmp);
 		g_list_foreach(list, (GFunc)add, sd);
@@ -342,8 +344,8 @@ static void squeezebox_update_playlists(gpointer thsPlayer) {
 }
 
 static void squeezebox_update_repeat(gpointer thsPlayer, gboolean newRepeat) {
+	MKTHIS;
 	LOG("Enter squeezebox_update_repeat");
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
 	sd->noUI = TRUE;
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuRepeat),
 				       newRepeat);
@@ -352,8 +354,8 @@ static void squeezebox_update_repeat(gpointer thsPlayer, gboolean newRepeat) {
 }
 
 static void squeezebox_update_shuffle(gpointer thsPlayer, gboolean newShuffle) {
+	MKTHIS;
 	LOG("Enter squeezebox_update_shuffle");
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
 	sd->noUI = TRUE;
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuShuffle),
 				       newShuffle);
@@ -363,8 +365,8 @@ static void squeezebox_update_shuffle(gpointer thsPlayer, gboolean newShuffle) {
 
 static void
 squeezebox_update_visibility(gpointer thsPlayer, gboolean newVisible) {
+	MKTHIS;
 	LOG("Enter squeezebox_update_visibility");
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
 	sd->noUI = TRUE;
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(sd->mnuPlayer),
 				       newVisible);
@@ -413,7 +415,7 @@ static const gchar* id3_get_binary (struct id3_tag const *tag,
 
 static void
 squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
+	MKTHIS;
 	gboolean bFound = FALSE;
 #if HAVE_ID3TAG	// how to query artist with id3tag
 
@@ -445,11 +447,12 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 				}
 			}
 			if(coverart) {
+				GdkPixbuf *pic = NULL;
 				gchar *tmpName = g_strdup_printf("%s/squeezeboxaa",
 					g_get_tmp_dir());
 				if(tmpName && g_file_set_contents(tmpName, coverart, len, NULL)) {
 					g_string_assign(sd->player.albumArt, tmpName);
-					GdkPixbuf *pic = gdk_pixbuf_new_from_file_at_size(tmpName,
+					 pic = gdk_pixbuf_new_from_file_at_size(tmpName,
 						 64, 64, NULL);
 					if(pic) {
 						bFound = TRUE;
@@ -465,8 +468,8 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 #endif
 	if(!bFound) {
 		gchar *strNext = g_path_get_dirname(path);
-		LOG("SB Enter Check #2:'%s/[.][folder|cover|front].jpg'", strNext);
 		GDir *dir = g_dir_open(strNext, 0, NULL);
+		LOG("SB Enter Check #2:'%s/[.][folder|cover|front].jpg'", strNext);
 		if (NULL != dir) {
 			const gchar *fnam = NULL;
 			while ((fnam = g_dir_read_name(dir))) {
@@ -497,7 +500,7 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 static void
 squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 		     eSynoptics State, const gchar * playerMessage) {
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
+	MKTHIS;
 
 	if (sd->state != State) {
 		sd->state = State;
@@ -616,22 +619,25 @@ squeezebox_persist_properties(SqueezeBoxData * sd, XfceRc *rc, gboolean isStorin
     const Backend *ptr = squeezebox_get_backends();
     LOG("Enter squeezebox_persist_properties");
     while(ptr->BACKEND_attach) {
-        LOG("Properties of %s", ptr->BACKEND_name());
         PropDef *prop = ptr->BACKEND_properties();
         gchar *propValue =  NULL;
+        LOG("Properties of %s", ptr->BACKEND_name());
         while(*prop->Name) {
             if(isStoring) {
-                if(g_hash_table_lookup_extended(sd->properties, prop->Name, NULL, (gpointer)&propValue)) {
+                if(g_hash_table_lookup_extended(sd->properties, prop->Name, 
+                	NULL, (gpointer)&propValue)) {
                     xfce_rc_write_entry(rc, prop->Name, propValue);
                 } else {
                     xfce_rc_write_entry(rc, prop->Name, prop->Default);
                 }
             } else {
                 if(rc)
-                    propValue =  g_strdup(xfce_rc_read_entry(rc, prop->Name, prop->Default));
+                    propValue = g_strdup(xfce_rc_read_entry(
+                    				rc, prop->Name, prop->Default));
                 else
                     propValue = g_strdup(prop->Default);
-                g_hash_table_insert(sd->properties, g_strdup(prop->Name), propValue);
+                g_hash_table_insert(sd->properties, g_strdup(prop->Name), 
+                			propValue);
             }
             LOG("\t%s->'%s'", prop->Name, propValue);
             prop++;
@@ -771,29 +777,32 @@ squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 
 static void
 squeezebox_dialog_response(GtkWidget * dlg, int reponse, SqueezeBoxData * sd) {
+	const Backend *ptr = squeezebox_get_backends();
+    PropDef *prop = ptr[sd->backend - 1].BACKEND_properties();  
 	g_object_set_data(G_OBJECT(sd->plugin), "dialog", NULL);
 	gtk_widget_destroy(dlg);
     LOG("Enter DialogResponse");
 	xfce_panel_plugin_unblock_menu(sd->plugin);
     // apply new properties, if applicable
-	const Backend *ptr = squeezebox_get_backends();
-    PropDef *prop = ptr[sd->backend - 1].BACKEND_properties();  
     while(*prop->Name) {
         gchar *propValue = NULL;
         switch(prop->Type) {
             case G_TYPE_BOOLEAN: {
-                gboolean *boolVal = (gboolean*)g_hash_table_lookup(sd->propertyAddresses, prop->Name);
+                gboolean *boolVal = (gboolean*)g_hash_table_lookup(
+                			sd->propertyAddresses, prop->Name);
                 LOG("Apply property %s, %p", prop->Name, boolVal);
                 if(boolVal)
                     propValue = g_strdup_printf("%d", *boolVal);
             }break;
             case G_TYPE_INT: {
-                gint *gintVal = g_hash_table_lookup(sd->propertyAddresses, prop->Name);
+                gint *gintVal = g_hash_table_lookup(
+                					sd->propertyAddresses, prop->Name);
                 if(gintVal)
                     propValue = g_strdup_printf("%d", *gintVal);
             }break;
             case G_TYPE_STRING: {
-                GString *strVal = g_hash_table_lookup(sd->propertyAddresses, prop->Name);
+                GString *strVal = g_hash_table_lookup(
+                						sd->propertyAddresses, prop->Name);
                 if(strVal)
                     propValue = g_strdup(strVal->str);
             }break;
@@ -1471,7 +1480,7 @@ static void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 	}
 }
 static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
+	MKTHIS;
 	GError *error = NULL;
 	guint start_service_reply;
 	gboolean bRet = TRUE;

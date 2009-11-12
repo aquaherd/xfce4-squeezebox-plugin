@@ -25,17 +25,6 @@
 #include "notifications.h"
 #if HAVE_DBUS
 
-void squeezebox_update_UI_hide_toaster(gpointer thsPlayer) {
-	LOG("hide_toaster");
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	/*
-	if (sd->note) {
-		notify_notification_close(sd->note, NULL);
-		sd->note = NULL;
-	}
-	*/
-}
-
 void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	/*
 	 "xfce", 
@@ -53,7 +42,7 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	gboolean bAct = TRUE;
 	gboolean bExisted = (sd->note != NULL);
 	GdkPixbuf *pixbuf = NULL;
-	gchar *pixPath = "/tmp/sqicon.png";
+	gchar *pixPath = "/tmp/sqicon.png"; //use g_get_tmp_dir();
 
 	if (bAct) {
 		bAct = ((sd->player.title->str && sd->player.title->str[0]) ||
@@ -70,7 +59,7 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		gchar *ntTitle = g_strdup(sd->player.title->str);
 		//happily, we easily can escape ampersands and other usual suspects.
 		gchar *ntDetails =
-		    g_markup_printf_escaped("by <b>%s</b>\nfrom <i>%s</i>",
+		    g_markup_printf_escaped(_("by <b>%s</b>\nfrom <i>%s</i>"),
 					    sd->player.artist->str,
 					    sd->player.album->str);
 
@@ -83,7 +72,7 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 			pixbuf = ptr->BACKEND_icon();
 		}
 		if(NULL != pixbuf)
-			gdk_pixbuf_save(pixbuf, "/tmp/sqicon.png", "png", NULL, NULL);
+			gdk_pixbuf_save(pixbuf, pixPath, "png", NULL, NULL);
 		else
 			pixPath = NULL;
 		

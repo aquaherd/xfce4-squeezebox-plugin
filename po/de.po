@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-12 12:44+0100\n"
-"PO-Revision-Date: 2009-11-12 12:57+0100\n"
+"POT-Creation-Date: 2009-11-12 17:43+0100\n"
+"PO-Revision-Date: 2009-11-12 17:49+0100\n"
 "Last-Translator: Hakan Erduman <hakan@erduman.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -199,6 +199,15 @@ msgstr "Muine"
 #: ../panel-plugin/squeezebox-ba.c:51
 msgid "Banshee"
 msgstr "Banshee"
+
+#: ../panel-plugin/notifications.c:73
+#, c-format
+msgid ""
+"by <b>%s</b>\n"
+"from <i>%s</i>"
+msgstr ""
+"von <b>%s</b>\n"
+"Album <i>%s</i>"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:1
 msgid " Control various audio players; display album art"

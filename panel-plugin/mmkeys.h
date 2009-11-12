@@ -38,7 +38,7 @@
 typedef struct _MmKeys      MmKeys;
 typedef struct _MmKeysClass MmKeysClass;
 
-#define N_KEYCODES 5
+#define N_KEYCODES 4
 
 struct _MmKeys
 {
