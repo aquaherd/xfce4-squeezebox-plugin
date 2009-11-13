@@ -1,206 +1,204 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-11-13 13:05+0100\n"
-"PO-Revision-Date: 2009-11-13 13:31+0100\n"
-"Last-Translator: Hakan Erduman <hakan@erduman.de>\n"
-"Language-Team: \n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Poedit-Language: Turkish\n"
-"X-Poedit-Country: TURKEY\n"
-"X-Poedit-Basepath: /home/herd/Projects/xfce4-squeezebox-plugin/po\n"
-"X-Poedit-SearchPath-0: ../panel-plugin\n"
 
 #: ../panel-plugin/squeezebox.c:521
 #, c-format
 msgid "%s: No info"
-msgstr "%s: Detaysız"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:832
 msgid "This backend has no configurable properties"
-msgstr "Bu arkalık değiştirilebilir kullanımlara sahip değildir"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:850
 msgid "Media buttons"
-msgstr "Medya tuşları"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:855
 msgid "Grab state of multimedia keys"
-msgstr "Medya tuşlarının bağlantı hali"
+msgstr ""
 
-#: ../panel-plugin/squeezebox.c:1017
-#: ../panel-plugin/squeezebox-mpd.c:565
+#: ../panel-plugin/squeezebox.c:1017 ../panel-plugin/squeezebox-mpd.c:565
 msgid "Properties"
-msgstr "Ayarlar"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1037
 msgid "Squeezebox"
-msgstr " Squeezebox"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1040
 msgid "media player remote"
-msgstr "Squeezebox medya çalar kumandası"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1051
 msgid "Appearance"
-msgstr "Görünüm"
+msgstr ""
 
 #. check1
 #: ../panel-plugin/squeezebox.c:1061
 msgid "Show p_revious button"
-msgstr "_Geri tuşunu göster"
+msgstr ""
 
 #. check2
 #: ../panel-plugin/squeezebox.c:1067
 msgid "Show _next button"
-msgstr "_ileri tuşunu göster"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1078
 msgid "Grab _media buttons, if available"
-msgstr "Medya tuşlarını varsa bağla"
+msgstr ""
 
 #. btnView
 #: ../panel-plugin/squeezebox.c:1084
 msgid "_Details..."
-msgstr "_Detaylar..."
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1091
 msgid "No _tooltips"
-msgstr "Tooltip açma"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1098
 msgid "_Simple tooltips"
-msgstr "Ba_sit tooltipler"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1114
 msgid "Show noti_fications (notify daemon)"
-msgstr "Not göster (notify deamon)"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1122
 msgid "Notification _timeout (sec)"
-msgstr "Not gös_terme süresi (saniye)"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1138
 msgid "_Backend"
-msgstr "Ar_kalık"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1199
 msgid "_Settings..."
-msgstr "_Ayarlar..."
+msgstr ""
 
-#: ../panel-plugin/squeezebox.c:1519
-#: ../panel-plugin/squeezebox.c:1520
+#: ../panel-plugin/squeezebox.c:1519 ../panel-plugin/squeezebox.c:1520
 #: ../panel-plugin/squeezebox.c:1521
 msgid "(unknown)"
-msgstr "(bilinmiyor)"
+msgstr ""
 
 #. add menu items
 #: ../panel-plugin/squeezebox.c:1601
 msgid "Show player"
-msgstr "Çaları göster"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1609
 msgid "Playlists"
-msgstr "Çalma Listeleri"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1616
 msgid "Shuffle"
-msgstr "Tesadüfle"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.c:1624
 msgid "Repeat"
-msgstr "Tekrarla"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-rb.c:52
 msgid "Rhythmbox"
-msgstr "Rhythmbox"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:48
 msgid "Music Player Daemon"
-msgstr "Music Player Daemon"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:123
 msgid "Can't connect to music player daemon."
-msgstr "Müzik çalar cinine bağlantı kurulamıyor."
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:508
 #, c-format
 msgid "Can't find binary '%s'"
-msgstr "öğe '%s' bulunamadı"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:583
 msgid "MPD"
-msgstr "MPD"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:589
 msgid "music player daemon"
-msgstr "müzik çalar cini"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:597
 msgid "Use _defaults"
-msgstr "Sıra_dan ayar kullan"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:609
 msgid "_Host:"
-msgstr "_Adres :"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:617
 msgid "_Port:"
-msgstr "_Port :"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:627
 msgid "Pass_word:"
-msgstr "Pa_rola:"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:639
 msgid "Use MPD Music _folder as cover source"
-msgstr "MPD dizinini albüm sanatı kaynağı olarak kullan"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mpd.c:646
 msgid "Select MPD music folder"
-msgstr "MPD müzik dizinini belirle"
+msgstr ""
 
 #. player selection
 #: ../panel-plugin/squeezebox-mpd.c:657
 msgid "Use a playlist _manager:"
-msgstr "Çalma Listeleri için kullan:"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-ql.c:48
 msgid "QuodLibet"
-msgstr "QuodLibet"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-ql.c:113
 msgid "[Unknown]"
-msgstr "[Bilinmiyor]"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-au.c:45
 msgid "Audacious"
-msgstr "Audacious"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-ex.c:45
 msgid "Exaile"
-msgstr "Exaile"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-cs.c:73
 msgid "Consonance"
-msgstr "Consonance"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-bmp.c:45
 msgid "Beep Media Player"
-msgstr "Beep Media Player"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-mu.c:42
 msgid "Muine"
-msgstr "Muine"
+msgstr ""
 
 #: ../panel-plugin/squeezebox-ba.c:51
 msgid "Banshee"
-msgstr "Banshee"
+msgstr ""
 
 #: ../panel-plugin/notifications.c:62
 #, c-format
@@ -208,21 +206,11 @@ msgid ""
 "by <b>%s</b>\n"
 "from <i>%s</i>"
 msgstr ""
-"<b>%s</b>'dan\n"
-"<i>%s</i> albümünden"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:1
 msgid " Control various audio players; display album art"
-msgstr "Birkaç müzik çaları uzaktan kumanda et, Albüm sanat göster"
+msgstr ""
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:2
 msgid " SqueezeBox"
-msgstr " SqueezeBox"
-
-#~ msgid "N_otification tooltips"
-#~ msgstr "Not Tooltipleri"
-#~ msgid "Rhythmbox 0.9.x (via DBUS)"
-#~ msgstr "Rhythmbox 0.9.x (DBUS üzeri)"
-#~ msgid "Music Player Daemon (libmpd)"
-#~ msgstr "Müzik Çalar Cini (libmpd üzeri)"
-
+msgstr ""

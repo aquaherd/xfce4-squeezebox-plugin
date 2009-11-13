@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-12 17:43+0100\n"
-"PO-Revision-Date: 2009-11-12 18:18+0100\n"
+"POT-Creation-Date: 2009-11-13 13:05+0100\n"
+"PO-Revision-Date: 2009-11-13 13:30+0100\n"
 "Last-Translator: Hakan Erduman <hakan@erduman.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -13,104 +13,106 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-Language: French\n"
 "X-Poedit-Country: France\n"
+"X-Poedit-Basepath: /home/herd/Projects/xfce4-squeezebox-plugin/po\n"
+"X-Poedit-SearchPath-0: ../panel-plugin\n"
 
-#: ../panel-plugin/squeezebox.c:518
+#: ../panel-plugin/squeezebox.c:521
 #, c-format
 msgid "%s: No info"
 msgstr "%s: Pas d'info"
 
-#: ../panel-plugin/squeezebox.c:823
+#: ../panel-plugin/squeezebox.c:832
 msgid "This backend has no configurable properties"
 msgstr "Ceci Backend n'avez pas proprietes confinubles"
 
-#: ../panel-plugin/squeezebox.c:839
+#: ../panel-plugin/squeezebox.c:850
 msgid "Media buttons"
 msgstr "Touches multimédia"
 
-#: ../panel-plugin/squeezebox.c:851
+#: ../panel-plugin/squeezebox.c:855
 msgid "Grab state of multimedia keys"
 msgstr "État instantané de touches multimédia"
 
-#: ../panel-plugin/squeezebox.c:1004
+#: ../panel-plugin/squeezebox.c:1017
 #: ../panel-plugin/squeezebox-mpd.c:565
 msgid "Properties"
 msgstr "Propriétés"
 
-#: ../panel-plugin/squeezebox.c:1024
+#: ../panel-plugin/squeezebox.c:1037
 msgid "Squeezebox"
 msgstr "Squeezebox"
 
-#: ../panel-plugin/squeezebox.c:1027
+#: ../panel-plugin/squeezebox.c:1040
 msgid "media player remote"
 msgstr "télécommande de lecteur de musique"
 
-#: ../panel-plugin/squeezebox.c:1039
+#: ../panel-plugin/squeezebox.c:1051
 msgid "Appearance"
 msgstr "Apparence"
 
 #. check1
-#: ../panel-plugin/squeezebox.c:1049
+#: ../panel-plugin/squeezebox.c:1061
 msgid "Show p_revious button"
 msgstr "Afficher le bouton Précédent"
 
 #. check2
-#: ../panel-plugin/squeezebox.c:1055
+#: ../panel-plugin/squeezebox.c:1067
 msgid "Show _next button"
 msgstr "Montre bouton _avant"
 
-#: ../panel-plugin/squeezebox.c:1066
+#: ../panel-plugin/squeezebox.c:1078
 msgid "Grab _media buttons, if available"
 msgstr "Joindre à des touches multimédias, si disponible"
 
 #. btnView
-#: ../panel-plugin/squeezebox.c:1072
+#: ../panel-plugin/squeezebox.c:1084
 msgid "_Details..."
 msgstr "_Détails..."
 
-#: ../panel-plugin/squeezebox.c:1079
+#: ../panel-plugin/squeezebox.c:1091
 msgid "No _tooltips"
 msgstr "Pas de _tooltips"
 
-#: ../panel-plugin/squeezebox.c:1086
+#: ../panel-plugin/squeezebox.c:1098
 msgid "_Simple tooltips"
 msgstr "Tooltips brut_s"
 
-#: ../panel-plugin/squeezebox.c:1102
+#: ../panel-plugin/squeezebox.c:1114
 msgid "Show noti_fications (notify daemon)"
 msgstr "Montrez l'_notifications"
 
-#: ../panel-plugin/squeezebox.c:1110
+#: ../panel-plugin/squeezebox.c:1122
 msgid "Notification _timeout (sec)"
 msgstr "Timeout du noticiation"
 
-#: ../panel-plugin/squeezebox.c:1126
+#: ../panel-plugin/squeezebox.c:1138
 msgid "_Backend"
 msgstr "_Backend"
 
-#: ../panel-plugin/squeezebox.c:1195
+#: ../panel-plugin/squeezebox.c:1199
 msgid "_Settings..."
 msgstr "_Ajustements..."
 
-#: ../panel-plugin/squeezebox.c:1516
-#: ../panel-plugin/squeezebox.c:1517
-#: ../panel-plugin/squeezebox.c:1518
+#: ../panel-plugin/squeezebox.c:1519
+#: ../panel-plugin/squeezebox.c:1520
+#: ../panel-plugin/squeezebox.c:1521
 msgid "(unknown)"
 msgstr "(pas de connaitre)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1598
+#: ../panel-plugin/squeezebox.c:1601
 msgid "Show player"
 msgstr "Afficher le lecteur de musique"
 
-#: ../panel-plugin/squeezebox.c:1606
+#: ../panel-plugin/squeezebox.c:1609
 msgid "Playlists"
 msgstr "Listes de lecture"
 
-#: ../panel-plugin/squeezebox.c:1613
+#: ../panel-plugin/squeezebox.c:1616
 msgid "Shuffle"
 msgstr "Shuffle"
 
-#: ../panel-plugin/squeezebox.c:1621
+#: ../panel-plugin/squeezebox.c:1624
 msgid "Repeat"
 msgstr "Rappel"
 
@@ -200,7 +202,7 @@ msgstr "Muine"
 msgid "Banshee"
 msgstr "Banshee"
 
-#: ../panel-plugin/notifications.c:73
+#: ../panel-plugin/notifications.c:62
 #, c-format
 msgid ""
 "by <b>%s</b>\n"
