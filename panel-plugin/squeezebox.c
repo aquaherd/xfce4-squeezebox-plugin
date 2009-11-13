@@ -845,26 +845,19 @@ typedef enum eColumns{
 }eColumns;
 
 static void config_show_grab_properties(GtkButton * btn, SqueezeBoxData * sd) {
-	GtkWidget *dlg = xfce_titled_dialog_new_with_buttons(_("Media buttons"),
-							     GTK_WINDOW
-							     (g_object_get_data
-							      (G_OBJECT
-							       (sd->plugin),
-							       "dialog")),
-							     GTK_DIALOG_MODAL,
-							     GTK_STOCK_CANCEL,
-							     0, GTK_STOCK_OK, 1,
-							     NULL);
+	GtkWidget *dlg, *vbox, *label;
+	dlg = xfce_titled_dialog_new_with_buttons(
+				_("Media buttons"), 
+				GTK_WINDOW(g_object_get_data(G_OBJECT(sd->plugin), "dialog")),
+				GTK_DIALOG_MODAL, GTK_STOCK_CANCEL, 0, GTK_STOCK_OK, 1, NULL);
 
 	xfce_titled_dialog_set_subtitle(XFCE_TITLED_DIALOG(dlg),
 					_("Grab state of multimedia keys"));
-	GtkWidget *vbox = gtk_vbox_new(FALSE, 8);
+	vbox = gtk_vbox_new(FALSE, 8);
 	gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dlg)->vbox), vbox);
-	GtkWidget *label =
-	    gtk_label_new
-	    ("Currently not implemented\nBut may as well show things to come.");
+	label = gtk_label_new(
+		"Currently not implemented\nBut may as well show things to come.");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 16);
-
 	gtk_widget_show_all(dlg);
 	gtk_dialog_run(GTK_DIALOG(dlg));
 	gtk_widget_destroy(dlg);
@@ -875,8 +868,8 @@ static void config_change_backend(GtkComboBox * cb, SqueezeBoxData * sd) {
     LOG("Backend change...");
     if( gtk_combo_box_get_active_iter(cb, &iter)) {
         gint nBackend = -1;
-        LOG("Have iter %d", iter.stamp);
         GtkTreeModel *model = gtk_combo_box_get_model(cb);
+        LOG("Have iter %d", iter.stamp);
         if(model) {
             gchar *backend = NULL;
             gtk_tree_model_get(model, &iter, TEXT_COLUMN, &backend, INDEX_COLUMN, &nBackend, -1);
@@ -1001,13 +994,24 @@ static void config_toggle_prev(GtkToggleButton * tb, SqueezeBoxData * sd) {
 
 static void
 squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
+	// widgets
 	GtkWidget *dlg, *header, *vbox, *hbox1, *label0, *label1,
 	    *cb1, *cb2, *cb3, *btnView;
 	GtkWidget *cbBackend;
 	GtkWidget *opt[2];
 	GtkWidget *squeezebox_delay_spinner;
 	GtkWidget *cb4, *label2, *hbox2, *cbNotLoc;
-
+	gchar *markup0 = NULL;
+	gchar *markup1 = NULL;
+	GValue val = { 0 };
+	// backends
+	GtkListStore *store;
+	GtkTreeIter iter = { 0 };
+	const Backend *ptr = squeezebox_get_backends();
+    gint idx;
+	GtkCellRenderer *renderer;
+	GdkPixbuf *pix;
+	
 	xfce_panel_plugin_block_menu(plugin);
 
 	dlg = gtk_dialog_new_with_buttons(_("Properties"),
@@ -1042,10 +1046,9 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dlg)->vbox), vbox, TRUE, TRUE, 0);
 
 	label0 = gtk_label_new(NULL);
-	GValue val = { 0 };
 	g_value_init(&val, G_TYPE_DOUBLE);
 	g_object_set_property(G_OBJECT(label0), "xalign", &val);
-	gchar *markup0 = g_markup_printf_escaped("<b>%s</b>", _("Appearance"));
+	markup0 = g_markup_printf_escaped("<b>%s</b>", _("Appearance"));
 	gtk_label_set_markup_with_mnemonic(GTK_LABEL(label0), markup0);
 	g_free(markup0);
 	gtk_box_pack_start(GTK_BOX(vbox), label0, FALSE, FALSE, 0);
@@ -1132,7 +1135,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 			 G_CALLBACK(config_change_notify_timeout), sd);
 #endif
 	label1 = gtk_label_new_with_mnemonic(NULL);
-	gchar *markup1 = g_markup_printf_escaped("<b>%s</b>", _("_Backend"));
+	markup1 = g_markup_printf_escaped("<b>%s</b>", _("_Backend"));
 	gtk_label_set_markup_with_mnemonic(GTK_LABEL(label1), markup1);
 	g_free(markup1);
 	g_object_set_property(G_OBJECT(label1), "xalign", &val);
@@ -1141,22 +1144,16 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	hbox1 = gtk_hbox_new(FALSE, 8);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox1, FALSE, FALSE, 0);
 
-	GtkListStore *store;
-
 	/* make a new list store */
 	store = gtk_list_store_new(N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
     gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), TEXT_COLUMN, GTK_SORT_ASCENDING);
 
 	/* fill the store with data */
-	GtkTreeIter iter = { 0 };
-	const Backend *ptr = squeezebox_get_backends();
-    gint idx = 0;
+	idx = 0;
 	for (;;) {
 		LOG("Have %s", ptr->BACKEND_name());
 		gtk_list_store_append(store, &iter);
-		GdkPixbuf *pix =
-		    exo_gdk_pixbuf_scale_down(ptr->BACKEND_icon(), TRUE, 24,
-					      32);
+		pix = exo_gdk_pixbuf_scale_down(ptr->BACKEND_icon(), TRUE, 24, 32);
 		gtk_list_store_set(store, &iter, 
                    PIXBUF_COLUMN, pix,
 				   TEXT_COLUMN, ptr->BACKEND_name(), 
@@ -1169,8 +1166,6 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	cbBackend =
 	    GTK_WIDGET(gtk_combo_box_new_with_model(GTK_TREE_MODEL(store)));
 	gtk_label_set_mnemonic_widget(GTK_LABEL(label1), cbBackend);
-
-	GtkCellRenderer *renderer;
 
 	renderer = gtk_cell_renderer_pixbuf_new();
 	gtk_cell_renderer_set_fixed_size(renderer, 36, 24);
@@ -1229,8 +1224,8 @@ void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 }
 
 gboolean squeezebox_play(SqueezeBoxData * sd) {
-	LOG("Enter squeezebox_play");
 	gboolean bRet = FALSE;
+	LOG("Enter squeezebox_play");
 	if (sd->player.Toggle && sd->player.Toggle(sd->player.db, &bRet)) {
 		squeezebox_update_playbtn(sd);
 	}
@@ -1290,8 +1285,8 @@ void squeezebox_next(SqueezeBoxData * sd) {
 }
 
 void squeezebox_map_property(gpointer thsPlayer, const gchar *propName, gpointer address) {
+	MKTHIS;
     LOG("Mapping property %s to %p", propName, address);
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
     g_hash_table_insert(sd->propertyAddresses, g_strdup(propName), address);
 }
 
@@ -1335,9 +1330,9 @@ gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
 			  SqueezeBoxData * sd) {
 	if (sd->toolTipStyle == ettSimple && sd->toolTipText->str != NULL
 	    && sd->toolTipText->str[0] != 0) {
-		gtk_tooltip_set_text(tooltip, sd->toolTipText->str);
 		GdkPixbuf *pic = NULL;
 		GString * albumArt = sd->player.albumArt;
+		gtk_tooltip_set_text(tooltip, sd->toolTipText->str);
 		if (albumArt->len && g_file_test(albumArt->str, G_FILE_TEST_EXISTS))
 			pic = gdk_pixbuf_new_from_file_at_size(albumArt->str, 32, 32, NULL);
 		else
@@ -1357,9 +1352,10 @@ gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
   g_object_set_data (G_OBJECT (component), name, widget)
 
 static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
-	LOG("Enter squeezebox_create");
-
 	GtkContainer *window1 = GTK_CONTAINER(sd->plugin);
+
+	LOG("Enter squeezebox_create");
+	
 	sd->table = gtk_table_new(1, 3, FALSE);
 	gtk_widget_show(sd->table);
 	gtk_container_add(GTK_CONTAINER(window1), sd->table);
@@ -1460,20 +1456,18 @@ static void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 		const Backend *ptr = squeezebox_get_backends();
 		ptr += (sd->backend - 1);
 		if (ptr->BACKEND_dbusName) {
-			gboolean appeared = (NULL != NewOwner
-					     && 0 != NewOwner[0]);
+			gboolean appeared = (NULL != NewOwner && 0 != NewOwner[0]);
 			const gchar *dbusName = ptr->BACKEND_dbusName();
 			if (!g_ascii_strcasecmp(Name, dbusName)) {
-				LOG("DBUS name change %s: '%s'->'%s'", Name,
-				    OldOwner, NewOwner);
+				LOG("DBUS name change %s: '%s'->'%s'", Name, OldOwner, NewOwner);
 				if(sd->player.UpdateDBUS)	
 					sd->player.UpdateDBUS(sd->player.db, appeared);
 				sd->player.playerPID = 0;
 				if(appeared 
 				    && org_freedesktop_DBus_get_connection_unix_process_id(
 					sd->player.dbService, NewOwner, &sd->player.playerPID, NULL)
-					&& sd->player.playerPID) {
-					
+					&& sd->player.playerPID > 0) {
+					// now we got the process
 				}
 			}
 		}
@@ -1485,6 +1479,7 @@ static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 	guint start_service_reply;
 	gboolean bRet = TRUE;
 	Backend const *ptr = &squeezebox_get_backends()[sd->backend -1];
+	gchar *path = NULL;
 	
 	LOG("Starting new instance of '%s'", ptr->BACKEND_dbusName());
 	if (!dbus_g_proxy_call(sd->player.dbService, "StartServiceByName", &error,
@@ -1495,7 +1490,7 @@ static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 		bRet = FALSE;
 		LOG("Could'n start service '%s'", error->message);
 		g_error_free(error);
-		gchar *path = g_find_program_in_path(ptr->BACKEND_commandLine());
+		path = g_find_program_in_path(ptr->BACKEND_commandLine());
 		if(NULL != path) {
 			const gchar *argv[] = {
 				path,
@@ -1513,11 +1508,10 @@ static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 #endif
 static void squeezebox_construct(XfcePanelPlugin * plugin) {
 	int i = 0;
+	SqueezeBoxData *sd = g_new0(SqueezeBoxData, 1);
 
 	xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
 	LOG("Enter squeezebox_construct");
-
-	SqueezeBoxData *sd = g_new0(SqueezeBoxData, 1);
 
 	sd->plugin = plugin;
     sd->properties = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);

@@ -45,3 +45,11 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 EXTRA_DIST = $(desktop_in_in_files)
 
 DISTCLEANFILES = $(desktop_DATA) $(desktop_in_files)
+
+splint:
+	splint -warnposix +ignoresigns -stats \
+	*.c  \
+	@LIBXFCE4PANEL_CFLAGS@ @DBUSGLIB_CFLAGS@ \
+    @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ \
+    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@
+

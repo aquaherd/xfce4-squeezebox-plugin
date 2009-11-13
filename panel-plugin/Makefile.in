@@ -787,6 +787,13 @@ uninstall-am: uninstall-desktopDATA uninstall-info-am \
 # get full path into .desktop file
 %.desktop.in: %.desktop.in.in
 	sed -e "s^@PLUGIN_PATH@^$(libexecdir)/xfce4/panel-plugins^" $< > $@
+
+splint:
+	splint -warnposix +ignoresigns -stats \
+	*.c  \
+	@LIBXFCE4PANEL_CFLAGS@ @DBUSGLIB_CFLAGS@ \
+    @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ \
+    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
