@@ -5,6 +5,19 @@
 
 G_BEGIN_DECLS
 
+#ifndef _DBUS_GLIB_ASYNC_DATA_FREE
+#define _DBUS_GLIB_ASYNC_DATA_FREE
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+void
+_dbus_glib_async_data_free (gpointer stuff)
+{
+	g_slice_free (DBusGAsyncData, stuff);
+}
+#endif
+
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_DBusInterface
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_DBusInterface
 
@@ -41,10 +54,10 @@ org_exaile_DBusInterface_get_cover_path_async (DBusGProxy *proxy, org_exaile_DBu
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "get_cover_path", org_exaile_DBusInterface_get_cover_path_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "get_cover_path", org_exaile_DBusInterface_get_cover_path_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -78,10 +91,10 @@ org_exaile_DBusInterface_decrease_volume_async (DBusGProxy *proxy, const guchar 
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "decrease_volume", org_exaile_DBusInterface_decrease_volume_async_callback, stuff, g_free, G_TYPE_UCHAR, IN_vol, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "decrease_volume", org_exaile_DBusInterface_decrease_volume_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UCHAR, IN_vol, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -116,10 +129,10 @@ org_exaile_DBusInterface_get_volume_async (DBusGProxy *proxy, org_exaile_DBusInt
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "get_volume", org_exaile_DBusInterface_get_volume_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "get_volume", org_exaile_DBusInterface_get_volume_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -153,10 +166,10 @@ org_exaile_DBusInterface_prev_track_async (DBusGProxy *proxy, org_exaile_DBusInt
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "prev_track", org_exaile_DBusInterface_prev_track_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "prev_track", org_exaile_DBusInterface_prev_track_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -191,10 +204,10 @@ org_exaile_DBusInterface_get_title_async (DBusGProxy *proxy, org_exaile_DBusInte
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "get_title", org_exaile_DBusInterface_get_title_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "get_title", org_exaile_DBusInterface_get_title_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -228,10 +241,10 @@ org_exaile_DBusInterface_popup_async (DBusGProxy *proxy, org_exaile_DBusInterfac
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "popup", org_exaile_DBusInterface_popup_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "popup", org_exaile_DBusInterface_popup_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -266,10 +279,10 @@ org_exaile_DBusInterface_query_async (DBusGProxy *proxy, org_exaile_DBusInterfac
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "query", org_exaile_DBusInterface_query_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "query", org_exaile_DBusInterface_query_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -303,10 +316,10 @@ org_exaile_DBusInterface_play_file_async (DBusGProxy *proxy, const char * IN_fil
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "play_file", org_exaile_DBusInterface_play_file_async_callback, stuff, g_free, G_TYPE_STRING, IN_filename, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "play_file", org_exaile_DBusInterface_play_file_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_filename, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -340,10 +353,10 @@ org_exaile_DBusInterface_set_rating_async (DBusGProxy *proxy, const guchar IN_ra
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "set_rating", org_exaile_DBusInterface_set_rating_async_callback, stuff, g_free, G_TYPE_UCHAR, IN_rating, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "set_rating", org_exaile_DBusInterface_set_rating_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UCHAR, IN_rating, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -378,10 +391,10 @@ org_exaile_DBusInterface_get_version_async (DBusGProxy *proxy, org_exaile_DBusIn
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "get_version", org_exaile_DBusInterface_get_version_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "get_version", org_exaile_DBusInterface_get_version_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -416,10 +429,10 @@ org_exaile_DBusInterface_get_album_async (DBusGProxy *proxy, org_exaile_DBusInte
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "get_album", org_exaile_DBusInterface_get_album_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "get_album", org_exaile_DBusInterface_get_album_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -454,10 +467,10 @@ org_exaile_DBusInterface_get_rating_async (DBusGProxy *proxy, org_exaile_DBusInt
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "get_rating", org_exaile_DBusInterface_get_rating_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "get_rating", org_exaile_DBusInterface_get_rating_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -492,10 +505,10 @@ org_exaile_DBusInterface_status_async (DBusGProxy *proxy, org_exaile_DBusInterfa
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "status", org_exaile_DBusInterface_status_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "status", org_exaile_DBusInterface_status_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -530,10 +543,10 @@ org_exaile_DBusInterface_get_length_async (DBusGProxy *proxy, org_exaile_DBusInt
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "get_length", org_exaile_DBusInterface_get_length_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "get_length", org_exaile_DBusInterface_get_length_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -567,10 +580,10 @@ org_exaile_DBusInterface_play_async (DBusGProxy *proxy, org_exaile_DBusInterface
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "play", org_exaile_DBusInterface_play_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "play", org_exaile_DBusInterface_play_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -605,10 +618,10 @@ org_exaile_DBusInterface_current_position_async (DBusGProxy *proxy, org_exaile_D
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "current_position", org_exaile_DBusInterface_current_position_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "current_position", org_exaile_DBusInterface_current_position_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -642,10 +655,10 @@ org_exaile_DBusInterface_play_pause_async (DBusGProxy *proxy, org_exaile_DBusInt
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "play_pause", org_exaile_DBusInterface_play_pause_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "play_pause", org_exaile_DBusInterface_play_pause_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -679,10 +692,10 @@ org_exaile_DBusInterface_next_track_async (DBusGProxy *proxy, org_exaile_DBusInt
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "next_track", org_exaile_DBusInterface_next_track_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "next_track", org_exaile_DBusInterface_next_track_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -716,10 +729,10 @@ org_exaile_DBusInterface_stop_async (DBusGProxy *proxy, org_exaile_DBusInterface
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "stop", org_exaile_DBusInterface_stop_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "stop", org_exaile_DBusInterface_stop_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -753,10 +766,10 @@ org_exaile_DBusInterface_increase_volume_async (DBusGProxy *proxy, const guchar 
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "increase_volume", org_exaile_DBusInterface_increase_volume_async_callback, stuff, g_free, G_TYPE_UCHAR, IN_vol, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "increase_volume", org_exaile_DBusInterface_increase_volume_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UCHAR, IN_vol, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -791,10 +804,10 @@ org_exaile_DBusInterface_get_track_attr_async (DBusGProxy *proxy, const char * I
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "get_track_attr", org_exaile_DBusInterface_get_track_attr_async_callback, stuff, g_free, G_TYPE_STRING, IN_attr, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "get_track_attr", org_exaile_DBusInterface_get_track_attr_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_attr, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -829,10 +842,10 @@ org_exaile_DBusInterface_get_artist_async (DBusGProxy *proxy, org_exaile_DBusInt
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "get_artist", org_exaile_DBusInterface_get_artist_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "get_artist", org_exaile_DBusInterface_get_artist_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -866,10 +879,10 @@ org_exaile_DBusInterface_play_cd_async (DBusGProxy *proxy, org_exaile_DBusInterf
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "play_cd", org_exaile_DBusInterface_play_cd_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "play_cd", org_exaile_DBusInterface_play_cd_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -903,10 +916,10 @@ org_exaile_DBusInterface_toggle_visibility_async (DBusGProxy *proxy, org_exaile_
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "toggle_visibility", org_exaile_DBusInterface_toggle_visibility_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "toggle_visibility", org_exaile_DBusInterface_toggle_visibility_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -940,10 +953,10 @@ org_exaile_DBusInterface_popup_text_async (DBusGProxy *proxy, const GValue* IN_t
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "popup_text", org_exaile_DBusInterface_popup_text_async_callback, stuff, g_free, G_TYPE_VALUE, IN_text, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "popup_text", org_exaile_DBusInterface_popup_text_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_VALUE, IN_text, G_TYPE_INVALID);
 }
 static
 #ifdef G_HAVE_INLINE
@@ -977,37 +990,36 @@ org_exaile_DBusInterface_test_service_async (DBusGProxy *proxy, const char * IN_
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "test_service", org_exaile_DBusInterface_test_service_async_callback, stuff, g_free, G_TYPE_STRING, IN_arg, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "test_service", org_exaile_DBusInterface_test_service_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_arg, G_TYPE_INVALID);
 }
 #endif /* defined DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_DBusInterface */
 
-#ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_DBus_Introspectable
-#define DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_DBus_Introspectable
+#ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_Exaile
+#define DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_Exaile
 
 static
 #ifdef G_HAVE_INLINE
 inline
 #endif
 gboolean
-org_freedesktop_DBus_Introspectable_introspect (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
+org_exaile_Exaile_stop_after_current (DBusGProxy *proxy, GError **error)
 
 {
-  return dbus_g_proxy_call (proxy, "Introspect", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
+  return dbus_g_proxy_call (proxy, "StopAfterCurrent", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-typedef void (*org_freedesktop_DBus_Introspectable_introspect_reply) (DBusGProxy *proxy, char * OUT_arg0, GError *error, gpointer userdata);
+typedef void (*org_exaile_Exaile_stop_after_current_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
 
 static void
-org_freedesktop_DBus_Introspectable_introspect_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+org_exaile_Exaile_stop_after_current_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
 {
   DBusGAsyncData *data = (DBusGAsyncData*) user_data;
   GError *error = NULL;
-  char * OUT_arg0;
-  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_arg0, G_TYPE_INVALID);
-  (*(org_freedesktop_DBus_Introspectable_introspect_reply)data->cb) (proxy, OUT_arg0, error, data->userdata);
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_stop_after_current_reply)data->cb) (proxy, error, data->userdata);
   return;
 }
 
@@ -1016,15 +1028,650 @@ static
 inline
 #endif
 DBusGProxyCall*
-org_freedesktop_DBus_Introspectable_introspect_async (DBusGProxy *proxy, org_freedesktop_DBus_Introspectable_introspect_reply callback, gpointer userdata)
+org_exaile_Exaile_stop_after_current_async (DBusGProxy *proxy, org_exaile_Exaile_stop_after_current_reply callback, gpointer userdata)
 
 {
   DBusGAsyncData *stuff;
-  stuff = g_new (DBusGAsyncData, 1);
+  stuff = g_slice_new (DBusGAsyncData);
   stuff->cb = G_CALLBACK (callback);
   stuff->userdata = userdata;
-  return dbus_g_proxy_begin_call (proxy, "Introspect", org_freedesktop_DBus_Introspectable_introspect_async_callback, stuff, g_free, G_TYPE_INVALID);
+  return dbus_g_proxy_begin_call (proxy, "StopAfterCurrent", org_exaile_Exaile_stop_after_current_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-#endif /* defined DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_DBus_Introspectable */
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_play (DBusGProxy *proxy, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "Play", error, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_play_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_play_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_play_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_play_async (DBusGProxy *proxy, org_exaile_Exaile_play_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "Play", org_exaile_Exaile_play_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_get_volume (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetVolume", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_get_volume_reply) (DBusGProxy *proxy, char * OUT_arg0, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_get_volume_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  char * OUT_arg0;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_arg0, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_get_volume_reply)data->cb) (proxy, OUT_arg0, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_get_volume_async (DBusGProxy *proxy, org_exaile_Exaile_get_volume_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "GetVolume", org_exaile_Exaile_get_volume_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_current_position (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "CurrentPosition", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_current_position_reply) (DBusGProxy *proxy, char * OUT_arg0, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_current_position_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  char * OUT_arg0;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_arg0, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_current_position_reply)data->cb) (proxy, OUT_arg0, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_current_position_async (DBusGProxy *proxy, org_exaile_Exaile_current_position_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "CurrentPosition", org_exaile_Exaile_current_position_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_stop (DBusGProxy *proxy, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "Stop", error, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_stop_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_stop_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_stop_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_stop_async (DBusGProxy *proxy, org_exaile_Exaile_stop_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "Stop", org_exaile_Exaile_stop_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_set_track_attr (DBusGProxy *proxy, const char * IN_attr, const GValue* IN_value, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "SetTrackAttr", error, G_TYPE_STRING, IN_attr, G_TYPE_VALUE, IN_value, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_set_track_attr_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_set_track_attr_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_set_track_attr_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_set_track_attr_async (DBusGProxy *proxy, const char * IN_attr, const GValue* IN_value, org_exaile_Exaile_set_track_attr_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "SetTrackAttr", org_exaile_Exaile_set_track_attr_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_attr, G_TYPE_VALUE, IN_value, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_next (DBusGProxy *proxy, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "Next", error, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_next_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_next_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_next_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_next_async (DBusGProxy *proxy, org_exaile_Exaile_next_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "Next", org_exaile_Exaile_next_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_enqueue (DBusGProxy *proxy, const char ** IN_filenames, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "Enqueue", error, G_TYPE_STRV, IN_filenames, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_enqueue_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_enqueue_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_enqueue_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_enqueue_async (DBusGProxy *proxy, const char ** IN_filenames, org_exaile_Exaile_enqueue_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "Enqueue", org_exaile_Exaile_enqueue_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRV, IN_filenames, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_change_volume (DBusGProxy *proxy, const gint IN_value, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "ChangeVolume", error, G_TYPE_INT, IN_value, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_change_volume_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_change_volume_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_change_volume_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_change_volume_async (DBusGProxy *proxy, const gint IN_value, org_exaile_Exaile_change_volume_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "ChangeVolume", org_exaile_Exaile_change_volume_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_value, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_play_file (DBusGProxy *proxy, const char * IN_filename, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "PlayFile", error, G_TYPE_STRING, IN_filename, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_play_file_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_play_file_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_play_file_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_play_file_async (DBusGProxy *proxy, const char * IN_filename, org_exaile_Exaile_play_file_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "PlayFile", org_exaile_Exaile_play_file_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_filename, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_play_pause (DBusGProxy *proxy, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "PlayPause", error, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_play_pause_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_play_pause_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_play_pause_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_play_pause_async (DBusGProxy *proxy, org_exaile_Exaile_play_pause_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "PlayPause", org_exaile_Exaile_play_pause_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_test_service (DBusGProxy *proxy, const char * IN_arg, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "TestService", error, G_TYPE_STRING, IN_arg, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_test_service_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_test_service_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_test_service_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_test_service_async (DBusGProxy *proxy, const char * IN_arg, org_exaile_Exaile_test_service_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "TestService", org_exaile_Exaile_test_service_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_arg, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_is_playing (DBusGProxy *proxy, gboolean* OUT_arg0, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "IsPlaying", error, G_TYPE_INVALID, G_TYPE_BOOLEAN, OUT_arg0, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_is_playing_reply) (DBusGProxy *proxy, gboolean OUT_arg0, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_is_playing_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  gboolean OUT_arg0;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_BOOLEAN, &OUT_arg0, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_is_playing_reply)data->cb) (proxy, OUT_arg0, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_is_playing_async (DBusGProxy *proxy, org_exaile_Exaile_is_playing_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "IsPlaying", org_exaile_Exaile_is_playing_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_get_track_attr (DBusGProxy *proxy, const char * IN_attr, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetTrackAttr", error, G_TYPE_STRING, IN_attr, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_get_track_attr_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_get_track_attr_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_get_track_attr_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_get_track_attr_async (DBusGProxy *proxy, const char * IN_attr, org_exaile_Exaile_get_track_attr_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "GetTrackAttr", org_exaile_Exaile_get_track_attr_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_attr, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_query (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "Query", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_query_reply) (DBusGProxy *proxy, char * OUT_arg0, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_query_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  char * OUT_arg0;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_arg0, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_query_reply)data->cb) (proxy, OUT_arg0, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_query_async (DBusGProxy *proxy, org_exaile_Exaile_query_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "Query", org_exaile_Exaile_query_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_get_version (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetVersion", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_get_version_reply) (DBusGProxy *proxy, char * OUT_arg0, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_get_version_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  char * OUT_arg0;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_arg0, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_get_version_reply)data->cb) (proxy, OUT_arg0, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_get_version_async (DBusGProxy *proxy, org_exaile_Exaile_get_version_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "GetVersion", org_exaile_Exaile_get_version_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_prev (DBusGProxy *proxy, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "Prev", error, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_prev_reply) (DBusGProxy *proxy, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_prev_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_prev_reply)data->cb) (proxy, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_prev_async (DBusGProxy *proxy, org_exaile_Exaile_prev_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "Prev", org_exaile_Exaile_prev_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_exaile_Exaile_current_progress (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "CurrentProgress", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
+}
+
+typedef void (*org_exaile_Exaile_current_progress_reply) (DBusGProxy *proxy, char * OUT_arg0, GError *error, gpointer userdata);
+
+static void
+org_exaile_Exaile_current_progress_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void *user_data)
+{
+  DBusGAsyncData *data = (DBusGAsyncData*) user_data;
+  GError *error = NULL;
+  char * OUT_arg0;
+  dbus_g_proxy_end_call (proxy, call, &error, G_TYPE_STRING, &OUT_arg0, G_TYPE_INVALID);
+  (*(org_exaile_Exaile_current_progress_reply)data->cb) (proxy, OUT_arg0, error, data->userdata);
+  return;
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+DBusGProxyCall*
+org_exaile_Exaile_current_progress_async (DBusGProxy *proxy, org_exaile_Exaile_current_progress_reply callback, gpointer userdata)
+
+{
+  DBusGAsyncData *stuff;
+  stuff = g_slice_new (DBusGAsyncData);
+  stuff->cb = G_CALLBACK (callback);
+  stuff->userdata = userdata;
+  return dbus_g_proxy_begin_call (proxy, "CurrentProgress", org_exaile_Exaile_current_progress_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
+}
+#endif /* defined DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_Exaile */
 
 G_END_DECLS
