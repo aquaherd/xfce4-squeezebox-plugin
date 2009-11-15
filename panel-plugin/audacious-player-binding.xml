@@ -1,0 +1,80 @@
+<node name="/DBusInterfaceObject">
+  <interface name="org.exaile.DBusInterface">
+    <method name="get_cover_path">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="decrease_volume">
+      <arg direction="in"  type="y" name="vol" />
+    </method>
+    <method name="get_volume">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="prev_track">
+    </method>
+    <method name="get_title">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="popup">
+    </method>
+    <method name="query">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="play_file">
+      <arg direction="in"  type="s" name="filename" />
+    </method>
+    <method name="set_rating">
+      <arg direction="in"  type="y" name="rating" />
+    </method>
+    <method name="get_version">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="get_album">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="get_rating">
+      <arg direction="out" type="i" />
+    </method>
+    <method name="status">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="get_length">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="play">
+    </method>
+    <method name="current_position">
+      <arg direction="out" type="y" />
+    </method>
+    <method name="play_pause">
+    </method>
+    <method name="next_track">
+    </method>
+    <method name="stop">
+    </method>
+    <method name="increase_volume">
+      <arg direction="in"  type="y" name="vol" />
+    </method>
+    <method name="get_track_attr">
+      <arg direction="in"  type="s" name="attr" />
+      <arg direction="out" type="s" />
+    </method>
+    <method name="get_artist">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="play_cd">
+    </method>
+    <method name="toggle_visibility">
+    </method>
+    <method name="popup_text">
+      <arg direction="in"  type="v" name="text" />
+    </method>
+    <method name="test_service">
+      <arg direction="in"  type="s" name="arg" />
+    </method>
+  </interface>
+  <interface name="org.freedesktop.DBus.Introspectable">
+    <method name="Introspect">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+</node>
