@@ -1,0 +1,254 @@
+dnl configure.ac
+dnl
+dnl xfce4-squeezebox-plugin - squeezebox plugin for the XFce4 panel
+dnl
+
+m4_define([test_version], [0.1.0])
+
+AC_INIT([xfce4-squeezebox-plugin], [test_version()],
+	[hakan@erduman.de])
+
+
+TEST_VERSION=test_version()
+AM_INIT_AUTOMAKE([xfce4-squeezebox-plugin], [$TEST_VERSION])
+AC_CONFIG_HEADER([config.h])
+
+AM_MAINTAINER_MODE
+
+dnl Check for UNIX variants
+AC_AIX
+AC_ISC_POSIX
+AC_MINIX
+
+dnl Check for basic programs
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_INTLTOOL
+AC_PROG_LIBTOOL
+
+dnl Check for standard header files
+AC_HEADER_STDC
+
+dnl configure the panel plugin
+XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.3.99])
+
+dnl check for dbus
+AC_ARG_ENABLE(DBUS,[  --disable-DBUS     disable DBUS backends support (default: enable)],[enable_DBUS=$enableval],[enable_DBUS=yes])
+if test x$enable_DBUS = xyes; then
+	XDT_CHECK_PACKAGE([DBUSGLIB], [dbus-glib-1], [0.60])
+	AC_DEFINE(HAVE_DBUS,1,[Define to use DBUS backends])
+fi
+
+GETTEXT_PACKAGE=xfce4-squeezebox-plugin
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define to the Gettext package name])
+
+AM_GLIB_GNU_GETTEXT
+
+dnl check for exo presence
+PKG_CHECK_MODULES([EXO], [exo-0.3 >= 0.3.0])
+
+dnl check for new or old tooltips
+PKG_CHECK_MODULES(GTK,                            \
+    gtk+-2.0 >= 2.12.0,
+    have_newtooltips=yes,
+    have_newtooltips=no)
+if test x$have_newtooltips = xyes ; then
+    AC_DEFINE(HAVE_GTK_2_12, 1, [Define if GtkTooltips is deprecated])
+fi
+
+dnl check for gvfs presence
+PKG_CHECK_MODULES([LIBGIO], 
+	[gio-unix-2.0 >= 2.16.6],
+	have_gio=yes,
+	have_gio=no)
+if test x$have_gio = xyes ; then
+	AC_DEFINE(HAVE_GIO, 1, [Define if having gio-unix-2.0])
+	AC_SUBST([LIBGIO_CFLAGS])
+	AC_SUBST([LIBGIO_LIBS])
+fi
+
+AC_ARG_ENABLE(ID3TAG,[  --disable-ID3TAG     disable ID3TAG support (default: enable)],[enable_ID3TAG=$enableval],[enable_ID3TAG=yes])
+if test x$enable_ID3TAG = xyes; then
+	XDT_CHECK_PACKAGE([ID3TAG], [id3tag], [0.14])
+	AC_DEFINE(HAVE_ID3TAG,1,[Define to use ID3TAG])
+	AC_SUBST([ID3TAG_CFLAGS])
+	AC_SUBST([ID3TAG_LIBS])
+fi
+
+dnl Checking for libwnck
+XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.14.3])
+AC_SUBST([LIBWNCK_CFLAGS])
+AC_SUBST([LIBWNCK_LIBS])
+
+
+dnl Add backends here
+AC_ARG_ENABLE(rhythmbox,[  --disable-rhythmbox     disable rhythmbox support (default: enable)],[enable_rhythmbox=$enableval],[enable_rhythmbox=yes])
+if test x$enable_rhythmbox = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_RHYTHMBOX,1,[Define to use rhythmbox])
+fi
+
+AC_ARG_ENABLE(MPD,[  --disable-MPD           disable MPD support (default: enable)],[enable_MPD=$enableval],[enable_MPD=yes])
+if test x$enable_MPD = xyes; then
+	AC_DEFINE(HAVE_BACKEND_MPD,1,[Define to use MPD])
+
+	dnl check for libmpd presence
+	AC_ARG_WITH(libmpd,
+		AC_HELP_STRING([--with-libmpd=path], [path to libmpd directory]),
+			LIBMPD_PATH="$withval", LIBMPD_PATH="")
+
+	AC_MSG_CHECKING(whether --libmpd was used)
+	if test -n "$LIBMPD_PATH" ; then
+	   AC_MSG_RESULT(yes, using $LIBMPD_PATH)
+	   LIBMPD_CFLAGS="-I${LIBMPD_PATH}/include/"
+	   LIBMPD_LIBS="-L${LIBMPD_PATH}/lib/ -lmpd"
+	else
+	   AC_MSG_RESULT(no, falling back to pkg-config)
+	   PKG_CHECK_MODULES([LIBMPD], [libmpd >= 0.12])
+	fi
+	AC_SUBST([LIBMPD_CFLAGS])
+	AC_SUBST([LIBMPD_LIBS])
+fi
+
+AC_ARG_ENABLE(quodlibet,[  --disable-quodlibet           disable QuodLibet support (default: enable)],[enable_quodlibet=$enableval],[enable_quodlibet=yes])
+if test x$enable_quodlibet = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_QUODLIBET,1,[Define to use QL])
+fi
+
+AC_ARG_ENABLE(audacious,[  --disable-audacious     disable audacious support (default: enable)],[enable_audacious=$enableval],[enable_audacious=yes])
+if test x$enable_audacious = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_AUDACIOUS,1,[Define to use audacious])
+fi
+
+AC_ARG_ENABLE(exaile,[  --disable-exaile     disable exaile support (default: enable)],[enable_exaile=$enableval],[enable_exaile=yes])
+if test x$enable_exaile = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_EXAILE,1,[Define to use exaile])
+fi
+
+AC_ARG_ENABLE(consonance,[  --disable-consonance     disable consonance support (default: enable)],[enable_consonance=$enableval],[enable_consonance=yes])
+if test x$enable_consonance = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_CONSONANCE,1,[Define to use consonance])
+fi
+
+AC_ARG_ENABLE(bmpx,[  --disable-bmpx     disable Beep Media PLayer support (default: enable)],[enable_bmpx=$enableval],[enable_bmpx=yes])
+if test x$enable_bmpx = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_BMPX,1,[Define to use Beep Media Player])
+fi
+
+AC_ARG_ENABLE(muine,[  --disable-muine     disable Muine support (default: enable)],[enable_muine=$enableval],[enable_muine=yes])
+if test x$enable_muine = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_MUINE,1,[Define to use Muine])
+fi
+
+AC_ARG_ENABLE(banshee,[  --disable-banshee     disable Banshee support (default: enable)],[enable_banshee=$enableval],[enable_banshee=yes])
+if test x$enable_banshee = xyes && test x$enable_DBUS = xyes; then
+	AC_DEFINE(HAVE_BACKEND_BANSHEE,1,[Define to use Banshee])
+fi
+
+dnl Translations
+XDT_I18N([de fr tr])
+
+dnl Check for debugging support
+XDT_FEATURE_DEBUG()
+AC_ARG_ENABLE(debug_trace,[  --disable-debug_trace     disable trace support (default: enable)],[enable_debug_trace=$enableval],[enable_debug_trace=yes])
+if test x$enable_debug_trace = xyes; then
+    AC_DEFINE([DEBUG_TRACE], [1], [Set this to 1 to enable full trace debugging.])
+fi
+
+dnl PKG_CHECK_MODULES(LIBGTK, gtk+ libxfce4panel-1.0)
+AC_SUBST(LIBGTK_CFLAGS)
+AC_SUBST(LIBGTK_LIBS)
+AM_PATH_GLIB_2_0(2.12.0,,AC_MSG_ERROR([
+*** GLib 2.12 is required to build xfce4-squeezebox-plugin; please make sure you have the
+*** GLib development headers installed. The latest version of GLib is always
+*** available at http://www.gtk.org/.]))
+AC_SUBST(GLIB_LIBS)
+AC_SUBST(GLIB_CFLAGS)
+
+AC_OUTPUT([
+Makefile
+panel-plugin/Makefile
+po/Makefile.in
+])
+
+echo ""
+echo "########### SqueezeBox CONFIGURATION ############"
+echo ""
+
+if test x$enable_DBUS = xyes; then
+	echo " DBUS support ..................enabled"
+else
+	echo " DBUS support ..................disabled"
+fi
+
+if test x$enable_ID3TAG = xyes; then
+	echo " ID3 tag support ...............enabled"
+else
+	echo " ID3 tag support ...............disabled"
+fi
+
+if test x$have_newtooltips = xyes ; then
+	echo " Tooltips API ..................new"
+else
+	echo " Tooltips API ..................old"
+fi
+
+echo ""
+echo "----------- SqueezeBox Backends -----------------"
+echo ""
+
+if test x$enable_rhythmbox = xyes && test x$enable_DBUS = xyes; then
+	echo " rhythmbox support .............enabled"
+else
+	echo " rhythmbox support .............disabled"
+fi
+
+if test x$enable_MPD = xyes; then
+	echo " MPD support ...................enabled"
+else
+	echo " MPD support ...................disabled"
+fi
+
+if test x$enable_quodlibet = xyes && test x$enable_DBUS = xyes; then
+	echo " QuodLibet support .............enabled"
+else
+	echo " QuodLibet support .............disabled"
+fi
+
+if test x$enable_audacious = xyes && test x$enable_DBUS = xyes; then
+	echo " audacious support .............enabled"
+else
+	echo " audacious support .............disabled"
+fi
+
+if test x$enable_exaile = xyes && test x$enable_DBUS = xyes; then
+	echo " exaile support ................enabled"
+else
+	echo " exaile support ................disabled"
+fi
+
+if test x$enable_consonance = xyes && test x$enable_DBUS = xyes; then
+	echo " consonance support ............enabled"
+else
+	echo " consonance support ............disabled"
+fi
+
+if test x$enable_bmpx = xyes && test x$enable_DBUS = xyes; then
+	echo " BMPX support ..................enabled"
+else
+	echo " BMPX support ..................disabled"
+fi
+
+if test x$enable_muine = xyes && test x$enable_DBUS = xyes; then
+	echo " Muine support .................enabled"
+else
+	echo " Muine support .................disabled"
+fi
+
+if test x$enable_banshee = xyes && test x$enable_DBUS = xyes; then
+	echo " Banshee support ...............enabled"
+else
+	echo " Banshee support ...............disabled"
+fi
+
+echo ""

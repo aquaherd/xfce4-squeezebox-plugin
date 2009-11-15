@@ -1,0 +1,216 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-11-13 13:05+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../panel-plugin/squeezebox.c:521
+#, c-format
+msgid "%s: No info"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:832
+msgid "This backend has no configurable properties"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:850
+msgid "Media buttons"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:855
+msgid "Grab state of multimedia keys"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1017 ../panel-plugin/squeezebox-mpd.c:565
+msgid "Properties"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1037
+msgid "Squeezebox"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1040
+msgid "media player remote"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1051
+msgid "Appearance"
+msgstr ""
+
+#. check1
+#: ../panel-plugin/squeezebox.c:1061
+msgid "Show p_revious button"
+msgstr ""
+
+#. check2
+#: ../panel-plugin/squeezebox.c:1067
+msgid "Show _next button"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1078
+msgid "Grab _media buttons, if available"
+msgstr ""
+
+#. btnView
+#: ../panel-plugin/squeezebox.c:1084
+msgid "_Details..."
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1091
+msgid "No _tooltips"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1098
+msgid "_Simple tooltips"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1114
+msgid "Show noti_fications (notify daemon)"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1122
+msgid "Notification _timeout (sec)"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1138
+msgid "_Backend"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1199
+msgid "_Settings..."
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1519 ../panel-plugin/squeezebox.c:1520
+#: ../panel-plugin/squeezebox.c:1521
+msgid "(unknown)"
+msgstr ""
+
+#. add menu items
+#: ../panel-plugin/squeezebox.c:1601
+msgid "Show player"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1609
+msgid "Playlists"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1616
+msgid "Shuffle"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.c:1624
+msgid "Repeat"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-rb.c:52
+msgid "Rhythmbox"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:48
+msgid "Music Player Daemon"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:123
+msgid "Can't connect to music player daemon."
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:508
+#, c-format
+msgid "Can't find binary '%s'"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:583
+msgid "MPD"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:589
+msgid "music player daemon"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:597
+msgid "Use _defaults"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:609
+msgid "_Host:"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:617
+msgid "_Port:"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:627
+msgid "Pass_word:"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:639
+msgid "Use MPD Music _folder as cover source"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mpd.c:646
+msgid "Select MPD music folder"
+msgstr ""
+
+#. player selection
+#: ../panel-plugin/squeezebox-mpd.c:657
+msgid "Use a playlist _manager:"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-ql.c:48
+msgid "QuodLibet"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-ql.c:113
+msgid "[Unknown]"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-au.c:45
+msgid "Audacious"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-ex.c:45
+msgid "Exaile"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-cs.c:73
+msgid "Consonance"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-bmp.c:45
+msgid "Beep Media Player"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-mu.c:42
+msgid "Muine"
+msgstr ""
+
+#: ../panel-plugin/squeezebox-ba.c:51
+msgid "Banshee"
+msgstr ""
+
+#: ../panel-plugin/notifications.c:62
+#, c-format
+msgid ""
+"by <b>%s</b>\n"
+"from <i>%s</i>"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.desktop.in.in.h:1
+msgid " Control various audio players; display album art"
+msgstr ""
+
+#: ../panel-plugin/squeezebox.desktop.in.in.h:2
+msgid " SqueezeBox"
+msgstr ""

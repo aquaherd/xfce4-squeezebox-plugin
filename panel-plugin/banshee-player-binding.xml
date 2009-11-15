@@ -1,0 +1,45 @@
+<node>
+  <interface name="org.bansheeproject.Banshee.ClientWindow">
+    <method name="Present" />
+    <method name="Hide" />
+  </interface>
+  <interface name="org.bansheeproject.Banshee.PlaybackController">
+    <method name="First" />
+    <method name="Next">
+      <arg name="restart" direction="in" type="b" />
+    </method>
+    <method name="Previous">
+      <arg name="restart" direction="in" type="b" />
+    </method>
+    <signal name="Stopped" />
+    <property name="ShuffleMode" type="i" access="readwrite" />
+    <property name="RepeatMode" type="i" access="readwrite" />
+    <property name="StopWhenFinished" type="b" access="readwrite" />
+  </interface>
+  <interface name="org.bansheeproject.Banshee.PlayerEngine">
+    <method name="Open">
+      <arg name="uri" direction="in" type="s" />
+    </method>
+    <method name="Close" />
+    <method name="Pause" />
+    <method name="Play" />
+    <method name="TogglePlaying" />
+    <signal name="EventChanged">
+      <arg name="evnt" direction="out" type="s" />
+      <arg name="message" direction="out" type="s" />
+      <arg name="bufferingPercent" direction="out" type="d" />
+    </signal>
+    <signal name="StateChanged">
+      <arg name="state" direction="out" type="s" />
+    </signal>
+    <property name="CurrentTrack" type="a{sv}" access="read" />
+    <property name="CurrentUri" type="s" access="read" />
+    <property name="CurrentState" type="s" access="read" />
+    <property name="LastState" type="s" access="read" />
+    <property name="Volume" type="q" access="readwrite" />
+    <property name="Position" type="u" access="readwrite" />
+    <property name="CanSeek" type="b" access="read" />
+    <property name="CanPause" type="b" access="read" />
+    <property name="Length" type="u" access="read" />
+  </interface>
+</node>
