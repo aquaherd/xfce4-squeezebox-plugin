@@ -45,6 +45,9 @@
 // pixmap
 #include "squeezebox-mpd.png.h"
 
+// settings dialog
+#include "settings-mpd-ui.h"
+
 DEFINE_BACKEND(MPD, _("Music Player Daemon"))
 #define MPD_MAP(a) parent->a = mpd##a
 #ifndef MPD_CST_STORED_PLAYLIST
@@ -53,7 +56,7 @@ DEFINE_BACKEND(MPD, _("Music Player Daemon"))
 #define MPD_SQ_ALL (MPD_CST_SONGID|MPD_CST_STATE|MPD_CST_REPEAT|MPD_CST_RANDOM|MPD_CST_STORED_PLAYLIST|MPD_CST_PLAYLIST)
 typedef struct mpdData{
 	SPlayer *parent;
-	gint port;
+	guint port;
 	GString *host;
 	GString *pass;
 	GString *path;
@@ -68,10 +71,12 @@ typedef struct mpdData{
 	gint songID;
 	gint songLength;
 	GtkWidget *wHost, *wPass, *wPort, *wDlg, *wPath, *wPMgr;
+	XfconfChannel *xfconfChannel;
 } mpdData;
 
 // MFCish property map
 BEGIN_PROP_MAP(MPD)
+/*
     PROP_ENTRY("mpd_usedefault", G_TYPE_BOOLEAN, "1")
     PROP_ENTRY("mpd_port", G_TYPE_INT, "6600")
     PROP_ENTRY("mpd_host", G_TYPE_STRING, "localhost")
@@ -80,6 +85,7 @@ BEGIN_PROP_MAP(MPD)
     PROP_ENTRY("mpd_musicfolder", G_TYPE_STRING, "")
 	PROP_ENTRY("mpd_usepmanager", G_TYPE_BOOLEAN, "0")
 	PROP_ENTRY("mpd_pmanager", G_TYPE_STRING, "")
+*/
 END_PROP_MAP()
 #define MKTHIS mpdData *this = (mpdData *)thsPtr;
 void *MPD_attach(SPlayer * player);
@@ -96,7 +102,7 @@ gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 			LOG("    Connecting local...");
 			this->player = mpd_new_default();
 		} else {
-			LOG("    Connecting remote...");
+			LOG("    Connecting to remote host %s:%d...", this->host->str, this->port);
 			this->player = mpd_new(this->host->str,
 					       this->port, this->pass->str);
 		}
@@ -450,43 +456,15 @@ void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
 	LOG("Leave mpdPersist");
 }
 
-static void mpdSettingsDialogResponse(GtkWidget * dlg, int reponse,
+void on_mpdSettings_response(GtkDialog * dlg, int reponse,
 				      gpointer thsPtr) {
-	LOG("Enter mpdSettingsDialogResponse");
 	MKTHIS;
-	const gchar *tmpHost = gtk_entry_get_text(GTK_ENTRY(this->wHost));
+	LOG("Enter on_mpdSettings_response");
 
-	const gchar *tmpPass = gtk_entry_get_text(GTK_ENTRY(this->wPass));
-
-	const gchar *tmpPath =
-	    gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(this->wPath));
-                          
-    const gchar *tmpPManager = 
-        gtk_combo_box_get_active_text(GTK_COMBO_BOX(this->wPMgr));
-                          
-    LOG("MPD PManager: %s", tmpPManager);
-
-	if (g_strcasecmp(tmpHost, this->host->str)) {
-		g_string_assign(this->host, tmpHost);
-		this->bRequireReconnect = TRUE;
-	}
-
-	if (g_strcasecmp(tmpPass, this->pass->str)) {
-		g_string_assign(this->pass, tmpPass);
-		this->bRequireReconnect = TRUE;
-	}
-
-	if (!g_str_equal(this->path, tmpPath)) {
-		g_string_assign(this->path, tmpPath);
-	}
-
-	if (!g_str_equal(this->pmanager, tmpPManager)) {
-		g_string_assign(this->pmanager, tmpPManager);
-	}
     // reconnect if changed
 	if (this->bRequireReconnect )
 	{
-		LOG("    Reconnecting to %s/%s", tmpHost, this->host->str);
+		LOG("    Reconnecting to %s", this->host->str);
 		this->bRequireReconnect = FALSE;
 		if (this->player) {
 			mpd_disconnect(this->player);
@@ -516,160 +494,112 @@ static void mpdSettingsDialogResponse(GtkWidget * dlg, int reponse,
 	
 	// force update
 	mpdPersist(thsPtr, FALSE);    
-	gtk_widget_destroy(dlg);
+	gtk_widget_hide(GTK_WIDGET(dlg));
 errExit:
-	LOG("Leave mpdSettingsDialogResponse");
+	LOG("Leave on_mpdSettings_response");
 }
 
-static void mpdConfigureTimeout(GtkSpinButton * sb, gpointer thsPtr) {
+void on_chkUseDefault_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	MKTHIS;
-	this->port = gtk_spin_button_get_value_as_int(sb);
-	this->bRequireReconnect = TRUE;
-}
-
-static void mpdConfigureUseDefault(GtkToggleButton * tb, gpointer thsPtr) {
-	MKTHIS;
+	LOG("Enter on_chkUseDefault_toggled");
 	this->bUseDefault = gtk_toggle_button_get_active(tb);
 	gtk_widget_set_sensitive(this->wHost, !this->bUseDefault);
 	gtk_widget_set_sensitive(this->wPort, !this->bUseDefault);
 	gtk_widget_set_sensitive(this->wPass, !this->bUseDefault);
 	this->bRequireReconnect = TRUE;
+	LOG("Leave on_chkUseDefault_toggled");
 }
 
-static void mpdConfigureUseMPDFolder(GtkToggleButton * tb, gpointer thsPtr) {
-	LOG("Enter mpdConfigureUseMPDFolder");
+void on_entryHost_changed(GtkEntry *tbd, gpointer thsPtr) {
 	MKTHIS;
+	g_string_assign(this->host, gtk_entry_get_text(tbd));
+	this->bRequireReconnect = TRUE;
+}
+
+void on_entryPassword_changed(GtkEntry *tbd, gpointer thsPtr) {
+	MKTHIS;
+	g_string_assign(this->pass, gtk_entry_get_text(tbd));
+	this->bRequireReconnect = TRUE;
+}
+
+void on_chkUseFolder_toggled(GtkToggleButton * tb, gpointer thsPtr) {
+	MKTHIS;
+	LOG("Enter on_chkUseFolder_toggled");
 	this->bUseMPDFolder = gtk_toggle_button_get_active(tb);
 	gtk_widget_set_sensitive(this->wPath, this->bUseMPDFolder);
-	LOG("Leave mpdConfigureUseMPDFolder");
+	LOG("Leave on_chkUseFolder_toggled");
 }
 
-static void mpdConfigureUsePManager(GtkToggleButton * tb, gpointer thsPtr) {
-	LOG("Enter mpdConfigureUsePMgr");
+void on_spinPort_value_changed(GtkSpinButton *tbd, gpointer thsPtr) {
+	MKTHIS;
+	this->port = (guint)gtk_spin_button_get_value_as_int(tbd);
+	this->bRequireReconnect = TRUE;
+}
+
+void on_chooserDirectory_current_folder_changed(GtkFileChooserButton *chb, gpointer thsPtr) {
+	MKTHIS;
+	gchar *text = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(chb));
+	LOG("Enter on_chooserDirectory_current_folder_changed: %s", text);
+	xfconf_channel_set_string(this->xfconfChannel, "/MusicFolder", text);
+	LOG("Leave on_chooserDirectory_current_folder_changed");
+}
+
+void on_chkUseListManager_toggled(GtkToggleButton * tb, gpointer thsPtr) {
+	LOG("Enter on_chkUseListManager_toggled");
 	MKTHIS;
 	this->bUsePManager = gtk_toggle_button_get_active(tb);
 	gtk_widget_set_sensitive(this->wPMgr, this->bUsePManager);
-	LOG("Leave mpdConfigureUsePMgr");
+	LOG("Leave on_chkUseListManager_toggled");
 }
 
 static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	LOG("Enter mpdConfigure");
 	MKTHIS;
-	GtkWidget *dlg, *header, *vbox, *cb1, *label1, *label2, *label3, *cb2, *cb3;
+	GtkWidget *header, *vbox, *cb1, *label1, *label2, *label3, *cb2, *cb3;
 	GtkTable *table;
     GtkListStore *store;
     GtkTreeIter iter = {0};
+    gint result;
+    GtkBuilder* builder = gtk_builder_new();
 
-	this->bRequireReconnect = FALSE;
+	gtk_builder_add_from_string(builder, settings_mpd_ui, 
+		settings_mpd_ui_length, NULL);
+	
+	this->wDlg = GTK_WIDGET(gtk_builder_get_object(builder, "mpdSettings"));
+	this->wHost = GTK_WIDGET(gtk_builder_get_object(builder, "entryHost"));
+	this->wPort = GTK_WIDGET(gtk_builder_get_object(builder, "spinPort"));
+	this->wPass = GTK_WIDGET(gtk_builder_get_object(builder, "entryPassword"));
+	this->wPMgr = GTK_WIDGET(gtk_builder_get_object(builder, "comboListManager"));
+	this->wPath = GTK_WIDGET(gtk_builder_get_object(builder, "chooserDirectory"));
 
-	dlg = gtk_dialog_new_with_buttons(_("Properties"),
-					  GTK_WINDOW(parent),
-					  GTK_DIALOG_MODAL |
-					  GTK_DIALOG_NO_SEPARATOR,
-					  GTK_STOCK_CLOSE, GTK_RESPONSE_OK,
-					  NULL);
-
-	this->wDlg = dlg;
-
-	gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
-	gtk_window_set_icon_name(GTK_WINDOW(dlg), "xfce4-sound");
-
-	g_signal_connect(dlg, "response", G_CALLBACK(mpdSettingsDialogResponse),
-			 thsPtr);
-
-	gtk_container_set_border_width(GTK_CONTAINER(dlg), 2);
-
-	header = xfce_heading_new();
-	xfce_heading_set_title(XFCE_HEADING(header), _("MPD"));
+	header = GTK_WIDGET(gtk_builder_get_object(builder, "xfce-heading1"));
 	xfce_heading_set_icon(XFCE_HEADING(header),
-			      gdk_pixbuf_new_from_inline(sizeof(my_pixbuf),
+				  gdk_pixbuf_new_from_inline(sizeof(my_pixbuf),
 							 my_pixbuf, FALSE,
 							 NULL));
-	xfce_heading_set_subtitle(XFCE_HEADING(header),
-				  _("music player daemon"));
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dlg)->vbox), header,
-			   FALSE, TRUE, 0);
 
-	vbox = gtk_vbox_new(FALSE, 8);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dlg)->vbox), vbox, TRUE, TRUE, 0);
+	gtk_builder_connect_signals(builder,thsPtr);
 
-	cb1 = gtk_check_button_new_with_mnemonic(_("Use _defaults"));
-	gtk_box_pack_start(GTK_BOX(vbox), cb1, FALSE, FALSE, 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb1), this->bUseDefault);
-	g_signal_connect(cb1, "toggled", G_CALLBACK(mpdConfigureUseDefault),
-			 thsPtr);
-
-	table = GTK_TABLE(gtk_table_new(3, 2, FALSE));
-	gtk_container_set_border_width(GTK_CONTAINER(table), 6);
-	gtk_table_set_row_spacings(table, 6);
-	gtk_table_set_col_spacings(table, 6);
-	gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(table), FALSE, FALSE, 0);
-
-	label1 = gtk_label_new_with_mnemonic(_("_Host:"));
-	gtk_table_attach_defaults(table, label1, 0, 1, 0, 1);
-
-	this->wHost = gtk_entry_new();
-	gtk_table_attach_defaults(table, this->wHost, 1, 2, 0, 1);
-	gtk_entry_set_text(GTK_ENTRY(this->wHost), this->host->str);
-	gtk_label_set_mnemonic_widget(GTK_LABEL(label1), this->wHost);
-
-	label2 = gtk_label_new_with_mnemonic(_("_Port:"));
-	gtk_table_attach_defaults(table, label2, 0, 1, 1, 2);
-
-	this->wPort = gtk_spin_button_new_with_range(1.0, 65536.0, 1.0);
-	gtk_table_attach_defaults(table, this->wPort, 1, 2, 1, 2);
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(this->wPort), this->port);
-	g_signal_connect(this->wPort, "value-changed",
-			 G_CALLBACK(mpdConfigureTimeout), thsPtr);
-	gtk_label_set_mnemonic_widget(GTK_LABEL(label2), this->wPort);
-
-	label3 = gtk_label_new_with_mnemonic(_("Pass_word:"));
-	gtk_table_attach_defaults(table, label3, 0, 1, 2, 3);
-
-	this->wPass = gtk_entry_new();
-	gtk_table_attach_defaults(table, this->wPass, 1, 2, 2, 3);
-	gtk_entry_set_visibility(GTK_ENTRY(this->wPass), FALSE);
-	gtk_entry_set_text(GTK_ENTRY(this->wPass), this->pass->str);
-	gtk_label_set_mnemonic_widget(GTK_LABEL(label3), this->wPass);
-
-	// album art lookup
-	cb2 =
-	    gtk_check_button_new_with_mnemonic(_
-					       ("Use MPD Music _folder as cover source"));
-	gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(cb2), FALSE, FALSE, 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb2),
-				     this->bUseMPDFolder);
-	g_signal_connect(cb2, "toggled", G_CALLBACK(mpdConfigureUseMPDFolder),
-			 thsPtr);
-
-	this->wPath = gtk_file_chooser_button_new(_("Select MPD music folder"),
-						  GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
-	LOG("Music folder: %s", this->path->str);
-	if (this->path->len)
-		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER
-						    (this->wPath),
-						    this->path->str);
-	gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(this->wPath), FALSE, FALSE,
-			   0);
-    
-    // player selection
-    cb3 = gtk_check_button_new_with_mnemonic(_("Use a playlist _manager:"));
-	gtk_box_pack_start(GTK_BOX(vbox), cb3, FALSE, FALSE, 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb3),
-				     this->bUsePManager);
-    store = gtk_list_store_new(1, G_TYPE_STRING);
-    this->wPMgr = gtk_combo_box_entry_new_with_model(
-         GTK_TREE_MODEL(store), 0);
-    if(this->pmanager->len) {
-        gtk_list_store_append(store, &iter);
-        gtk_list_store_set(store, &iter, 0, this->pmanager->str, -1);
-        gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), 0, GTK_SORT_ASCENDING);
-        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(this->wPMgr), &iter);
-    }
-	gtk_box_pack_start(GTK_BOX(vbox), this->wPMgr, FALSE, FALSE, 0);
-	g_signal_connect(cb3, "toggled", G_CALLBACK(mpdConfigureUsePManager),
-			 thsPtr);
+  	xfconf_g_property_bind (this->xfconfChannel, "/UseDefault", G_TYPE_BOOLEAN,
+                          gtk_builder_get_object(builder, "chkUseDefault"), "active");
+  	xfconf_g_property_bind (this->xfconfChannel, "/Host", G_TYPE_STRING,
+                          gtk_builder_get_object(builder, "entryHost"), "text");
+  	xfconf_g_property_bind (this->xfconfChannel, "/Port", G_TYPE_UINT,
+                          gtk_builder_get_object(builder, "spinPort"), "value");
+  	xfconf_g_property_bind (this->xfconfChannel, "/Password", G_TYPE_STRING,
+                          gtk_builder_get_object(builder, "entryPassword"), "text");
+  	
+  	xfconf_g_property_bind (this->xfconfChannel, "/UseFolder", G_TYPE_BOOLEAN,
+                          gtk_builder_get_object(builder, "chkUseFolder"), "active");
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(this->wPath), 
+		xfconf_channel_get_string(this->xfconfChannel, "/MusicFolder", "~"));
+  	
+  	xfconf_g_property_bind (this->xfconfChannel, "/UseListManager", G_TYPE_BOOLEAN,
+                          gtk_builder_get_object(builder, "chkUseListManager"), "active");
+  	xfconf_g_property_bind (this->xfconfChannel, "/ListManager", G_TYPE_STRING,
+                  gtk_bin_get_child(GTK_BIN(GTK_COMBO_BOX_ENTRY(
+                  gtk_builder_get_object(builder, "comboListManager")))), "text");
+	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "listManagers"));
     // cheapo tracker search, requires gio-unix for now
     #if HAVE_GIO
     {
@@ -703,6 +633,8 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
                              const gchar *binPath = g_app_info_get_executable(
                                                     G_APP_INFO(app));   
                              if(!g_hash_table_lookup_extended(table, binPath, NULL, NULL)) {
+								 GIcon *icon = g_app_info_get_icon(
+                                                    G_APP_INFO(app));   
                                  LOG("Found: %s", binPath);
                                  gtk_list_store_append(store, &iter);
                                  gtk_list_store_set(store, &iter, 0, binPath, -1);
@@ -716,14 +648,12 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
         }
     }
 	#endif
-	// apply checkboxes
-	gtk_widget_set_sensitive(this->wHost, !this->bUseDefault);
-	gtk_widget_set_sensitive(this->wPort, !this->bUseDefault);
-	gtk_widget_set_sensitive(this->wPass, !this->bUseDefault);
-	gtk_widget_set_sensitive(this->wPath, this->bUseMPDFolder);
-    gtk_widget_set_sensitive(this->wPMgr, this->bUsePManager);
 
-	gtk_widget_show_all(dlg);
+	// fin
+	this->bRequireReconnect = FALSE;
+	result = gtk_dialog_run (GTK_DIALOG (this->wDlg));
+	xfconf_g_property_unbind_all(this->xfconfChannel);
+
 	LOG("Leave mpdConfigure");
 }
 
@@ -758,6 +688,7 @@ void *MPD_attach(SPlayer * parent) {
     
 	// always assign
 	this->parent = parent;
+	this->wDlg = NULL;
 
 	// force our own update rate
 	if (parent->updateRateMS < 1000)
@@ -766,7 +697,10 @@ void *MPD_attach(SPlayer * parent) {
 	// establish the callback function
 	this->intervalID =
 		g_timeout_add(this->parent->updateRateMS, mpdCallback, this);
+		
+	// initialize properties
 
+    /*
     // initialize property addresses
     PROP_MAP("mpd_usedefault", &this->bUseDefault)
     PROP_MAP("mpd_port", &this->port)
@@ -776,7 +710,18 @@ void *MPD_attach(SPlayer * parent) {
     PROP_MAP("mpd_musicfolder", this->path)
 	PROP_MAP("mpd_usepmanager", &this->bUsePManager)
 	PROP_MAP("mpd_pmanager", this->pmanager)
-
+	*/
+    this->xfconfChannel = xfconf_channel_new_with_property_base (
+    	"xfce4-panel", "/plugins/squeezebox/backends/mpd");
+	this->bUseDefault = xfconf_channel_get_bool(this->xfconfChannel, "/UseDefault", TRUE);
+	this->host->str = xfconf_channel_get_string(this->xfconfChannel, "/Host", "localhost");
+	this->port = xfconf_channel_get_uint(this->xfconfChannel, "/Port", 6600);
+	this->pass->str = xfconf_channel_get_string(this->xfconfChannel, "/Password", "");
+	this->bUseMPDFolder = xfconf_channel_get_bool(this->xfconfChannel, "/UseFolder", TRUE);
+	this->path->str = xfconf_channel_get_string(this->xfconfChannel, "/MusicFolder", "~");
+	this->bUsePManager = xfconf_channel_get_bool(this->xfconfChannel, "/UseListManager", TRUE);
+	this->pmanager->str = xfconf_channel_get_string(this->xfconfChannel, "/ListManager", "");
+	
 
 	LOG("Leave MPD_attach");
 	return this;

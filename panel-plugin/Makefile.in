@@ -188,6 +188,10 @@ LIBXFCE4PANEL_CFLAGS = @LIBXFCE4PANEL_CFLAGS@
 LIBXFCE4PANEL_LIBS = @LIBXFCE4PANEL_LIBS@
 LIBXFCE4PANEL_REQUIRED_VERSION = @LIBXFCE4PANEL_REQUIRED_VERSION@
 LIBXFCE4PANEL_VERSION = @LIBXFCE4PANEL_VERSION@
+LIBXFCONF_CFLAGS = @LIBXFCONF_CFLAGS@
+LIBXFCONF_LIBS = @LIBXFCONF_LIBS@
+LIBXFCONF_REQUIRED_VERSION = @LIBXFCONF_REQUIRED_VERSION@
+LIBXFCONF_VERSION = @LIBXFCONF_VERSION@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
@@ -276,10 +280,11 @@ plugindir = $(libexecdir)/xfce4/panel-plugins
 xfce4_squeezebox_plugin_CFLAGS = -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
     -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ @DBUSGLIB_CFLAGS@ \
     @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ \
-    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@
+    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@
 
 xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @DBUSGLIB_LIBS@ @LIBMPD_LIBS@ \
-	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@
+    -Wl -rdynamic \
+	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ @LIBXFCONF_LIBS@
 
 xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox.h     squeezebox-private.h squeezebox.c \
@@ -307,9 +312,11 @@ desktop_in_in_files = squeezebox.desktop.in.in
 desktop_in_files = $(desktop_in_in_files:.desktop.in.in=.desktop.in)
 desktopdir = $(datadir)/xfce4/panel-plugins
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
+@MAINTAINER_MODE_TRUE@BUILT_SOURCES = settings-ui.h settings-mpd-ui.h mpris-wizard-ui.h
 EXTRA_DIST = $(desktop_in_in_files)
-DISTCLEANFILES = $(desktop_DATA) $(desktop_in_files)
-all: all-am
+DISTCLEANFILES = $(desktop_DATA) $(desktop_in_files) $(BUILT_SOURCES)
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .lo .o .obj
@@ -685,13 +692,15 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs:
 	for dir in "$(DESTDIR)$(plugindir)" "$(DESTDIR)$(desktopdir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -716,6 +725,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-generic clean-libtool clean-pluginPROGRAMS \
@@ -787,6 +797,12 @@ uninstall-am: uninstall-desktopDATA uninstall-info-am \
 # get full path into .desktop file
 %.desktop.in: %.desktop.in.in
 	sed -e "s^@PLUGIN_PATH@^$(libexecdir)/xfce4/panel-plugins^" $< > $@
+@MAINTAINER_MODE_TRUE@settings-ui.h: settings.ui
+@MAINTAINER_MODE_TRUE@	exo-csource --static --strip-comments --strip-content --name=settings_ui $< >$@
+@MAINTAINER_MODE_TRUE@settings-mpd-ui.h: settings-mpd.ui
+@MAINTAINER_MODE_TRUE@	exo-csource --static --strip-comments --strip-content --name=settings_mpd_ui $< >$@
+@MAINTAINER_MODE_TRUE@mpris-wizard-ui.h: mpris-wizard.ui
+@MAINTAINER_MODE_TRUE@	exo-csource --static --strip-comments --strip-content --name=mpris_wizard_ui $< >$@
 
 splint:
 	splint -warnposix +ignoresigns -stats \

@@ -37,6 +37,7 @@
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
 #include <dbus/dbus-glib.h>
+#include <xfconf/xfconf.h>
 #endif
 
 #include <libxfcegui4/libxfcegui4.h>
