@@ -603,6 +603,7 @@ static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) 
 		g_free(sd->player.db);
 	}
 	squeezebox_update_grab(FALSE, FALSE, sd);
+	xfconf_shutdown();
 	g_free(sd);
 	LOG("Leave squeezebox_free_data");
 }
@@ -1353,8 +1354,9 @@ gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
 
 static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 	GtkContainer *window1 = GTK_CONTAINER(sd->plugin);
-
+	GError *error = NULL;
 	LOG("Enter squeezebox_create");
+	xfconf_init(&error);
 	
 	sd->table = gtk_table_new(1, 3, FALSE);
 	gtk_widget_show(sd->table);

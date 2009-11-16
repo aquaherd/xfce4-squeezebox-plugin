@@ -4,10 +4,11 @@ plugin_PROGRAMS = xfce4-squeezebox-plugin
 xfce4_squeezebox_plugin_CFLAGS = 	-DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
     -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ @DBUSGLIB_CFLAGS@ \
     @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ \
-    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@
+    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@
 
 xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @DBUSGLIB_LIBS@ @LIBMPD_LIBS@ \
-	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@
+    -Wl -rdynamic \
+	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ @LIBXFCONF_LIBS@
 
 xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox.h     squeezebox-private.h squeezebox.c \
@@ -22,7 +23,6 @@ xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox-ba.c  squeezebox-ba.png    squeezebox-ba.png.h  banshee-player-binding.h \
 	notifications.c  notifications.h notifications-binding.h \
 	mmkeys.h mmkeys.c
-	
 
 # .desktop file
 #
@@ -41,10 +41,21 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 # get full path into .desktop file
 %.desktop.in: %.desktop.in.in
 	sed -e "s^@PLUGIN_PATH@^$(libexecdir)/xfce4/panel-plugins^" $< > $@
+
+if MAINTAINER_MODE
+BUILT_SOURCES = settings-ui.h settings-mpd-ui.h mpris-wizard-ui.h
+settings-ui.h: settings.ui
+	exo-csource --static --strip-comments --strip-content --name=settings_ui $< >$@
+settings-mpd-ui.h: settings-mpd.ui
+	exo-csource --static --strip-comments --strip-content --name=settings_mpd_ui $< >$@
+mpris-wizard-ui.h: mpris-wizard.ui
+	exo-csource --static --strip-comments --strip-content --name=mpris_wizard_ui $< >$@
+endif
+
 	
 EXTRA_DIST = $(desktop_in_in_files)
 
-DISTCLEANFILES = $(desktop_DATA) $(desktop_in_files)
+DISTCLEANFILES = $(desktop_DATA) $(desktop_in_files) $(BUILT_SOURCES)
 
 splint:
 	splint -warnposix +ignoresigns -stats \
