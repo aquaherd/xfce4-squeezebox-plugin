@@ -14,7 +14,7 @@ AM_INIT_AUTOMAKE([xfce4-squeezebox-plugin], [$TEST_VERSION])
 AC_CONFIG_HEADER([config.h])
 
 AM_MAINTAINER_MODE
-
+AC_CONFIG_MACRO_DIR([m4])
 dnl Check for UNIX variants
 AC_AIX
 AC_ISC_POSIX
@@ -164,6 +164,11 @@ AM_PATH_GLIB_2_0(2.12.0,,AC_MSG_ERROR([
 *** available at http://www.gtk.org/.]))
 AC_SUBST(GLIB_LIBS)
 AC_SUBST(GLIB_CFLAGS)
+
+dnl Check for xfconf
+XDT_CHECK_PACKAGE([LIBXFCONF], [libxfconf-0], [4.6.0])
+AC_SUBST([LIBXFCONF_LIBS])
+AC_SUBST([LIBXFCONF_CFLAGS])
 
 AC_OUTPUT([
 Makefile
