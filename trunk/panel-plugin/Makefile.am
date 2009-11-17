@@ -22,7 +22,10 @@ xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox-mu.c  squeezebox-mu.png    squeezebox-mu.png.h  muine-player-binding.h \
 	squeezebox-ba.c  squeezebox-ba.png    squeezebox-ba.png.h  banshee-player-binding.h \
 	notifications.c  notifications.h notifications-binding.h \
-	mmkeys.h mmkeys.c
+	mmkeys.h mmkeys.c \
+	mpris-wizard.ui mpris-wizard-ui.h \
+	settings.ui settings-ui.h \
+	settings-mpd.ui settings-mpd-ui.h
 
 # .desktop file
 #

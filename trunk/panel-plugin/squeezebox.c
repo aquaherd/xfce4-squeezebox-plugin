@@ -42,6 +42,9 @@
 #include <id3tag.h>
 #endif
 #include <libintl.h>
+// settings dialog
+#include "settings-ui.h"
+
 
 typedef enum eButtons {
 	ebtnPrev = 0,
@@ -1015,6 +1018,14 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	
 	xfce_panel_plugin_block_menu(plugin);
 
+    /*
+    GtkBuilder* builder = gtk_builder_new();
+	gtk_builder_add_from_string(builder, settings_ui, 
+		settings_ui_length, NULL);
+	dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dialogSettings"));
+	gtk_dialog_run(GTK_DIALOG(dlg));
+	*/
+	//TODO: old
 	dlg = gtk_dialog_new_with_buttons(_("Properties"),
 					  GTK_WINDOW(gtk_widget_get_toplevel
 						     (GTK_WIDGET(plugin))),

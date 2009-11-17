@@ -398,17 +398,18 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 					    (this->player));
 		LOG("Leave mpdCallback: ShuffleChanged");
 	}
+	// display elapsed/total ?
+#if 0
 	if (sType & (MPD_CST_ELAPSED_TIME | MPD_CST_TOTAL_TIME)) {
-		/* -- display seconds in some distant future
 		   if( sType & MPD_CST_ELAPSED_TIME )
-		   this->parent->secPos = 
-		   mpd_status_get_elapsed_song_time(this->player);
+			   this->parent->secPos = 
+				   mpd_status_get_elapsed_song_time(this->player);
 		   if( sType & MPD_CST_TOTAL_TIME )
-		   this->parent->secTot = 
-		   mpd_status_get_total_song_time(this->player);
+			   this->parent->secTot = 
+			   mpd_status_get_total_song_time(this->player);
 		   this->parent->UpdateTimePosition(this->parent->sd);
-		 */
 	}
+#endif
 	if(sType & (MPD_CST_STORED_PLAYLIST)) {
 		mpd_Connection * conn = NULL;
 		mpd_InfoEntity * entity = NULL;
@@ -459,6 +460,7 @@ void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
 void on_mpdSettings_response(GtkDialog * dlg, int reponse,
 				      gpointer thsPtr) {
 	MKTHIS;
+	gchar *manager = NULL;
 	LOG("Enter on_mpdSettings_response");
 
     // reconnect if changed
@@ -476,6 +478,9 @@ void on_mpdSettings_response(GtkDialog * dlg, int reponse,
 	}
     
     // don't allow bogus playlist manager
+    manager = gtk_combo_box_get_active_text(GTK_COMBO_BOX(this->wPMgr));
+    g_string_assign(this->pmanager, manager);
+    g_free(manager);
     if(this->bUsePManager && this->pmanager->len) {
         gchar *binPath = g_find_program_in_path(this->pmanager->str);
         if(NULL == binPath) {
@@ -564,6 +569,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 
 	gtk_builder_add_from_string(builder, settings_mpd_ui, 
 		settings_mpd_ui_length, NULL);
+		
 	
 	this->wDlg = GTK_WIDGET(gtk_builder_get_object(builder, "mpdSettings"));
 	this->wHost = GTK_WIDGET(gtk_builder_get_object(builder, "entryHost"));
@@ -650,6 +656,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	#endif
 
 	// fin
+jumpTarget:
 	this->bRequireReconnect = FALSE;
 	result = gtk_dialog_run (GTK_DIALOG (this->wDlg));
 	xfconf_g_property_unbind_all(this->xfconfChannel);

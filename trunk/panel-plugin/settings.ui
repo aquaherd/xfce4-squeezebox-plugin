@@ -29,7 +29,7 @@
       </row>
     </data>
   </object>
-  <object class="GtkListStore" id="liststore1">
+  <object class="GtkListStore" id="liststoreShortcuts">
     <columns>
       <!-- column-name shortcutName -->
       <column type="gchararray"/>
@@ -66,7 +66,7 @@
       </row>
     </data>
   </object>
-  <object class="GtkDialog" id="dialog1">
+  <object class="GtkDialog" id="dialogSettings">
     <property name="border_width">5</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
@@ -317,6 +317,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">&#x25CF;</property>
+                                <property name="adjustment">adjustmentTimeout</property>
                               </object>
                               <packing>
                                 <property name="fill">False</property>
@@ -364,7 +365,7 @@
                   <object class="GtkTreeView" id="tvKeyCodes">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="model">liststore1</property>
+                    <property name="model">liststoreShortcuts</property>
                     <child>
                       <object class="GtkTreeViewColumn" id="treeviewcolumn2">
                         <property name="title">key</property>
@@ -446,5 +447,13 @@
     <action-widgets>
       <action-widget response="0">btnClose</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkAdjustment" id="adjustmentTimeout">
+    <property name="value">5</property>
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">5</property>
+    <property name="page_size">5</property>
   </object>
 </interface>
