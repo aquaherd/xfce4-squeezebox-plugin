@@ -10,6 +10,7 @@ panel-plugin/squeezebox-mu.c
 panel-plugin/squeezebox-ba.c
 panel-plugin/notifications.c
 panel-plugin/squeezebox.desktop.in.in
-panel-plugin/mpris-wizard.ui
-panel-plugin/settings-mpd.ui
-panel-plugin/settings.ui
+panel-plugin/squeezebox-mpris.c
+[type: gettext/glade]panel-plugin/mpris-wizard.ui
+[type: gettext/glade]panel-plugin/settings-mpd.ui
+[type: gettext/glade]panel-plugin/settings.ui
