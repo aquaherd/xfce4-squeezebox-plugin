@@ -43,6 +43,7 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	gboolean bExisted = (sd->note != NULL);
 	GdkPixbuf *pixbuf = NULL;
 	gchar *pixPath = "/tmp/sqicon.png"; //use g_get_tmp_dir();
+	GHashTable *table = g_hash_table_new(g_str_hash, g_str_equal);
 
 	if (bAct) {
 		bAct = ((sd->player.title->str && sd->player.title->str[0]) ||
@@ -79,12 +80,12 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		
 		//Let's show
 		if (sd->note) {
-			LOG("notify");
+			LOG("notify-ignition");
 			if(sd->notifyID > 0)
 				notifications_close_notification(sd->note, sd->notifyID, NULL);
 			notifications_notify(sd->note, 
 				"xfce4-squeezebox-plugin", ++sd->notifyID, pixPath, 
-				ntTitle, ntDetails, NULL, NULL, sd->notifyTimeout * 1000, 
+				ntTitle, ntDetails, NULL, table, sd->notifyTimeout * 1000, 
 				&sd->notifyID, NULL);
 		} 
 		g_free(ntTitle);
