@@ -13,19 +13,23 @@
       <column type="gboolean"/>
       <!-- column-name Running -->
       <column type="gboolean"/>
+      <!-- column-name Builtin -->
+      <column type="gboolean"/>
     </columns>
     <data>
       <row>
-        <col id="0">gtk-add</col>
+        <col id="0"/>
         <col id="1" translatable="yes">MPD</col>
         <col id="2">True</col>
-        <col id="3">False</col>
+        <col id="3">True</col>
+        <col id="4">True</col>
       </row>
       <row>
-        <col id="0">gtk-add</col>
-        <col id="1" translatable="yes">QuodLibet</col>
-        <col id="2">False</col>
-        <col id="3">True</col>
+        <col id="0"/>
+        <col id="1" translatable="yes"/>
+        <col id="2">True</col>
+        <col id="3">False</col>
+        <col id="4">True</col>
       </row>
     </data>
   </object>
@@ -33,36 +37,36 @@
     <columns>
       <!-- column-name shortcutName -->
       <column type="gchararray"/>
-      <!-- column-name keycode -->
+      <!-- column-name accelKey -->
       <column type="guint"/>
-      <!-- column-name keymode -->
-      <column type="GdkModifierType"/>
+      <!-- column-name accelKeyMask -->
+      <column type="guint"/>
     </columns>
     <data>
       <row>
         <col id="0" translatable="yes">Play/Pause</col>
-        <col id="1">167</col>
-        <col id="2"></col>
+        <col id="1">112</col>
+        <col id="2">67108864</col>
       </row>
       <row>
         <col id="0" translatable="yes">Next</col>
-        <col id="1">168</col>
-        <col id="2"></col>
+        <col id="1">0</col>
+        <col id="2">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">Previous</col>
-        <col id="1">169</col>
-        <col id="2"></col>
+        <col id="1">0</col>
+        <col id="2">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">Show Player</col>
-        <col id="1">172</col>
-        <col id="2"></col>
+        <col id="1">0</col>
+        <col id="2">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">Stop</col>
         <col id="1">0</col>
-        <col id="2"></col>
+        <col id="2">0</col>
       </row>
     </data>
   </object>
@@ -116,13 +120,43 @@
                     </child>
                     <child>
                       <object class="GtkTreeView" id="tvPlayers">
-                        <property name="height_request">200</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="model">datastore</property>
-                        <property name="headers_clickable">False</property>
-                        <property name="search_column">0</property>
-                        <property name="fixed_height_mode">True</property>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn5">
+                            <property name="title">Players</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                              <attributes>
+                                <attribute name="text">1</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn6">
+                            <property name="title">Status</property>
+                            <child>
+                              <object class="GtkCellRendererToggle" id="cellrenderertoggle1"/>
+                              <attributes>
+                                <attribute name="active">2</attribute>
+                              </attributes>
+                            </child>
+                            <child>
+                              <object class="GtkCellRendererToggle" id="cellrenderertoggle2"/>
+                              <attributes>
+                                <attribute name="active">3</attribute>
+                              </attributes>
+                            </child>
+                            <child>
+                              <object class="GtkCellRendererToggle" id="cellrenderertoggle3"/>
+                              <attributes>
+                                <attribute name="active">4</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -131,6 +165,8 @@
                     <child>
                       <object class="GtkHButtonBox" id="hbuttonbox1">
                         <property name="visible">True</property>
+                        <property name="spacing">5</property>
+                        <property name="layout_style">spread</property>
                         <child>
                           <object class="GtkButton" id="btnAdd">
                             <property name="label">gtk-add</property>
@@ -138,6 +174,7 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="use_stock">True</property>
+                            <signal name="clicked" handler="on_btnAdd_clicked"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -152,6 +189,7 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="use_stock">True</property>
+                            <signal name="clicked" handler="on_btnRemove_clicked"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -166,6 +204,7 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="use_stock">True</property>
+                            <signal name="clicked" handler="on_btnEdit_clicked"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -175,7 +214,7 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="padding">7</property>
+                        <property name="padding">5</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
@@ -222,6 +261,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_chkShowPrevious_toggled"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -237,6 +277,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_chkShowNext_toggled"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -252,6 +293,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_chkShowToolTips_toggled"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -291,6 +333,7 @@
                             <property name="receives_default">False</property>
                             <property name="use_underline">True</property>
                             <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_chkShowNotifications_toggled"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -318,6 +361,7 @@
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">&#x25CF;</property>
                                 <property name="adjustment">adjustmentTimeout</property>
+                                <signal name="change_value" handler="on_spinNotificationTimeout_change_value"/>
                               </object>
                               <packing>
                                 <property name="fill">False</property>
@@ -366,23 +410,32 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="model">liststoreShortcuts</property>
+                    <property name="expander_column">treeviewcolumn1</property>
                     <child>
                       <object class="GtkTreeViewColumn" id="treeviewcolumn2">
-                        <property name="title">key</property>
+                        <property name="sizing">autosize</property>
+                        <property name="title">Action</property>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext2"/>
                           <attributes>
                             <attribute name="text">0</attribute>
                           </attributes>
                         </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                        <property name="sizing">autosize</property>
+                        <property name="title">Shortcut</property>
                         <child>
-                          <object class="GtkCellRendererAccel" id="cellrendereraccel1">
-                            <signal name="accel_edited" handler="on_cellrendereraccel1_accel_edited"/>
-                            <signal name="accel_cleared" handler="on_cellrendereraccel1_accel_cleared"/>
+                          <object class="GtkCellRendererAccel" id="cellrenderShortCut">
+                            <property name="editable">True</property>
+                            <signal name="accel_edited" handler="on_cellrenderShortCut_accel_edited"/>
+                            <signal name="accel_cleared" handler="on_cellrenderShortCut_accel_cleared"/>
                           </object>
                           <attributes>
+                            <attribute name="accel-key">1</attribute>
                             <attribute name="accel-mods">2</attribute>
-                            <attribute name="keycode">1</attribute>
                           </attributes>
                         </child>
                       </object>
@@ -454,6 +507,5 @@
     <property name="upper">100</property>
     <property name="step_increment">1</property>
     <property name="page_increment">5</property>
-    <property name="page_size">5</property>
   </object>
 </interface>
