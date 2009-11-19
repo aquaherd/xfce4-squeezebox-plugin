@@ -996,6 +996,24 @@ static void config_toggle_prev(GtkToggleButton * tb, SqueezeBoxData * sd) {
 	squeezebox_set_size(sd->plugin, size, sd);
 }
 
+EXPORT void on_cellrenderShortCut_accel_cleared(GtkCellRendererAccel *accel,
+		gchar                *path_string,
+		gpointer              user_data) {
+}
+
+EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
+		gchar                *path_string,
+		guint                 accel_key,
+		GdkModifierType       accel_mods,
+		guint                 hardware_keycode,
+		SqueezeBoxData		 *sd){ 
+	GtkTreeIter iter;
+	LOG("Accel %s %d %d", path_string, accel_key, accel_mods);
+	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(sd->storeShortCuts), &iter, path_string))
+		gtk_list_store_set(sd->storeShortCuts, &iter, 
+			2, accel_mods, 1, accel_key, -1);
+}
+
 static void
 squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	// widgets
@@ -1018,13 +1036,17 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	
 	xfce_panel_plugin_block_menu(plugin);
 
-    /*
+    // new
     GtkBuilder* builder = gtk_builder_new();
 	gtk_builder_add_from_string(builder, settings_ui, 
 		settings_ui_length, NULL);
-	dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dialogSettings"));
-	gtk_dialog_run(GTK_DIALOG(dlg));
-	*/
+	gtk_builder_connect_signals(builder, sd);
+	sd->dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dialogSettings"));
+	sd->storeShortCuts = 
+		GTK_LIST_STORE(gtk_builder_get_object(builder, "liststoreShortcuts"));
+	gtk_dialog_run(GTK_DIALOG(sd->dlg));
+	gtk_widget_destroy(sd->dlg);
+	
 	//TODO: old
 	dlg = gtk_dialog_new_with_buttons(_("Properties"),
 					  GTK_WINDOW(gtk_widget_get_toplevel

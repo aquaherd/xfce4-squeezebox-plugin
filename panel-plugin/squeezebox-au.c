@@ -66,9 +66,9 @@ static void auCallbackCapsChange(DBusGProxy * proxy, gint caps, gpointer thsPtr)
 	LOG("Leave auCallback: CapsChange");
 }
 
-static eSynoptics auTranslateStatus(gint auStatus) {
+static eSynoptics auTranslateStatus(gint status) {
 	eSynoptics eStat;
-	switch (auStatus) {
+	switch (status) {
 	    case 0:
 		    eStat = estPlay;
 		    break;
@@ -85,35 +85,46 @@ static eSynoptics auTranslateStatus(gint auStatus) {
 	return eStat;
 }
 
+static eSynoptics auTranslateStatusPack(GValueArray *status) {
+	gint auStatus = g_value_get_int(g_value_array_get_nth(status, 1));
+	return auTranslateStatus(auStatus);
+}
+
 static void auCallbackStatusChange(DBusGProxy * proxy, gint status,
 				   gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter auCallback: StatusChange %d", status);
+	LOG("Enter auCallback: StatusChange");
 	eSynoptics eStat = auTranslateStatus(status);
 	db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
-	LOG("Leave auCallback: StatusChange");
+	LOG("Leave auCallback: StatusChange %d", (int)eStat);
 }
 
 static void auCallbackTrackChange(DBusGProxy * proxy, GHashTable * table,
 				  gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter auCallback: TrackChange");
+	eSynoptics eStat = estErr;
+	GValueArray *iStat = g_value_array_new(4);
 	GValue *tmpArtist = g_hash_table_lookup(table, "artist");
 	GValue *tmpAlbum = g_hash_table_lookup(table, "album");
 	GValue *tmpTitle = g_hash_table_lookup(table, "title");
 	GValue *tmpURI = g_hash_table_lookup(table, "URI");
+	LOG("Enter auCallback: TrackChange");
+	if(NULL == tmpURI) // first seen in audacious 2.1
+		tmpURI = g_hash_table_lookup(table, "location");
+	if(G_VALUE_HOLDS_STRING(tmpArtist))
+		g_string_assign(db->parent->artist, g_value_get_string(tmpArtist));
+	if(G_VALUE_HOLDS_STRING(tmpAlbum))
+		g_string_assign(db->parent->album, g_value_get_string(tmpAlbum));
+	if(G_VALUE_HOLDS_STRING(tmpTitle))
+		g_string_assign(db->parent->title, g_value_get_string(tmpTitle));
+	if(G_VALUE_HOLDS_STRING(tmpURI)) {
+		gchar *str = g_filename_from_uri(g_value_get_string(tmpURI), NULL, NULL);
 
-	g_string_assign(db->parent->artist, g_value_get_string(tmpArtist));
-	g_string_assign(db->parent->album, g_value_get_string(tmpAlbum));
-	g_string_assign(db->parent->title, g_value_get_string(tmpTitle));
-	
-	gchar *str = g_filename_from_uri(g_value_get_string(tmpURI), NULL, NULL);
-	if (str && str[0])
-		db->parent->FindAlbumArtByFilePath(db->parent->sd, str);
-	eSynoptics eStat = estErr;
-	gint iStat = 0;
-	if (org_freedesktop_MediaPlayer_get_status(db->auPlayer, &iStat, NULL)) {
-		eStat = auTranslateStatus(iStat);
+		if (str && str[0])
+			db->parent->FindAlbumArtByFilePath(db->parent->sd, str);
+		if (org_freedesktop_MediaPlayer_get_status(db->auPlayer, &iStat, NULL)) {
+			eStat = auTranslateStatusPack(iStat);
+		}
 	}
 	db->parent->Update(db->parent->sd, TRUE, eStat, NULL);
 	LOG("Leave auCallback: TrackChange");
@@ -121,21 +132,24 @@ static void auCallbackTrackChange(DBusGProxy * proxy, GHashTable * table,
 
 static void auCallbackFake(gpointer thsPtr) {
 	MKTHIS;
-	// emulate state change
 	gint caps = 0;
-	gint status = 0;
+	GValueArray *status = g_value_array_new(4);
 	GHashTable *metaData = NULL;
+	// emulate state change
+	LOG("Enter auCallbackFake");
 	if (org_freedesktop_MediaPlayer_get_caps(db->auPlayer, &caps, NULL)) {
 		auCallbackCapsChange(db->auPlayer, caps, db);
 	}
 	if (org_freedesktop_MediaPlayer_get_status(db->auPlayer, &status, NULL)) {
-		auCallbackStatusChange(db->auPlayer, status, db);
+		gint auStatus = g_value_get_int(g_value_array_get_nth(status, 1));
+		auCallbackStatusChange(db->auPlayer, auStatus, db);
 	}
 	if (org_freedesktop_MediaPlayer_get_metadata
 	    (db->auPlayer, &metaData, NULL)) {
 		auCallbackTrackChange(db->auPlayer, metaData, db);
 		g_hash_table_unref(metaData);
 	}
+	LOG("Leave auCallbackFake");
 }
 
 static gboolean auUpdateDBUS(gpointer thsPtr, gboolean appeared) {
@@ -269,7 +283,7 @@ static gboolean auPlayPause(gpointer thsPtr, gboolean newState) {
 
 static gboolean auIsPlaying(gpointer thsPtr) {
 	MKTHIS;
-	gint status = 0;
+	GValueArray *status = g_value_array_new(4);
 	if (!auAssure(db, FALSE))
 		return FALSE;
 	if (!org_freedesktop_MediaPlayer_get_status

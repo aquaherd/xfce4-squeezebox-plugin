@@ -67,6 +67,10 @@ typedef struct SqueezeBoxData{
     GHashTable *propertyAddresses;
     
     WnckScreen *wnckScreen;
+    
+    // settings dialog
+    GtkWidget *dlg;
+    GtkListStore *storeShortCuts;
 } SqueezeBoxData;
 
 static void config_toggle_next(GtkToggleButton * tb, SqueezeBoxData * sd);

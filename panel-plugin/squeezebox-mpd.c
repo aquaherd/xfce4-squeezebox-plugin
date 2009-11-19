@@ -457,7 +457,7 @@ void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
 	LOG("Leave mpdPersist");
 }
 
-void on_mpdSettings_response(GtkDialog * dlg, int reponse,
+EXPORT void on_mpdSettings_response(GtkDialog * dlg, int reponse,
 				      gpointer thsPtr) {
 	MKTHIS;
 	gchar *manager = NULL;
@@ -504,7 +504,7 @@ errExit:
 	LOG("Leave on_mpdSettings_response");
 }
 
-void on_chkUseDefault_toggled(GtkToggleButton * tb, gpointer thsPtr) {
+EXPORT void on_chkUseDefault_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter on_chkUseDefault_toggled");
 	this->bUseDefault = gtk_toggle_button_get_active(tb);
@@ -515,19 +515,19 @@ void on_chkUseDefault_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	LOG("Leave on_chkUseDefault_toggled");
 }
 
-void on_entryHost_changed(GtkEntry *tbd, gpointer thsPtr) {
+EXPORT void on_entryHost_changed(GtkEntry *tbd, gpointer thsPtr) {
 	MKTHIS;
 	g_string_assign(this->host, gtk_entry_get_text(tbd));
 	this->bRequireReconnect = TRUE;
 }
 
-void on_entryPassword_changed(GtkEntry *tbd, gpointer thsPtr) {
+EXPORT void on_entryPassword_changed(GtkEntry *tbd, gpointer thsPtr) {
 	MKTHIS;
 	g_string_assign(this->pass, gtk_entry_get_text(tbd));
 	this->bRequireReconnect = TRUE;
 }
 
-void on_chkUseFolder_toggled(GtkToggleButton * tb, gpointer thsPtr) {
+EXPORT void on_chkUseFolder_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter on_chkUseFolder_toggled");
 	this->bUseMPDFolder = gtk_toggle_button_get_active(tb);
@@ -535,13 +535,13 @@ void on_chkUseFolder_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	LOG("Leave on_chkUseFolder_toggled");
 }
 
-void on_spinPort_value_changed(GtkSpinButton *tbd, gpointer thsPtr) {
+EXPORT void on_spinPort_value_changed(GtkSpinButton *tbd, gpointer thsPtr) {
 	MKTHIS;
 	this->port = (guint)gtk_spin_button_get_value_as_int(tbd);
 	this->bRequireReconnect = TRUE;
 }
 
-void on_chooserDirectory_current_folder_changed(GtkFileChooserButton *chb, gpointer thsPtr) {
+EXPORT void on_chooserDirectory_current_folder_changed(GtkFileChooserButton *chb, gpointer thsPtr) {
 	MKTHIS;
 	gchar *text = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(chb));
 	LOG("Enter on_chooserDirectory_current_folder_changed: %s", text);
@@ -549,7 +549,7 @@ void on_chooserDirectory_current_folder_changed(GtkFileChooserButton *chb, gpoin
 	LOG("Leave on_chooserDirectory_current_folder_changed");
 }
 
-void on_chkUseListManager_toggled(GtkToggleButton * tb, gpointer thsPtr) {
+EXPORT void on_chkUseListManager_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	LOG("Enter on_chkUseListManager_toggled");
 	MKTHIS;
 	this->bUsePManager = gtk_toggle_button_get_active(tb);
