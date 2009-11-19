@@ -20,7 +20,6 @@ xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox-au.c  squeezebox-au.png    squeezebox-au.png.h audacious-player-binding.h \
 	squeezebox-ex.c  squeezebox-ex.png    squeezebox-ex.png.h exaile-player-binding.h \
 	squeezebox-cs.c  squeezebox-cs.png    squeezebox-cs.png.h \
-	squeezebox-bmp.c squeezebox-bmp.png   squeezebox-bmp.png.h bmpx-player-binding.h \
 	squeezebox-mu.c  squeezebox-mu.png    squeezebox-mu.png.h  muine-player-binding.h \
 	squeezebox-ba.c  squeezebox-ba.png    squeezebox-ba.png.h  banshee-player-binding.h \
 	notifications.c  notifications.h notifications-binding.h \
