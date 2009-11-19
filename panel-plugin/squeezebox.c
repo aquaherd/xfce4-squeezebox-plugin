@@ -295,7 +295,8 @@ void addList(gchar *key, gpointer *value, GList **list) {
 
 static void squeezebox_update_playlists(gpointer thsPlayer) {
 	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	gboolean hasItems = (g_hash_table_size(sd->player.playLists));
+	gboolean hasItems = sd->player.playLists != NULL &&
+		g_hash_table_size(sd->player.playLists) > 0;
 	LOG("Enter squeezebox_update_playlists");
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), NULL);
 	if(hasItems) {
