@@ -74,20 +74,8 @@ typedef struct mpdData{
 	XfconfChannel *xfconfChannel;
 } mpdData;
 
-// MFCish property map
-BEGIN_PROP_MAP(MPD)
-/*
-    PROP_ENTRY("mpd_usedefault", G_TYPE_BOOLEAN, "1")
-    PROP_ENTRY("mpd_port", G_TYPE_INT, "6600")
-    PROP_ENTRY("mpd_host", G_TYPE_STRING, "localhost")
-    PROP_ENTRY("mpd_pass", G_TYPE_STRING, "")
-    PROP_ENTRY("mpd_usemusicfolder", G_TYPE_BOOLEAN, "0")
-    PROP_ENTRY("mpd_musicfolder", G_TYPE_STRING, "")
-	PROP_ENTRY("mpd_usepmanager", G_TYPE_BOOLEAN, "0")
-	PROP_ENTRY("mpd_pmanager", G_TYPE_STRING, "")
-*/
-END_PROP_MAP()
 #define MKTHIS mpdData *this = (mpdData *)thsPtr;
+
 void *MPD_attach(SPlayer * player);
 void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 			     gpointer thsPtr);
@@ -258,6 +246,9 @@ gboolean mpdDetach(gpointer thsPtr) {
 	if (this->intervalID) {
 		g_source_remove(this->intervalID);
 		this->intervalID = 0;
+	}
+	if (this->xfconfChannel) {
+		g_object_unref(this->xfconfChannel);
 	}
 	LOG("Leave mpdDetach");
 	return TRUE;
@@ -606,6 +597,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
                   gtk_bin_get_child(GTK_BIN(GTK_COMBO_BOX_ENTRY(
                   gtk_builder_get_object(builder, "comboListManager")))), "text");
 	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "listManagers"));
+
     // cheapo tracker search, requires gio-unix for now
     #if HAVE_GIO
     {
@@ -658,6 +650,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	// fin
 jumpTarget:
 	this->bRequireReconnect = FALSE;
+	//gtk_dialog_run
 	result = gtk_dialog_run (GTK_DIALOG (this->wDlg));
 	xfconf_g_property_unbind_all(this->xfconfChannel);
 

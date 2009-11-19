@@ -132,18 +132,11 @@ typedef enum eBackendType{
 	numBackendTypes
 }eBackendType;
 
-typedef struct PropDef{
-    const gchar *Name;
-    const gint Type;
-    const gchar *Default;
-}PropDef;
- 
 typedef struct Backend{
 	const eBackendType BACKEND_TYPE;
     void*( *BACKEND_attach)(SPlayer *player);
     const gchar*( *BACKEND_name)();
     GdkPixbuf*( *BACKEND_icon)();
-    PropDef*( *BACKEND_properties)();
     #if HAVE_DBUS
     const gchar*( *BACKEND_dbusName)();
     #endif
@@ -154,15 +147,13 @@ typedef struct Backend{
 #define IMPORT_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
  	extern const gchar * t##_name(); \
-    extern GdkPixbuf * t##_icon(); \
-    extern PropDef* t##_properties();
+    extern GdkPixbuf * t##_icon();
  
 #if HAVE_DBUS
 #define IMPORT_DBUS_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
  	extern const gchar * t##_name(); \
     extern GdkPixbuf * t##_icon(); \
-    extern PropDef* t##_properties(); \
     extern const gchar * t##_dbusName(); \
     extern const gchar * t##_commandLine();
 
@@ -179,7 +170,7 @@ typedef struct Backend{
     const gchar* t##_commandLine(){ \
     	return c; \
 	}    
-#define DBUS_BACKEND(t) {dbusBackend, t##_attach, t##_name, t##_icon, t##_properties, t##_dbusName, t##_commandLine},
+#define DBUS_BACKEND(t) {dbusBackend, t##_attach, t##_name, t##_icon, t##_dbusName, t##_commandLine},
 
 static
 #ifdef G_HAVE_INLINE
@@ -230,7 +221,7 @@ org_freedesktop_DBus_name_has_owner (DBusGProxy *proxy, const char * IN_arg0, gb
 #define BEGIN_BACKEND_MAP() const Backend* squeezebox_get_backends() \
 { \
     static const Backend ret[] = { 
-#define BACKEND(t) {otherBackend, t##_attach, t##_name, t##_icon, t##_properties, NULL},
+#define BACKEND(t) {otherBackend, t##_attach, t##_name, t##_icon, NULL},
 #define END_BACKEND_MAP() \
         {numBackendTypes, NULL} \
     }; \
@@ -245,20 +236,6 @@ org_freedesktop_DBus_name_has_owner (DBusGProxy *proxy, const char * IN_arg0, gb
         return gdk_pixbuf_new_from_inline(sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); \
     }
     
-// Properties
-
-#define BEGIN_PROP_MAP(bk) const PropDef* bk##_properties() \
-{ \
-    static const PropDef props[] = {
-#define PROP_ENTRY(name,type,default) {name,type,default},
-#define END_PROP_MAP() {"",0,NULL} \
-    }; \
-    return &props[0]; \
-}
-
-//e.g.  PROP_MAP("mpd_usedefault", &this->bUseDefault)
-#define PROP_MAP(name,address) parent->MapProperty(parent->sd, name, address);
-
 #if DEBUG_TRACE
 #define LOGERR g_error
 #define LOGWARN g_warning

@@ -62,9 +62,6 @@ typedef struct baData {
 	gchar* artLocation;
 } baData;
 
-// MFCish property map -- currently none
-BEGIN_PROP_MAP(BA)
-END_PROP_MAP()
 #define MKTHIS baData *db = (baData *)thsPtr;
 // implementation
 static gboolean baAssure(gpointer thsPtr, gboolean noCreate);

@@ -49,9 +49,6 @@ typedef struct muData {
 	gchar* artLocation;
 } muData;
 
-// MFCish property map -- currently none
-BEGIN_PROP_MAP(MU)
-END_PROP_MAP()
 #define MKTHIS muData *db = (muData *)thsPtr;
 // implementation
 static gboolean muAssure(gpointer thsPtr, gboolean noCreate);

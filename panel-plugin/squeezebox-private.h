@@ -35,6 +35,7 @@ typedef struct SqueezeBoxData{
 
 	GtkWidget *table;
 
+	gboolean autoAttach;
 	gboolean notify;
 	gboolean inEnter;
 	gboolean inCreate;

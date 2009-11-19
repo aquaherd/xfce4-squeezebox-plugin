@@ -62,9 +62,6 @@ GQuark stopped = 0;
 GQuark paused = 0;
 GQuark playing = 0;
 
-// MFCish property map -- currently none
-BEGIN_PROP_MAP(EX)
-    END_PROP_MAP()
 // implementation
 
 static eSynoptics exTranslateStatus(gchar * exStatus) {
