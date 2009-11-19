@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-13 13:05+0100\n"
-"PO-Revision-Date: 2009-11-13 13:30+0100\n"
+"POT-Creation-Date: 2009-11-17 13:34+0100\n"
+"PO-Revision-Date: 2009-11-17 13:53+0100\n"
 "Last-Translator: Hakan Erduman <hakan@erduman.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -17,103 +17,113 @@ msgstr ""
 "X-Poedit-Basepath: /home/herd/Projects/xfce4-squeezebox-plugin/po\n"
 "X-Poedit-SearchPath-0: ../panel-plugin\n"
 
-#: ../panel-plugin/squeezebox.c:521
+#: ../panel-plugin/squeezebox.c:524
 #, c-format
 msgid "%s: No info"
 msgstr "%s: Keine Info"
 
-#: ../panel-plugin/squeezebox.c:832
+#: ../panel-plugin/squeezebox.c:836
 msgid "This backend has no configurable properties"
 msgstr "Dieses backend hat keine konfigurierbaren Eigenschaften"
 
-#: ../panel-plugin/squeezebox.c:850
+#: ../panel-plugin/squeezebox.c:854
 msgid "Media buttons"
 msgstr "Medien-Tasten"
 
-#: ../panel-plugin/squeezebox.c:855
+#: ../panel-plugin/squeezebox.c:859
 msgid "Grab state of multimedia keys"
 msgstr "Zustand Medien-Tasten"
 
-#: ../panel-plugin/squeezebox.c:1017
-#: ../panel-plugin/squeezebox-mpd.c:565
+#.
+#. GtkBuilder* builder = gtk_builder_new();
+#. gtk_builder_add_from_string(builder, settings_ui,
+#. settings_ui_length, NULL);
+#. dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dialogSettings"));
+#. gtk_dialog_run(GTK_DIALOG(dlg));
+#.
+#. TODO: old
+#: ../panel-plugin/squeezebox.c:1029
+#: ../panel-plugin/settings-mpd.ui.h:3
 msgid "Properties"
 msgstr "Eigenschaften"
 
-#: ../panel-plugin/squeezebox.c:1037
+#: ../panel-plugin/squeezebox.c:1049
 msgid "Squeezebox"
 msgstr "Squeezebox"
 
-#: ../panel-plugin/squeezebox.c:1040
+#: ../panel-plugin/squeezebox.c:1052
+#: ../panel-plugin/settings.ui.h:20
 msgid "media player remote"
 msgstr "Medien-Spieler Fernbedienung"
 
-#: ../panel-plugin/squeezebox.c:1051
+#: ../panel-plugin/squeezebox.c:1063
 msgid "Appearance"
 msgstr "Erscheinungsbild"
 
 #. check1
-#: ../panel-plugin/squeezebox.c:1061
+#: ../panel-plugin/squeezebox.c:1073
 msgid "Show p_revious button"
 msgstr "Zeige Schaltfläche _Zurück"
 
 #. check2
-#: ../panel-plugin/squeezebox.c:1067
+#: ../panel-plugin/squeezebox.c:1079
 msgid "Show _next button"
 msgstr "Zeige Schaltfläche _weiter"
 
-#: ../panel-plugin/squeezebox.c:1078
+#: ../panel-plugin/squeezebox.c:1090
 msgid "Grab _media buttons, if available"
 msgstr "Nutze Medien-Tasten, wenn möglich"
 
 #. btnView
-#: ../panel-plugin/squeezebox.c:1084
+#: ../panel-plugin/squeezebox.c:1096
 msgid "_Details..."
 msgstr "_Details..."
 
-#: ../panel-plugin/squeezebox.c:1091
+#: ../panel-plugin/squeezebox.c:1103
 msgid "No _tooltips"
 msgstr "Keine Tool_tips"
 
-#: ../panel-plugin/squeezebox.c:1098
+#: ../panel-plugin/squeezebox.c:1110
 msgid "_Simple tooltips"
 msgstr "_Einfache Tooltips"
 
-#: ../panel-plugin/squeezebox.c:1114
+#: ../panel-plugin/squeezebox.c:1126
 msgid "Show noti_fications (notify daemon)"
 msgstr "Zeige Benachrichtigungen (noti_fy Dämon)"
 
-#: ../panel-plugin/squeezebox.c:1122
+#: ../panel-plugin/squeezebox.c:1134
+#: ../panel-plugin/settings.ui.h:7
 msgid "Notification _timeout (sec)"
 msgstr "Timeout Benachrich_tigung (Sek.)"
 
-#: ../panel-plugin/squeezebox.c:1138
+#: ../panel-plugin/squeezebox.c:1150
 msgid "_Backend"
 msgstr "_Backend"
 
-#: ../panel-plugin/squeezebox.c:1199
+#: ../panel-plugin/squeezebox.c:1211
 msgid "_Settings..."
 msgstr "Ein_stellungen..."
 
-#: ../panel-plugin/squeezebox.c:1519
-#: ../panel-plugin/squeezebox.c:1520
-#: ../panel-plugin/squeezebox.c:1521
+#: ../panel-plugin/squeezebox.c:1532
+#: ../panel-plugin/squeezebox.c:1533
+#: ../panel-plugin/squeezebox.c:1534
 msgid "(unknown)"
 msgstr "(unbekannt)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1601
+#: ../panel-plugin/squeezebox.c:1614
 msgid "Show player"
 msgstr "Player _anzeigen"
 
-#: ../panel-plugin/squeezebox.c:1609
+#: ../panel-plugin/squeezebox.c:1622
 msgid "Playlists"
 msgstr "Wiedergabelisten"
 
-#: ../panel-plugin/squeezebox.c:1616
+#: ../panel-plugin/squeezebox.c:1629
 msgid "Shuffle"
 msgstr "Zufall"
 
-#: ../panel-plugin/squeezebox.c:1624
+#: ../panel-plugin/squeezebox.c:1637
 msgid "Repeat"
 msgstr "Wiederholen"
 
@@ -121,57 +131,21 @@ msgstr "Wiederholen"
 msgid "Rhythmbox"
 msgstr "Rhythmbox"
 
-#: ../panel-plugin/squeezebox-mpd.c:48
+#: ../panel-plugin/squeezebox-mpd.c:51
 msgid "Music Player Daemon"
 msgstr "Music Player Daemon"
 
-#: ../panel-plugin/squeezebox-mpd.c:123
+#: ../panel-plugin/squeezebox-mpd.c:129
 msgid "Can't connect to music player daemon."
 msgstr "Kann Verbindung zum Music Player Dämon nicht herstellen."
 
-#: ../panel-plugin/squeezebox-mpd.c:508
+#: ../panel-plugin/squeezebox-mpd.c:491
 #, c-format
 msgid "Can't find binary '%s'"
 msgstr "Kann Anwendung '%s' nicht finden"
 
-#: ../panel-plugin/squeezebox-mpd.c:583
-msgid "MPD"
-msgstr "MPD"
-
-#: ../panel-plugin/squeezebox-mpd.c:589
-msgid "music player daemon"
-msgstr "music player daemon"
-
-#: ../panel-plugin/squeezebox-mpd.c:597
-msgid "Use _defaults"
-msgstr "Verwen_de Vorgaben"
-
-#: ../panel-plugin/squeezebox-mpd.c:609
-msgid "_Host:"
-msgstr "_Host:"
-
-#: ../panel-plugin/squeezebox-mpd.c:617
-msgid "_Port:"
-msgstr "_Port:"
-
-#: ../panel-plugin/squeezebox-mpd.c:627
-msgid "Pass_word:"
-msgstr "Pass_wort:"
-
-#: ../panel-plugin/squeezebox-mpd.c:639
-msgid "Use MPD Music _folder as cover source"
-msgstr "Verwende MPD Musik-Ordner als Cover-Quelle"
-
-#: ../panel-plugin/squeezebox-mpd.c:646
-msgid "Select MPD music folder"
-msgstr "MPD Musik-Ordner wählen"
-
-#. player selection
-#: ../panel-plugin/squeezebox-mpd.c:657
-msgid "Use a playlist _manager:"
-msgstr "Einen Widergabelisten-Manager verwenden"
-
 #: ../panel-plugin/squeezebox-ql.c:48
+#: ../panel-plugin/settings.ui.h:10
 msgid "QuodLibet"
 msgstr "QuodLibet"
 
@@ -220,8 +194,159 @@ msgstr " Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Cover
 msgid " SqueezeBox"
 msgstr " SqueezeBox"
 
-#~ msgid "N_otification tooltips"
-#~ msgstr "Be_nachrichtiguns- Tooltips"
+#: ../panel-plugin/squeezebox-mpris.c:45
+#, fuzzy
+msgid "MPRIS Media Player"
+msgstr "Medien-Spieler Fernbedienung"
+
+#: ../panel-plugin/mpris-wizard.ui.h:1
+#, fuzzy
+msgid "Add Music Player"
+msgstr "Muine Musik-Player"
+
+#: ../panel-plugin/mpris-wizard.ui.h:2
+msgid "Adding an MPRIS compatible player"
+msgstr ""
+
+#: ../panel-plugin/mpris-wizard.ui.h:3
+#, fuzzy
+msgid "New Media Player"
+msgstr "Medien-Spieler Fernbedienung"
+
+#: ../panel-plugin/mpris-wizard.ui.h:4
+msgid ""
+"This wizard adds a MPRIS compatible media player \n"
+"to the list of SqueezeBox controllable backends.\n"
+"\n"
+"MPRIS is the 'Media Player Remote Interfacing Specification'.\n"
+"See <a herf=\"http://wiki.xmms2.xmms.se/wiki/MPRIS\" here/> for details.\n"
+"\n"
+"If your player does not support the MPRIS interfaces \n"
+"by itself, it may have a plugin that does.\n"
+msgstr ""
+
+#: ../panel-plugin/mpris-wizard.ui.h:13
+#, fuzzy
+msgid "label"
+msgstr "label"
+
+#: ../panel-plugin/settings-mpd.ui.h:1
+#: ../panel-plugin/settings.ui.h:5
+msgid "MPD"
+msgstr "MPD"
+
+#: ../panel-plugin/settings-mpd.ui.h:2
+msgid "Pass_word:"
+msgstr "Pass_wort:"
+
+#: ../panel-plugin/settings-mpd.ui.h:4
+msgid "Use MPD Music _folder as cover source"
+msgstr "Verwende MPD Musik-Ordner als Cover-Quelle"
+
+#: ../panel-plugin/settings-mpd.ui.h:5
+msgid "Use _defaults"
+msgstr "Verwen_de Vorgaben"
+
+#: ../panel-plugin/settings-mpd.ui.h:6
+#, fuzzy
+msgid "Use a playlist _manager"
+msgstr "Einen Widergabelisten-Manager verwenden"
+
+#: ../panel-plugin/settings-mpd.ui.h:7
+msgid "_Host:"
+msgstr "_Host:"
+
+#: ../panel-plugin/settings-mpd.ui.h:8
+msgid "_Port:"
+msgstr "_Port:"
+
+#: ../panel-plugin/settings-mpd.ui.h:9
+#, fuzzy
+msgid "localhost"
+msgstr "localhost"
+
+#: ../panel-plugin/settings-mpd.ui.h:10
+msgid "music player daemon"
+msgstr "music player daemon"
+
+#: ../panel-plugin/settings.ui.h:1
+#, fuzzy
+msgid "<b>Notifications</b>"
+msgstr "Meldungen"
+
+#: ../panel-plugin/settings.ui.h:2
+#, fuzzy
+msgid "<b>Panel appereance</b>"
+msgstr "Paneelenliste"
+
+#: ../panel-plugin/settings.ui.h:3
+msgid "A_ppearance"
+msgstr "Erscheinungs_bild"
+
+#: ../panel-plugin/settings.ui.h:4
+msgid "Au_tomatically attach to these players"
+msgstr ""
+
+#: ../panel-plugin/settings.ui.h:6
+#, fuzzy
+msgid "Next"
+msgstr "Nächstes"
+
+#: ../panel-plugin/settings.ui.h:8
+msgid "Play/Pause"
+msgstr "Wiedergabe/Pause"
+
+#: ../panel-plugin/settings.ui.h:9
+#, fuzzy
+msgid "Previous"
+msgstr "Vorheriges"
+
+#: ../panel-plugin/settings.ui.h:11
+msgid "S_hortcuts"
+msgstr ""
+
+#: ../panel-plugin/settings.ui.h:12
+#, fuzzy
+msgid "Show P_revious button"
+msgstr "Zeige Schaltfläche _Zurück"
+
+#: ../panel-plugin/settings.ui.h:13
+#, fuzzy
+msgid "Show Player"
+msgstr "Player _anzeigen"
+
+#: ../panel-plugin/settings.ui.h:14
+#, fuzzy
+msgid "Show _Next button"
+msgstr "Zeige Schaltfläche _weiter"
+
+#: ../panel-plugin/settings.ui.h:15
+#, fuzzy
+msgid "Show _Tooltips"
+msgstr "Kurzhilfen anzeigen"
+
+#: ../panel-plugin/settings.ui.h:16
+#, fuzzy
+msgid "Show noti_fications (e.g. xfce4-notifyd)"
+msgstr "Zeige Benachrichtigungen (noti_fy Dämon)"
+
+#: ../panel-plugin/settings.ui.h:17
+#, fuzzy
+msgid "SqueezeBox"
+msgstr "Squeezebox"
+
+#: ../panel-plugin/settings.ui.h:18
+#, fuzzy
+msgid "Stop"
+msgstr "Stop"
+
+#: ../panel-plugin/settings.ui.h:19
+#, fuzzy
+msgid "_Players"
+msgstr "Spieler"
+
+#~ msgid "Select MPD music folder"
+#~ msgstr "MPD Musik-Ordner wählen"
 #~ msgid "Rhythmbox 0.9.x (via DBUS)"
 #~ msgstr "Rhythmbox 0.9.x (über DBUS)"
 #~ msgid "Music Player Daemon (libmpd)"
