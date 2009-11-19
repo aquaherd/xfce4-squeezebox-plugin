@@ -52,9 +52,6 @@ typedef struct csData{
 	eSynoptics oldStat;
 } csData;
 
-// MFCish property map -- currently none
-BEGIN_PROP_MAP(CS)
-    END_PROP_MAP()
 #define MKTHIS csData *db = (csData *)thsPtr;
 /* taken from consonance/consonance.h */
 #define DBUS_PATH           "/org/consonance/DBus"

@@ -122,7 +122,6 @@ END_BACKEND_MAP()
 static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 	// clear previous backend
 	const Backend *ptr = &squeezebox_get_backends()[nBackend - 1];
-    PropDef *prop = NULL;
     LOG("Enter squeezebox_init_backend");
     if (sd->player.Detach) {
 		sd->player.Detach(sd->player.db);
@@ -180,35 +179,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 				 (NULL != sd->player.GetShuffle
 				  && NULL != sd->player.SetShuffle));
 
-    // apply new properties, if applicable
-    prop = ptr->BACKEND_properties();  
-    while(*prop->Name) {
-        gchar *propValue = NULL;
-        if(g_hash_table_lookup_extended(sd->properties, prop->Name, NULL, (gpointer)&propValue)) {
-            switch(prop->Type) {
-                case G_TYPE_BOOLEAN: {
-                    gboolean *boolVal = (gboolean*)g_hash_table_lookup(sd->propertyAddresses, prop->Name);
-                    if(boolVal)
-                        *boolVal = ('0' == propValue[0]) ? FALSE : TRUE;
-                }break;
-                case G_TYPE_INT: {
-                    gint *gintVal = (gint*)g_hash_table_lookup(sd->propertyAddresses, prop->Name);
-                    if(gintVal)
-                        *gintVal = (gint)g_ascii_strtoll(propValue, NULL, 10);
-                }break;
-                case G_TYPE_STRING: {
-                    GString *strVal = (GString*)g_hash_table_lookup(sd->propertyAddresses, prop->Name);
-                    if(strVal)
-                        g_string_assign(strVal, propValue);
-                }break;
-            }
-            //? g_free(propValue);
-        }
-        prop++;
-    }
-    
 	// try connect happens in created backend
-    // notify properties are ready
     if(sd->player.Persist)
         sd->player.Persist(sd->player.db, FALSE);
     
@@ -612,40 +583,6 @@ squeezebox_style_set(XfcePanelPlugin * plugin, gpointer ignored,
 }
 
 static void
-squeezebox_persist_properties(SqueezeBoxData * sd, XfceRc *rc, gboolean isStoring) {
-    // apply property map
-    const Backend *ptr = squeezebox_get_backends();
-    LOG("Enter squeezebox_persist_properties");
-    while(ptr->BACKEND_attach) {
-        PropDef *prop = ptr->BACKEND_properties();
-        gchar *propValue =  NULL;
-        LOG("Properties of %s", ptr->BACKEND_name());
-        while(*prop->Name) {
-            if(isStoring) {
-                if(g_hash_table_lookup_extended(sd->properties, prop->Name, 
-                	NULL, (gpointer)&propValue)) {
-                    xfce_rc_write_entry(rc, prop->Name, propValue);
-                } else {
-                    xfce_rc_write_entry(rc, prop->Name, prop->Default);
-                }
-            } else {
-                if(rc)
-                    propValue = g_strdup(xfce_rc_read_entry(
-                    				rc, prop->Name, prop->Default));
-                else
-                    propValue = g_strdup(prop->Default);
-                g_hash_table_insert(sd->properties, g_strdup(prop->Name), 
-                			propValue);
-            }
-            LOG("\t%s->'%s'", prop->Name, propValue);
-            prop++;
-        }
-        ptr++;
-    }
-    LOG("Leave squeezebox_persist_properties");
-}
-
-static void
 squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	char *file;
 	XfceRc *rc = NULL;
@@ -680,8 +617,6 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 
 		}
 	}
-    // backend properties
-    squeezebox_persist_properties(sd, rc, FALSE);
     
 	// Always init backend
 	sd->player.sd = sd;
@@ -764,7 +699,6 @@ squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 			xfce_rc_write_int_entry(rc, "notify_timeout",
 						sd->notifyTimeout);
 #endif
-			squeezebox_persist_properties(sd, rc, TRUE);
             
 			xfce_rc_close(rc);
 			LOG("OK");
@@ -773,49 +707,15 @@ squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	LOG("Leave squeezebox_write_rc_file");
 }
 
-static void
-squeezebox_dialog_response(GtkWidget * dlg, int reponse, SqueezeBoxData * sd) {
-	const Backend *ptr = squeezebox_get_backends();
-    PropDef *prop = ptr[sd->backend - 1].BACKEND_properties();  
-	g_object_set_data(G_OBJECT(sd->plugin), "dialog", NULL);
-	gtk_widget_destroy(dlg);
+EXPORT void on_dialogSettings_response(GtkWidget * dlg, int reponse, SqueezeBoxData * sd) {
     LOG("Enter DialogResponse");
+	gtk_widget_destroy(dlg);
 	xfce_panel_plugin_unblock_menu(sd->plugin);
-    // apply new properties, if applicable
-    while(*prop->Name) {
-        gchar *propValue = NULL;
-        switch(prop->Type) {
-            case G_TYPE_BOOLEAN: {
-                gboolean *boolVal = (gboolean*)g_hash_table_lookup(
-                			sd->propertyAddresses, prop->Name);
-                LOG("Apply property %s, %p", prop->Name, boolVal);
-                if(boolVal)
-                    propValue = g_strdup_printf("%d", *boolVal);
-            }break;
-            case G_TYPE_INT: {
-                gint *gintVal = g_hash_table_lookup(
-                					sd->propertyAddresses, prop->Name);
-                if(gintVal)
-                    propValue = g_strdup_printf("%d", *gintVal);
-            }break;
-            case G_TYPE_STRING: {
-                GString *strVal = g_hash_table_lookup(
-                						sd->propertyAddresses, prop->Name);
-                if(strVal)
-                    propValue = g_strdup(strVal->str);
-            }break;
-        }
-        if(propValue) {
-            g_hash_table_insert(sd->properties, g_strdup(prop->Name), propValue);
-            //g_free(propValue);
-        }
-        prop++;
-    }
 	squeezebox_write_rc_file(sd->plugin, sd);
     LOG("Leave DialogResponse");
 }
 
-static void config_show_backend_properties(GtkButton * btn, SqueezeBoxData * sd) {
+EXPORT void on_btnEdit_clicked(GtkButton * btn, SqueezeBoxData * sd) {
 	LOG("Enter config_show_backend_properties");
 	if (sd->player.Configure)
 		sd->player.Configure(sd->player.db, GTK_WIDGET(sd->plugin));
@@ -842,69 +742,29 @@ typedef enum eColumns{
 	N_COLUMNS,
 }eColumns;
 
-static void config_show_grab_properties(GtkButton * btn, SqueezeBoxData * sd) {
-	GtkWidget *dlg, *vbox, *label;
-	dlg = xfce_titled_dialog_new_with_buttons(
-				_("Media buttons"), 
-				GTK_WINDOW(g_object_get_data(G_OBJECT(sd->plugin), "dialog")),
-				GTK_DIALOG_MODAL, GTK_STOCK_CANCEL, 0, GTK_STOCK_OK, 1, NULL);
-
-	xfce_titled_dialog_set_subtitle(XFCE_TITLED_DIALOG(dlg),
-					_("Grab state of multimedia keys"));
-	vbox = gtk_vbox_new(FALSE, 8);
-	gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dlg)->vbox), vbox);
-	label = gtk_label_new(
-		"Currently not implemented\nBut may as well show things to come.");
-	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 16);
-	gtk_widget_show_all(dlg);
-	gtk_dialog_run(GTK_DIALOG(dlg));
-	gtk_widget_destroy(dlg);
+const Backend* squeezebox_get_current_backend(SqueezeBoxData * sd)
+{
+	return &squeezebox_get_backends()[sd->backend -1];
 }
 
-static void config_change_backend(GtkComboBox * cb, SqueezeBoxData * sd) {
+EXPORT void on_tvPlayers_cursor_changed(GtkTreeView * tv, SqueezeBoxData * sd) {
 	GtkTreeIter iter = {0};
     LOG("Backend change...");
-    if( gtk_combo_box_get_active_iter(cb, &iter)) {
+    GtkTreeSelection *selection = gtk_tree_view_get_selection(tv);
+    GtkTreeModel *model = gtk_tree_view_get_model(tv);
+	GtkWidget *button = GTK_WIDGET(g_object_get_data(G_OBJECT(sd->dlg), "btnEdit"));
+    if( gtk_tree_selection_get_selected(selection, &model, &iter)) {
         gint nBackend = -1;
-        GtkTreeModel *model = gtk_combo_box_get_model(cb);
         LOG("Have iter %d", iter.stamp);
         if(model) {
             gchar *backend = NULL;
             gtk_tree_model_get(model, &iter, TEXT_COLUMN, &backend, INDEX_COLUMN, &nBackend, -1);
             LOG("Have model %s %d", backend, nBackend);
 	        squeezebox_init_backend(sd, nBackend + 1);
-	        gtk_widget_set_sensitive(sd->btnDet, (NULL != sd->player.Configure));
+	        gtk_widget_set_sensitive(button,
+	        	NULL != sd->player.Configure);
         }
     }
-}
-#if HAVE_DBUS
-static void
-config_change_notify_timeout(GtkSpinButton * sb, SqueezeBoxData * sd) {
-	sd->notifyTimeout = gtk_spin_button_get_value(sb);
-}
-#endif
-static void config_toggle_notify(GtkToggleButton * tb, SqueezeBoxData * sd) {
-	sd->notify = gtk_toggle_button_get_active(tb);
-}
-
-static void
-config_toggle_tooltips_none(GtkToggleButton * opt, SqueezeBoxData * sd) {
-	if (gtk_toggle_button_get_active(opt)) {
-		sd->toolTipStyle = ettNone;
-#ifndef HAVE_GTK_2_12
-		gtk_tooltips_disable(sd->tooltips);
-#endif
-	}
-}
-
-static void
-config_toggle_tooltips_simple(GtkToggleButton * opt, SqueezeBoxData * sd) {
-	if (gtk_toggle_button_get_active(opt)) {
-		sd->toolTipStyle = ettSimple;
-#ifndef HAVE_GTK_2_12
-		gtk_tooltips_enable(sd->tooltips);
-#endif
-	}
 }
 
 static void
@@ -954,45 +814,13 @@ squeezebox_update_grab(gboolean bGrab, gboolean bShowErr, SqueezeBoxData * sd) {
 	}
 }
 
-static void config_toggle_grabmedia(GtkToggleButton * tb, SqueezeBoxData * sd) {
-	gboolean *pBtn = &sd->grabmedia;
-
-	*pBtn = gtk_toggle_button_get_active(tb);
-
-	squeezebox_update_grab(*pBtn, TRUE, sd);
-}
-
-static void config_toggle_next(GtkToggleButton * tb, SqueezeBoxData * sd) {
-	gboolean *pBtn = &sd->show[ebtnNext];
-	gint size = xfce_panel_plugin_get_size(sd->plugin);
-
-	*pBtn = gtk_toggle_button_get_active(tb);
-
-	if (*pBtn)
-		gtk_widget_show(sd->button[ebtnNext]);
-	else
-		gtk_widget_hide(sd->button[ebtnNext]);
-
-	squeezebox_set_size(sd->plugin, size, sd);
-}
-
-static void config_toggle_prev(GtkToggleButton * tb, SqueezeBoxData * sd) {
-	gboolean *pBtn = &sd->show[ebtnPrev];
-	gint size = xfce_panel_plugin_get_size(sd->plugin);
-
-	*pBtn = gtk_toggle_button_get_active(tb);
-
-	if (*pBtn)
-		gtk_widget_show(sd->button[ebtnPrev]);
-	else
-		gtk_widget_hide(sd->button[ebtnPrev]);
-
-	squeezebox_set_size(sd->plugin, size, sd);
-}
-
 EXPORT void on_cellrenderShortCut_accel_cleared(GtkCellRendererAccel *accel,
 		gchar                *path_string,
-		gpointer              user_data) {
+		SqueezeBoxData		 *sd) {
+	GtkTreeIter iter;
+	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(sd->storeShortCuts), &iter, path_string))
+		gtk_list_store_set(sd->storeShortCuts, &iter, 
+			2, 0, 1, 0, -1);
 }
 
 EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
@@ -1010,16 +838,6 @@ EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
 
 static void
 squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
-	// widgets
-	GtkWidget *dlg, *header, *vbox, *hbox1, *label0, *label1,
-	    *cb1, *cb2, *cb3, *btnView;
-	GtkWidget *cbBackend;
-	GtkWidget *opt[2];
-	GtkWidget *squeezebox_delay_spinner;
-	GtkWidget *cb4, *label2, *hbox2, *cbNotLoc;
-	gchar *markup0 = NULL;
-	gchar *markup1 = NULL;
-	GValue val = { 0 };
 	// backends
 	GtkListStore *store;
 	GtkTreeIter iter = { 0 };
@@ -1027,6 +845,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
     gint idx;
 	GtkCellRenderer *renderer;
 	GdkPixbuf *pix;
+	GtkTreeView *view;
 	
 	xfce_panel_plugin_block_menu(plugin);
 
@@ -1034,147 +853,21 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
     GtkBuilder* builder = gtk_builder_new();
 	gtk_builder_add_from_string(builder, settings_ui, 
 		settings_ui_length, NULL);
-	gtk_builder_connect_signals(builder, sd);
 	sd->dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dialogSettings"));
 	sd->storeShortCuts = 
 		GTK_LIST_STORE(gtk_builder_get_object(builder, "liststoreShortcuts"));
-	gtk_dialog_run(GTK_DIALOG(sd->dlg));
-	gtk_widget_destroy(sd->dlg);
-	
-	//TODO: old
-	dlg = gtk_dialog_new_with_buttons(_("Properties"),
-					  GTK_WINDOW(gtk_widget_get_toplevel
-						     (GTK_WIDGET(plugin))),
-					  GTK_DIALOG_DESTROY_WITH_PARENT |
-					  GTK_DIALOG_NO_SEPARATOR,
-					  GTK_STOCK_CLOSE, GTK_RESPONSE_OK,
-					  NULL);
-
-	g_object_set_data(G_OBJECT(plugin), "dialog", dlg);
-
-	gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
-	gtk_window_set_icon_name(GTK_WINDOW(dlg), "xfce4-settings");
-	//gtk_window_set_resizable(GTK_WINDOW(dlg), FALSE);
-
-	g_signal_connect(dlg, "response",
-			 G_CALLBACK(squeezebox_dialog_response), sd);
-
-	gtk_container_set_border_width(GTK_CONTAINER(dlg), 2);
-
-	header = xfce_heading_new();
-	xfce_heading_set_title(XFCE_HEADING(header), _("Squeezebox"));
-	xfce_heading_set_icon_name(XFCE_HEADING(header), "sound");
-	xfce_heading_set_subtitle(XFCE_HEADING(header),
-				  _("media player remote"));
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dlg)->vbox), header, FALSE, TRUE,
-			   0);
-
-	vbox = gtk_vbox_new(FALSE, 8);
-	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dlg)->vbox), vbox, TRUE, TRUE, 0);
-
-	label0 = gtk_label_new(NULL);
-	g_value_init(&val, G_TYPE_DOUBLE);
-	g_object_set_property(G_OBJECT(label0), "xalign", &val);
-	markup0 = g_markup_printf_escaped("<b>%s</b>", _("Appearance"));
-	gtk_label_set_markup_with_mnemonic(GTK_LABEL(label0), markup0);
-	g_free(markup0);
-	gtk_box_pack_start(GTK_BOX(vbox), label0, FALSE, FALSE, 0);
-
-	//check1+2
-	hbox1 = gtk_hbox_new(FALSE, 8);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox1, FALSE, FALSE, 0);
-
-	//check1
-	cb1 = gtk_check_button_new_with_mnemonic(_("Show p_revious button"));
-	gtk_box_pack_start(GTK_BOX(hbox1), cb1, FALSE, FALSE, 16);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb1),
-				     sd->show[ebtnPrev]);
-	g_signal_connect(cb1, "toggled", G_CALLBACK(config_toggle_prev), sd);
-	//check2
-	cb2 = gtk_check_button_new_with_mnemonic(_("Show _next button"));
-	gtk_box_pack_start(GTK_BOX(hbox1), cb2, FALSE, FALSE, 0);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb2),
-				     sd->show[ebtnNext]);
-	g_signal_connect(cb2, "toggled", G_CALLBACK(config_toggle_next), sd);
-	//check3+btnView
-	hbox1 = gtk_hbox_new(FALSE, 8);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox1, FALSE, FALSE, 0);
-	//check3
-	cb3 =
-	    gtk_check_button_new_with_mnemonic(_
-					       ("Grab _media buttons, if available"));
-	gtk_box_pack_start(GTK_BOX(hbox1), cb3, TRUE, TRUE, 16);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb3), sd->grabmedia);
-	g_signal_connect(cb3, "toggled", G_CALLBACK(config_toggle_grabmedia),
-			 sd);
-	//btnView
-	btnView = gtk_button_new_with_mnemonic(_("_Details..."));
-	gtk_box_pack_start(GTK_BOX(hbox1), btnView, FALSE, FALSE, 0);
-	g_signal_connect(btnView, "clicked",
-			 G_CALLBACK(config_show_grab_properties), sd);
-
-	hbox1 = gtk_hbox_new(FALSE, 8);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox1, FALSE, FALSE, 0);
-	opt[0] = gtk_radio_button_new_with_mnemonic(NULL, _("No _tooltips"));
-	gtk_box_pack_start(GTK_BOX(hbox1), opt[0], FALSE, FALSE, 16);
-	g_signal_connect(opt[0], "toggled",
-			 G_CALLBACK(config_toggle_tooltips_none), sd);
-
-	opt[1] =
-	    gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON
-							   (opt[0]), _("_Simple tooltips"));
-	gtk_box_pack_start(GTK_BOX(hbox1), opt[1], FALSE, FALSE, 0);
-	g_signal_connect(opt[1], "toggled",
-			 G_CALLBACK(config_toggle_tooltips_simple), sd);
-
-	// 0, 1
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(opt[sd->toolTipStyle]),
-				     TRUE);
-
-	//check4+cbNotLoc
-	hbox1 = gtk_hbox_new(FALSE, 8);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox1, FALSE, FALSE, 0);
-#if HAVE_DBUS
-	//cb4
-	cb4 =
-	    gtk_check_button_new_with_mnemonic(_
-					       ("Show noti_fications (notify daemon)"));
-	gtk_box_pack_start(GTK_BOX(hbox1), cb4, FALSE, FALSE, 16);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb4), sd->notify);
-	g_signal_connect(cb4, "toggled", G_CALLBACK(config_toggle_notify), sd);
-
-	hbox2 = gtk_hbox_new(FALSE, 8);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox2, FALSE, FALSE, 0);
-
-	label2 = gtk_label_new_with_mnemonic(_("Notification _timeout (sec)"));
-	gtk_box_pack_start(GTK_BOX(hbox2), label2, FALSE, FALSE, 16);
-
-	squeezebox_delay_spinner =
-	    gtk_spin_button_new_with_range(0.0, 60.0, 1.0);
-	gtk_spin_button_set_value(GTK_SPIN_BUTTON(squeezebox_delay_spinner),
-				  sd->notifyTimeout);
-	gtk_box_pack_start(GTK_BOX(hbox2), squeezebox_delay_spinner, FALSE,
-			   FALSE, 0);
-	gtk_label_set_mnemonic_widget(GTK_LABEL(label2),
-				      squeezebox_delay_spinner);
-
-	g_signal_connect(squeezebox_delay_spinner, "value-changed",
-			 G_CALLBACK(config_change_notify_timeout), sd);
-#endif
-	label1 = gtk_label_new_with_mnemonic(NULL);
-	markup1 = g_markup_printf_escaped("<b>%s</b>", _("_Backend"));
-	gtk_label_set_markup_with_mnemonic(GTK_LABEL(label1), markup1);
-	g_free(markup1);
-	g_object_set_property(G_OBJECT(label1), "xalign", &val);
-	gtk_box_pack_start(GTK_BOX(vbox), label1, FALSE, FALSE, 0);
-
-	hbox1 = gtk_hbox_new(FALSE, 8);
-	gtk_box_pack_start(GTK_BOX(vbox), hbox1, FALSE, FALSE, 0);
-
-	/* make a new list store */
-	store = gtk_list_store_new(N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_INT);
-    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), TEXT_COLUMN, GTK_SORT_ASCENDING);
+	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "datastore"));
+	view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tvPlayers"));
+	// the button sensitivity update
+	g_object_set_data(G_OBJECT(sd->dlg), 
+		"btnAdd", gtk_builder_get_object(builder, "btnAdd"));
+	g_object_set_data(G_OBJECT(sd->dlg), 
+		"btnEdit", gtk_builder_get_object(builder, "btnEdit"));
+	g_object_set_data(G_OBJECT(sd->dlg), 
+		"btnRemove", gtk_builder_get_object(builder, "btnRemove"));
+	//cellrenderertoggle1
+	g_object_set_data(G_OBJECT(sd->dlg), 
+		"cellrenderertoggle1", gtk_builder_get_object(builder, "cellrenderertoggle1"));
 
 	/* fill the store with data */
 	idx = 0;
@@ -1185,52 +878,34 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 		gtk_list_store_set(store, &iter, 
                    PIXBUF_COLUMN, pix,
 				   TEXT_COLUMN, ptr->BACKEND_name(), 
-                   INDEX_COLUMN, idx++, -1);
+                   INDEX_COLUMN, idx++, 
+				   INDEX_COLUMN+1, TRUE, -1);
+		if( sd->backend == idx) {
+			GtkTreeSelection *selection = gtk_tree_view_get_selection(view);
+			gtk_tree_selection_select_iter(selection, &iter);
+			gtk_widget_set_sensitive(
+				GTK_WIDGET((gtk_builder_get_object(builder, "btnEdit"))),
+			 	NULL != sd->player.Configure);
+		}
+		
 		ptr++;
 		if (!ptr->BACKEND_name)
 			break;
 	}
+	
+	gtk_tree_sortable_set_sort_column_id(
+		GTK_TREE_SORTABLE(store), TEXT_COLUMN, GTK_SORT_ASCENDING);
 
-	cbBackend =
-	    GTK_WIDGET(gtk_combo_box_new_with_model(GTK_TREE_MODEL(store)));
-	gtk_label_set_mnemonic_widget(GTK_LABEL(label1), cbBackend);
-
-	renderer = gtk_cell_renderer_pixbuf_new();
-	gtk_cell_renderer_set_fixed_size(renderer, 36, 24);
-
-	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(cbBackend), renderer, FALSE);
-	gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(cbBackend), renderer,
-				      "pixbuf", PIXBUF_COLUMN);
-
-	renderer = gtk_cell_renderer_text_new();
-	gtk_cell_layout_pack_end(GTK_CELL_LAYOUT(cbBackend), renderer, TRUE);
-	gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(cbBackend), renderer,
-				      "text", TEXT_COLUMN);
-
-	g_object_unref(G_OBJECT(store));
-    
-    gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
-    do {
-        gint nBackend = -1;
-        gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, INDEX_COLUMN, &nBackend, -1);
-        if(nBackend == (sd->backend -1)) {
-	        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(cbBackend), &iter);
-            break;
-        }
-    }while(gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter));
-
-	g_signal_connect(cbBackend, "changed",
-			 G_CALLBACK(config_change_backend), sd);
-
-	gtk_box_pack_start(GTK_BOX(hbox1), cbBackend, TRUE, TRUE, 16);
-
-	sd->btnDet = gtk_button_new_with_mnemonic(_("_Settings..."));
-	gtk_box_pack_start(GTK_BOX(hbox1), sd->btnDet, FALSE, FALSE, 8);
-	g_signal_connect(sd->btnDet, "clicked",
-			 G_CALLBACK(config_show_backend_properties), sd);
-	gtk_widget_set_sensitive(sd->btnDet, (NULL != sd->player.Configure));
-
-	gtk_widget_show_all(dlg);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkAutoAttach")), sd->autoAttach);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkShowPrevious")), sd->show[ebtnPrev]);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkShowNext")), sd->show[ebtnNext]);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkShowToolTips")), sd->toolTipStyle);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkShowNotifications")), sd->notify);
+	gtk_spin_button_set_value(GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spinNotificationTimeout")), sd->notifyTimeout);
+	
+	// liftoff
+	gtk_builder_connect_signals(builder, sd);
+	gtk_dialog_run(GTK_DIALOG(sd->dlg));
 }
 
 void squeezebox_prev(SqueezeBoxData * sd) {
@@ -1305,6 +980,63 @@ void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 	squeezebox_play(sd);
 }
 
+EXPORT void on_chkAutoAttach_toggled(GtkToggleButton *button, SqueezeBoxData * sd) {
+	sd->autoAttach = gtk_toggle_button_get_active(button);
+	gtk_cell_renderer_set_visible(
+		GTK_CELL_RENDERER(g_object_get_data(G_OBJECT(sd->dlg), "cellrenderertoggle1")), 
+		sd->autoAttach);
+}
+
+EXPORT void on_chkShowPrevious_toggled(GtkToggleButton *button, SqueezeBoxData *sd) {
+	gboolean *pBtn = &sd->show[ebtnPrev];
+	gint size = xfce_panel_plugin_get_size(sd->plugin);
+
+	*pBtn = gtk_toggle_button_get_active(button);
+
+	if (*pBtn)
+		gtk_widget_show(sd->button[ebtnPrev]);
+	else
+		gtk_widget_hide(sd->button[ebtnPrev]);
+
+	squeezebox_set_size(sd->plugin, size, sd);
+}
+
+EXPORT void on_chkShowNext_toggled(GtkToggleButton *button, SqueezeBoxData *sd) {
+	gboolean *pBtn = &sd->show[ebtnNext];
+	gint size = xfce_panel_plugin_get_size(sd->plugin);
+
+	*pBtn = gtk_toggle_button_get_active(button);
+
+	if (*pBtn)
+		gtk_widget_show(sd->button[ebtnNext]);
+	else
+		gtk_widget_hide(sd->button[ebtnNext]);
+
+	squeezebox_set_size(sd->plugin, size, sd);
+}
+
+EXPORT void on_chkShowToolTips_toggled(GtkToggleButton *button, SqueezeBoxData *sd) {
+	if (gtk_toggle_button_get_active(button)) {
+		sd->toolTipStyle = ettSimple;
+#ifndef HAVE_GTK_2_12
+		gtk_tooltips_enable(sd->tooltips);
+#endif
+	} else {
+		sd->toolTipStyle = ettNone;
+#ifndef HAVE_GTK_2_12
+		gtk_tooltips_disable(sd->tooltips);
+#endif
+	}
+}
+
+EXPORT void on_chkShowNotifications_toggled(GtkToggleButton *button, SqueezeBoxData *sd) {
+	sd->notify = gtk_toggle_button_get_active(button);
+}
+
+EXPORT void on_spinNotificationTimeout_change_value(GtkSpinButton *button, SqueezeBoxData *sd) {
+	sd->notifyTimeout = gtk_spin_button_get_value(button);
+}
+
 void squeezebox_next(SqueezeBoxData * sd) {
 	LOG("Enter squeezebox_next");
 	if (sd->player.Next)
@@ -1371,13 +1103,6 @@ gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
 	return FALSE;
 }
 #endif
-
-#define GLADE_HOOKUP_OBJECT(component,widget,name) \
-  g_object_set_data_full (G_OBJECT (component), name, \
-    gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
-
-#define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
-  g_object_set_data (G_OBJECT (component), name, widget)
 
 static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 	GtkContainer *window1 = GTK_CONTAINER(sd->plugin);
@@ -1454,20 +1179,6 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 			 G_CALLBACK(on_btn_clicked), sd);
 	g_signal_connect((gpointer) sd->button[ebtnNext], "button-press-event",
 			 G_CALLBACK(on_btn_clicked), sd);
-
-	/* Store pointers to all widgets, for use by lookup_widget().
-	   GLADE_HOOKUP_OBJECT_NO_REF (window1, window1, "window1");
-	   GLADE_HOOKUP_OBJECT (window1, table1, "table1");
-	   GLADE_HOOKUP_OBJECT (window1, btnPrev, "btnPrev");
-	   GLADE_HOOKUP_OBJECT (window1, image1, "image1");
-	   GLADE_HOOKUP_OBJECT (window1, btnPlay, "btnPlay");
-	   GLADE_HOOKUP_OBJECT (window1, image4, "image4");
-	   GLADE_HOOKUP_OBJECT (window1, btnNext, "btnNext");
-	   GLADE_HOOKUP_OBJECT (window1, alignment2, "alignment2");
-	   GLADE_HOOKUP_OBJECT (window1, hbox2, "hbox2");
-	   GLADE_HOOKUP_OBJECT (window1, image3, "image3");
-	   GLADE_HOOKUP_OBJECT (window1, label2, "label2");
-	 */
 
 	if (sd->state != ebtnPlay)
 		squeezebox_update_playbtn(sd);

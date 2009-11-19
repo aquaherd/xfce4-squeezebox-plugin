@@ -53,9 +53,6 @@ typedef struct auData {
 	gboolean Repeat;
 } auData;
 
-// MFCish property map -- currently none
-BEGIN_PROP_MAP(AU)
-    END_PROP_MAP()
 #define MKTHIS auData *db = (auData *)thsPtr;
 // implementation
 static gboolean auAssure(gpointer thsPtr, gboolean noCreate);

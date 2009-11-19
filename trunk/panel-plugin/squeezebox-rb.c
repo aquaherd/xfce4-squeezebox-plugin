@@ -58,9 +58,6 @@ typedef struct rbData{
 	gboolean Visibility;
 } rbData;
 
-// MFCish property map -- currently none
-BEGIN_PROP_MAP(RB)
-    END_PROP_MAP()
 #define MKTHIS rbData *db = (rbData *)thsPtr;
 gboolean rbAssure(gpointer thsPtr, gboolean noCreate);
 

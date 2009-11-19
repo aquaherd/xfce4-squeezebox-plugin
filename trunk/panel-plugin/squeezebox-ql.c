@@ -68,10 +68,6 @@ typedef struct qlData {
 	DBusGProxy *qlPlayer;
 } qlData;
 
-// MFCish property map -- currently none
-BEGIN_PROP_MAP(QL)
-END_PROP_MAP()
-
 static gboolean ql_CurrentSong (DBusGProxy *proxy, GHashTable** OUT_songProps) {
 	return dbus_g_proxy_call(proxy, "CurrentSong", NULL, G_TYPE_INVALID, 
 		DBUS_TYPE_G_STRING_STRING_HASHTABLE, OUT_songProps, G_TYPE_INVALID);
