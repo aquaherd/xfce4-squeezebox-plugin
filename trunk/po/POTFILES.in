@@ -5,7 +5,6 @@ panel-plugin/squeezebox-ql.c
 panel-plugin/squeezebox-au.c
 panel-plugin/squeezebox-ex.c
 panel-plugin/squeezebox-cs.c
-panel-plugin/squeezebox-bmp.c
 panel-plugin/squeezebox-mu.c
 panel-plugin/squeezebox-ba.c
 panel-plugin/notifications.c
