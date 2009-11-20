@@ -112,10 +112,13 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="model">datastore</property>
+                        <property name="headers_clickable">False</property>
                         <property name="search_column">1</property>
+                        <property name="tooltip_column">1</property>
                         <signal name="cursor_changed" handler="on_tvPlayers_cursor_changed"/>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn5">
+                          <object class="GtkTreeViewColumn" id="tvcPlayers">
+                            <property name="resizable">True</property>
                             <property name="title">Players</property>
                             <property name="sort_column_id">1</property>
                             <child>
@@ -131,9 +134,18 @@
                                 <attribute name="text">1</attribute>
                               </attributes>
                             </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="tvcEnabled">
+                            <property name="visible">False</property>
+                            <property name="resizable">True</property>
+                            <property name="sizing">autosize</property>
+                            <property name="title">Enabled</property>
+                            <property name="alignment">0.5</property>
                             <child>
                               <object class="GtkCellRendererToggle" id="cellrenderertoggle1">
-                                <property name="visible">False</property>
+                                <signal name="toggled" handler="on_cellrenderertoggle1_toggled"/>
                               </object>
                               <attributes>
                                 <attribute name="active">3</attribute>

@@ -749,23 +749,31 @@ const Backend* squeezebox_get_current_backend(SqueezeBoxData * sd)
 }
 
 EXPORT void on_tvPlayers_cursor_changed(GtkTreeView * tv, SqueezeBoxData * sd) {
-	GtkTreeIter iter = {0};
-    LOG("Backend change...");
-    GtkTreeSelection *selection = gtk_tree_view_get_selection(tv);
-    GtkTreeModel *model = gtk_tree_view_get_model(tv);
-	GtkWidget *button = GTK_WIDGET(g_object_get_data(G_OBJECT(sd->dlg), "btnEdit"));
-    if( gtk_tree_selection_get_selected(selection, &model, &iter)) {
-        gint nBackend = -1;
-        LOG("Have iter %d", iter.stamp);
-        if(model) {
-            gchar *backend = NULL;
-            gtk_tree_model_get(model, &iter, TEXT_COLUMN, &backend, INDEX_COLUMN, &nBackend, -1);
-            LOG("Have model %s %d", backend, nBackend);
-	        squeezebox_init_backend(sd, nBackend + 1);
-	        gtk_widget_set_sensitive(button,
-	        	NULL != sd->player.Configure);
-        }
-    }
+	if(!sd->autoAttach) {
+		GtkTreeIter iter = {0};
+		LOG("Backend change...");
+		GtkTreeSelection *selection = gtk_tree_view_get_selection(tv);
+		GtkTreeModel *model = gtk_tree_view_get_model(tv);
+		GtkWidget *button = GTK_WIDGET(g_object_get_data(G_OBJECT(sd->dlg), "btnEdit"));
+		if( gtk_tree_selection_get_selected(selection, &model, &iter)) {
+			gint nBackend = -1;
+			LOG("Have iter %d", iter.stamp);
+			if(model) {
+				gchar *backend = NULL;
+				gtk_tree_model_get(model, &iter, 
+					TEXT_COLUMN, &backend, 
+					INDEX_COLUMN, &nBackend, -1);
+				LOG("Have model %s %d", backend, nBackend);
+				squeezebox_init_backend(sd, nBackend + 1);
+				gtk_widget_set_sensitive(button,
+					NULL != sd->player.Configure);
+			}
+		}
+	}
+}
+
+EXPORT void on_cellrenderertoggle1_toggled(GtkCellRendererToggle * crt, SqueezeBoxData * sd) {
+	LOG("ClickCRT");
 }
 
 static void
@@ -868,7 +876,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 		"btnRemove", gtk_builder_get_object(builder, "btnRemove"));
 	//cellrenderertoggle1
 	g_object_set_data(G_OBJECT(sd->dlg), 
-		"cellrenderertoggle1", gtk_builder_get_object(builder, "cellrenderertoggle1"));
+		"tvcEnabled", gtk_builder_get_object(builder, "tvcEnabled"));
 
 	/* fill the store with data */
 	idx = 0;
@@ -983,8 +991,8 @@ void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 
 EXPORT void on_chkAutoAttach_toggled(GtkToggleButton *button, SqueezeBoxData * sd) {
 	sd->autoAttach = gtk_toggle_button_get_active(button);
-	gtk_cell_renderer_set_visible(
-		GTK_CELL_RENDERER(g_object_get_data(G_OBJECT(sd->dlg), "cellrenderertoggle1")), 
+	gtk_tree_view_column_set_visible(
+		GTK_TREE_VIEW_COLUMN(g_object_get_data(G_OBJECT(sd->dlg), "tvcEnabled")), 
 		sd->autoAttach);
 }
 
