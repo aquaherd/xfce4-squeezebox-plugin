@@ -6,11 +6,9 @@
   <object class="GtkDialog" id="mpdSettings">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Properties</property>
-    <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
+    <property name="icon_name">configuration_section</property>
     <property name="type_hint">dialog</property>
-    <property name="skip_taskbar_hint">True</property>
-    <property name="skip_pager_hint">True</property>
     <property name="has_separator">False</property>
     <signal name="response" handler="on_mpdSettings_response"/>
     <child internal-child="vbox">
@@ -157,8 +155,8 @@
             <child>
               <object class="GtkFileChooserButton" id="chooserDirectory">
                 <property name="visible">True</property>
-                <property name="action">select-folder</property>
                 <property name="create_folders">False</property>
+                <property name="action">select-folder</property>
                 <property name="local_only">False</property>
                 <signal name="current_folder_changed" handler="on_chooserDirectory_current_folder_changed"/>
               </object>

@@ -71,7 +71,6 @@ typedef struct SqueezeBoxData{
     
     // settings dialog
     GtkWidget *dlg;
-    GtkListStore *storeShortCuts;
 } SqueezeBoxData;
 
 static void config_toggle_next(GtkToggleButton * tb, SqueezeBoxData * sd);

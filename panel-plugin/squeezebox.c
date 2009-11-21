@@ -719,7 +719,7 @@ EXPORT void on_dialogSettings_response(GtkWidget * dlg, int reponse, SqueezeBoxD
 EXPORT void on_btnEdit_clicked(GtkButton * btn, SqueezeBoxData * sd) {
 	LOG("Enter config_show_backend_properties");
 	if (sd->player.Configure)
-		sd->player.Configure(sd->player.db, GTK_WIDGET(sd->plugin));
+		sd->player.Configure(sd->player.db, GTK_WIDGET(sd->dlg));
 	else {
 		GtkWidget *dlg =
 		    gtk_message_dialog_new(GTK_WINDOW
@@ -730,6 +730,7 @@ EXPORT void on_btnEdit_clicked(GtkButton * btn, SqueezeBoxData * sd) {
 					   _
 					   ("This backend has no configurable properties"));
 
+		gtk_window_set_transient_for(GTK_WINDOW(dlg), GTK_WINDOW(sd->dlg));
 		gtk_dialog_run(GTK_DIALOG(dlg));
 		gtk_widget_destroy(dlg);
 	}
@@ -740,6 +741,7 @@ typedef enum eColumns{
 	PIXBUF_COLUMN,
 	TEXT_COLUMN,
     INDEX_COLUMN,
+    AVAIL_COLUMN,
 	N_COLUMNS,
 }eColumns;
 
@@ -751,10 +753,10 @@ const Backend* squeezebox_get_current_backend(SqueezeBoxData * sd)
 EXPORT void on_tvPlayers_cursor_changed(GtkTreeView * tv, SqueezeBoxData * sd) {
 	if(!sd->autoAttach) {
 		GtkTreeIter iter = {0};
-		LOG("Backend change...");
 		GtkTreeSelection *selection = gtk_tree_view_get_selection(tv);
-		GtkTreeModel *model = gtk_tree_view_get_model(tv);
+		GtkTreeModel *model = NULL;
 		GtkWidget *button = GTK_WIDGET(g_object_get_data(G_OBJECT(sd->dlg), "btnEdit"));
+		LOG("Backend change...");
 		if( gtk_tree_selection_get_selected(selection, &model, &iter)) {
 			gint nBackend = -1;
 			LOG("Have iter %d", iter.stamp);
@@ -772,8 +774,19 @@ EXPORT void on_tvPlayers_cursor_changed(GtkTreeView * tv, SqueezeBoxData * sd) {
 	}
 }
 
-EXPORT void on_cellrenderertoggle1_toggled(GtkCellRendererToggle * crt, SqueezeBoxData * sd) {
-	LOG("ClickCRT");
+EXPORT void on_cellrenderertoggle1_toggled(GtkCellRendererToggle * crt, 
+		gchar                *path_string,
+		SqueezeBoxData * sd) {
+	GtkTreeIter iter = {0};
+	GtkTreeView *view = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(sd->dlg), "tvPlayers"));
+	GtkTreeSelection *selection = gtk_tree_view_get_selection(view);
+	GtkTreeModel *model = NULL;
+	gboolean active = !gtk_cell_renderer_toggle_get_active(crt);
+	LOG("ClickCRT %d", active);
+	if( gtk_tree_selection_get_selected(selection, &model, &iter)) {
+		gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
+			AVAIL_COLUMN, active, -1);
+	}
 }
 
 static void
@@ -826,9 +839,10 @@ squeezebox_update_grab(gboolean bGrab, gboolean bShowErr, SqueezeBoxData * sd) {
 EXPORT void on_cellrenderShortCut_accel_cleared(GtkCellRendererAccel *accel,
 		gchar                *path_string,
 		SqueezeBoxData		 *sd) {
-	GtkTreeIter iter;
-	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(sd->storeShortCuts), &iter, path_string))
-		gtk_list_store_set(sd->storeShortCuts, &iter, 
+	GtkListStore *storeShortCuts = g_object_get_data(G_OBJECT(sd->dlg), "liststoreShortcuts");
+	GtkTreeIter iter = {0};
+	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(storeShortCuts), &iter, path_string))
+		gtk_list_store_set(storeShortCuts, &iter, 
 			2, 0, 1, 0, -1);
 }
 
@@ -838,10 +852,11 @@ EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
 		GdkModifierType       accel_mods,
 		guint                 hardware_keycode,
 		SqueezeBoxData		 *sd){ 
-	GtkTreeIter iter;
+	GtkListStore *storeShortCuts = g_object_get_data(G_OBJECT(sd->dlg), "liststoreShortcuts");
+	GtkTreeIter iter = {0};
 	LOG("Accel %s %d %d", path_string, accel_key, accel_mods);
-	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(sd->storeShortCuts), &iter, path_string))
-		gtk_list_store_set(sd->storeShortCuts, &iter, 
+	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(storeShortCuts), &iter, path_string))
+		gtk_list_store_set(storeShortCuts, &iter, 
 			2, accel_mods, 1, accel_key, -1);
 }
 
@@ -863,8 +878,6 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	gtk_builder_add_from_string(builder, settings_ui, 
 		settings_ui_length, NULL);
 	sd->dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dialogSettings"));
-	sd->storeShortCuts = 
-		GTK_LIST_STORE(gtk_builder_get_object(builder, "liststoreShortcuts"));
 	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "datastore"));
 	view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tvPlayers"));
 	// the button sensitivity update
@@ -877,6 +890,12 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	//cellrenderertoggle1
 	g_object_set_data(G_OBJECT(sd->dlg), 
 		"tvcEnabled", gtk_builder_get_object(builder, "tvcEnabled"));
+	g_object_set_data(G_OBJECT(sd->dlg), 
+		"tvPlayers", gtk_builder_get_object(builder, "tvPlayers"));
+	g_object_set_data(G_OBJECT(sd->dlg), 
+		"liststoreShortcuts", gtk_builder_get_object(builder, "liststoreShortcuts"));
+	g_object_set_data(G_OBJECT(sd->dlg), 
+		"datastore", gtk_builder_get_object(builder, "datastore"));
 
 	/* fill the store with data */
 	idx = 0;
@@ -888,7 +907,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
                    PIXBUF_COLUMN, pix,
 				   TEXT_COLUMN, ptr->BACKEND_name(), 
                    INDEX_COLUMN, idx++, 
-				   INDEX_COLUMN+1, TRUE, -1);
+				   AVAIL_COLUMN, TRUE, -1);
 		if( sd->backend == idx) {
 			GtkTreeSelection *selection = gtk_tree_view_get_selection(view);
 			gtk_tree_selection_select_iter(selection, &iter);

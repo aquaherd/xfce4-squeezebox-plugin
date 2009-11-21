@@ -651,6 +651,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 jumpTarget:
 	this->bRequireReconnect = FALSE;
 	//gtk_dialog_run
+	gtk_window_set_transient_for(GTK_WINDOW(this->wDlg), GTK_WINDOW(parent));
 	result = gtk_dialog_run (GTK_DIALOG (this->wDlg));
 	xfconf_g_property_unbind_all(this->xfconfChannel);
 

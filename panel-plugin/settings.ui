@@ -54,11 +54,10 @@
   </object>
   <object class="GtkDialog" id="dialogSettings">
     <property name="border_width">5</property>
-    <property name="modal">True</property>
-    <property name="window_position">center</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="icon_name">applications-multimedia</property>
     <property name="type_hint">dialog</property>
-    <property name="skip_taskbar_hint">True</property>
-    <property name="skip_pager_hint">True</property>
+    <property name="urgency_hint">True</property>
     <signal name="response" handler="on_dialogSettings_response"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
@@ -72,7 +71,7 @@
             <child>
               <object class="XfceHeading" id="xfce-heading1">
                 <property name="visible">True</property>
-                <property name="icon_name">audio-x-generic</property>
+                <property name="icon_name">applications-multimedia</property>
                 <property name="subtitle" translatable="yes">media player remote</property>
                 <property name="title" translatable="yes">SqueezeBox</property>
               </object>
