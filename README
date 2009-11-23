@@ -36,7 +36,6 @@ long term goal. Currently, one can select one in the plugin properties.
     - audacious 1.5.x (via DBUS)
     - exaile 0.2.14devel [r1629] (via DBUS, see README.exaile below)
     - consonance (via DBUS, polls)
-    - bmpx (via DBUS, can't pause)
     - muine (via DBUS)
     - banshee (via DBUS)
     
@@ -45,6 +44,9 @@ long term goal. Currently, one can select one in the plugin properties.
     - decibel-audio-player (DBUS interface lacklustre)
     - listen (dito)
     - amarok (won't introduce DCOP dependency, awaiting DBUS interface)
+
+    Dropped backends:
+    - BMPX
     
     Remotely possible backends:
     - mplayer (via -silent -idle switches with own playlist management)
@@ -70,15 +72,16 @@ instead, so I can fully support a specific version of exaile: 0.2.14devel [r1629
 Thanks to Caio Alonso. If this version isn't detected, the backend will actively 
 poll for change detection causing constant noise on the dbus.
 
-
 You can get the best fit here:
 $ bzr branch lp:~caio-alonso/exaile/missing-signals
+
+Update: The 3.0x revision supports the MPRIS-protocol with a plugin.
 
 
 =============
 README.bmpx
 =============
-Version 0.40 of bmpx ignores the pause command.
+Version 0.40 of bmpx ignores the pause command. I had to drop it.
 
 ===============
 README.xubuntu:
@@ -108,9 +111,7 @@ keycode 164=XF86AudioStop
 - gtk+ 2.12.19 (Hardy)
 I'm setting the lowest of the above as dependency, but I include
 workarounds for the tooltip change in 2.12 as well.
-
-4) Dropping netk for wnck will happen in xfce-4.6, this release already 
-   has made it. (Hoping for 4.6 in upcoming Jaunty)
+The xfce4.4 branch heads for Debian Lenny, trunk is at 2.16 atm.
 
 ============
 README.etch:
@@ -144,4 +145,8 @@ README.Packagers:
 - 'weibullguy' from forum.xfce.org reports 'Cross Linux from Scratch' as 
   a distro this plugin is also known to build on.
 - A full build on debian Lenny needs:
-xfce4-dev-tools xfce4-panel-dev libdbus-glib-1-dev libmpd-dev libexo-0.3-dev libid3tag0-dev libwnck-dev
+xfce4-dev-tools xfce4-panel-dev libdbus-glib-1-dev libmpd-dev libexo-0.3-dev libid3tag0-dev libwnck-dev libnotify-0-dev
+- A full trunk build on ubuntu karmic needs:
+xfce4-dev-tools xfce4-panel-dev libmpd-dev libexo-0.3-dev libid3tag0-dev libwnck-dev lixfconf-0-dev
+- Dependencies on Fedora are:
+xfce4-panel-devel libxfcegui4-devel xfconf-devel libwnck-devel libid3tag-devel exo-devel

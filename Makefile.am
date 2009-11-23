@@ -24,9 +24,9 @@ PKGFLAGS = --default \
 	--pkglicense="GNU GPL" \
 	--pkggroup="xfce"
 
-EXTRA_DIST = README intltool-extract.in intltool-merge.in intltool-update.in
+EXTRA_DIST = README TODO THANKS intltool-extract.in intltool-merge.in intltool-update.in debian redhat
 
-DISTCLEANFILES = intltool-extract intltool-merge intltool-update
+DISTCLEANFILES = intltool-extract intltool-merge intltool-update redhat/xfce4-squeezebox-plugin.spec redhat/Makefile
 
 splint:
 	cd panel-plugin && $(MAKE) splint
