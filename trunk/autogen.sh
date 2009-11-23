@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # $Id: autogen.sh 4312 2005-01-27 10:10:04Z jasper $
 #
@@ -19,5 +19,4 @@ EOF
 }
 
 exec xdt-autogen $@
-
 # vi:set ts=2 sw=2 et ai:

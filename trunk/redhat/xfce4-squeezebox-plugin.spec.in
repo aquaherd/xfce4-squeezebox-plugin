@@ -54,5 +54,5 @@ rm -rf $RPM_BUILD_ROOT
 %doc AUTHORS COPYING NEWS ChangeLog README THANKS TODO
 %{_libexecdir}/xfce4/panel-plugins/%{name}
 %{_datadir}/xfce4/panel-plugins/*.desktop
-%{_datadir}/icons/hicolor/*/apps/xfce*-*.png
-%{_datadir}/icons/hicolor/*/apps/xfce*-*.svg
+#%{_datadir}/icons/hicolor/*/apps/xfce*-*.png
+#%{_datadir}/icons/hicolor/*/apps/xfce*-*.svg
