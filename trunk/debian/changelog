@@ -1,0 +1,18 @@
+xfce4-squeezebox-plugin (0.1-1) unstable; urgency=low
+
+  * Initial beta release
+    - package built successfully
+    - quodlibet backend added
+
+ -- Hakan Erduman <hakan.erduman@web.de>  Wed, 13 Mar 2008 22:20:00 +0100
+
+xfce4-squeezebox-plugin (0.1-0) unstable; urgency=low
+
+  * Initial beta nonrelease 
+    - rhythmbox backend
+    - mpd backend
+
+ -- Hakan Erduman <hakan.erduman@web.de>  Wed, 14 Nov 2007 22:26:56 +0100
+
+
+

@@ -24,9 +24,11 @@ xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox-ba.c  squeezebox-ba.png    squeezebox-ba.png.h  banshee-player-binding.h \
 	notifications.c  notifications.h notifications-binding.h \
 	mmkeys.h mmkeys.c \
-	mpris-wizard.ui mpris-wizard-ui.h \
 	settings.ui settings-ui.h \
 	settings-mpd.ui settings-mpd-ui.h
+
+# 	mpris-wizard.ui mpris-wizard-ui.h 
+
 
 # .desktop file
 #
@@ -46,15 +48,16 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 %.desktop.in: %.desktop.in.in
 	sed -e "s^@PLUGIN_PATH@^$(libexecdir)/xfce4/panel-plugins^" $< > $@
 
-if MAINTAINER_MODE
-BUILT_SOURCES = settings-ui.h settings-mpd-ui.h mpris-wizard-ui.h
+#if MAINTAINER_MODE
+BUILT_SOURCES = settings-ui.h settings-mpd-ui.h
+# BUILT_SOURCES = settings-ui.h settings-mpd-ui.h mpris-wizard-ui.h
 settings-ui.h: settings.ui
 	exo-csource --static --strip-comments --strip-content --name=settings_ui $< >$@
 settings-mpd-ui.h: settings-mpd.ui
 	exo-csource --static --strip-comments --strip-content --name=settings_mpd_ui $< >$@
-mpris-wizard-ui.h: mpris-wizard.ui
-	exo-csource --static --strip-comments --strip-content --name=mpris_wizard_ui $< >$@
-endif
+#mpris-wizard-ui.h: mpris-wizard.ui
+#	exo-csource --static --strip-comments --strip-content --name=mpris_wizard_ui $< >$@
+#endif
 
 	
 EXTRA_DIST = $(desktop_in_in_files)
