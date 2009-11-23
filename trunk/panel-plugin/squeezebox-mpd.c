@@ -637,13 +637,13 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 			         NULL, NULL, &outText, NULL, &exit_status, NULL)) {
                  gchar *ptr = strtok(outText, "\n");
                  while(ptr) {
-                     gchar *trackerPath = ptr;
-                     while(*trackerPath && *trackerPath == ' ')
-                        trackerPath++;
-                     if(g_file_test(trackerPath, G_FILE_TEST_EXISTS))
+                     gchar *returnPath = ptr;
+                     while(*returnPath && *returnPath == ' ')
+                        returnPath++;
+                     if(g_file_test(returnPath, G_FILE_TEST_EXISTS))
                      {
                          GDesktopAppInfo *app = 
-                             g_desktop_app_info_new_from_filename(trackerPath);
+                             g_desktop_app_info_new_from_filename(returnPath);
                          if(app) {
                              const gchar *binPath = g_app_info_get_executable(
                                                     G_APP_INFO(app));   
