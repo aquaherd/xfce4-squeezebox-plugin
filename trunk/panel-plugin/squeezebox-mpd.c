@@ -548,6 +548,30 @@ EXPORT void on_chkUseListManager_toggled(GtkToggleButton * tb, gpointer thsPtr) 
 	LOG("Leave on_chkUseListManager_toggled");
 }
 
+gchar** mpdGetIndexerArgs(){
+	gchar *tracker = g_find_program_in_path("tracker-search");
+	if(tracker) {
+		gchar **argv = g_new(gchar*, 5);
+		argv[0] = tracker;
+		argv[1] = "--service";
+		argv[2] = "Applications";
+		argv[3] = "mpd";
+		argv[4] = NULL;
+		return argv;
+	} else {
+		gchar *beagle = g_find_program_in_path("beagle-query");
+		if(beagle) {
+			gchar **argv = g_new(gchar*, 4);
+			argv[0] = beagle;
+			argv[1] = "source:applications";
+			argv[2] = "mpd";
+			argv[3] = NULL;
+			return argv;
+		}
+	}
+	return NULL;
+}
+
 static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	LOG("Enter mpdConfigure");
 	MKTHIS;
@@ -598,24 +622,17 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
                   gtk_builder_get_object(builder, "comboListManager")))), "text");
 	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "listManagers"));
 
-    // cheapo tracker search, requires gio-unix for now
+    // cheapo tracker/beagle search, requires gio-unix for now
     #if HAVE_GIO
     {
-        gchar *tracker = g_find_program_in_path("tracker-search");
-        if(tracker) {
+		gchar **argv = mpdGetIndexerArgs();
+        if(argv) {
             GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
             if(this->pmanager->len)
                 g_hash_table_insert(table, this->pmanager->str, g_strdup("!"));
 	        gchar *outText = NULL;
-	        const gchar *argv[] = {
-		        tracker,
-		        "--service",
-                "Applications",
-                "mpd",
-		        NULL
-	        };
 	        gint exit_status = 0;
-	        if (g_spawn_sync(NULL, (gchar **) argv, NULL,
+	        if (g_spawn_sync(NULL, argv, NULL,
 			         G_SPAWN_STDERR_TO_DEV_NULL,
 			         NULL, NULL, &outText, NULL, &exit_status, NULL)) {
                  gchar *ptr = strtok(outText, "\n");
