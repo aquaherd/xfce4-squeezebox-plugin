@@ -48,16 +48,20 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 %.desktop.in: %.desktop.in.in
 	sed -e "s^@PLUGIN_PATH@^$(libexecdir)/xfce4/panel-plugins^" $< > $@
 
-#if MAINTAINER_MODE
+if MAINTAINER_MODE
 BUILT_SOURCES = settings-ui.h settings-mpd-ui.h
 # BUILT_SOURCES = settings-ui.h settings-mpd-ui.h mpris-wizard-ui.h
+
 settings-ui.h: settings.ui
 	exo-csource --static --strip-comments --strip-content --name=settings_ui $< >$@
+
 settings-mpd-ui.h: settings-mpd.ui
 	exo-csource --static --strip-comments --strip-content --name=settings_mpd_ui $< >$@
+
 #mpris-wizard-ui.h: mpris-wizard.ui
 #	exo-csource --static --strip-comments --strip-content --name=mpris_wizard_ui $< >$@
-#endif
+
+endif
 
 	
 EXTRA_DIST = $(desktop_in_in_files)
@@ -68,6 +72,6 @@ splint:
 	splint -warnposix +ignoresigns -stats \
 	*.c  \
 	@LIBXFCE4PANEL_CFLAGS@ @DBUSGLIB_CFLAGS@ \
-    @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ \
-    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@
+	@LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ \
+	@LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@
 
