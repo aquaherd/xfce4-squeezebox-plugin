@@ -10,7 +10,6 @@ Architecture: any
 Depends: ${shlibs:Depends}
 Recommends: rhythmbox, mpd, gmpc, quodlibet, xfmedia
 Description: Media player control plugin for the Xfce panel
- Remote control rhythmbox, mpd, quodlibet and xfmedia 
- from the panel. Show album art popups and have media key
- response.
+ Remote control various media players from the panel. 
+ Show album art popups and have media key response.
 

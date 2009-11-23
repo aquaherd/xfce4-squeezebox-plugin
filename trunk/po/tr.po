@@ -34,8 +34,7 @@ msgid "Grab state of multimedia keys"
 msgstr "Medya tuşlarının bağlantı hali"
 
 #. TODO: old
-#: ../panel-plugin/squeezebox.c:974
-#: ../panel-plugin/settings-mpd.ui.h:3
+#: ../panel-plugin/squeezebox.c:974 ../panel-plugin/settings-mpd.ui.h:3
 msgid "Properties"
 msgstr "Ayarlar"
 
@@ -43,8 +42,7 @@ msgstr "Ayarlar"
 msgid "Squeezebox"
 msgstr " Squeezebox"
 
-#: ../panel-plugin/squeezebox.c:997
-#: ../panel-plugin/settings.ui.h:18
+#: ../panel-plugin/squeezebox.c:997 ../panel-plugin/settings.ui.h:18
 msgid "media player remote"
 msgstr "Squeezebox medya çalar kumandası"
 
@@ -83,8 +81,7 @@ msgstr "Ba_sit ipuçları"
 msgid "Show noti_fications (notify daemon)"
 msgstr "Not göster (notify deamon)"
 
-#: ../panel-plugin/squeezebox.c:1079
-#: ../panel-plugin/settings.ui.h:6
+#: ../panel-plugin/squeezebox.c:1079 ../panel-plugin/settings.ui.h:6
 msgid "Notification _timeout (sec)"
 msgstr "Not gös_terme süresi (saniye)"
 
@@ -96,8 +93,7 @@ msgstr "Ar_kalık"
 msgid "_Settings..."
 msgstr "_Ayarlar..."
 
-#: ../panel-plugin/squeezebox.c:1480
-#: ../panel-plugin/squeezebox.c:1481
+#: ../panel-plugin/squeezebox.c:1480 ../panel-plugin/squeezebox.c:1481
 #: ../panel-plugin/squeezebox.c:1482
 msgid "(unknown)"
 msgstr "(bilinmiyor)"
@@ -212,7 +208,8 @@ msgstr ""
 "çalarlara MPRİS-standardına uygun çalar eklenir.\n"
 "\n"
 "MPRİS'in meali 'Media Player Remote Interfacing Specification'.\n"
-"Detay için internette <a href=\"http://wiki.xmms2.xmms.se/wiki/MPRIS\" şuraya/> bakınız.\n"
+"Detay için internette <a href=\"http://wiki.xmms2.xmms.se/wiki/MPRIS\" "
+"şuraya/> bakınız.\n"
 "\n"
 "Eğer çalarınız MPRİS-stadardına uygun deyilse, \n"
 "bir ekleme bunu mümkün edebilir.\n"
@@ -323,10 +320,12 @@ msgstr "_Çalarlar"
 
 #~ msgid "Beep Media Player"
 #~ msgstr "Beep Media Player"
+
 #~ msgid "Select MPD music folder"
 #~ msgstr "MPD müzik dizinini belirle"
+
 #~ msgid "Rhythmbox 0.9.x (via DBUS)"
 #~ msgstr "Rhythmbox 0.9.x (DBUS üzeri)"
+
 #~ msgid "Music Player Daemon (libmpd)"
 #~ msgstr "Müzik Çalar Cini (libmpd üzeri)"
-

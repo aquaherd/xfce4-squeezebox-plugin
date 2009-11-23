@@ -1,6 +1,16 @@
+xfce4-squeezebox-plugin (0.1-2) stable; urgency=low
+
+  * Initial release for xfce 4.6
+    - packages built for rpm and deb
+    - audacious, exaile, consonance, muine and banshee backends added
+    - bmpx backend dropped
+    - switching from ini-files to xfconf, libnotify dependency dropped
+
+ -- Hakan Erduman <hakan.erduman@web.de>  Wed, 21 Nov 2009 22:52:00 +0100
+
 xfce4-squeezebox-plugin (0.1-1) unstable; urgency=low
 
-  * Initial beta release
+  * Initial beta release for xfce 4.4
     - package built successfully
     - quodlibet backend added
 
