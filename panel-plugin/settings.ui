@@ -3,6 +3,18 @@
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-requires xfce4 0.0 -->
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkListStore" id="datastore">
+    <columns>
+      <!-- column-name Icon -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+      <!-- column-name Index -->
+      <column type="gint"/>
+      <!-- column-name Available -->
+      <column type="gboolean"/>
+    </columns>
+  </object>
   <object class="GtkListStore" id="liststoreShortcuts">
     <columns>
       <!-- column-name shortcutName -->
@@ -39,18 +51,6 @@
         <col id="2">0</col>
       </row>
     </data>
-  </object>
-  <object class="GtkListStore" id="datastore">
-    <columns>
-      <!-- column-name Icon -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name Name -->
-      <column type="gchararray"/>
-      <!-- column-name Index -->
-      <column type="gint"/>
-      <!-- column-name Available -->
-      <column type="gboolean"/>
-    </columns>
   </object>
   <object class="GtkDialog" id="dialogSettings">
     <property name="border_width">5</property>

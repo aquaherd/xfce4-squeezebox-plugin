@@ -567,6 +567,9 @@ static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) 
 		sd->player.bus = NULL;
 	}
 #endif
+	if (sd->channel) {
+		g_object_unref(sd->channel);
+	}
 	if (sd->player.Detach) {
 		sd->player.Detach(sd->player.db);
 		g_free(sd->player.db);
@@ -591,36 +594,31 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	gboolean bShowNext = TRUE;
 	gboolean bShowPrev = TRUE;
 	gboolean bGrabMedia = TRUE;
+	gboolean bAutoConnect = FALSE;
 	gint toolTipStyle = 1;
 	gboolean bNotify = TRUE;
 	gdouble dNotifyTimeout = 5.0;
 	LOG("Enter squeezebox_read_rc_file");
 
-	if ((file = xfce_panel_plugin_lookup_rc_file(plugin)) != NULL) {
-		rc = xfce_rc_simple_open(file, TRUE);
-		g_free(file);
-
-		if (rc != NULL) {
-			nBackend =
-			    xfce_rc_read_int_entry(rc, "squeezebox_backend", 2);
-
-			bShowNext = xfce_rc_read_int_entry(rc, "show_next", 1);
-			bShowPrev = xfce_rc_read_int_entry(rc, "show_prev", 1);
-			bGrabMedia =
-			    xfce_rc_read_int_entry(rc, "grab_media", 0);
-			bNotify = xfce_rc_read_int_entry(rc, "notify", 1);
-			sd->player.updateRateMS =
-			    xfce_rc_read_int_entry(rc, "updateRateMS", 500);
-			toolTipStyle =
-			    xfce_rc_read_int_entry(rc, "tooltips", 1);
-			if (toolTipStyle < 0)
-				toolTipStyle = 0;
-
-		}
-	}
+	// Read properties from channel
+    sd->channel = xfconf_channel_new_with_property_base (
+    	"xfce4-panel", "/plugins/squeezebox/settings");
+	nBackend = xfconf_channel_get_uint(sd->channel, "/Backend", nBackend);
+	bAutoConnect = xfconf_channel_get_bool(sd->channel, "/AutoConnect", bAutoConnect);
+	bShowNext = xfconf_channel_get_bool(sd->channel, "/ShowNext", bShowNext);
+	bShowPrev = xfconf_channel_get_bool(sd->channel, "/ShowPrev", bShowPrev);
+	bGrabMedia = xfconf_channel_get_bool(sd->channel, "/MediaKeys/Grab", bGrabMedia);
+	bNotify = xfconf_channel_get_bool(sd->channel, "/Notifications/Show", bNotify);
+	sd->player.updateRateMS = xfconf_channel_get_uint(sd->channel, "/UpdateRateMS", 500);
+	toolTipStyle = xfconf_channel_get_uint(sd->channel, "/Tooltips/Style", 1);
+	if (toolTipStyle < 0)
+		toolTipStyle = 0;
+	if (toolTipStyle > 1)
+		toolTipStyle = 1;
     
 	// Always init backend
 	sd->player.sd = sd;
+	sd->autoAttach = bAutoConnect;
 	squeezebox_init_backend(sd, nBackend);
 	sd->show[ebtnNext] = bShowNext;
 	sd->show[ebtnPlay] = TRUE;	// well, maybe not later
@@ -669,42 +667,21 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 static void
 squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 
-	char *file;
-	XfceRc *rc;
-
 	LOG("Enter squeezebox_write_rc_file");
+
+	xfconf_channel_set_uint(sd->channel, "/Backend", sd->backend);
+	xfconf_channel_set_bool(sd->channel, "/AutoConnect", sd->autoAttach);
+	xfconf_channel_set_bool(sd->channel, "/ShowNext", sd->show[ebtnNext]);
+	xfconf_channel_set_bool(sd->channel, "/ShowPrev", sd->show[ebtnPrev]);
+	xfconf_channel_set_bool(sd->channel, "/MediaKeys/Grab", sd->grabmedia);
+	xfconf_channel_set_bool(sd->channel, "/Notifications/Show", sd->notify);
+	xfconf_channel_set_uint(sd->channel, "/UpdateRateMS", sd->player.updateRateMS);
+	xfconf_channel_set_uint(sd->channel, "/Tooltips/Style", sd->toolTipStyle);
+
     // notify properties are about to be written
     if(sd->player.Persist)
         sd->player.Persist(sd->player.db, TRUE);
 
-	if ((file = xfce_panel_plugin_save_location(plugin, TRUE))) {
-
-		rc = xfce_rc_simple_open(file, FALSE);
-		g_free(file);
-
-		if (rc != NULL) {
-			LOG("Writing to file '%s'", file);
-			xfce_rc_write_int_entry(rc, "squeezebox_backend",
-						sd->backend);
-			xfce_rc_write_int_entry(rc, "show_next",
-						(sd->show[ebtnNext]) ? 1 : 0);
-			xfce_rc_write_int_entry(rc, "show_prev",
-						(sd->show[ebtnPrev]) ? 1 : 0);
-			xfce_rc_write_int_entry(rc, "grab_media",
-						(sd->grabmedia) ? 1 : 0);
-			xfce_rc_write_int_entry(rc, "tooltips",
-						sd->toolTipStyle);
-			xfce_rc_write_int_entry(rc, "notify",
-						(sd->notify) ? 1 : 0);
-#if HAVE_DBUS
-			xfce_rc_write_int_entry(rc, "notify_timeout",
-						sd->notifyTimeout);
-#endif
-            
-			xfce_rc_close(rc);
-			LOG("OK");
-		}
-	}
 	LOG("Leave squeezebox_write_rc_file");
 }
 
@@ -841,9 +818,23 @@ EXPORT void on_cellrenderShortCut_accel_cleared(GtkCellRendererAccel *accel,
 		SqueezeBoxData		 *sd) {
 	GtkListStore *storeShortCuts = g_object_get_data(G_OBJECT(sd->dlg), "liststoreShortcuts");
 	GtkTreeIter iter = {0};
-	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(storeShortCuts), &iter, path_string))
+	gchar *path1 = NULL;
+	gchar *path2 = NULL;
+	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(storeShortCuts), &iter, path_string)) {
 		gtk_list_store_set(storeShortCuts, &iter, 
 			2, 0, 1, 0, -1);
+		path1 = g_strdup_printf("/MediaKeys/Key%sValue", path_string);
+		path2 = g_strdup_printf("/MediaKeys/Key%sMask", path_string);
+		xfconf_channel_set_uint(sd->channel, path1, 0);		
+		xfconf_channel_set_uint(sd->channel, path2, 0);		
+		g_free(path1);
+		g_free(path2);
+	}
+}
+
+gboolean squeezebox_grab_key(guint accel_key, guint accel_mods, SqueezeBoxData *sd)
+{
+	return TRUE;
 }
 
 EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
@@ -854,10 +845,21 @@ EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
 		SqueezeBoxData		 *sd){ 
 	GtkListStore *storeShortCuts = g_object_get_data(G_OBJECT(sd->dlg), "liststoreShortcuts");
 	GtkTreeIter iter = {0};
+	gchar *path1 = NULL;
+	gchar *path2 = NULL;
 	LOG("Accel %s %d %d", path_string, accel_key, accel_mods);
-	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(storeShortCuts), &iter, path_string))
-		gtk_list_store_set(storeShortCuts, &iter, 
-			2, accel_mods, 1, accel_key, -1);
+	if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(storeShortCuts), &iter, path_string)) {
+		if(squeezebox_grab_key(accel_key, accel_mods, sd)) {		
+			gtk_list_store_set(storeShortCuts, &iter, 
+				2, accel_mods, 1, accel_key, -1);
+			path1 = g_strdup_printf("/MediaKeys/Key%sValue", path_string);
+			path2 = g_strdup_printf("/MediaKeys/Key%sMask", path_string);
+			xfconf_channel_set_uint(sd->channel, path1, accel_key);		
+			xfconf_channel_set_uint(sd->channel, path2, accel_mods);		
+			g_free(path1);
+			g_free(path2);
+		}
+	}
 }
 
 static void
@@ -870,6 +872,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	GtkCellRenderer *renderer;
 	GdkPixbuf *pix;
 	GtkTreeView *view;
+	gboolean valid;
 	
 	xfce_panel_plugin_block_menu(plugin);
 
@@ -897,7 +900,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	g_object_set_data(G_OBJECT(sd->dlg), 
 		"datastore", gtk_builder_get_object(builder, "datastore"));
 
-	/* fill the store with data */
+	/* fill the backend store with data */
 	idx = 0;
 	for (;;) {
 		LOG("Have %s", ptr->BACKEND_name());
@@ -924,6 +927,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	gtk_tree_sortable_set_sort_column_id(
 		GTK_TREE_SORTABLE(store), TEXT_COLUMN, GTK_SORT_ASCENDING);
 
+	// Appearance tab
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkAutoAttach")), sd->autoAttach);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkShowPrevious")), sd->show[ebtnPrev]);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkShowNext")), sd->show[ebtnNext]);
@@ -931,6 +935,28 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkShowNotifications")), sd->notify);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spinNotificationTimeout")), sd->notifyTimeout);
 	
+	// Shortcuts tab
+	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststoreShortcuts"));	
+	valid = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(store), &iter);
+	idx = 0;
+  	while (valid)
+    {
+		gchar *name = NULL, *path1 = NULL, *path2 = NULL;
+		guint accelKey;
+		guint accelKeyMask;
+		gtk_tree_model_get (GTK_TREE_MODEL(store), &iter,
+						  0, &name, -1);
+		path1 = g_strdup_printf("/MediaKeys/Key%dValue", idx);
+		path2 = g_strdup_printf("/MediaKeys/Key%dMask", idx);
+		accelKey = xfconf_channel_get_uint(sd->channel, path1, 0);		
+		accelKeyMask = xfconf_channel_get_uint(sd->channel, path2, 0);		
+		gtk_list_store_set(store, &iter, 
+			2, accelKeyMask, 1, accelKey, -1);
+		valid = gtk_tree_model_iter_next (GTK_TREE_MODEL(store), &iter);
+		idx++;
+		g_free(path1);
+		g_free(path2);
+    }	
 	// liftoff
 	gtk_builder_connect_signals(builder, sd);
 	gtk_dialog_run(GTK_DIALOG(sd->dlg));

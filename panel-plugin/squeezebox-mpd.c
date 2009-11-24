@@ -718,17 +718,6 @@ void *MPD_attach(SPlayer * parent) {
 		
 	// initialize properties
 
-    /*
-    // initialize property addresses
-    PROP_MAP("mpd_usedefault", &this->bUseDefault)
-    PROP_MAP("mpd_port", &this->port)
-    PROP_MAP("mpd_host", this->host)
-    PROP_MAP("mpd_pass", this->pass)
-    PROP_MAP("mpd_usemusicfolder", &this->bUseMPDFolder)
-    PROP_MAP("mpd_musicfolder", this->path)
-	PROP_MAP("mpd_usepmanager", &this->bUsePManager)
-	PROP_MAP("mpd_pmanager", this->pmanager)
-	*/
     this->xfconfChannel = xfconf_channel_new_with_property_base (
     	"xfce4-panel", "/plugins/squeezebox/backends/mpd");
 	this->bUseDefault = xfconf_channel_get_bool(this->xfconfChannel, "/UseDefault", TRUE);
