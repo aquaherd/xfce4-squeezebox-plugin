@@ -70,6 +70,7 @@ typedef struct SqueezeBoxData{
     WnckScreen *wnckScreen;
     
     // settings dialog
+    XfconfChannel *channel;
     GtkWidget *dlg;
 } SqueezeBoxData;
 
