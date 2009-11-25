@@ -23,7 +23,6 @@
 #include <config.h>
 #endif
 #include "notifications.h"
-#if HAVE_DBUS
 
 void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	/*
@@ -93,5 +92,3 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		g_string_free(albumArt, TRUE);
 	}
 }
-
-#endif

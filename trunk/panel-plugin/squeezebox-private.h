@@ -22,7 +22,6 @@
 
 #ifndef SQUEEZEBOX_PRIVATE_H
 #define SQUEEZEBOX_PRIVATE_H
-#include "mmkeys.h"
 
 typedef struct SqueezeBoxData{
 	XfcePanelPlugin *plugin;
@@ -39,11 +38,9 @@ typedef struct SqueezeBoxData{
 	gboolean notify;
 	gboolean inEnter;
 	gboolean inCreate;
-#if HAVE_DBUS
 	DBusGProxy *note;
 	gint notifyTimeout;
 	guint notifyID;
-#endif
 	// menu items
 	GtkWidget *mnuShuffle, *mnuRepeat, *mnuPlayer, *mnuPlayLists;
 	gboolean noUI;
@@ -58,10 +55,8 @@ typedef struct SqueezeBoxData{
 	SPlayer player;
 	eSynoptics state;
 
-	// mmkeys.h
-	MmKeys *mmkeys;
+	// shortcuts
 	gboolean grabmedia;
-	gulong mmhandlers[4];
     
     // property handling
     GHashTable *properties;
@@ -76,19 +71,16 @@ typedef struct SqueezeBoxData{
 
 static void config_toggle_next(GtkToggleButton * tb, SqueezeBoxData * sd);
 static void config_toggle_prev(GtkToggleButton * tb, SqueezeBoxData * sd);
-static void
-squeezebox_update_grab(gboolean bGrab, gboolean bShowErr, SqueezeBoxData * sd);
-#if HAVE_DBUS
 static void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 				   const gchar * OldOwner,
 				   const gchar * NewOwner,
 				   SqueezeBoxData * sd);
-#endif
 
 void on_keyPrev_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
+void squeezebox_ungrab_key(guint accel_key, guint accel_mods, SqueezeBoxData *sd);
 
 /* Panel Plugin Interface */
 
