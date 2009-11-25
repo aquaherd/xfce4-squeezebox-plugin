@@ -9,4 +9,8 @@ EXTRA_DIST =								\
 	rules								\
 	watch
 
+DISTCLEANFILES =							\
+	stamp-*								\
+	xfce4-squeezebox-plugin.*					\
+
 # vi:set ts=8 sw=8 noet ai nocindent syntax=automake:

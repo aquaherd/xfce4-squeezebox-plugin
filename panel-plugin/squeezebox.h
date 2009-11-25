@@ -33,12 +33,10 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
-#if HAVE_DBUS
 #include <dbus/dbus.h>
 #include <dbus/dbus-glib-lowlevel.h>
 #include <dbus/dbus-glib.h>
 #include <xfconf/xfconf.h>
-#endif
 
 #include <libxfcegui4/libxfcegui4.h>
 #include <libxfce4panel/xfce-panel-plugin.h>
@@ -83,9 +81,7 @@ typedef struct SPlayer{
     gboolean(* SetShuffle)(gpointer thsPtr, gboolean newShuffle);
 	gboolean(* IsVisible)(gpointer thsPtr);
 	gboolean(* Show)(gpointer thsPtr, gboolean newState);
-#if HAVE_DBUS
     gboolean(* UpdateDBUS)(gpointer thsPtr, gboolean appeared);
-#endif
 	void(* Persist)(gpointer thsPtr, gboolean bIsStoring);
 	void(* Configure)(gpointer thsPtr, GtkWidget *parent);
 	void(* UpdateWindow)(gpointer thsPtr, WnckWindow *window, gboolean appeared);
@@ -105,11 +101,9 @@ typedef struct SPlayer{
 	gpointer sd;
 
     // frontend globals
-#if HAVE_DBUS
 	DBusGConnection *bus;
     DBusGProxy		*dbService;
     gboolean(* StartService)(gpointer thsPlayer);
-#endif
 	guint playerPID;
 
 	// frontend callbacks
@@ -137,9 +131,7 @@ typedef struct Backend{
     void*( *BACKEND_attach)(SPlayer *player);
     const gchar*( *BACKEND_name)();
     GdkPixbuf*( *BACKEND_icon)();
-    #if HAVE_DBUS
     const gchar*( *BACKEND_dbusName)();
-    #endif
     const gchar*( *BACKEND_commandLine)();
 }Backend;
 
@@ -149,7 +141,6 @@ typedef struct Backend{
  	extern const gchar * t##_name(); \
     extern GdkPixbuf * t##_icon();
  
-#if HAVE_DBUS
 #define IMPORT_DBUS_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
  	extern const gchar * t##_name(); \
@@ -216,7 +207,6 @@ org_freedesktop_DBus_name_has_owner (DBusGProxy *proxy, const char * IN_arg0, gb
   return dbus_g_proxy_call (proxy, "NameHasOwner", error, G_TYPE_STRING, IN_arg0, G_TYPE_INVALID, G_TYPE_BOOLEAN, OUT_arg1, G_TYPE_INVALID);
 }
 
-#endif
 
 #define BEGIN_BACKEND_MAP() const Backend* squeezebox_get_backends() \
 { \

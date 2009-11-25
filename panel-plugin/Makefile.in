@@ -60,8 +60,7 @@ am_xfce4_squeezebox_plugin_OBJECTS =  \
 	xfce4_squeezebox_plugin-squeezebox-cs.$(OBJEXT) \
 	xfce4_squeezebox_plugin-squeezebox-mu.$(OBJEXT) \
 	xfce4_squeezebox_plugin-squeezebox-ba.$(OBJEXT) \
-	xfce4_squeezebox_plugin-notifications.$(OBJEXT) \
-	xfce4_squeezebox_plugin-mmkeys.$(OBJEXT)
+	xfce4_squeezebox_plugin-notifications.$(OBJEXT)
 xfce4_squeezebox_plugin_OBJECTS =  \
 	$(am_xfce4_squeezebox_plugin_OBJECTS)
 xfce4_squeezebox_plugin_LDADD = $(LDADD)
@@ -108,10 +107,6 @@ CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DATADIRNAME = @DATADIRNAME@
-DBUSGLIB_CFLAGS = @DBUSGLIB_CFLAGS@
-DBUSGLIB_LIBS = @DBUSGLIB_LIBS@
-DBUSGLIB_REQUIRED_VERSION = @DBUSGLIB_REQUIRED_VERSION@
-DBUSGLIB_VERSION = @DBUSGLIB_VERSION@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
@@ -279,14 +274,14 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 plugindir = $(libexecdir)/xfce4/panel-plugins
 xfce4_squeezebox_plugin_CFLAGS = -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
-    -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ @DBUSGLIB_CFLAGS@ \
+    -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ \
     @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ \
     @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@ -export-dynamic -fvisibility=hidden
 
 
 #todo: use --dynamic-list=someFile instead of -Wl -rdynamic
 #    -Wl -rdynamic 
-xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @DBUSGLIB_LIBS@ @LIBMPD_LIBS@ \
+xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBMPD_LIBS@ \
 	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ @LIBXFCONF_LIBS@ -Wl -rdynamic
 
 xfce4_squeezebox_plugin_SOURCES = \
@@ -300,7 +295,6 @@ xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox-mu.c  squeezebox-mu.png    squeezebox-mu.png.h  muine-player-binding.h \
 	squeezebox-ba.c  squeezebox-ba.png    squeezebox-ba.png.h  banshee-player-binding.h \
 	notifications.c  notifications.h notifications-binding.h \
-	mmkeys.h mmkeys.c \
 	settings.ui settings-ui.h \
 	settings-mpd.ui settings-mpd-ui.h
 
@@ -396,7 +390,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-notifications.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-au.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-squeezebox-ba.Po@am__quote@
@@ -568,20 +561,6 @@ xfce4_squeezebox_plugin-notifications.obj: notifications.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='notifications.c' object='xfce4_squeezebox_plugin-notifications.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-notifications.obj `if test -f 'notifications.c'; then $(CYGPATH_W) 'notifications.c'; else $(CYGPATH_W) '$(srcdir)/notifications.c'; fi`
-
-xfce4_squeezebox_plugin-mmkeys.o: mmkeys.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-mmkeys.o -MD -MP -MF "$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Tpo" -c -o xfce4_squeezebox_plugin-mmkeys.o `test -f 'mmkeys.c' || echo '$(srcdir)/'`mmkeys.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Tpo" "$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Po"; else rm -f "$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mmkeys.c' object='xfce4_squeezebox_plugin-mmkeys.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-mmkeys.o `test -f 'mmkeys.c' || echo '$(srcdir)/'`mmkeys.c
-
-xfce4_squeezebox_plugin-mmkeys.obj: mmkeys.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-mmkeys.obj -MD -MP -MF "$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Tpo" -c -o xfce4_squeezebox_plugin-mmkeys.obj `if test -f 'mmkeys.c'; then $(CYGPATH_W) 'mmkeys.c'; else $(CYGPATH_W) '$(srcdir)/mmkeys.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Tpo" "$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Po"; else rm -f "$(DEPDIR)/xfce4_squeezebox_plugin-mmkeys.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='mmkeys.c' object='xfce4_squeezebox_plugin-mmkeys.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-mmkeys.obj `if test -f 'mmkeys.c'; then $(CYGPATH_W) 'mmkeys.c'; else $(CYGPATH_W) '$(srcdir)/mmkeys.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
