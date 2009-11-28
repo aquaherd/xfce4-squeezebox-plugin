@@ -629,20 +629,26 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
     #if HAVE_GIO
     {
 		gchar **argv = mpdGetIndexerArgs();
+		gchar *ptr = NULL;
         if(argv) {
             GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
             if(this->pmanager->len)
                 g_hash_table_insert(table, this->pmanager->str, g_strdup("!"));
 	        gchar *outText = NULL;
 	        gint exit_status = 0;
-	        if (g_spawn_sync(NULL, argv, NULL,
-			         G_SPAWN_STDERR_TO_DEV_NULL,
+	        if (g_spawn_sync(NULL, argv, NULL, G_SPAWN_STDERR_TO_DEV_NULL,
 			         NULL, NULL, &outText, NULL, &exit_status, NULL)) {
-                 gchar *ptr = strtok(outText, "\n");
+                 LOG("Indexer says:%s", outText);
+				 /* TODO: replace strtok with g_strsplit */
+                 ptr = strtok(outText, "\n");
                  while(ptr) {
                      gchar *returnPath = ptr;
                      while(*returnPath && *returnPath == ' ')
                         returnPath++;
+                     if(g_str_has_prefix(returnPath, "file://"))
+						returnPath = g_filename_from_uri(returnPath, NULL, NULL);
+					 else
+						returnPath = g_strdup(returnPath);
                      if(g_file_test(returnPath, G_FILE_TEST_EXISTS))
                      {
                          GDesktopAppInfo *app = 
@@ -660,6 +666,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
                              }
                          }
                      }
+                     g_free(returnPath);
                      ptr = strtok(NULL, "\n");
                  }
             }
