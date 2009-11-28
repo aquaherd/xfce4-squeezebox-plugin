@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/sh
 #
 # $Id: autogen.sh 4312 2005-01-27 10:10:04Z jasper $
 #
