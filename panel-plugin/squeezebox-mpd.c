@@ -522,6 +522,7 @@ EXPORT void on_chkUseFolder_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter on_chkUseFolder_toggled");
 	this->bUseMPDFolder = gtk_toggle_button_get_active(tb);
+	this->bRequireReconnect = TRUE;
 	gtk_widget_set_sensitive(this->wPath, this->bUseMPDFolder);
 	LOG("Leave on_chkUseFolder_toggled");
 }
@@ -550,26 +551,27 @@ EXPORT void on_chkUseListManager_toggled(GtkToggleButton * tb, gpointer thsPtr) 
 
 gchar** mpdGetIndexerArgs(){
 	gchar *tracker = g_find_program_in_path("tracker-search");
+	gchar **argv = NULL;
 	if(tracker) {
-		gchar **argv = g_new(gchar*, 5);
+		argv = g_new(gchar*, 5);
 		argv[0] = tracker;
 		argv[1] = "--service";
 		argv[2] = "Applications";
 		argv[3] = "mpd";
 		argv[4] = NULL;
-		return argv;
 	} else {
 		gchar *beagle = g_find_program_in_path("beagle-query");
 		if(beagle) {
-			gchar **argv = g_new(gchar*, 4);
+			argv = g_new(gchar*, 4);
 			argv[0] = beagle;
 			argv[1] = "source:applications";
 			argv[2] = "mpd";
 			argv[3] = NULL;
-			return argv;
 		}
 	}
-	return NULL;
+	if(argv)
+		LOG("\tIndexer is:%s", argv[0]);
+	return argv;
 }
 
 static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
@@ -623,6 +625,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "listManagers"));
 
     // cheapo tracker/beagle search, requires gio-unix for now
+    /* TODO: make it work with translations */
     #if HAVE_GIO
     {
 		gchar **argv = mpdGetIndexerArgs();
@@ -650,7 +653,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
                              if(!g_hash_table_lookup_extended(table, binPath, NULL, NULL)) {
 								 GIcon *icon = g_app_info_get_icon(
                                                     G_APP_INFO(app));   
-                                 LOG("Found: %s", binPath);
+                                 LOG("\tFound: %s", binPath);
                                  gtk_list_store_append(store, &iter);
                                  gtk_list_store_set(store, &iter, 0, binPath, -1);
                                  g_hash_table_insert(table, (gchar*)binPath, g_strdup("."));
@@ -660,6 +663,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
                      ptr = strtok(NULL, "\n");
                  }
             }
+            g_free(argv);
         }
     }
 	#endif
