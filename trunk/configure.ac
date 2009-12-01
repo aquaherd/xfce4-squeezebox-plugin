@@ -176,10 +176,16 @@ XDT_I18N([de fr tr ])
 dnl indented to fool intltool-update
 	VER=squeeze_vers
 	REV=squeeze_version_build
+	VERMAJOR=squeeze_version_major
+	VERMINOR=squeeze_version_minor
+	VERMICRO=squeeze_version_micro
 
 dnl Package build
 AC_SUBST([VER])
 AC_SUBST([REV])
+AC_SUBST([VERMAJOR])
+AC_SUBST([VERMINOR])
+AC_SUBST([VERMICRO])
 
 AC_OUTPUT([
 Makefile

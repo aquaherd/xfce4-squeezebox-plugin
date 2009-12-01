@@ -15,8 +15,17 @@ rpm: dist
 	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
 
 deb:
-	dpkg-buildpackage -rfakeroot -i.git -i.svn
+	dpkg-buildpackage -rfakeroot -i.svn
 #	dpkg-buildpackage -uc -us -rfakeroot -i.git
+
+PUBLOC = ~/Dropbox/Public/repo/dists/custom/main
+PUBARCH = `/usr/bin/dpkg-architecture -qDEB_HOST_ARCH`
+PVERSION = $(VERMAJOR).$(VERMINOR)-$(VERMICRO)
+debpub: 
+	cp ../$(PACKAGE)_$(PVERSION).tar.gz $(PUBLOC)/source
+	cp ../$(PACKAGE)_$(PVERSION).dsc $(PUBLOC)/source
+	cp ../$(PACKAGE)_$(PVERSION)_$(PUBARCH).deb $(PUBLOC)/binary-$(PUBARCH)
+	cp ../$(PACKAGE)_$(PVERSION)_$(PUBARCH).changes $(PUBLOC)/binary-$(PUBARCH)
 
 PKGFLAGS = --default \
 	--pkgname=$(PACKAGE) \
