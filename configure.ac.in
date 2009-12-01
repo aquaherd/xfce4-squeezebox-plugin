@@ -259,3 +259,5 @@ else
 fi
 
 echo ""
+echo "Version: $VER.$REV"
+echo ""

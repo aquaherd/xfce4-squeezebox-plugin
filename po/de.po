@@ -35,7 +35,8 @@ msgid "Grab state of multimedia keys"
 msgstr "Zustand Medien-Tasten"
 
 #. TODO: old
-#: ../panel-plugin/squeezebox.c:974 ../panel-plugin/settings-mpd.ui.h:3
+#: ../panel-plugin/squeezebox.c:974
+#: ../panel-plugin/settings-mpd.ui.h:3
 msgid "Properties"
 msgstr "Eigenschaften"
 
@@ -43,7 +44,8 @@ msgstr "Eigenschaften"
 msgid "Squeezebox"
 msgstr "Squeezebox"
 
-#: ../panel-plugin/squeezebox.c:997 ../panel-plugin/settings.ui.h:18
+#: ../panel-plugin/squeezebox.c:997
+#: ../panel-plugin/settings.ui.h:18
 msgid "media player remote"
 msgstr "Medien-Spieler Fernbedienung"
 
@@ -82,7 +84,8 @@ msgstr "_Einfache Tooltips"
 msgid "Show noti_fications (notify daemon)"
 msgstr "Zeige Benachrichtigungen (noti_fy Dämon)"
 
-#: ../panel-plugin/squeezebox.c:1079 ../panel-plugin/settings.ui.h:6
+#: ../panel-plugin/squeezebox.c:1079
+#: ../panel-plugin/settings.ui.h:6
 msgid "Notification _timeout (sec)"
 msgstr "Timeout Benachrich_tigung (Sek.)"
 
@@ -94,7 +97,8 @@ msgstr "_Backend"
 msgid "_Settings..."
 msgstr "Ein_stellungen..."
 
-#: ../panel-plugin/squeezebox.c:1480 ../panel-plugin/squeezebox.c:1481
+#: ../panel-plugin/squeezebox.c:1480
+#: ../panel-plugin/squeezebox.c:1481
 #: ../panel-plugin/squeezebox.c:1482
 msgid "(unknown)"
 msgstr "(unbekannt)"
@@ -172,8 +176,7 @@ msgstr ""
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:1
 msgid " Control various audio players; display album art"
-msgstr ""
-" Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Covern"
+msgstr " Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Covern"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:2
 msgid " SqueezeBox"
@@ -321,12 +324,10 @@ msgstr "Spieler"
 
 #~ msgid "Beep Media Player"
 #~ msgstr "Beep Media Player"
-
 #~ msgid "Select MPD music folder"
 #~ msgstr "MPD Musik-Ordner wählen"
-
 #~ msgid "Rhythmbox 0.9.x (via DBUS)"
 #~ msgstr "Rhythmbox 0.9.x (über DBUS)"
-
 #~ msgid "Music Player Daemon (libmpd)"
 #~ msgstr "Music Player Dämon (über libmpd)"
+
