@@ -1,13 +1,14 @@
+backends/rhythmbox/squeezebox-rb.c
+backends/quodlibet/squeezebox-ql.c
+backends/muine/squeezebox-mu.c
+backends/mpd/squeezebox-mpd.c
+backends/consonance/squeezebox-cs.c
+backends/exaile/squeezebox-ex.c
+backends/audacious/squeezebox-au.c
+backends/banshee/squeezebox-ba.c
 panel-plugin/squeezebox.c
-panel-plugin/squeezebox-rb.c
-panel-plugin/squeezebox-mpd.c
-panel-plugin/squeezebox-ql.c
-panel-plugin/squeezebox-au.c
-panel-plugin/squeezebox-ex.c
-panel-plugin/squeezebox-cs.c
-panel-plugin/squeezebox-mu.c
-panel-plugin/squeezebox-ba.c
 panel-plugin/notifications.c
+panel-plugin/mmkeys.c
 panel-plugin/squeezebox.desktop.in.in
 [type: gettext/glade]panel-plugin/settings-mpd.ui
 [type: gettext/glade]panel-plugin/settings.ui

@@ -3,7 +3,7 @@
  *
  *  Sat Nov 29 23:00:09 2008
  *  Copyright  2008 by Hakan Erduman
- *  Email Hakan.Erduman@web.de
+ *  Email hakan@erduman.de
  ****************************************************************************/
 
 /*
@@ -28,7 +28,7 @@
 #ifdef HAVE_BACKEND_AUDACIOUS
 
 // default
-#include "squeezebox.h"
+#include <squeezebox.h>
 
 // libdbus-glib for audacious remote
 #include "audacious-player-binding.h"

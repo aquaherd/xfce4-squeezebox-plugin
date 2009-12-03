@@ -1,4 +1,4 @@
-plugindir = $(libexecdir)/xfce4/panel-plugins
+plugindir = $(libdir)/xfce4/panel-plugins
 plugin_PROGRAMS = xfce4-squeezebox-plugin
 
 xfce4_squeezebox_plugin_CFLAGS = 	-DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
@@ -14,20 +14,8 @@ xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBMPD_LIBS@ \
 
 xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox.h     squeezebox-private.h squeezebox.c \
-	squeezebox-rb.c  squeezebox-rb.png    squeezebox-rb.png.h rb-shell-binding.h rb-shell-player-binding.h \
-	squeezebox-mpd.c squeezebox-mpd.png   squeezebox-mpd.png.h \
-	squeezebox-ql.c  squeezebox-ql.png    squeezebox-ql.png.h \
-	squeezebox-au.c  squeezebox-au.png    squeezebox-au.png.h audacious-player-binding.h \
-	squeezebox-ex.c  squeezebox-ex.png    squeezebox-ex.png.h exaile-player-binding.h \
-	squeezebox-cs.c  squeezebox-cs.png    squeezebox-cs.png.h \
-	squeezebox-mu.c  squeezebox-mu.png    squeezebox-mu.png.h  muine-player-binding.h \
-	squeezebox-ba.c  squeezebox-ba.png    squeezebox-ba.png.h  banshee-player-binding.h \
 	notifications.c  notifications.h notifications-binding.h \
-	settings.ui settings-ui.h \
-	settings-mpd.ui settings-mpd-ui.h
-
-# 	mpris-wizard.ui mpris-wizard-ui.h 
-
+	glade/settings.ui
 
 # .desktop file
 #
@@ -47,20 +35,20 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 %.desktop.in: %.desktop.in.in
 	sed -e "s^@PLUGIN_PATH@^$(libexecdir)/xfce4/panel-plugins^" $< > $@
 
-if MAINTAINER_MODE
-BUILT_SOURCES = settings-ui.h settings-mpd-ui.h
+#if MAINTAINER_MODE
+#BUILT_SOURCES = settings-ui.h settings-mpd-ui.h
 # BUILT_SOURCES = settings-ui.h settings-mpd-ui.h mpris-wizard-ui.h
-
-settings-ui.h: settings.ui
-	exo-csource --static --strip-comments --strip-content --name=settings_ui $< >$@
-
-settings-mpd-ui.h: settings-mpd.ui
-	exo-csource --static --strip-comments --strip-content --name=settings_mpd_ui $< >$@
-
+#
+#settings-ui.h: settings.ui
+#	exo-csource --static --strip-comments --strip-content --name=settings_ui $< >$@
+#
+#settings-mpd-ui.h: settings-mpd.ui
+#	exo-csource --static --strip-comments --strip-content --name=settings_mpd_ui $< >$@
+#
 #mpris-wizard-ui.h: mpris-wizard.ui
 #	exo-csource --static --strip-comments --strip-content --name=mpris_wizard_ui $< >$@
-
-endif
+#
+#endif
 
 	
 EXTRA_DIST = $(desktop_in_in_files)

@@ -107,50 +107,60 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkTreeView" id="tvPlayers">
+                      <object class="GtkFrame" id="frame1">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="model">datastore</property>
-                        <property name="headers_clickable">False</property>
-                        <property name="search_column">1</property>
-                        <property name="tooltip_column">1</property>
-                        <signal name="cursor_changed" handler="on_tvPlayers_cursor_changed"/>
+                        <property name="label_xalign">0</property>
                         <child>
-                          <object class="GtkTreeViewColumn" id="tvcPlayers">
-                            <property name="resizable">True</property>
-                            <property name="title">Players</property>
-                            <property name="sort_column_id">1</property>
+                          <object class="GtkTreeView" id="tvPlayers">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="model">datastore</property>
+                            <property name="headers_visible">False</property>
+                            <property name="headers_clickable">False</property>
+                            <property name="level_indentation">4</property>
+                            <property name="tooltip_column">1</property>
+                            <signal name="cursor_changed" handler="on_tvPlayers_cursor_changed"/>
                             <child>
-                              <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf1"/>
-                              <attributes>
-                                <attribute name="pixbuf">0</attribute>
-                                <attribute name="stock-detail">1</attribute>
-                              </attributes>
+                              <object class="GtkTreeViewColumn" id="tvcPlayers">
+                                <property name="resizable">True</property>
+                                <property name="title">Players</property>
+                                <property name="clickable">True</property>
+                                <property name="sort_column_id">1</property>
+                                <child>
+                                  <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf1"/>
+                                  <attributes>
+                                    <attribute name="pixbuf">0</attribute>
+                                    <attribute name="stock-detail">1</attribute>
+                                  </attributes>
+                                </child>
+                                <child>
+                                  <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                                  <attributes>
+                                    <attribute name="text">1</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
                             </child>
                             <child>
-                              <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                              <attributes>
-                                <attribute name="text">1</attribute>
-                              </attributes>
+                              <object class="GtkTreeViewColumn" id="tvcEnabled">
+                                <property name="visible">False</property>
+                                <property name="sizing">autosize</property>
+                                <property name="title">Enabled</property>
+                                <property name="alignment">0.5</property>
+                                <child>
+                                  <object class="GtkCellRendererToggle" id="cellrenderertoggle1">
+                                    <signal name="toggled" handler="on_cellrenderertoggle1_toggled"/>
+                                  </object>
+                                  <attributes>
+                                    <attribute name="active">3</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
                             </child>
                           </object>
                         </child>
-                        <child>
-                          <object class="GtkTreeViewColumn" id="tvcEnabled">
-                            <property name="visible">False</property>
-                            <property name="resizable">True</property>
-                            <property name="sizing">autosize</property>
-                            <property name="title">Enabled</property>
-                            <property name="alignment">0.5</property>
-                            <child>
-                              <object class="GtkCellRendererToggle" id="cellrenderertoggle1">
-                                <signal name="toggled" handler="on_cellrenderertoggle1_toggled"/>
-                              </object>
-                              <attributes>
-                                <attribute name="active">3</attribute>
-                              </attributes>
-                            </child>
-                          </object>
+                        <child type="label_item">
+                          <placeholder/>
                         </child>
                       </object>
                       <packing>
@@ -410,6 +420,7 @@
                     <property name="can_focus">True</property>
                     <property name="model">liststoreShortcuts</property>
                     <property name="expander_column">treeviewcolumn1</property>
+                    <property name="level_indentation">5</property>
                     <child>
                       <object class="GtkTreeViewColumn" id="treeviewcolumn2">
                         <property name="sizing">autosize</property>

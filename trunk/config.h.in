@@ -18,9 +18,6 @@
 /* Define to use Banshee */
 #undef HAVE_BACKEND_BANSHEE
 
-/* Define to use Beep Media Player */
-#undef HAVE_BACKEND_BMPX
-
 /* Define to use consonance */
 #undef HAVE_BACKEND_CONSONANCE
 

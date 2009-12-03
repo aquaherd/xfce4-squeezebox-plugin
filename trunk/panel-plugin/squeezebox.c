@@ -3,7 +3,7 @@
  *
  *  Fri Aug 25 17:20:09 2006
  *  Copyright  2006-2009  Hakan Erduman
- *  Email Hakan.Erduman@web.de
+ *  Email hakan@erduman.de
  ****************************************************************************
  *  $Rev::             $: Revision of last commit
  *	$Author::          $: Author of last commit
@@ -41,9 +41,6 @@
 #include <id3tag.h>
 #endif
 #include <libintl.h>
-// settings dialog
-#include "settings-ui.h"
-
 
 typedef enum eButtons {
 	ebtnPrev = 0,
@@ -64,56 +61,56 @@ static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
 #define MKTHIS SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer
 
 /* Backend import */
-#if HAVE_BACKEND_RHYTHMBOX
-	IMPORT_DBUS_BACKEND(RB)
-#endif
-#if HAVE_BACKEND_MPD
-    IMPORT_BACKEND(MPD)
-#endif
-#if HAVE_BACKEND_QUODLIBET
-    IMPORT_DBUS_BACKEND(QL)
-#endif
-#if HAVE_BACKEND_AUDACIOUS
-    IMPORT_DBUS_BACKEND(AU)
-#endif
-#if HAVE_BACKEND_EXAILE
-    IMPORT_DBUS_BACKEND(EX)
-#endif
-#if HAVE_BACKEND_CONSONANCE
-    IMPORT_DBUS_BACKEND(CS)
-#endif
-#if HAVE_BACKEND_MUINE
-    IMPORT_DBUS_BACKEND(MU)
-#endif
-#if HAVE_BACKEND_BANSHEE
-    IMPORT_DBUS_BACKEND(BA)
-#endif
+//~ #if HAVE_BACKEND_RHYTHMBOX
+	//~ IMPORT_DBUS_BACKEND(RB)
+//~ #endif
+//~ #if HAVE_BACKEND_MPD
+    //~ IMPORT_BACKEND(MPD)
+//~ #endif
+//~ #if HAVE_BACKEND_QUODLIBET
+    //~ IMPORT_DBUS_BACKEND(QL)
+//~ #endif
+//~ #if HAVE_BACKEND_AUDACIOUS
+    //~ IMPORT_DBUS_BACKEND(AU)
+//~ #endif
+//~ #if HAVE_BACKEND_EXAILE
+    //~ IMPORT_DBUS_BACKEND(EX)
+//~ #endif
+//~ #if HAVE_BACKEND_CONSONANCE
+    //~ IMPORT_DBUS_BACKEND(CS)
+//~ #endif
+//~ #if HAVE_BACKEND_MUINE
+    //~ IMPORT_DBUS_BACKEND(MU)
+//~ #endif
+//~ #if HAVE_BACKEND_BANSHEE
+    //~ IMPORT_DBUS_BACKEND(BA)
+//~ #endif
 /* Backend mapping */
 BEGIN_BACKEND_MAP()
-#if HAVE_BACKEND_RHYTHMBOX
-    DBUS_BACKEND(RB)
-#endif
-#if HAVE_BACKEND_MPD
-    BACKEND(MPD)
-#endif
-#if HAVE_BACKEND_QUODLIBET
-    DBUS_BACKEND(QL)
-#endif
-#if HAVE_BACKEND_AUDACIOUS
-    DBUS_BACKEND(AU)
-#endif
-#if HAVE_BACKEND_EXAILE
-    DBUS_BACKEND(EX)
-#endif
-#if HAVE_BACKEND_CONSONANCE
-    DBUS_BACKEND(CS)
-#endif
-#if HAVE_BACKEND_MUINE
-    DBUS_BACKEND(MU)
-#endif
-#if HAVE_BACKEND_BANSHEE
-    DBUS_BACKEND(BA)
-#endif
+//~ #if HAVE_BACKEND_RHYTHMBOX
+    //~ DBUS_BACKEND(RB)
+//~ #endif
+//~ #if HAVE_BACKEND_MPD
+    //~ BACKEND(MPD)
+//~ #endif
+//~ #if HAVE_BACKEND_QUODLIBET
+    //~ DBUS_BACKEND(QL)
+//~ #endif
+//~ #if HAVE_BACKEND_AUDACIOUS
+    //~ DBUS_BACKEND(AU)
+//~ #endif
+//~ #if HAVE_BACKEND_EXAILE
+    //~ DBUS_BACKEND(EX)
+//~ #endif
+//~ #if HAVE_BACKEND_CONSONANCE
+    //~ DBUS_BACKEND(CS)
+//~ #endif
+//~ #if HAVE_BACKEND_MUINE
+    //~ DBUS_BACKEND(MU)
+//~ #endif
+//~ #if HAVE_BACKEND_BANSHEE
+    //~ DBUS_BACKEND(BA)
+//~ #endif
 END_BACKEND_MAP()
 
 /* internal functions */
@@ -934,8 +931,7 @@ squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 
     // new
     GtkBuilder* builder = gtk_builder_new();
-	gtk_builder_add_from_string(builder, settings_ui, 
-		settings_ui_length, NULL);
+	gtk_builder_add_from_file(builder, "settings.ui", NULL);
 	sd->dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dialogSettings"));
 	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "datastore"));
 	view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tvPlayers"));
