@@ -1,8 +1,10 @@
 [Xfce Panel]
 Type=X-XFCE-PanelPlugin
 Encoding=UTF-8
+_GenericName=Music Player
 _Name= SqueezeBox
 _Comment= Control various audio players; display album art
 Icon=sound
 X-XFCE-Exec=@PLUGIN_PATH@/xfce4-squeezebox-plugin
+X-XFCE-Unique=true
 

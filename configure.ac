@@ -9,11 +9,12 @@ dnl xfce4-squeezebox-plugin - squeezebox plugin for the XFce4 panel
 dnl
 
 
+AC_CONFIG_MACRO_DIR([m4])
 
 m4_define([squeeze_version_major], [0])
 m4_define([squeeze_version_minor], [1])
 m4_define([squeeze_version_micro], [2])
-m4_define([squeeze_version_build], [r00141])
+m4_define([squeeze_version_build], [r00143])
 m4_define([squeeze_version_tag], [])
 m4_define([squeeze_vers], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()])
 m4_define([squeeze_version], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()ifelse(squeeze_version_tag(), [svn], [squeeze_version_tag()-squeeze_version_build()], [squeeze_version_tag()])])
@@ -24,7 +25,6 @@ AM_INIT_AUTOMAKE([xfce4-squeezebox-plugin], [squeeze_version])
 AC_CONFIG_HEADER([config.h])
 
 AM_MAINTAINER_MODE
-AC_CONFIG_MACRO_DIR([m4])
 dnl Check for UNIX variants
 AC_AIX
 AC_ISC_POSIX
@@ -48,11 +48,28 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define to the Gettext p
 
 AM_GLIB_GNU_GETTEXT
 
+dnl separate checks for backends
+PKG_CHECK_MODULES(LIBGTK, [gtk+-2.0 >= 2.6])
+AC_SUBST(LIBGTK_CFLAGS)
+AC_SUBST(LIBGTK_LIBS)
+
+PKG_CHECK_MODULES(DBUS, [dbus-1 >= 0.50])
+AC_SUBST(DBUS_CFLAGS)
+AC_SUBST(DBUS_LIBS)
+
+PKG_CHECK_MODULES(DBUS_GLIB, [dbus-glib-1 >= 0.50])
+AC_SUBST(DBUS_GLIB_CFLAGS)
+AC_SUBST(DBUS_GLIB_LIBS)
+
+PKG_CHECK_MODULES(LIBXFCE4UTIL, [libxfce4util-1.0 >= 4.4])
+AC_SUBST(LIBXFCE4UTIL_CFLAGS)
+AC_SUBST(LIBXFCE4UTIL_LIBS)
+
 dnl check for exo presence
 PKG_CHECK_MODULES([EXO], [exo-0.3 >= 0.3.0])
 
 dnl check for new or old tooltips
-PKG_CHECK_MODULES(GTK,                            \
+PKG_CHECK_MODULES(GTK_New_Tooltip_API,  \
     gtk+-2.0 >= 2.12.0,
     have_newtooltips=yes,
     have_newtooltips=no)
@@ -133,11 +150,6 @@ if test x$enable_consonance = xyes; then
 	AC_DEFINE(HAVE_BACKEND_CONSONANCE,1,[Define to use consonance])
 fi
 
-AC_ARG_ENABLE(bmpx,[  --disable-bmpx     disable Beep Media PLayer support (default: enable)],[enable_bmpx=$enableval],[enable_bmpx=yes])
-if test x$enable_bmpx = xyes; then
-	AC_DEFINE(HAVE_BACKEND_BMPX,1,[Define to use Beep Media Player])
-fi
-
 AC_ARG_ENABLE(muine,[  --disable-muine     disable Muine support (default: enable)],[enable_muine=$enableval],[enable_muine=yes])
 if test x$enable_muine = xyes; then
 	AC_DEFINE(HAVE_BACKEND_MUINE,1,[Define to use Muine])
@@ -155,9 +167,6 @@ if test x$enable_debug_trace = xyes; then
     AC_DEFINE([DEBUG_TRACE], [1], [Set this to 1 to enable full trace debugging.])
 fi
 
-dnl PKG_CHECK_MODULES(LIBGTK, gtk+ libxfce4panel-1.0)
-AC_SUBST(LIBGTK_CFLAGS)
-AC_SUBST(LIBGTK_LIBS)
 AM_PATH_GLIB_2_0(2.12.0,,AC_MSG_ERROR([
 *** GLib 2.12 is required to build xfce4-squeezebox-plugin; please make sure you have the
 *** GLib development headers installed. The latest version of GLib is always
@@ -187,12 +196,28 @@ AC_SUBST([VERMAJOR])
 AC_SUBST([VERMINOR])
 AC_SUBST([VERMICRO])
 
+dnl PATH defines
+PATH_DEFINES='-DBACKENDDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/backends\""'
+AC_SUBST([PATH_DEFINES])
+
+
 AC_OUTPUT([
-Makefile
-panel-plugin/Makefile
-po/Makefile.in
-redhat/Makefile
-redhat/xfce4-squeezebox-plugin.spec
+	Makefile
+	backends/rhythmbox/Makefile
+	backends/quodlibet/Makefile
+	backends/Makefile
+	backends/muine/Makefile
+	backends/mpd/Makefile
+	backends/consonance/Makefile
+	backends/exaile/Makefile
+	backends/audacious/Makefile
+	backends/banshee/Makefile
+	glade/Makefile
+	panel-plugin/Makefile
+	po/Makefile.in
+	debian/Makefile
+	redhat/Makefile
+	redhat/xfce4-squeezebox-plugin.spec
 ])
 
 echo ""
@@ -249,12 +274,6 @@ if test x$enable_consonance = xyes; then
 	echo " consonance support ............enabled"
 else
 	echo " consonance support ............disabled"
-fi
-
-if test x$enable_bmpx = xyes; then
-	echo " BMPX support ..................enabled"
-else
-	echo " BMPX support ..................disabled"
 fi
 
 if test x$enable_muine = xyes; then

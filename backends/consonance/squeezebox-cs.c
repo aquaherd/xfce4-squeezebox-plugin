@@ -3,7 +3,7 @@
  *
  *  Sat Dec 06 22:00:00 2008
  *  Copyright  2008 by Hakan Erduman
- *  Email Hakan.Erduman@web.de
+ *  Email hakan@erduman.de
  ****************************************************************************/
 
 /*

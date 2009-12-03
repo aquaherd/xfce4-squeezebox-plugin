@@ -23,6 +23,97 @@
 #ifndef SQUEEZEBOX_PRIVATE_H
 #define SQUEEZEBOX_PRIVATE_H
 
+#include <libxfce4panel/xfce-panel-plugin.h>
+#include <libxfce4panel/xfce-panel-convenience.h>
+#define EXO_API_SUBJECT_TO_CHANGE
+#include <exo/exo.h>
+#include <libxfcegui4/libxfcegui4.h>
+
+#define xfce_screen_position_is_right_ex(position) \
+    (position >= XFCE_SCREEN_POSITION_NE_V && \
+     position <= XFCE_SCREEN_POSITION_SE_V) || \
+	(position == XFCE_SCREEN_POSITION_NE_H) || \
+	(position == XFCE_SCREEN_POSITION_SE_H) || \
+	(position == XFCE_SCREEN_POSITION_E)
+
+typedef struct Backend{
+	const eBackendType BACKEND_TYPE;
+    void*( *BACKEND_attach)(SPlayer *player);
+    const gchar*( *BACKEND_name)();
+    GdkPixbuf*( *BACKEND_icon)();
+    const gchar*( *BACKEND_dbusName)();
+    const gchar*( *BACKEND_commandLine)();
+}Backend;
+
+
+#define IMPORT_BACKEND(t) \
+ 	extern void * t##_attach(SPlayer *player); \
+ 	extern const gchar * t##_name(); \
+    extern GdkPixbuf * t##_icon();
+ 
+#define IMPORT_DBUS_BACKEND(t) \
+ 	extern void * t##_attach(SPlayer *player); \
+ 	extern const gchar * t##_name(); \
+    extern GdkPixbuf * t##_icon(); \
+    extern const gchar * t##_dbusName(); \
+    extern const gchar * t##_commandLine();
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_DBus_get_connection_unix_process_id (DBusGProxy *proxy, const char * IN_arg0, guint* OUT_arg1, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetConnectionUnixProcessID", error, G_TYPE_STRING, IN_arg0, G_TYPE_INVALID, G_TYPE_UINT, OUT_arg1, G_TYPE_INVALID);
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_DBus_get_name_owner (DBusGProxy *proxy, const char * IN_arg0, char ** OUT_arg1, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GetNameOwner", error, G_TYPE_STRING, IN_arg0, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg1, G_TYPE_INVALID);
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_DBus_start_service_by_name (DBusGProxy *proxy, const char * IN_arg0, const guint IN_arg1, guint* OUT_arg2, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "StartServiceByName", error, G_TYPE_STRING, IN_arg0, G_TYPE_UINT, IN_arg1, G_TYPE_INVALID, G_TYPE_UINT, OUT_arg2, G_TYPE_INVALID);
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
+org_freedesktop_DBus_name_has_owner (DBusGProxy *proxy, const char * IN_arg0, gboolean* OUT_arg1, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "NameHasOwner", error, G_TYPE_STRING, IN_arg0, G_TYPE_INVALID, G_TYPE_BOOLEAN, OUT_arg1, G_TYPE_INVALID);
+}
+
+
+#define BEGIN_BACKEND_MAP() const Backend* squeezebox_get_backends() \
+{ \
+    static const Backend ret[] = { 
+#define BACKEND(t) {otherBackend, t##_attach, t##_name, t##_icon, NULL},
+#define DBUS_BACKEND(t) {dbusBackend, t##_attach, t##_name, t##_icon, t##_dbusName, t##_commandLine},
+#define END_BACKEND_MAP() \
+        {numBackendTypes, NULL} \
+    }; \
+    return &ret[0]; \
+}
+
 typedef struct SqueezeBoxData{
 	XfcePanelPlugin *plugin;
 	gulong style_id;

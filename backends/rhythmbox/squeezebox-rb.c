@@ -3,7 +3,7 @@
  *
  *  Fri Aug 25 17:20:09 2006
  *  Copyright  2006  Hakan Erduman
- *  Email Hakan.Erduman@web.de
+ *  Email hakan@erduman.de
  ****************************************************************************/
 
 /*
