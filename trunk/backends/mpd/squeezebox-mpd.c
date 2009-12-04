@@ -42,9 +42,6 @@
 // libmpd for music player daemon remote
 #include <libmpd/libmpd.h>
 
-// settings dialog
-#include "settings-mpd-ui.h"
-
 DEFINE_BACKEND(MPD, _("Music Player Daemon"))
 #define MPD_MAP(a) parent->a = mpd##a
 #ifndef MPD_CST_STORED_PLAYLIST
@@ -580,9 +577,11 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
     GtkTreeIter iter = {0};
     gint result;
     GtkBuilder* builder = gtk_builder_new();
-
-	gtk_builder_add_from_string(builder, settings_mpd_ui, 
-		settings_mpd_ui_length, NULL);
+	GError *error = NULL;
+	if(!gtk_builder_add_from_file(builder, "settings_mpd_ui", &error)){
+		LOG("mpdConfigure unexpected:S\n %s", error->message);
+		return;
+	}
 		
 	
 	this->wDlg = GTK_WIDGET(gtk_builder_get_object(builder, "mpdSettings"));

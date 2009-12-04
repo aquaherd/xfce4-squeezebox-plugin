@@ -1,1 +1,1 @@
-SUBDIRS = audacious banshee consonance mpd muine quodlibet rhythmbox
+SUBDIRS = audacious banshee consonance exaile mpd muine quodlibet rhythmbox

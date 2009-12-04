@@ -588,11 +588,11 @@ static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) 
 	}
   	if (sd->grabmedia) {
 		int idx;
-		GdkDisplay *display;
-		GdkScreen *screen;
+		GdkDisplay *display = gdk_display_get_default();
+		GdkScreen *screen = NULL;
 		GdkWindow *root;
 		for(idx = 0; idx < 5; idx++) {
-			gchar *name = NULL, *path1 = NULL, *path2 = NULL;
+			gchar *path1 = NULL, *path2 = NULL;
 			guint accelKey;
 			guint accelKeyMask;
 			path1 = g_strdup_printf("/MediaKeys/Key%dValue", idx);
@@ -679,11 +679,11 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	sd->grabmedia = bGrabMedia;
   	if (bGrabMedia) {
 		int idx;
-		GdkDisplay *display;
+		GdkDisplay *display = gdk_display_get_default();
 		GdkScreen *screen;
 		GdkWindow *root;
 		for(idx = 0; idx < 5; idx++) {
-			gchar *name = NULL, *path1 = NULL, *path2 = NULL;
+			gchar *path1 = NULL, *path2 = NULL;
 			guint accelKey;
 			guint accelKeyMask;
 			path1 = g_strdup_printf("/MediaKeys/Key%dValue", idx);
@@ -915,14 +915,12 @@ EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
 	}
 }
 
-static void
-squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
+void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	// backends
 	GtkListStore *store;
 	GtkTreeIter iter = { 0 };
 	const Backend *ptr = squeezebox_get_backends();
     gint idx;
-	GtkCellRenderer *renderer;
 	GdkPixbuf *pix;
 	GtkTreeView *view;
 	gboolean valid;
@@ -1293,7 +1291,7 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 	return window1;
 }
 
-static void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
+void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 				   const gchar * OldOwner,
 				   const gchar * NewOwner,
 				   SqueezeBoxData * sd) {
@@ -1350,7 +1348,7 @@ static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 	}
 	return bRet;
 }
-static void squeezebox_construct(XfcePanelPlugin * plugin) {
+void squeezebox_construct(XfcePanelPlugin * plugin) {
 	int i = 0;
 	SqueezeBoxData *sd = g_new0(SqueezeBoxData, 1);
 
