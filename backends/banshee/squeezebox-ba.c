@@ -45,9 +45,6 @@
 	}
 
 
-// pixmap
-#include "squeezebox-ba.png.h"
-
 DEFINE_DBUS_BACKEND(BA, _("Banshee"), "org.bansheeproject.Banshee", "banshee")
 
 typedef struct baData {

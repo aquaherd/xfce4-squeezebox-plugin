@@ -36,9 +36,6 @@
 
 #define CS_MAP(a) parent->a = cs##a;
 
-// pixmap
-#include "squeezebox-cs.png.h"
-
 typedef struct csData{
 	SPlayer *parent;
 	gboolean Visibility;

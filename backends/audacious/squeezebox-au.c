@@ -39,9 +39,6 @@
 
 #define AU_MAP(a) parent->a = au##a;
 
-// pixmap
-#include "squeezebox-au.png.h"
-
 DEFINE_DBUS_BACKEND(AU, _("Audacious"), "org.mpris.audacious", "audacious")
 
 typedef struct auData {

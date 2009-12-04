@@ -39,9 +39,6 @@
 
 #define EX_MAP(a) parent->a = ex##a;
 
-// pixmap
-#include "squeezebox-ex.png.h"
-
 DEFINE_DBUS_BACKEND(EX, _("Exaile"), "org.exaile.DBusInterface", "exaile")
 
 typedef struct exData{
