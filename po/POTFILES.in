@@ -2,6 +2,7 @@ backends/rhythmbox/squeezebox-rb.c
 backends/quodlibet/squeezebox-ql.c
 backends/muine/squeezebox-mu.c
 backends/mpd/squeezebox-mpd.c
+[type: gettext/glade]backends/mpd/settings-mpd.ui
 backends/consonance/squeezebox-cs.c
 backends/exaile/squeezebox-ex.c
 backends/audacious/squeezebox-au.c
@@ -10,8 +11,7 @@ panel-plugin/squeezebox.c
 panel-plugin/notifications.c
 panel-plugin/mmkeys.c
 panel-plugin/squeezebox.desktop.in.in
-[type: gettext/glade]panel-plugin/settings-mpd.ui
-[type: gettext/glade]panel-plugin/settings.ui
+[type: gettext/glade]glade/settings.ui
 #panel-plugin/squeezebox-mpris.c
 #[type: gettext/glade]panel-plugin/mpris-wizard.ui
 

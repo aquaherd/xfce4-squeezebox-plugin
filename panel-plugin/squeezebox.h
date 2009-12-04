@@ -123,7 +123,7 @@ typedef enum eBackendType{
 }eBackendType;
 
 #define DEFINE_DBUS_BACKEND(t,n,d,c)  \
-    G_MODULE_EXPORT const gchar* t##_name(){ \
+    EXPORT const gchar* t##_name(){ \
         return _(n); \
     } \
     GdkPixbuf *t##_icon(){ \

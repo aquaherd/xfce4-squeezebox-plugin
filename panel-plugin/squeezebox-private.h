@@ -160,9 +160,7 @@ typedef struct SqueezeBoxData{
     GtkWidget *dlg;
 } SqueezeBoxData;
 
-static void config_toggle_next(GtkToggleButton * tb, SqueezeBoxData * sd);
-static void config_toggle_prev(GtkToggleButton * tb, SqueezeBoxData * sd);
-static void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
+void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 				   const gchar * OldOwner,
 				   const gchar * NewOwner,
 				   SqueezeBoxData * sd);
@@ -171,13 +169,14 @@ void on_keyPrev_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
+gboolean squeezebox_grab_key(guint accel_key, guint accel_mods, SqueezeBoxData *sd);
 void squeezebox_ungrab_key(guint accel_key, guint accel_mods, SqueezeBoxData *sd);
 
 /* Panel Plugin Interface */
 
-static void squeezebox_properties_dialog(XfcePanelPlugin * plugin,
+void squeezebox_properties_dialog(XfcePanelPlugin * plugin,
 					 SqueezeBoxData * sd);
-static void squeezebox_construct(XfcePanelPlugin * plugin);
+void squeezebox_construct(XfcePanelPlugin * plugin);
 
 const Backend* squeezebox_get_backends();
 

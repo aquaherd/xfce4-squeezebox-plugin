@@ -39,7 +39,6 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	LOG("show_toaster ");
 	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
 	gboolean bAct = TRUE;
-	gboolean bExisted = (sd->note != NULL);
 	GdkPixbuf *pixbuf = NULL;
 	gchar *pixPath = "/tmp/sqicon.png"; //use g_get_tmp_dir();
 	GHashTable *table = g_hash_table_new(g_str_hash, g_str_equal);
