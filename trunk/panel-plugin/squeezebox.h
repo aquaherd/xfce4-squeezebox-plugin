@@ -127,7 +127,7 @@ typedef enum eBackendType{
         return _(n); \
     } \
     GdkPixbuf *t##_icon(){ \
-        return gdk_pixbuf_new_from_inline(sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); \
+		return gdk_pixbuf_new_from_file(#n ".png", NULL); \
     } \
     const gchar* t##_dbusName(){ \
         return d; \
@@ -140,7 +140,7 @@ typedef enum eBackendType{
         return _(n); \
     } \
     GdkPixbuf *t##_icon(){ \
-        return gdk_pixbuf_new_from_inline(sizeof(my_pixbuf), my_pixbuf, TRUE, NULL); \
+		return gdk_pixbuf_new_from_file(#n ".png", NULL); \
     }
     
 

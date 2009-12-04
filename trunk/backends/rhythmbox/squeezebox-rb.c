@@ -46,9 +46,6 @@
 */
 #define RB_MAP(a) parent->a = rb##a;
 
-// pixmap
-#include "squeezebox-rb.png.h"
-
 DEFINE_DBUS_BACKEND(RB, _("Rhythmbox"), "org.gnome.Rhythmbox", "ryhthmbox")
 
 typedef struct rbData{

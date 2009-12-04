@@ -36,9 +36,6 @@
 
 #define MU_MAP(a) parent->a = mu##a;
 
-// pixmap
-#include "squeezebox-mu.png.h"
-
 DEFINE_DBUS_BACKEND(MU, _("Muine"), "org.gnome.Muine", "muine")
 
 typedef struct muData {

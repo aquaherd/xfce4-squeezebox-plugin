@@ -42,9 +42,6 @@
 // libmpd for music player daemon remote
 #include <libmpd/libmpd.h>
 
-// pixmap
-#include "squeezebox-mpd.png.h"
-
 // settings dialog
 #include "settings-mpd-ui.h"
 
@@ -596,10 +593,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	this->wPath = GTK_WIDGET(gtk_builder_get_object(builder, "chooserDirectory"));
 
 	header = GTK_WIDGET(gtk_builder_get_object(builder, "xfce-heading1"));
-	xfce_heading_set_icon(XFCE_HEADING(header),
-				  gdk_pixbuf_new_from_inline(sizeof(my_pixbuf),
-							 my_pixbuf, FALSE,
-							 NULL));
+	xfce_heading_set_icon(XFCE_HEADING(header), MPD_icon());
 
 	gtk_builder_connect_signals(builder,thsPtr);
 

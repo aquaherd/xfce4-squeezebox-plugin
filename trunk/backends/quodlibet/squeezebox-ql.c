@@ -37,9 +37,6 @@
 #include <string.h>
 #include <glib/gstdio.h>
 
-// pixmap
-#include "squeezebox-ql.png.h"
-
 #ifndef DBUS_TYPE_G_STRING_STRING_HASHTABLE
 #define DBUS_TYPE_G_STRING_STRING_HASHTABLE (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_STRING))
 #endif
