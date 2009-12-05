@@ -36,15 +36,6 @@
 	(position == XFCE_SCREEN_POSITION_SE_H) || \
 	(position == XFCE_SCREEN_POSITION_E)
 
-typedef struct Backend{
-	const eBackendType BACKEND_TYPE;
-    void*( *BACKEND_attach)(SPlayer *player);
-    const gchar*( *BACKEND_name)();
-    GdkPixbuf*( *BACKEND_icon)();
-    const gchar*( *BACKEND_dbusName)();
-    const gchar*( *BACKEND_commandLine)();
-}Backend;
-
 
 #define IMPORT_BACKEND(t) \
  	extern void * t##_attach(SPlayer *player); \
@@ -142,7 +133,6 @@ typedef struct SqueezeBoxData{
 #endif
 	GString *toolTipText;
 
-	gint backend;
 	SPlayer player;
 	eSynoptics state;
 
@@ -158,7 +148,23 @@ typedef struct SqueezeBoxData{
     // settings dialog
     XfconfChannel *channel;
     GtkWidget *dlg;
+	
+	// dynamic list of backends
+	GList *list;
+	const Backend *current;
+	GModule *module;
+
 } SqueezeBoxData;
+
+typedef struct BackendCache{
+	eBackendType type;
+	gchar *basename; // real name of folder, library, icon
+    gchar *name; // localized display name
+	gchar *path; // full path to module
+    GdkPixbuf *icon; 
+    gchar *dbusName;
+    gchar *commandLine;
+}BackendCache;
 
 void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 				   const gchar * OldOwner,
@@ -179,6 +185,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin,
 void squeezebox_construct(XfcePanelPlugin * plugin);
 
 const Backend* squeezebox_get_backends();
+const Backend* squeezebox_get_current_backend(SqueezeBoxData * sd);
 
 
 #endif

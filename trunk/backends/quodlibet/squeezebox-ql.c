@@ -42,7 +42,6 @@
 #endif
 
 
-DEFINE_DBUS_BACKEND(QL, _("QuodLibet"), "net.sacredchao.QuodLibet", "quodlibet")
 /* --- */
 #define QL_MAP(a) parent->a = ql##a;
 #define MKTHIS qlData *this = (qlData *)thsPtr;
@@ -65,6 +64,13 @@ typedef struct qlData {
 	DBusGProxy *qlPlayer;
 } qlData;
 
+void qlStatus(gpointer thsPtr, const gchar * args);
+void *QL_attach(SPlayer * parent);
+#define BASENAME "quodlibet"
+DEFINE_DBUS_BACKEND(QL, _("QuodLibet"), "net.sacredchao.QuodLibet", "quodlibet")
+
+// implementation
+
 static gboolean ql_CurrentSong (DBusGProxy *proxy, GHashTable** OUT_songProps) {
 	return dbus_g_proxy_call(proxy, "CurrentSong", NULL, G_TYPE_INVALID, 
 		DBUS_TYPE_G_STRING_STRING_HASHTABLE, OUT_songProps, G_TYPE_INVALID);
@@ -82,8 +88,6 @@ static gboolean ql_PlayPause(DBusGProxy *proxy) {
 	return dbus_g_proxy_call(proxy, "PlayPause", NULL, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-void *QL_attach(SPlayer * parent);
-void qlStatus(gpointer thsPtr, const gchar * args);
 static void qlCallbackPaused(DBusGProxy * proxy, gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter qlCallback: Paused");

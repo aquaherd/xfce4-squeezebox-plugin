@@ -41,8 +41,8 @@
 
 // libmpd for music player daemon remote
 #include <libmpd/libmpd.h>
+#include <libxfcegui4/libxfcegui4.h>
 
-DEFINE_BACKEND(MPD, _("Music Player Daemon"))
 #define MPD_MAP(a) parent->a = mpd##a
 #ifndef MPD_CST_STORED_PLAYLIST
 #define MPD_CST_STORED_PLAYLIST 0x20000
@@ -70,10 +70,16 @@ typedef struct mpdData{
 
 #define MKTHIS mpdData *this = (mpdData *)thsPtr;
 
-void *MPD_attach(SPlayer * player);
+gpointer MPD_attach(SPlayer * player);
 void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 			     gpointer thsPtr);
 gint mpdCallback(gpointer thsPtr);
+
+#define BASENAME "mpd"
+DEFINE_BACKEND(MPD, _("Music Player Daemon"))
+
+// implementation
+
 gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 
 	MKTHIS;
@@ -532,6 +538,7 @@ EXPORT void on_chooserDirectory_current_folder_changed(GtkFileChooserButton *chb
 	gchar *text = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(chb));
 	LOG("Enter on_chooserDirectory_current_folder_changed: %s", text);
 	xfconf_channel_set_string(this->xfconfChannel, "/MusicFolder", text);
+	this->bRequireReconnect = TRUE;
 	LOG("Leave on_chooserDirectory_current_folder_changed");
 }
 
@@ -578,8 +585,9 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
     gint result;
     GtkBuilder* builder = gtk_builder_new();
 	GError *error = NULL;
-	if(!gtk_builder_add_from_file(builder, "settings_mpd_ui", &error)){
-		LOG("mpdConfigure unexpected:S\n %s", error->message);
+	XfceHeading *heading = NULL;
+	if(!gtk_builder_add_from_file(builder, BACKENDDIR "/" BASENAME "/settings-mpd.ui", &error)){
+		LOG("mpdConfigure unexpected:\n %s", error->message);
 		return;
 	}
 		
@@ -679,7 +687,7 @@ jumpTarget:
 	LOG("Leave mpdConfigure");
 }
 
-void *MPD_attach(SPlayer * parent) {
+gpointer MPD_attach(SPlayer * parent) {
 	mpdData *this = g_new0(mpdData, 1);
 	LOG("Enter MPD_attach");
 	MPD_MAP(Assure);
@@ -732,7 +740,21 @@ void *MPD_attach(SPlayer * parent) {
 	this->pmanager->str = xfconf_channel_get_string(this->xfconfChannel, "/ListManager", "");
 	
 
-	LOG("Leave MPD_attach");
+	LOG("Leave MPD_attach:\n"
+		" UseDefault: %d\n"
+		" Host:       %s\n"
+		" Port:       %d\n"
+		" UseFolder:  %d\n"
+		" Path:       %s\n"
+		" UseManager: %d\n"
+		" Manager:    %s",
+		this->bUseDefault,
+		this->host->str,
+		this->port,
+		this->bUseMPDFolder,
+		this->path->str,
+		this->bUsePManager,
+		this->pmanager->str);
 	return this;
 }
 #endif

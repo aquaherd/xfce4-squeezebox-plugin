@@ -111,37 +111,63 @@ typedef struct SPlayer{
     void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
     void(* AddSubItem)(gpointer thsPlayer, gpointer newPlayer);
     void(* FindAlbumArtByFilePath)(gpointer thsPlayer, const gchar * path);
-    void(* MapProperty)(gpointer thsPlayer, const gchar *propName, gpointer address);
 }SPlayer;
 
 // Backend definitions
 typedef enum eBackendType{
+	noMoreBackends = 0,
 	dbusBackend,
 	networkBackend,
 	otherBackend,
 	numBackendTypes
 }eBackendType;
 
+typedef struct Backend{
+    const gchar* basename;
+	const eBackendType BACKEND_TYPE;
+    gpointer( *BACKEND_attach)(SPlayer *player);
+    const gchar*( *BACKEND_name)();
+    GdkPixbuf*( *BACKEND_icon)();
+    const gchar*( *BACKEND_dbusName)();
+    const gchar*( *BACKEND_commandLine)();
+}Backend;
+
 #define DEFINE_DBUS_BACKEND(t,n,d,c)  \
-    EXPORT const gchar* t##_name(){ \
+    const gchar* t##_name(){ \
         return _(n); \
     } \
     GdkPixbuf *t##_icon(){ \
-		return gdk_pixbuf_new_from_file(#n ".png", NULL); \
+		return gdk_pixbuf_new_from_file(BACKENDDIR "/" BASENAME "/" BASENAME ".png", NULL); \
     } \
     const gchar* t##_dbusName(){ \
         return d; \
     } \
     const gchar* t##_commandLine(){ \
     	return c; \
-	}    
+	} \
+	EXPORT const Backend *backend_info() { \
+		static const Backend backend[2] = { \
+			{BASENAME, dbusBackend, t##_attach, t##_name, \
+			t##_icon, t##_dbusName, t##_commandLine}, \
+			{NULL} \
+		}; \
+		return &backend[0]; \
+	}
 #define DEFINE_BACKEND(t,n) \
     G_MODULE_EXPORT const gchar* t##_name(){ \
         return _(n); \
     } \
     GdkPixbuf *t##_icon(){ \
-		return gdk_pixbuf_new_from_file(#n ".png", NULL); \
-    }
+		return gdk_pixbuf_new_from_file(BACKENDDIR "/" BASENAME "/" BASENAME ".png", NULL); \
+    } \
+	EXPORT const Backend *backend_info() { \
+		static const Backend backend[2] = { \
+			{BASENAME, networkBackend, t##_attach, t##_name, \
+			t##_icon, NULL, NULL}, \
+			{NULL} \
+		}; \
+		return &backend[0]; \
+	}
     
 
 #if DEBUG_TRACE

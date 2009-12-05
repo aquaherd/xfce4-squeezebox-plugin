@@ -64,7 +64,10 @@ typedef struct csData{
 #define DBUS_SIG_SHOW_OSD   "show_osd"
 #define DBUS_SIG_ADD_FILE   "add_files"
 #define DBUS_METHOD_CURRENT_STATE "curent_state"
-    DEFINE_DBUS_BACKEND(CS, _("Consonance"), DBUS_NAME, "consonance");
+    
+gpointer CS_attach(SPlayer * parent);	
+#define BASENAME "consonance"
+DEFINE_DBUS_BACKEND(CS, _("Consonance"), DBUS_NAME, "consonance");
 
 /* Send a signal to a running instance */
 void dbus_send_signal(const gchar * signal, void *thsPtr) {
@@ -356,7 +359,7 @@ static gboolean csUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	return TRUE;
 }
 
-csData *CS_attach(SPlayer * parent) {
+gpointer CS_attach(SPlayer * parent) {
 	csData *db = NULL;
 
 	LOG("Enter CS_attach");

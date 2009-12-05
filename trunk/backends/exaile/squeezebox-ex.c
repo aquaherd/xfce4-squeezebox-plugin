@@ -39,7 +39,6 @@
 
 #define EX_MAP(a) parent->a = ex##a;
 
-DEFINE_DBUS_BACKEND(EX, _("Exaile"), "org.exaile.DBusInterface", "exaile")
 
 typedef struct exData{
 	SPlayer *parent;
@@ -58,6 +57,10 @@ typedef struct exData{
 GQuark stopped = 0;
 GQuark paused = 0;
 GQuark playing = 0;
+
+gpointer EX_attach(SPlayer * parent);
+#define BASENAME "exaile"
+DEFINE_DBUS_BACKEND(EX, _("Exaile"), "org.exaile.DBusInterface", "exaile")
 
 // implementation
 
@@ -367,7 +370,7 @@ void exUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
 }
 
 
-exData *EX_attach(SPlayer * parent) {
+gpointer EX_attach(SPlayer * parent) {
 	exData *db = NULL;
 
 	LOG("Enter EX_attach");

@@ -3,7 +3,7 @@ plugin_PROGRAMS = xfce4-squeezebox-plugin
 
 xfce4_squeezebox_plugin_CFLAGS = -Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
     -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ \
-    @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ \
+    @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ $(PATH_DEFINES) \
     @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@ -export-dynamic -fvisibility=hidden
 
 #todo: use --dynamic-list=someFile instead of -Wl -rdynamic
@@ -32,7 +32,7 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
 # get full path into .desktop file
 %.desktop.in: %.desktop.in.in
-	sed -e "s^@PLUGIN_PATH@^$(libexecdir)/xfce4/panel-plugins^" $< > $@
+	sed -e "s^@PLUGIN_PATH@^$(libdir)/xfce4/panel-plugins^" $< > $@
 
 #if MAINTAINER_MODE
 #BUILT_SOURCES = settings-ui.h settings-mpd-ui.h

@@ -36,8 +36,6 @@
 
 #define MU_MAP(a) parent->a = mu##a;
 
-DEFINE_DBUS_BACKEND(MU, _("Muine"), "org.gnome.Muine", "muine")
-
 typedef struct muData {
 	SPlayer *parent;
 	DBusGProxy *muPlayer;
@@ -47,8 +45,13 @@ typedef struct muData {
 } muData;
 
 #define MKTHIS muData *db = (muData *)thsPtr;
-// implementation
 static gboolean muAssure(gpointer thsPtr, gboolean noCreate);
+gpointer MU_attach(SPlayer * parent);
+#define BASENAME "muine"
+DEFINE_DBUS_BACKEND(MU, _("Muine"), "org.gnome.Muine", "muine")
+
+// implementation
+
 
 static void muCallbackStateChanged(DBusGProxy * proxy, gboolean newState, gpointer thsPtr) {
 	MKTHIS;
@@ -287,7 +290,7 @@ gboolean muShow(gpointer thsPtr, gboolean newState) {
 	return FALSE;
 }
 
-muData *MU_attach(SPlayer * parent) {
+gpointer MU_attach(SPlayer * parent) {
 	muData *db = NULL;
 
 	LOG("Enter MU_attach");
