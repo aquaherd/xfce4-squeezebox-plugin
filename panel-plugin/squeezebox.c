@@ -60,68 +60,43 @@ static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
 */
 #define MKTHIS SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer
 
-/* Backend import */
-//~ #if HAVE_BACKEND_RHYTHMBOX
-	//~ IMPORT_DBUS_BACKEND(RB)
-//~ #endif
-//~ #if HAVE_BACKEND_MPD
-    //~ IMPORT_BACKEND(MPD)
-//~ #endif
-//~ #if HAVE_BACKEND_QUODLIBET
-    //~ IMPORT_DBUS_BACKEND(QL)
-//~ #endif
-//~ #if HAVE_BACKEND_AUDACIOUS
-    //~ IMPORT_DBUS_BACKEND(AU)
-//~ #endif
-//~ #if HAVE_BACKEND_EXAILE
-    //~ IMPORT_DBUS_BACKEND(EX)
-//~ #endif
-//~ #if HAVE_BACKEND_CONSONANCE
-    //~ IMPORT_DBUS_BACKEND(CS)
-//~ #endif
-//~ #if HAVE_BACKEND_MUINE
-    //~ IMPORT_DBUS_BACKEND(MU)
-//~ #endif
-//~ #if HAVE_BACKEND_BANSHEE
-    //~ IMPORT_DBUS_BACKEND(BA)
-//~ #endif
-/* Backend mapping */
-BEGIN_BACKEND_MAP()
-//~ #if HAVE_BACKEND_RHYTHMBOX
-    //~ DBUS_BACKEND(RB)
-//~ #endif
-//~ #if HAVE_BACKEND_MPD
-    //~ BACKEND(MPD)
-//~ #endif
-//~ #if HAVE_BACKEND_QUODLIBET
-    //~ DBUS_BACKEND(QL)
-//~ #endif
-//~ #if HAVE_BACKEND_AUDACIOUS
-    //~ DBUS_BACKEND(AU)
-//~ #endif
-//~ #if HAVE_BACKEND_EXAILE
-    //~ DBUS_BACKEND(EX)
-//~ #endif
-//~ #if HAVE_BACKEND_CONSONANCE
-    //~ DBUS_BACKEND(CS)
-//~ #endif
-//~ #if HAVE_BACKEND_MUINE
-    //~ DBUS_BACKEND(MU)
-//~ #endif
-//~ #if HAVE_BACKEND_BANSHEE
-    //~ DBUS_BACKEND(BA)
-//~ #endif
-END_BACKEND_MAP()
-
 /* internal functions */
 #define UNSET(t) sd->player.t = NULL
-static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
+
+/* implementation */
+const Backend *squeezebox_load_backend(SqueezeBoxData * sd, const gchar *name) {
+	const Backend *backend = NULL;
+	GList *list = g_list_first(sd->list);
+	do {
+		BackendCache *cache = list->data;
+		if(g_utf8_collate(name, cache->basename))
+			list = g_list_next(list);
+		else {
+			GModule *module = NULL;
+			module = g_module_open(cache->path, G_MODULE_BIND_LAZY);
+			LOG("Enter squeezebox_load_backend");
+			if(NULL != module) {
+				const Backend*( *ptr)() = NULL;
+				if(g_module_symbol(module, "backend_info", (void**)&ptr)) {
+					backend = ptr();
+					sd->module = module;
+					list = NULL;
+					break;
+				}
+			}
+		}
+	}while(list);
+	LOG("Leave squeezebox_load_backend");
+	return backend;
+}
+static void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name) {
 	// clear previous backend
-	const Backend *ptr = &squeezebox_get_backends()[nBackend - 1];
+	const Backend *ptr = squeezebox_get_current_backend(sd);
     LOG("Enter squeezebox_init_backend");
     if (sd->player.Detach) {
 		sd->player.Detach(sd->player.db);
 		g_free(sd->player.db);
+		g_module_close(sd->module);
 	}
 	UNSET(Assure);
 	UNSET(Next);
@@ -159,8 +134,9 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, gint nBackend) {
 	
 
 	// call init of backend
-	sd->backend = nBackend;
+	ptr = squeezebox_load_backend(sd, name);
 	sd->player.db = ptr->BACKEND_attach(&sd->player);
+	sd->current = ptr;
 
 	// have menu populated
 	gtk_widget_set_sensitive(sd->mnuPlayer, (NULL != sd->player.Show));
@@ -477,11 +453,9 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 						sd->player.album->str,
 						sd->player.title->str);
 			else {
-				const Backend *ptr = squeezebox_get_backends();
+				const Backend *ptr = squeezebox_get_current_backend(sd);
 				g_string_printf(sd->toolTipText,
-						_("%s: No info"),
-						ptr[sd->backend -
-						    1].BACKEND_name());
+						_("%s: No info"), ptr->BACKEND_name());
 			}
 #if HAVE_GTK_2_12
 			gtk_tooltip_trigger_tooltip_query
@@ -545,7 +519,7 @@ squeezebox_style_set(XfcePanelPlugin * plugin, gpointer ignored,
 
 static GdkFilterReturn
 filter_mmkeys(GdkXEvent * xevent, GdkEvent * event, gpointer data) {
-	SqueezeBoxData * sd = (SqueezeBoxData *) data;
+	//SqueezeBoxData * sd = (SqueezeBoxData *) data;
 	XEvent *xev;
 	XKeyEvent *key;
 
@@ -559,6 +533,10 @@ filter_mmkeys(GdkXEvent * xevent, GdkEvent * event, gpointer data) {
 	
 	}
 	return GDK_FILTER_CONTINUE;
+}
+
+static void squeezebox_free_cache(gpointer listItem, gpointer sd) {
+	g_free(listItem);
 }
 
 static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
@@ -612,7 +590,11 @@ static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) 
 				gdk_window_remove_filter(root, filter_mmkeys, sd);		
 			}
 		}
-    }	
+    }
+	if(sd->list) {
+		g_list_foreach(sd->list, squeezebox_free_cache, sd);
+		g_list_free(sd->list);
+	}	
 	xfconf_shutdown();
 	g_free(sd);
 	LOG("Leave squeezebox_free_data");
@@ -620,7 +602,6 @@ static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) 
 
 static void
 squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
-	gint nBackend = 1;
 	gboolean bShowNext = TRUE;
 	gboolean bShowPrev = TRUE;
 	gboolean bGrabMedia = TRUE;
@@ -628,6 +609,7 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	gint toolTipStyle = 1;
 	gboolean bNotify = TRUE;
 	gdouble dNotifyTimeout = 5.0;
+	gchar * backend = "mpd";
 	LOG("Enter squeezebox_read_rc_file");
 
 	// Read properties from channel
@@ -635,11 +617,11 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
     	"xfce4-panel", "/plugins/squeezebox/settings");
     
 	// Always init backend
-	nBackend = xfconf_channel_get_uint(sd->channel, "/Backend", nBackend);
+	backend = xfconf_channel_get_string(sd->channel, "/Current", backend);
 	bAutoConnect = xfconf_channel_get_bool(sd->channel, "/AutoConnect", bAutoConnect);
 	sd->player.sd = sd;
 	sd->autoAttach = bAutoConnect;
-	squeezebox_init_backend(sd, nBackend);
+	squeezebox_init_backend(sd, backend);
 	
 	// Appearance
 	bShowNext = xfconf_channel_get_bool(sd->channel, "/ShowNext", bShowNext);
@@ -713,7 +695,7 @@ squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	LOG("Enter squeezebox_write_rc_file");
 
 	// all this could be written during dialog visibility, too
-	xfconf_channel_set_uint(sd->channel, "/Backend", sd->backend);
+	xfconf_channel_set_string(sd->channel, "/Current", sd->current->basename);
 	xfconf_channel_set_bool(sd->channel, "/AutoConnect", sd->autoAttach);
 	xfconf_channel_set_bool(sd->channel, "/ShowNext", sd->show[ebtnNext]);
 	xfconf_channel_set_bool(sd->channel, "/ShowPrev", sd->show[ebtnPrev]);
@@ -769,7 +751,7 @@ typedef enum eColumns{
 
 const Backend* squeezebox_get_current_backend(SqueezeBoxData * sd)
 {
-	return &squeezebox_get_backends()[sd->backend -1];
+	return sd->current;
 }
 
 EXPORT void on_tvPlayers_cursor_changed(GtkTreeView * tv, SqueezeBoxData * sd) {
@@ -780,15 +762,15 @@ EXPORT void on_tvPlayers_cursor_changed(GtkTreeView * tv, SqueezeBoxData * sd) {
 		GtkWidget *button = GTK_WIDGET(g_object_get_data(G_OBJECT(sd->dlg), "btnEdit"));
 		LOG("Backend change...");
 		if( gtk_tree_selection_get_selected(selection, &model, &iter)) {
-			gint nBackend = -1;
 			LOG("Have iter %d", iter.stamp);
 			if(model) {
+				gchar *backendLoc = NULL;
 				gchar *backend = NULL;
 				gtk_tree_model_get(model, &iter, 
-					TEXT_COLUMN, &backend, 
-					INDEX_COLUMN, &nBackend, -1);
-				LOG("Have model %s %d", backend, nBackend);
-				squeezebox_init_backend(sd, nBackend + 1);
+					TEXT_COLUMN, &backendLoc, 
+					INDEX_COLUMN, &backend, -1);
+				LOG("Have model %s", backendLoc);
+				squeezebox_init_backend(sd, backend);
 				gtk_widget_set_sensitive(button,
 					NULL != sd->player.Configure);
 			}
@@ -919,17 +901,17 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 	// backends
 	GtkListStore *store;
 	GtkTreeIter iter = { 0 };
-	const Backend *ptr = squeezebox_get_backends();
-    gint idx;
+	GList *list = g_list_first(sd->list);
 	GdkPixbuf *pix;
 	GtkTreeView *view;
 	gboolean valid;
+	gint idx;
 	
 	xfce_panel_plugin_block_menu(plugin);
 
     // new
     GtkBuilder* builder = gtk_builder_new();
-	gtk_builder_add_from_file(builder, "settings.ui", NULL);
+	gtk_builder_add_from_file(builder, GLADEDIR"/settings.ui", NULL);
 	sd->dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dialogSettings"));
 	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "datastore"));
 	view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tvPlayers"));
@@ -951,17 +933,24 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 		"datastore", gtk_builder_get_object(builder, "datastore"));
 
 	/* fill the backend store with data */
-	idx = 0;
-	for (;;) {
-		LOG("Have %s", ptr->BACKEND_name());
+	while(list) {
+		BackendCache *ptr = (BackendCache*)list->data;
+		if(ptr->commandLine) {
+			if(!g_find_program_in_path(ptr->commandLine)) {
+				LOG("     %s seems not installed", ptr->commandLine);
+				list = g_list_next(list);
+				continue;
+			}
+		}
+		LOG("Have %s", ptr->basename);
 		gtk_list_store_append(store, &iter);
-		pix = exo_gdk_pixbuf_scale_down(ptr->BACKEND_icon(), TRUE, 24, 32);
+		pix = exo_gdk_pixbuf_scale_down(ptr->icon, TRUE, 24, 32);
 		gtk_list_store_set(store, &iter, 
                    PIXBUF_COLUMN, pix,
-				   TEXT_COLUMN, ptr->BACKEND_name(), 
-                   INDEX_COLUMN, idx++, 
+				   TEXT_COLUMN, ptr->name, 
+                   INDEX_COLUMN, ptr->basename, 
 				   AVAIL_COLUMN, TRUE, -1);
-		if( sd->backend == idx) {
+		if( !g_utf8_collate(sd->current->basename, ptr->basename)) {
 			GtkTreeSelection *selection = gtk_tree_view_get_selection(view);
 			gtk_tree_selection_select_iter(selection, &iter);
 			gtk_widget_set_sensitive(
@@ -969,9 +958,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 			 	NULL != sd->player.Configure);
 		}
 		
-		ptr++;
-		if (!ptr->BACKEND_name)
-			break;
+		list = g_list_next(list);
 	}
 	
 	gtk_tree_sortable_set_sort_column_id(
@@ -1199,8 +1186,9 @@ gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
 		gtk_tooltip_set_text(tooltip, sd->toolTipText->str);
 		if (albumArt->len && g_file_test(albumArt->str, G_FILE_TEST_EXISTS))
 			pic = gdk_pixbuf_new_from_file_at_size(albumArt->str, 32, 32, NULL);
-		else
-			pic = squeezebox_get_backends(sd)[sd->backend - 1].BACKEND_icon();
+		else {
+			pic = sd->current->BACKEND_icon();
+		}
 		gtk_tooltip_set_icon(tooltip, pic);
 		return TRUE;
 	}
@@ -1295,9 +1283,8 @@ void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 				   const gchar * OldOwner,
 				   const gchar * NewOwner,
 				   SqueezeBoxData * sd) {
-	if (sd->backend) {
-		const Backend *ptr = squeezebox_get_backends();
-		ptr += (sd->backend - 1);
+	if (sd->current) {
+		const Backend *ptr = squeezebox_get_current_backend(sd);
 		if (ptr->BACKEND_dbusName) {
 			gboolean appeared = (NULL != NewOwner && 0 != NewOwner[0]);
 			const gchar *dbusName = ptr->BACKEND_dbusName();
@@ -1321,7 +1308,7 @@ static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 	GError *error = NULL;
 	guint start_service_reply;
 	gboolean bRet = TRUE;
-	Backend const *ptr = &squeezebox_get_backends()[sd->backend -1];
+	Backend const *ptr = squeezebox_get_current_backend(sd);
 	gchar *path = NULL;
 	
 	LOG("Starting new instance of '%s'", ptr->BACKEND_dbusName());
@@ -1348,7 +1335,46 @@ static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 	}
 	return bRet;
 }
-void squeezebox_construct(XfcePanelPlugin * plugin) {
+void squeezebox_read_backends(SqueezeBoxData *sd){
+	LOG("Enter squeezebox_read_backends");
+	const gchar *backends = BACKENDDIR;
+	GDir *dir = g_dir_open(backends, 0, NULL);
+	const gchar *fnam = NULL;
+	while ((fnam = g_dir_read_name(dir))) {
+		gchar *fpath = g_strdup_printf("%s%c%s%c%s.%s",
+			backends, G_DIR_SEPARATOR, fnam, G_DIR_SEPARATOR, fnam, G_MODULE_SUFFIX);
+		if(g_file_test(fpath, G_FILE_TEST_EXISTS)) {
+			GModule *module;
+			LOG("\tTrying %s.%s", fnam, G_MODULE_SUFFIX);
+			module = g_module_open(fpath, G_MODULE_BIND_LAZY);
+			if(module) {
+				const Backend*( *ptr)() = NULL;
+				if(g_module_symbol(module, "backend_info", (void**)&ptr)) {
+					const Backend *backend = ptr();
+					while(backend->BACKEND_TYPE > 0) {
+						BackendCache *cache = g_new0(BackendCache, 1);
+						LOG("\t\tFound:%s", backend->BACKEND_name());
+						cache->path = fpath;
+						cache->type = backend->BACKEND_TYPE;
+						cache->name = g_strdup(backend->BACKEND_name());
+						cache->basename = g_strdup(backend->basename);
+						cache->icon = backend->BACKEND_icon();
+						if(backend->BACKEND_dbusName)
+							cache->dbusName = g_strdup(backend->BACKEND_dbusName());
+						if(backend->BACKEND_commandLine)
+							cache->commandLine = g_strdup(backend->BACKEND_commandLine());
+						sd->list = g_list_append(sd->list, cache);
+						backend++;
+					}
+				}
+				g_module_close(module);
+			}
+		}
+	}
+	g_dir_close(dir);
+	LOG("Leave squeezebox_read_backends");
+}
+EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	int i = 0;
 	SqueezeBoxData *sd = g_new0(SqueezeBoxData, 1);
 
@@ -1397,7 +1423,6 @@ void squeezebox_construct(XfcePanelPlugin * plugin) {
 	}
 	sd->player.FindAlbumArtByFilePath =
 	    squeezebox_find_albumart_by_filepath;
-    sd->player.MapProperty = squeezebox_map_property;
 	sd->inEnter = FALSE;
 	sd->notifyTimeout = 5;
 	sd->notifyID = 0;
@@ -1475,10 +1500,14 @@ void squeezebox_construct(XfcePanelPlugin * plugin) {
 				 G_CALLBACK(on_query_tooltip), sd);
 	}
 #endif
+	
+	// populate the available backends
+	squeezebox_read_backends(sd);
+	
+	// this will init & create the actual player backend
+	// and also init menu states
 	squeezebox_read_rc_file(plugin, sd);
 
-	// the above will init & create the actual player backend
-	// and also init menu states
 	sd->inCreate = FALSE;
 	LOG("Leave squeezebox_construct");
 

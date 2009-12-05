@@ -46,7 +46,6 @@
 */
 #define RB_MAP(a) parent->a = rb##a;
 
-DEFINE_DBUS_BACKEND(RB, _("Rhythmbox"), "org.gnome.Rhythmbox", "ryhthmbox")
 
 typedef struct rbData{
 	SPlayer *parent;
@@ -57,6 +56,11 @@ typedef struct rbData{
 
 #define MKTHIS rbData *db = (rbData *)thsPtr;
 gboolean rbAssure(gpointer thsPtr, gboolean noCreate);
+gpointer RB_attach(SPlayer * parent);
+#define BASENAME "rhythmbox"
+DEFINE_DBUS_BACKEND(RB, _("Rhythmbox"), "org.gnome.Rhythmbox", "rhythmbox")
+
+// implementation
 
 static void rbCallbackPlayPause(DBusGProxy * proxy, const gboolean playing,
 				gpointer thsPtr) {
@@ -361,7 +365,7 @@ gboolean rbGetRepeat(gpointer thsPtr) {
 	org_gnome_Rhythmbox_Shell_get_playlist_manager(
 }
 */
-rbData *RB_attach(SPlayer * parent) {
+gpointer RB_attach(SPlayer * parent) {
 	rbData *db = NULL;
 
 	LOG("Enter RB_attach");

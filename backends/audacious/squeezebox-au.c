@@ -39,8 +39,6 @@
 
 #define AU_MAP(a) parent->a = au##a;
 
-DEFINE_DBUS_BACKEND(AU, _("Audacious"), "org.mpris.audacious", "audacious")
-
 typedef struct auData {
 	SPlayer *parent;
 	DBusGProxy *auPlayer;
@@ -49,10 +47,14 @@ typedef struct auData {
 	gboolean Shuffle;
 	gboolean Repeat;
 } auData;
+gpointer AU_attach(SPlayer * parent);
+static gboolean auAssure(gpointer thsPtr, gboolean noCreate);
+#define BASENAME "audacious"
+DEFINE_DBUS_BACKEND(AU, _("Audacious"), "org.mpris.audacious", "audacious2")
+
 
 #define MKTHIS auData *db = (auData *)thsPtr;
 // implementation
-static gboolean auAssure(gpointer thsPtr, gboolean noCreate);
 
 static void auCallbackCapsChange(DBusGProxy * proxy, gint caps, gpointer thsPtr) {
 	// MKTHIS;
@@ -366,7 +368,7 @@ gboolean auSetRepeat(gpointer thsPtr, gboolean newRepeat) {
 	return FALSE;
 }
 
-auData *AU_attach(SPlayer * parent) {
+gpointer AU_attach(SPlayer * parent) {
 	auData *db = NULL;
 
 	LOG("Enter AU_attach");

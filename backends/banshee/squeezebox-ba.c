@@ -45,7 +45,6 @@
 	}
 
 
-DEFINE_DBUS_BACKEND(BA, _("Banshee"), "org.bansheeproject.Banshee", "banshee")
 
 typedef struct baData {
 	SPlayer *parent;
@@ -59,9 +58,13 @@ typedef struct baData {
 	gchar* artLocation;
 } baData;
 
-#define MKTHIS baData *db = (baData *)thsPtr;
-// implementation
+gpointer BA_attach(SPlayer * parent);
 static gboolean baAssure(gpointer thsPtr, gboolean noCreate);
+#define BASENAME "banshee"
+DEFINE_DBUS_BACKEND(BA, _("Banshee"), "org.bansheeproject.Banshee", "banshee")
+#define MKTHIS baData *db = (baData *)thsPtr;
+
+// implementation
 
 const gchar* baFindTag(const gchar* tagName, const gchar* track) {
 	gchar *ptr = g_strstr_len(track, -1, tagName);
@@ -323,7 +326,7 @@ void baUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
 	db->Visibility = appeared;
 }
 
-baData *BA_attach(SPlayer * parent) {
+gpointer BA_attach(SPlayer * parent) {
 	baData *db = NULL;
 
 	LOG("Enter BA_attach");

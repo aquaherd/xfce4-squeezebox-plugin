@@ -67,11 +67,12 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 			    gdk_pixbuf_new_from_file_at_size(albumArt->str, 64, 64, NULL);
 		}
 		if(NULL == pixbuf) {
-			const Backend *ptr = &squeezebox_get_backends()[sd->backend -1];
-			pixbuf = ptr->BACKEND_icon();
+			pixbuf = sd->current->BACKEND_icon();
 		}
-		if(NULL != pixbuf)
+		if(NULL != pixbuf) {
 			gdk_pixbuf_save(pixbuf, pixPath, "png", NULL, NULL);
+			g_object_unref(pixbuf);
+		}
 		else
 			pixPath = NULL;
 		
