@@ -9,9 +9,9 @@ backends/audacious/squeezebox-au.c
 backends/banshee/squeezebox-ba.c
 panel-plugin/squeezebox.c
 panel-plugin/notifications.c
-panel-plugin/mmkeys.c
+#panel-plugin/mmkeys.c
 panel-plugin/squeezebox.desktop.in.in
 [type: gettext/glade]glade/settings.ui
 #panel-plugin/squeezebox-mpris.c
-#[type: gettext/glade]panel-plugin/mpris-wizard.ui
+[type: gettext/glade]glade/mpris-wizard.ui
 

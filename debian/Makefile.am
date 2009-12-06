@@ -1,5 +1,7 @@
 # $Id: Makefile.am $
 
+SUBDIRS =
+
 EXTRA_DIST =								\
 	changelog							\
 	compat								\
