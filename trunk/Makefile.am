@@ -18,7 +18,7 @@ deb:
 	dpkg-buildpackage -rfakeroot -i.svn
 #	dpkg-buildpackage -uc -us -rfakeroot -i.git
 
-PUBLOC = ~/Dropbox/Public/repo/dists/custom/main
+PUBLOC = ~/apt/repo/dists/custom/main
 PUBARCH = `/usr/bin/dpkg-architecture -qDEB_HOST_ARCH`
 PVERSION = $(VERMAJOR).$(VERMINOR)-$(VERMICRO)
 debpub: 
@@ -34,9 +34,9 @@ PKGFLAGS = --default \
 	--pkglicense="GNU GPL" \
 	--pkggroup="xfce"
 
-EXTRA_DIST = README TODO THANKS intltool-extract.in intltool-merge.in intltool-update.in debian redhat
+EXTRA_DIST = README TODO THANKS intltool-extract.in intltool-merge.in intltool-update.in
 
-DISTCLEANFILES = intltool-extract intltool-merge intltool-update redhat/xfce4-squeezebox-plugin.spec redhat/Makefile
+DISTCLEANFILES = intltool-extract intltool-merge intltool-update
 
 splint:
 	cd panel-plugin && $(MAKE) splint

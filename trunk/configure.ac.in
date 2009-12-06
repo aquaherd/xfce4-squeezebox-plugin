@@ -102,6 +102,7 @@ AC_ARG_ENABLE(rhythmbox,[  --disable-rhythmbox     disable rhythmbox support (de
 if test x$enable_rhythmbox = xyes; then
 	AC_DEFINE(HAVE_BACKEND_RHYTHMBOX,1,[Define to use rhythmbox])
 	AC_CONFIG_FILES([backends/rhythmbox/Makefile])
+	subdirs="$subdirs rhythmbox"
 fi
 
 AC_ARG_ENABLE(MPD,[  --disable-MPD           disable MPD support (default: enable)],[enable_MPD=$enableval],[enable_MPD=yes])
@@ -132,6 +133,7 @@ AC_ARG_ENABLE(quodlibet,[  --disable-quodlibet           disable QuodLibet suppo
 if test x$enable_quodlibet = xyes; then
 	AC_DEFINE(HAVE_BACKEND_QUODLIBET,1,[Define to use QL])
 	AC_CONFIG_FILES([backends/quodlibet/Makefile])
+	subdirs="$subdirs quodlibet"
 fi
 
 AC_ARG_ENABLE(audacious,[  --disable-audacious     disable audacious support (default: enable)],[enable_audacious=$enableval],[enable_audacious=yes])
@@ -215,9 +217,6 @@ AC_CONFIG_FILES([
 	glade/Makefile
 	panel-plugin/Makefile
 	po/Makefile.in
-	debian/Makefile
-	redhat/Makefile
-	redhat/xfce4-squeezebox-plugin.spec
 	backends/Makefile
 ])
 
