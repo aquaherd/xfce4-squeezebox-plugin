@@ -101,6 +101,7 @@ dnl Add backends here
 AC_ARG_ENABLE(rhythmbox,[  --disable-rhythmbox     disable rhythmbox support (default: enable)],[enable_rhythmbox=$enableval],[enable_rhythmbox=yes])
 if test x$enable_rhythmbox = xyes; then
 	AC_DEFINE(HAVE_BACKEND_RHYTHMBOX,1,[Define to use rhythmbox])
+	AC_CONFIG_FILES([backends/rhythmbox/Makefile])
 fi
 
 AC_ARG_ENABLE(MPD,[  --disable-MPD           disable MPD support (default: enable)],[enable_MPD=$enableval],[enable_MPD=yes])
@@ -123,36 +124,49 @@ if test x$enable_MPD = xyes; then
 	fi
 	AC_SUBST([LIBMPD_CFLAGS])
 	AC_SUBST([LIBMPD_LIBS])
+	AC_CONFIG_FILES([backends/mpd/Makefile])
+	subdirs="$subdirs mpd"
 fi
 
 AC_ARG_ENABLE(quodlibet,[  --disable-quodlibet           disable QuodLibet support (default: enable)],[enable_quodlibet=$enableval],[enable_quodlibet=yes])
 if test x$enable_quodlibet = xyes; then
 	AC_DEFINE(HAVE_BACKEND_QUODLIBET,1,[Define to use QL])
+	AC_CONFIG_FILES([backends/quodlibet/Makefile])
 fi
 
 AC_ARG_ENABLE(audacious,[  --disable-audacious     disable audacious support (default: enable)],[enable_audacious=$enableval],[enable_audacious=yes])
 if test x$enable_audacious = xyes; then
 	AC_DEFINE(HAVE_BACKEND_AUDACIOUS,1,[Define to use audacious])
+	AC_CONFIG_FILES([backends/audacious/Makefile])
+	subdirs="$subdirs audacious"
 fi
 
 AC_ARG_ENABLE(exaile,[  --disable-exaile     disable exaile support (default: enable)],[enable_exaile=$enableval],[enable_exaile=yes])
 if test x$enable_exaile = xyes; then
 	AC_DEFINE(HAVE_BACKEND_EXAILE,1,[Define to use exaile])
+	AC_CONFIG_FILES([backends/exaile/Makefile])
+	subdirs="$subdirs exaile"
 fi
 
 AC_ARG_ENABLE(consonance,[  --disable-consonance     disable consonance support (default: enable)],[enable_consonance=$enableval],[enable_consonance=yes])
 if test x$enable_consonance = xyes; then
 	AC_DEFINE(HAVE_BACKEND_CONSONANCE,1,[Define to use consonance])
+	AC_CONFIG_FILES([backends/consonance/Makefile])
+	subdirs="$subdirs consonance"
 fi
 
 AC_ARG_ENABLE(muine,[  --disable-muine     disable Muine support (default: enable)],[enable_muine=$enableval],[enable_muine=yes])
 if test x$enable_muine = xyes; then
 	AC_DEFINE(HAVE_BACKEND_MUINE,1,[Define to use Muine])
+	AC_CONFIG_FILES([backends/muine/Makefile])
+	subdirs="$subdirs muine"
 fi
 
 AC_ARG_ENABLE(banshee,[  --disable-banshee     disable Banshee support (default: enable)],[enable_banshee=$enableval],[enable_banshee=yes])
 if test x$enable_banshee = xyes; then
 	AC_DEFINE(HAVE_BACKEND_BANSHEE,1,[Define to use Banshee])
+	AC_CONFIG_FILES([backends/banshee/Makefile])
+	subdirs="$subdirs banshee"
 fi
 
 dnl Check for debugging support
@@ -194,26 +208,20 @@ AC_SUBST([VERMICRO])
 dnl PATH defines
 PATH_DEFINES='-DBACKENDDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/backends\"" -DGLADEDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/glade\""'
 AC_SUBST([PATH_DEFINES])
+AC_SUBST([subdirs])
 
-
-AC_OUTPUT([
+AC_CONFIG_FILES([
 	Makefile
-	backends/rhythmbox/Makefile
-	backends/quodlibet/Makefile
-	backends/Makefile
-	backends/muine/Makefile
-	backends/mpd/Makefile
-	backends/consonance/Makefile
-	backends/exaile/Makefile
-	backends/audacious/Makefile
-	backends/banshee/Makefile
 	glade/Makefile
 	panel-plugin/Makefile
 	po/Makefile.in
 	debian/Makefile
 	redhat/Makefile
 	redhat/xfce4-squeezebox-plugin.spec
+	backends/Makefile
 ])
+
+AC_OUTPUT
 
 echo ""
 echo "########### SqueezeBox CONFIGURATION ############"
