@@ -60,6 +60,12 @@ PKG_CHECK_MODULES(LIBXFCE4UTIL, [libxfce4util-1.0 >= 4.4])
 AC_SUBST(LIBXFCE4UTIL_CFLAGS)
 AC_SUBST(LIBXFCE4UTIL_LIBS)
 
+PKG_CHECK_MODULES(LIBXFCE4KBD, [libxfce4kbd-private-1.0 >= 4.6])
+AC_SUBST(LIBXFCE4KBD_CFLAGS)
+AC_SUBST(LIBXFCE4KBD_LIBS)
+
+
+
 dnl check for exo presence
 PKG_CHECK_MODULES([EXO], [exo-0.3 >= 0.3.0])
 
@@ -208,7 +214,7 @@ AC_SUBST([VERMINOR])
 AC_SUBST([VERMICRO])
 
 dnl PATH defines
-PATH_DEFINES='-DBACKENDDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/backends\"" -DGLADEDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/glade\""'
+PATH_DEFINES='-DBACKENDDIR="\"$(libexecdir)/xfce4/xfce4-squeezebox-plugin/backends\"" -DGLADEDIR="\"$(libexecdir)/xfce4/xfce4-squeezebox-plugin/glade\""'
 AC_SUBST([PATH_DEFINES])
 AC_SUBST([subdirs])
 

@@ -174,6 +174,8 @@ LIBWNCK_CFLAGS = @LIBWNCK_CFLAGS@
 LIBWNCK_LIBS = @LIBWNCK_LIBS@
 LIBWNCK_REQUIRED_VERSION = @LIBWNCK_REQUIRED_VERSION@
 LIBWNCK_VERSION = @LIBWNCK_VERSION@
+LIBXFCE4KBD_CFLAGS = @LIBXFCE4KBD_CFLAGS@
+LIBXFCE4KBD_LIBS = @LIBXFCE4KBD_LIBS@
 LIBXFCE4PANEL_CFLAGS = @LIBXFCE4PANEL_CFLAGS@
 LIBXFCE4PANEL_LIBS = @LIBXFCE4PANEL_LIBS@
 LIBXFCE4PANEL_REQUIRED_VERSION = @LIBXFCE4PANEL_REQUIRED_VERSION@
@@ -275,16 +277,16 @@ sharedstatedir = @sharedstatedir@
 subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-plugindir = $(libdir)/xfce4/panel-plugins
+plugindir = $(libexecdir)/xfce4/panel-plugins
 xfce4_squeezebox_plugin_CFLAGS = -Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
-    -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ \
+    -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ @LIBXFCE4KBD_CFLAGS@ \
     @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ $(PATH_DEFINES) \
     @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@ -export-dynamic -fvisibility=hidden
 
 
 #todo: use --dynamic-list=someFile instead of -Wl -rdynamic
 #    -Wl -rdynamic 
-xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBMPD_LIBS@ \
+xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBMPD_LIBS@ @LIBXFCE4KBD_LIBS@ \
 	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ @LIBXFCONF_LIBS@ -Wl -rdynamic
 
 xfce4_squeezebox_plugin_SOURCES = \
@@ -303,21 +305,6 @@ desktop_in_in_files = squeezebox.desktop.in.in
 desktop_in_files = $(desktop_in_in_files:.desktop.in.in=.desktop.in)
 desktopdir = $(datadir)/xfce4/panel-plugins
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
-
-#if MAINTAINER_MODE
-#BUILT_SOURCES = settings-ui.h settings-mpd-ui.h
-# BUILT_SOURCES = settings-ui.h settings-mpd-ui.h mpris-wizard-ui.h
-#
-#settings-ui.h: settings.ui
-#	exo-csource --static --strip-comments --strip-content --name=settings_ui $< >$@
-#
-#settings-mpd-ui.h: settings-mpd.ui
-#	exo-csource --static --strip-comments --strip-content --name=settings_mpd_ui $< >$@
-#
-#mpris-wizard-ui.h: mpris-wizard.ui
-#	exo-csource --static --strip-comments --strip-content --name=mpris_wizard_ui $< >$@
-#
-#endif
 EXTRA_DIST = $(desktop_in_in_files)
 DISTCLEANFILES = $(desktop_DATA) $(desktop_in_files) $(BUILT_SOURCES)
 all: all-am
@@ -643,11 +630,12 @@ uninstall-am: uninstall-desktopDATA uninstall-info-am \
 	uninstall-desktopDATA uninstall-info-am \
 	uninstall-pluginPROGRAMS
 
+
 @INTLTOOL_DESKTOP_RULE@
 
 # get full path into .desktop file
 %.desktop.in: %.desktop.in.in
-	sed -e "s^@PLUGIN_PATH@^$(libdir)/xfce4/panel-plugins^" $< > $@
+	sed -e "s^@PLUGIN_PATH@^$(libexecdir)/xfce4/panel-plugins^" $< > $@
 
 splint:
 	splint -warnposix +ignoresigns -stats \

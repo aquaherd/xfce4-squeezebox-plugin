@@ -1,4 +1,4 @@
-backenddir = $(libdir)/xfce4/xfce4-squeezebox-plugin/backends
+backenddir = $(libexecdir)/xfce4/xfce4-squeezebox-plugin/backends
 
 BACKEND_CFLAGS = @LIBGTK_CFLAGS@ \
     @LIBWNCK_CFLAGS@ @LIBXFCE4UTIL_CFLAGS@ \
