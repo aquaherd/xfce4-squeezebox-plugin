@@ -28,6 +28,10 @@
 #define EXO_API_SUBJECT_TO_CHANGE
 #include <exo/exo.h>
 #include <libxfcegui4/libxfcegui4.h>
+// shortcut handling
+#include <libxfce4kbd-private/xfce-shortcut-dialog.h>
+#include <libxfce4kbd-private/xfce-shortcuts-grabber.h>
+#include <libxfce4kbd-private/xfce-shortcuts-provider.h>
 
 #define xfce_screen_position_is_right_ex(position) \
     (position >= XFCE_SCREEN_POSITION_NE_V && \
@@ -138,6 +142,8 @@ typedef struct SqueezeBoxData{
 
 	// shortcuts
 	gboolean grabmedia;
+	XfceShortcutsGrabber *grabber;
+	GQuark shortcuts[5];
     
     // property handling
     GHashTable *properties;

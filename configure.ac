@@ -14,7 +14,7 @@ AC_CONFIG_MACRO_DIR([m4])
 m4_define([squeeze_version_major], [0])
 m4_define([squeeze_version_minor], [1])
 m4_define([squeeze_version_micro], [2])
-m4_define([squeeze_version_build], [r00147])
+m4_define([squeeze_version_build], [r00149])
 m4_define([squeeze_version_tag], [])
 m4_define([squeeze_vers], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()])
 m4_define([squeeze_version], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()ifelse(squeeze_version_tag(), [svn], [squeeze_version_tag()-squeeze_version_build()], [squeeze_version_tag()])])
@@ -64,6 +64,12 @@ AC_SUBST(DBUS_GLIB_LIBS)
 PKG_CHECK_MODULES(LIBXFCE4UTIL, [libxfce4util-1.0 >= 4.4])
 AC_SUBST(LIBXFCE4UTIL_CFLAGS)
 AC_SUBST(LIBXFCE4UTIL_LIBS)
+
+PKG_CHECK_MODULES(LIBXFCE4KBD, [libxfce4kbd-private-1.0 >= 4.6])
+AC_SUBST(LIBXFCE4KBD_CFLAGS)
+AC_SUBST(LIBXFCE4KBD_LIBS)
+
+
 
 dnl check for exo presence
 PKG_CHECK_MODULES([EXO], [exo-0.3 >= 0.3.0])
@@ -213,7 +219,7 @@ AC_SUBST([VERMINOR])
 AC_SUBST([VERMICRO])
 
 dnl PATH defines
-PATH_DEFINES='-DBACKENDDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/backends\"" -DGLADEDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/glade\""'
+PATH_DEFINES='-DBACKENDDIR="\"$(libexecdir)/xfce4/xfce4-squeezebox-plugin/backends\"" -DGLADEDIR="\"$(libexecdir)/xfce4/xfce4-squeezebox-plugin/glade\""'
 AC_SUBST([PATH_DEFINES])
 AC_SUBST([subdirs])
 
