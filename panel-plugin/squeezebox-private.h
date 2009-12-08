@@ -28,11 +28,8 @@
 #define EXO_API_SUBJECT_TO_CHANGE
 #include <exo/exo.h>
 #include <libxfcegui4/libxfcegui4.h>
-// shortcut handling
-#include <libxfce4kbd-private/xfce-shortcut-dialog.h>
-#include <libxfce4kbd-private/xfce-shortcuts-grabber.h>
-#include <libxfce4kbd-private/xfce-shortcuts-provider.h>
-
+// have local copy until it's standardized
+#include "xfce-shortcuts-grabber.h"
 #define xfce_screen_position_is_right_ex(position) \
     (position >= XFCE_SCREEN_POSITION_NE_V && \
      position <= XFCE_SCREEN_POSITION_SE_V) || \
@@ -170,6 +167,7 @@ typedef struct BackendCache{
     GdkPixbuf *icon; 
     gchar *dbusName;
     gchar *commandLine;
+	gboolean autoAttach;
 }BackendCache;
 
 void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,

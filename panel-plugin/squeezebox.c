@@ -159,7 +159,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name) {
 		const gchar *dbusName = ptr->BACKEND_dbusName();
 		gboolean hasOwner = FALSE;
 		GError *error = NULL;
-		if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, dbusName, &hasOwner, NULL)) {
+		if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, dbusName, &hasOwner, &error)) {
 			if(hasOwner) {
 				gchar *ownerName = NULL;
 				org_freedesktop_DBus_get_name_owner(sd->player.dbService, dbusName, &ownerName, NULL);
@@ -575,10 +575,6 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	};
 	LOG("Enter squeezebox_read_rc_file");
 
-	// Read properties from channel
-    sd->channel = xfconf_channel_new_with_property_base (
-    	"xfce4-panel", "/plugins/squeezebox/settings");
-    
 	// Always init backend
 	backend = xfconf_channel_get_string(sd->channel, "/Current", backend);
 	bAutoConnect = xfconf_channel_get_bool(sd->channel, "/AutoConnect", bAutoConnect);
@@ -637,15 +633,6 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 			g_free(path2);
 		}
     }
-	
-	/*
-	XfceShortcutsProvider *provider = xfce_shortcuts_provider_new("squeezebox");
-	GList *list = xfce_shortcuts_provider_get_shortcuts(provider);
-	list = g_list_first(list);
-	LOG("We have %d shortcuts", g_list_length(list));
-	g_list_free(list);
-	g_object_unref(provider);
-	*/
 	LOG("Leave squeezebox_read_rc_file");
 }
 
@@ -680,6 +667,10 @@ EXPORT void on_dialogSettings_response(GtkWidget * dlg, int reponse, SqueezeBoxD
     LOG("Leave DialogResponse");
 }
 
+EXPORT void on_btnAdd_clicked(GtkButton * btn, SqueezeBoxData * sd) {
+}
+EXPORT void on_btnRemove_clicked(GtkButton * btn, SqueezeBoxData * sd) {
+}
 EXPORT void on_btnEdit_clicked(GtkButton * btn, SqueezeBoxData * sd) {
 	LOG("Enter config_show_backend_properties");
 	if (sd->player.Configure)
@@ -748,8 +739,15 @@ EXPORT void on_cellrenderertoggle1_toggled(GtkCellRendererToggle * crt,
 	gboolean active = !gtk_cell_renderer_toggle_get_active(crt);
 	LOG("ClickCRT %d", active);
 	if( gtk_tree_selection_get_selected(selection, &model, &iter)) {
+		gchar *propAuto = NULL;
+		gchar *backend = NULL;
+		gtk_tree_model_get(model, &iter, 2, &backend, -1);
 		gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
 			AVAIL_COLUMN, active, -1);
+		propAuto =  g_strconcat("/AutoConnects/", backend, NULL);
+		xfconf_channel_set_bool(sd->channel, propAuto, active);
+		g_free(propAuto);
+		g_free(backend);
 	}
 }
 
@@ -861,7 +859,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
                    PIXBUF_COLUMN, pix,
 				   TEXT_COLUMN, ptr->name, 
                    INDEX_COLUMN, ptr->basename, 
-				   AVAIL_COLUMN, TRUE, -1);
+				   AVAIL_COLUMN, ptr->autoAttach, -1);
 		if( !g_utf8_collate(sd->current->basename, ptr->basename)) {
 			GtkTreeSelection *selection = gtk_tree_view_get_selection(view);
 			gtk_tree_selection_select_iter(selection, &iter);
@@ -883,6 +881,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkShowToolTips")), sd->toolTipStyle);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "chkShowNotifications")), sd->notify);
 	gtk_spin_button_set_value(GTK_SPIN_BUTTON(gtk_builder_get_object(builder, "spinNotificationTimeout")), sd->notifyTimeout);
+	gtk_tree_view_column_set_visible(GTK_TREE_VIEW_COLUMN(gtk_builder_get_object(builder, "tvcEnabled")), sd->autoAttach);
 	
 	// Shortcuts tab
 	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "liststoreShortcuts"));	
@@ -1224,25 +1223,58 @@ void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 				   const gchar * NewOwner,
 				   SqueezeBoxData * sd) {
 	if (sd->current) {
+		gboolean appeared = (NULL != NewOwner && 0 != NewOwner[0]);
 		const Backend *ptr = squeezebox_get_current_backend(sd);
-		if (ptr->BACKEND_dbusName) {
-			gboolean appeared = (NULL != NewOwner && 0 != NewOwner[0]);
-			const gchar *dbusName = ptr->BACKEND_dbusName();
-			if (!g_ascii_strcasecmp(Name, dbusName)) {
-				LOG("DBUS name change %s: '%s'->'%s'", Name, OldOwner, NewOwner);
-				if(sd->player.UpdateDBUS)	
-					sd->player.UpdateDBUS(sd->player.db, appeared);
-				sd->player.playerPID = 0;
-				if(appeared 
-				    && org_freedesktop_DBus_get_connection_unix_process_id(
-					sd->player.dbService, NewOwner, &sd->player.playerPID, NULL)
-					&& sd->player.playerPID > 0) {
-					// now we got the process
+		const gchar *dbusName = ptr->BACKEND_dbusName ? 
+			ptr->BACKEND_dbusName() : "";
+		if (dbusName && !g_utf8_collate(Name, dbusName)) {
+			LOG("DBUS name change %s: '%s'->'%s'", Name, OldOwner, NewOwner);
+			if(sd->player.UpdateDBUS)	
+				sd->player.UpdateDBUS(sd->player.db, appeared);
+			sd->player.playerPID = 0;
+			if(appeared 
+				&& org_freedesktop_DBus_get_connection_unix_process_id(
+				sd->player.dbService, NewOwner, &sd->player.playerPID, NULL)
+				&& sd->player.playerPID > 0) {
+				// now we got the process
+			} else {
+				GList *list = g_list_first(sd->list);
+				while(list) {
+					BackendCache *cache = list->data;
+					gboolean hasOwner = FALSE;
+					if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, cache->dbusName, &hasOwner, NULL) && hasOwner ) {
+						squeezebox_init_backend(sd, cache->basename);
+						break;
+					} else if(cache->type == networkBackend) {
+						squeezebox_init_backend(sd, cache->basename);
+						if(sd->player.Assure(sd->player.db, TRUE))
+							break;
+					}
 				}
+			}
+		} else if(appeared && sd->autoAttach) {
+			GList *list = g_list_first(sd->list);
+			while(list) {
+				BackendCache *cache = list->data;
+				if(cache->autoAttach) {
+					if(cache->dbusName && !g_utf8_collate(cache->dbusName, Name)) {
+						squeezebox_init_backend(sd, cache->basename);
+						if(sd->player.Assure(sd->player.db, TRUE))
+							break;
+					}
+				}
+				list = g_list_next(list);
 			}
 		}
 	}
 }
+
+static gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* dbusName) {
+	MKTHIS;
+	gboolean hasOwner;
+	return org_freedesktop_DBus_name_has_owner(sd->player.dbService, dbusName, &hasOwner, NULL) && hasOwner;
+}
+
 static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 	MKTHIS;
 	GError *error = NULL;
@@ -1293,18 +1325,23 @@ void squeezebox_read_backends(SqueezeBoxData *sd){
 					const Backend *backend = ptr();
 					while(backend->BACKEND_TYPE > 0) {
 						BackendCache *cache = g_new0(BackendCache, 1);
+						gchar *propAuto = g_strconcat( 
+							"/AutoConnects/", backend->basename, NULL);
 						LOG("\t\tFound:%s", backend->BACKEND_name());
 						cache->path = fpath;
 						cache->type = backend->BACKEND_TYPE;
 						cache->name = g_strdup(backend->BACKEND_name());
 						cache->basename = g_strdup(backend->basename);
 						cache->icon = backend->BACKEND_icon();
+						cache->autoAttach = 
+							xfconf_channel_get_bool(sd->channel, propAuto, TRUE);
 						if(backend->BACKEND_dbusName)
 							cache->dbusName = g_strdup(backend->BACKEND_dbusName());
 						if(backend->BACKEND_commandLine)
 							cache->commandLine = g_strdup(backend->BACKEND_commandLine());
 						sd->list = g_list_append(sd->list, cache);
 						backend++;
+						g_free(propAuto);
 					}
 				}
 				g_module_close(module);
@@ -1336,6 +1373,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	sd->player.UpdateVisibility = squeezebox_update_visibility;
 	sd->player.bus = dbus_g_bus_get(DBUS_BUS_SESSION, NULL);
 	sd->player.StartService = squeezebox_dbus_start_service;
+	sd->player.IsServiceRunning = squeezebox_dbus_service_exists;
 	if (!sd->player.bus) {
 		LOGERR("\tCouldn't connect to dbus");
 	} else {
@@ -1441,6 +1479,10 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	}
 #endif
 
+	// Read properties from channel
+    sd->channel = xfconf_channel_new_with_property_base (
+    	"xfce4-panel", "/plugins/squeezebox/settings");
+    
 	// shortcuts
 	sd->grabber = xfce_shortcuts_grabber_new();
 	g_signal_connect(G_OBJECT(sd->grabber), "shortcut-activated",
