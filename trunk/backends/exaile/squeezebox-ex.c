@@ -50,6 +50,7 @@ typedef struct exData{
 	gint intervalID;
 	gchar *lastTrack;
 	gchar *lastStatus;
+	gboolean oldInterface;
 } exData;
 
 #define MKTHIS exData *db = (exData *)thsPtr;
@@ -60,7 +61,31 @@ GQuark playing = 0;
 
 gpointer EX_attach(SPlayer * parent);
 #define BASENAME "exaile"
-DEFINE_DBUS_BACKEND(EX, _("Exaile"), "org.exaile.DBusInterface", "exaile")
+//DEFINE_DBUS_BACKEND(EX, _("Exaile"), "org.exaile.DBusInterface", "exaile")
+const gchar* EX_name(){ 
+	return _("Exaile"); 
+} 
+GdkPixbuf *EX_icon(){ 
+	return gdk_pixbuf_new_from_file(BACKENDDIR "/" BASENAME "/" BASENAME ".png", NULL); 
+} 
+const gchar* EX_dbusName2(){ 
+	return "org.exaile.DBusInterface"; 
+} 
+const gchar* EX_dbusName3(){ 
+	return "org.Exaile.exaile"; 
+} 
+const gchar* EX_commandLine(){ 
+	return "exaile"; 
+} 
+EXPORT const Backend *backend_info() { 
+	static const Backend backend[3] = { 
+		{BASENAME, dbusBackend, EX_attach, EX_name, EX_icon, EX_dbusName2, EX_commandLine}, 
+		{BASENAME, dbusBackend, EX_attach, EX_name, EX_icon, EX_dbusName3, EX_commandLine}, 
+		{NULL} 
+	}; 
+	return &backend[0]; 
+}
+
 
 // implementation
 
@@ -188,10 +213,17 @@ static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
 	LOG("Enter exAssure");
 	if (db->parent->bus && !db->exPlayer2) {
 		GError *error = NULL;
-		db->exPlayer2 = dbus_g_proxy_new_for_name_owner(db->parent->bus,
-							       EX_dbusName(),
+		if(db->oldInterface)
+			db->exPlayer2 = dbus_g_proxy_new_for_name_owner(db->parent->bus,
+							       EX_dbusName2(),
 							       "/DBusInterfaceObject",
 							       "org.exaile.DBusInterface",
+							       &error);
+		else
+			db->exPlayer3 = dbus_g_proxy_new_for_name_owner(db->parent->bus,
+							       EX_dbusName3(),
+							       "/org/exaile/Exaile",
+							       "org.exaile.Exaile",
 							       &error);
 
 		if (error) {
@@ -234,12 +266,13 @@ static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
 				}
 				g_free(version);
 			}
-			if(db->needsPolling) {
-				db->intervalID =
-					g_timeout_add(1500, exCallbackFake, db);
-			}
 		}
-
+		if (db->exPlayer2)
+			db->needsPolling = TRUE;
+		if(db->needsPolling) {
+			db->intervalID =
+				g_timeout_add(1500, exCallbackFake, db);
+		}
 	}
 	// reflect UI
 	if (bRet == FALSE) {
@@ -255,8 +288,14 @@ static gboolean exNext(gpointer thsPtr) {
 	LOG("Enter exNext");
 	if (!exAssure(db, FALSE))
 		return FALSE;
-	if (!org_exaile_DBusInterface_next_track(db->exPlayer2, NULL)) {
-		LOGERR("Failed to complete Next");
+	if(db->oldInterface) {
+		if (!org_exaile_DBusInterface_next_track(db->exPlayer2, NULL)) {
+			LOGERR("Failed to complete Next");
+		}
+	} else {
+		if (!org_exaile_Exaile_next(db->exPlayer3, NULL)) {
+			LOGERR("Failed to complete Next");
+		}
 	}
 	LOG("Leave exNext");
 	return TRUE;
@@ -267,8 +306,14 @@ static gboolean exPrevious(gpointer thsPtr) {
 	LOG("Enter exPrevious");
 	if (!exAssure(db, FALSE))
 		return FALSE;
-	if (!org_exaile_DBusInterface_prev_track(db->exPlayer2, NULL)) {
-		LOGERR("Failed to complete Previous");
+	if(db->oldInterface) {
+		if (!org_exaile_DBusInterface_prev_track(db->exPlayer2, NULL)) {
+			LOGERR("Failed to complete Previous");
+		}
+	} else {
+		if (!org_exaile_Exaile_prev(db->exPlayer2, NULL)) {
+			LOGERR("Failed to complete Previous");
+		}
 	}
 	LOG("Leave exPrevious");
 	return TRUE;
@@ -278,12 +323,21 @@ static gboolean exPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if (!exAssure(db, TRUE))
 		return FALSE;
-	return org_exaile_DBusInterface_play_pause(db->exPlayer2, NULL);
+	if(db->oldInterface) {
+		return org_exaile_DBusInterface_play_pause(db->exPlayer2, NULL);
+	} else {
+		return org_exaile_Exaile_play_pause(db->exPlayer3, NULL);
+	}
 }
 
 static gboolean exIsPlaying(gpointer thsPtr) {
 	MKTHIS;
-	return db->isPlaying;
+	if(db->oldInterface) {
+		return db->isPlaying;
+	} else {
+		gboolean isPlaying = FALSE;
+		return org_exaile_Exaile_is_playing(db->exPlayer3, &isPlaying, NULL) && isPlaying;
+	}
 }
 
 static gboolean exToggle(gpointer thsPtr, gboolean * newState) {
@@ -306,9 +360,12 @@ gboolean exIsVisible(gpointer thsPtr) {
 
 gboolean exShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	if (exAssure(thsPtr, FALSE)) {
-		org_exaile_DBusInterface_toggle_visibility(db->exPlayer2, NULL);
-		return TRUE;
+	if (!exAssure(thsPtr, FALSE))
+		return FALSE;
+	if(db->oldInterface) {
+		return org_exaile_DBusInterface_toggle_visibility(db->exPlayer2, NULL);
+	} else {
+		return FALSE;
 	}
 	return FALSE;
 }
@@ -336,6 +393,9 @@ static gboolean exDetach(gpointer thsPtr) {
 		g_object_unref(G_OBJECT(db->exPlayer2));
 		db->exPlayer2 = NULL;
 	}
+	if(db->exPlayer3) {
+		g_object_unref(db->exPlayer3);
+	}
 	//g_free(db);
 	LOG("Leave exDetach");
 
@@ -346,13 +406,25 @@ static gboolean exUpdateDBUS(gpointer thsPtr, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("Exaile has started");
-		if (!db->exPlayer2 && exAssure(thsPtr, FALSE))
+		if (!db->parent->IsServiceRunning(db->parent->sd, EX_dbusName2()) && 
+			!db->exPlayer2 && exAssure(thsPtr, FALSE)) {
 			exCallbackFake(thsPtr);
+			db->oldInterface = TRUE;
+		}
+		if (!db->parent->IsServiceRunning(db->parent->sd, EX_dbusName3()) && 
+			!db->exPlayer3 && exAssure(thsPtr, FALSE)) {
+			exCallbackFake(thsPtr);
+			db->oldInterface = FALSE;
+		}
 	} else {
 		LOG("Exaile has died");
 		if (db->exPlayer2) {
 			g_object_unref(G_OBJECT(db->exPlayer2));
 			db->exPlayer2 = NULL;
+		}
+		if (db->exPlayer3) {
+			g_object_unref(G_OBJECT(db->exPlayer3));
+			db->exPlayer3 = NULL;
 		}
 		g_string_truncate(db->parent->artist, 0);
 		g_string_truncate(db->parent->album, 0);

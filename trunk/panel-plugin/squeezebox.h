@@ -99,10 +99,11 @@ typedef struct SPlayer{
     // frontend globals
 	DBusGConnection *bus;
     DBusGProxy		*dbService;
-    gboolean(* StartService)(gpointer thsPlayer);
 	guint playerPID;
 
 	// frontend callbacks
+    gboolean(* StartService)(gpointer thsPlayer);
+    gboolean(* IsServiceRunning)(gpointer thsPlayer, const gchar* dbusName);
 	void(* Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State, 
                    const gchar* playerMessage);
     void(* UpdatePlaylists)(gpointer thsPlayer);
@@ -118,6 +119,7 @@ typedef enum eBackendType{
 	noMoreBackends = 0,
 	dbusBackend,
 	networkBackend,
+	wizard,
 	otherBackend,
 	numBackendTypes
 }eBackendType;
@@ -171,9 +173,9 @@ typedef struct Backend{
     
 
 #if DEBUG_TRACE
+#define LOG g_message
 #define LOGERR g_error
 #define LOGWARN g_warning
-#define LOG g_message
 #else
 #define LOG(...)
 #define LOGERR(...)

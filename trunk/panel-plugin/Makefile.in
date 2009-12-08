@@ -52,7 +52,8 @@ pluginPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(plugin_PROGRAMS)
 am_xfce4_squeezebox_plugin_OBJECTS =  \
 	xfce4_squeezebox_plugin-squeezebox.$(OBJEXT) \
-	xfce4_squeezebox_plugin-notifications.$(OBJEXT)
+	xfce4_squeezebox_plugin-notifications.$(OBJEXT) \
+	xfce4_squeezebox_plugin-xfce-shortcuts-grabber.$(OBJEXT)
 xfce4_squeezebox_plugin_OBJECTS =  \
 	$(am_xfce4_squeezebox_plugin_OBJECTS)
 xfce4_squeezebox_plugin_LDADD = $(LDADD)
@@ -174,8 +175,6 @@ LIBWNCK_CFLAGS = @LIBWNCK_CFLAGS@
 LIBWNCK_LIBS = @LIBWNCK_LIBS@
 LIBWNCK_REQUIRED_VERSION = @LIBWNCK_REQUIRED_VERSION@
 LIBWNCK_VERSION = @LIBWNCK_VERSION@
-LIBXFCE4KBD_CFLAGS = @LIBXFCE4KBD_CFLAGS@
-LIBXFCE4KBD_LIBS = @LIBXFCE4KBD_LIBS@
 LIBXFCE4PANEL_CFLAGS = @LIBXFCE4PANEL_CFLAGS@
 LIBXFCE4PANEL_LIBS = @LIBXFCE4PANEL_LIBS@
 LIBXFCE4PANEL_REQUIRED_VERSION = @LIBXFCE4PANEL_REQUIRED_VERSION@
@@ -279,19 +278,21 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 plugindir = $(libexecdir)/xfce4/panel-plugins
 xfce4_squeezebox_plugin_CFLAGS = -Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
-    -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ @LIBXFCE4KBD_CFLAGS@ \
+    -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ \
     @LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ $(PATH_DEFINES) \
+    -DG_LOG_DOMAIN=\"SBP\" \
     @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@ -export-dynamic -fvisibility=hidden
 
 
 #todo: use --dynamic-list=someFile instead of -Wl -rdynamic
 #    -Wl -rdynamic 
-xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBMPD_LIBS@ @LIBXFCE4KBD_LIBS@ \
-	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ @LIBXFCONF_LIBS@ -Wl -rdynamic
+xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBMPD_LIBS@ @LIBXFCONF_LIBS@ \
+	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ -Wl -rdynamic
 
 xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox.h     squeezebox-private.h squeezebox.c \
-	notifications.c  notifications.h notifications-binding.h
+	notifications.c  notifications.h notifications-binding.h \
+	xfce-shortcuts-grabber.c xfce-shortcuts-grabber.h
 
 
 # .desktop file
@@ -380,6 +381,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-notifications.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-squeezebox.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -429,6 +431,20 @@ xfce4_squeezebox_plugin-notifications.obj: notifications.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='notifications.c' object='xfce4_squeezebox_plugin-notifications.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-notifications.obj `if test -f 'notifications.c'; then $(CYGPATH_W) 'notifications.c'; else $(CYGPATH_W) '$(srcdir)/notifications.c'; fi`
+
+xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o: xfce-shortcuts-grabber.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o -MD -MP -MF "$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo" -c -o xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o `test -f 'xfce-shortcuts-grabber.c' || echo '$(srcdir)/'`xfce-shortcuts-grabber.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo" "$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Po"; else rm -f "$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xfce-shortcuts-grabber.c' object='xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o `test -f 'xfce-shortcuts-grabber.c' || echo '$(srcdir)/'`xfce-shortcuts-grabber.c
+
+xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj: xfce-shortcuts-grabber.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj -MD -MP -MF "$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo" -c -o xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj `if test -f 'xfce-shortcuts-grabber.c'; then $(CYGPATH_W) 'xfce-shortcuts-grabber.c'; else $(CYGPATH_W) '$(srcdir)/xfce-shortcuts-grabber.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo" "$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Po"; else rm -f "$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xfce-shortcuts-grabber.c' object='xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj `if test -f 'xfce-shortcuts-grabber.c'; then $(CYGPATH_W) 'xfce-shortcuts-grabber.c'; else $(CYGPATH_W) '$(srcdir)/xfce-shortcuts-grabber.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
