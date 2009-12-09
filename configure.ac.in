@@ -4,7 +4,7 @@ dnl xfce4-squeezebox-plugin - squeezebox plugin for the XFce4 panel
 dnl
 
 
-AC_CONFIG_MACRO_DIR([m4])
+dnl AC_CONFIG_MACRO_DIR([m4])
 
 m4_define([squeeze_version_major], [0])
 m4_define([squeeze_version_minor], [1])
