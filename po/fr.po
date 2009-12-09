@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-19 15:48+0100\n"
+"POT-Creation-Date: 2009-12-09 18:19+0100\n"
 "PO-Revision-Date: 2009-12-01 10:42+0100\n"
 "Last-Translator: Hakan Erduman <hakan@erduman.de>\n"
 "Language-Team: \n"
@@ -13,158 +13,127 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-Language: French\n"
 "X-Poedit-Country: France\n"
-"X-Poedit-Basepath: /home/herd/Projects/xfce4-squeezebox-plugin/po\n"
+"X-Poedit-Basepath: /home/herd/Projects/xfce4-squeezebox-plugin/trunk/po\n"
 "X-Poedit-SearchPath-0: ../panel-plugin\n"
 
-#: ../panel-plugin/squeezebox.c:489
-#, c-format
-msgid "%s: No info"
-msgstr "%s: Pas d'info"
-
-#: ../panel-plugin/squeezebox.c:733
-msgid "This backend has no configurable properties"
-msgstr "Ceci Backend n'avez pas proprietes confinubles"
-
-#: ../panel-plugin/squeezebox.c:751
-msgid "Media buttons"
-msgstr "Touches multimédia"
-
-#: ../panel-plugin/squeezebox.c:756
-msgid "Grab state of multimedia keys"
-msgstr "État instantané de touches multimédia"
-
-#. TODO: old
-#: ../panel-plugin/squeezebox.c:974
-#: ../panel-plugin/settings-mpd.ui.h:3
-msgid "Properties"
-msgstr "Propriétés"
-
-#: ../panel-plugin/squeezebox.c:994
-msgid "Squeezebox"
-msgstr "Squeezebox"
-
-#: ../panel-plugin/squeezebox.c:997
-#: ../panel-plugin/settings.ui.h:18
-msgid "media player remote"
-msgstr "télécommande de lecteur de musique"
-
-#: ../panel-plugin/squeezebox.c:1008
-msgid "Appearance"
-msgstr "Apparence"
-
-#. check1
-#: ../panel-plugin/squeezebox.c:1018
-msgid "Show p_revious button"
-msgstr "Afficher le bouton Précédent"
-
-#. check2
-#: ../panel-plugin/squeezebox.c:1024
-msgid "Show _next button"
-msgstr "Montre bouton _avant"
-
-#: ../panel-plugin/squeezebox.c:1035
-msgid "Grab _media buttons, if available"
-msgstr "Joindre à des touches multimédias, si disponible"
-
-#. btnView
-#: ../panel-plugin/squeezebox.c:1041
-msgid "_Details..."
-msgstr "_Détails..."
-
-#: ../panel-plugin/squeezebox.c:1048
-msgid "No _tooltips"
-msgstr "Pas de _tooltips"
-
-#: ../panel-plugin/squeezebox.c:1055
-msgid "_Simple tooltips"
-msgstr "Tooltips brut_s"
-
-#: ../panel-plugin/squeezebox.c:1071
-msgid "Show noti_fications (notify daemon)"
-msgstr "Montrez l'_notifications"
-
-#: ../panel-plugin/squeezebox.c:1079
-#: ../panel-plugin/settings.ui.h:6
-msgid "Notification _timeout (sec)"
-msgstr "Timeout du noticiation"
-
-#: ../panel-plugin/squeezebox.c:1095
-msgid "_Backend"
-msgstr "_Backend"
-
-#: ../panel-plugin/squeezebox.c:1156
-msgid "_Settings..."
-msgstr "_Ajustements..."
-
-#: ../panel-plugin/squeezebox.c:1480
-#: ../panel-plugin/squeezebox.c:1481
-#: ../panel-plugin/squeezebox.c:1482
-msgid "(unknown)"
-msgstr "(pas de connaitre)"
-
-#. add menu items
-#: ../panel-plugin/squeezebox.c:1562
-msgid "Show player"
-msgstr "Afficher le lecteur de musique"
-
-#: ../panel-plugin/squeezebox.c:1570
-msgid "Playlists"
-msgstr "Listes de lecture"
-
-#: ../panel-plugin/squeezebox.c:1577
-msgid "Shuffle"
-msgstr "Shuffle"
-
-#: ../panel-plugin/squeezebox.c:1585
-msgid "Repeat"
-msgstr "Rappel"
-
-#: ../panel-plugin/squeezebox-rb.c:52
+#: ../backends/rhythmbox/squeezebox-rb.c:61
 msgid "Rhythmbox"
 msgstr "Rhythmbox"
 
-#: ../panel-plugin/squeezebox-mpd.c:51
+#: ../backends/quodlibet/squeezebox-ql.c:70
+msgid "QuodLibet"
+msgstr "QuodLibet"
+
+#: ../backends/quodlibet/squeezebox-ql.c:110
+msgid "[Unknown]"
+msgstr "[inconnu]"
+
+#: ../backends/muine/squeezebox-mu.c:51
+msgid "Muine"
+msgstr "Muine"
+
+#: ../backends/mpd/squeezebox-mpd.c:79
 msgid "Music Player Daemon"
 msgstr "Music Player Daemon"
 
-#: ../panel-plugin/squeezebox-mpd.c:117
+#: ../backends/mpd/squeezebox-mpd.c:117
 msgid "Can't connect to music player daemon."
 msgstr "Pas de possible contacter le MPD"
 
-#: ../panel-plugin/squeezebox-mpd.c:482
+#: ../backends/mpd/squeezebox-mpd.c:482
 #, c-format
 msgid "Can't find binary '%s'"
 msgstr "Ne trouve pas '%s' binaires"
 
-#: ../panel-plugin/squeezebox-ql.c:48
-msgid "QuodLibet"
-msgstr "QuodLibet"
+#: ../backends/mpd/settings-mpd.ui.h:1
+msgid "MPD"
+msgstr "MPD"
 
-#: ../panel-plugin/squeezebox-ql.c:109
-msgid "[Unknown]"
-msgstr "[inconnu]"
+#: ../backends/mpd/settings-mpd.ui.h:2
+msgid "Pass_word:"
+msgstr "_Mot de passe :"
 
-#: ../panel-plugin/squeezebox-au.c:45
-msgid "Audacious"
-msgstr "Audacious"
+#: ../backends/mpd/settings-mpd.ui.h:3
+msgid "Properties"
+msgstr "Propriétés"
 
-#: ../panel-plugin/squeezebox-ex.c:45
-msgid "Exaile"
-msgstr "Exaile"
+#: ../backends/mpd/settings-mpd.ui.h:4
+msgid "Use MPD Music _folder as cover source"
+msgstr "Utilisez MPD Musique dossier pour des pochettes d'album"
 
-#: ../panel-plugin/squeezebox-cs.c:70
+#: ../backends/mpd/settings-mpd.ui.h:5
+msgid "Use _defaults"
+msgstr "mettre en défaut"
+
+#: ../backends/mpd/settings-mpd.ui.h:6
+#, fuzzy
+msgid "Use a playlist _manager"
+msgstr "Utiliser un gestionnaire des Listes de lecture"
+
+#: ../backends/mpd/settings-mpd.ui.h:7
+msgid "_Host:"
+msgstr "_Hôte :"
+
+#: ../backends/mpd/settings-mpd.ui.h:8
+msgid "_Port:"
+msgstr "_Port :"
+
+#: ../backends/mpd/settings-mpd.ui.h:9
+msgid "localhost"
+msgstr ""
+
+#: ../backends/mpd/settings-mpd.ui.h:10
+msgid "music player daemon"
+msgstr "music player daemon"
+
+#: ../backends/consonance/squeezebox-cs.c:70
 msgid "Consonance"
 msgstr "Consonance"
 
-#: ../panel-plugin/squeezebox-mu.c:42
-msgid "Muine"
-msgstr "Muine"
+#: ../backends/exaile/squeezebox-ex.c:66
+msgid "Exaile"
+msgstr "Exaile"
 
-#: ../panel-plugin/squeezebox-ba.c:51
+#: ../backends/audacious/squeezebox-au.c:53
+msgid "Audacious"
+msgstr "Audacious"
+
+#: ../backends/banshee/squeezebox-ba.c:64
 msgid "Banshee"
 msgstr "Banshee"
 
-#: ../panel-plugin/notifications.c:62
+#: ../panel-plugin/squeezebox.c:457
+#, c-format
+msgid "%s: No info"
+msgstr "%s: Pas d'info"
+
+#: ../panel-plugin/squeezebox.c:686
+msgid "This backend has no configurable properties"
+msgstr "Ceci Backend n'avez pas proprietes confinubles"
+
+#: ../panel-plugin/squeezebox.c:1364 ../panel-plugin/squeezebox.c:1365
+#: ../panel-plugin/squeezebox.c:1366
+msgid "(unknown)"
+msgstr "(pas de connaitre)"
+
+#. add menu items
+#: ../panel-plugin/squeezebox.c:1442
+msgid "Show player"
+msgstr "Afficher le lecteur de musique"
+
+#: ../panel-plugin/squeezebox.c:1450
+msgid "Playlists"
+msgstr "Listes de lecture"
+
+#: ../panel-plugin/squeezebox.c:1457
+msgid "Shuffle"
+msgstr "Shuffle"
+
+#: ../panel-plugin/squeezebox.c:1465
+msgid "Repeat"
+msgstr "Rappel"
+
+#: ../panel-plugin/notifications.c:61
 #, c-format
 msgid ""
 "by <b>%s</b>\n"
@@ -181,26 +150,119 @@ msgstr "Contrôler les différents lecteurs audio, afficher la pochette d'album"
 msgid " SqueezeBox"
 msgstr " SqueezeBox"
 
-#: ../panel-plugin/squeezebox-mpris.c:45
+#: ../panel-plugin/squeezebox.desktop.in.in.h:3
 #, fuzzy
-msgid "MPRIS Media Player"
-msgstr "Beep Media Player"
+msgid "Music Player"
+msgstr "Music Player Daemon"
 
-#: ../panel-plugin/mpris-wizard.ui.h:1
+#: ../glade/settings.ui.h:1
+#, fuzzy
+msgid "<b>Notifications</b>"
+msgstr "Tooltips de _notification"
+
+#: ../glade/settings.ui.h:2
+msgid "<b>Panel appereance</b>"
+msgstr ""
+
+#: ../glade/settings.ui.h:3
+#, fuzzy
+msgid "A_ppearance"
+msgstr "Apparence"
+
+#: ../glade/settings.ui.h:4
+msgid "Action"
+msgstr ""
+
+#: ../glade/settings.ui.h:5
+msgid "Au_tomatically attach to these players"
+msgstr ""
+
+#: ../glade/settings.ui.h:6
+msgid "Next"
+msgstr ""
+
+#: ../glade/settings.ui.h:7
+msgid "Notification _timeout (sec)"
+msgstr "Timeout du noticiation"
+
+#: ../glade/settings.ui.h:8
+msgid "Play/Pause"
+msgstr ""
+
+#: ../glade/settings.ui.h:9
+#, fuzzy
+msgid "Players"
+msgstr "Afficher le lecteur de musique"
+
+#: ../glade/settings.ui.h:10
+msgid "Previous"
+msgstr ""
+
+#: ../glade/settings.ui.h:11
+msgid "S_hortcuts"
+msgstr ""
+
+#: ../glade/settings.ui.h:12
+msgid "Shortcut"
+msgstr ""
+
+#: ../glade/settings.ui.h:13
+#, fuzzy
+msgid "Show P_revious button"
+msgstr "Afficher le bouton Précédent"
+
+#: ../glade/settings.ui.h:14
+#, fuzzy
+msgid "Show Player"
+msgstr "Afficher le lecteur de musique"
+
+#: ../glade/settings.ui.h:15
+#, fuzzy
+msgid "Show _Next button"
+msgstr "Montre bouton _avant"
+
+#: ../glade/settings.ui.h:16
+#, fuzzy
+msgid "Show _Tooltips"
+msgstr "Pas de _tooltips"
+
+#: ../glade/settings.ui.h:17
+#, fuzzy
+msgid "Show noti_fications (e.g. xfce4-notifyd)"
+msgstr "Montrez l'_notifications"
+
+#: ../glade/settings.ui.h:18
+#, fuzzy
+msgid "SqueezeBox"
+msgstr " SqueezeBox"
+
+#: ../glade/settings.ui.h:19
+msgid "Stop"
+msgstr ""
+
+#: ../glade/settings.ui.h:20
+msgid "_Players"
+msgstr ""
+
+#: ../glade/settings.ui.h:21
+msgid "media player remote"
+msgstr "télécommande de lecteur de musique"
+
+#: ../glade/mpris-wizard.ui.h:1
 #, fuzzy
 msgid "Add Music Player"
 msgstr "Music Player Daemon"
 
-#: ../panel-plugin/mpris-wizard.ui.h:2
+#: ../glade/mpris-wizard.ui.h:2
 msgid "Adding an MPRIS compatible player"
 msgstr ""
 
-#: ../panel-plugin/mpris-wizard.ui.h:3
+#: ../glade/mpris-wizard.ui.h:3
 #, fuzzy
 msgid "New Media Player"
 msgstr "Beep Media Player"
 
-#: ../panel-plugin/mpris-wizard.ui.h:4
+#: ../glade/mpris-wizard.ui.h:4
 msgid ""
 "This wizard adds a MPRIS compatible media player \n"
 "to the list of SqueezeBox controllable backends.\n"
@@ -212,123 +274,58 @@ msgid ""
 "by itself, it may have a plugin that does.\n"
 msgstr ""
 
-#: ../panel-plugin/mpris-wizard.ui.h:13
+#: ../glade/mpris-wizard.ui.h:13
 msgid "label"
 msgstr ""
 
-#: ../panel-plugin/settings-mpd.ui.h:1
-msgid "MPD"
-msgstr "MPD"
+#~ msgid "Media buttons"
+#~ msgstr "Touches multimédia"
 
-#: ../panel-plugin/settings-mpd.ui.h:2
-msgid "Pass_word:"
-msgstr "_Mot de passe :"
+#~ msgid "Grab state of multimedia keys"
+#~ msgstr "État instantané de touches multimédia"
 
-#: ../panel-plugin/settings-mpd.ui.h:4
-msgid "Use MPD Music _folder as cover source"
-msgstr "Utilisez MPD Musique dossier pour des pochettes d'album"
+#~ msgid "Squeezebox"
+#~ msgstr "Squeezebox"
 
-#: ../panel-plugin/settings-mpd.ui.h:5
-msgid "Use _defaults"
-msgstr "mettre en défaut"
+#~ msgid "Appearance"
+#~ msgstr "Apparence"
 
-#: ../panel-plugin/settings-mpd.ui.h:6
+#~ msgid "Show p_revious button"
+#~ msgstr "Afficher le bouton Précédent"
+
+#~ msgid "Show _next button"
+#~ msgstr "Montre bouton _avant"
+
+#~ msgid "Grab _media buttons, if available"
+#~ msgstr "Joindre à des touches multimédias, si disponible"
+
+#~ msgid "_Details..."
+#~ msgstr "_Détails..."
+
+#~ msgid "No _tooltips"
+#~ msgstr "Pas de _tooltips"
+
+#~ msgid "_Simple tooltips"
+#~ msgstr "Tooltips brut_s"
+
+#~ msgid "Show noti_fications (notify daemon)"
+#~ msgstr "Montrez l'_notifications"
+
+#~ msgid "_Backend"
+#~ msgstr "_Backend"
+
+#~ msgid "_Settings..."
+#~ msgstr "_Ajustements..."
+
 #, fuzzy
-msgid "Use a playlist _manager"
-msgstr "Utiliser un gestionnaire des Listes de lecture"
-
-#: ../panel-plugin/settings-mpd.ui.h:7
-msgid "_Host:"
-msgstr "_Hôte :"
-
-#: ../panel-plugin/settings-mpd.ui.h:8
-msgid "_Port:"
-msgstr "_Port :"
-
-#: ../panel-plugin/settings-mpd.ui.h:9
-msgid "localhost"
-msgstr ""
-
-#: ../panel-plugin/settings-mpd.ui.h:10
-msgid "music player daemon"
-msgstr "music player daemon"
-
-#: ../panel-plugin/settings.ui.h:1
-#, fuzzy
-msgid "<b>Notifications</b>"
-msgstr "Tooltips de _notification"
-
-#: ../panel-plugin/settings.ui.h:2
-msgid "<b>Panel appereance</b>"
-msgstr ""
-
-#: ../panel-plugin/settings.ui.h:3
-#, fuzzy
-msgid "A_ppearance"
-msgstr "Apparence"
-
-#: ../panel-plugin/settings.ui.h:4
-msgid "Au_tomatically attach to these players"
-msgstr ""
-
-#: ../panel-plugin/settings.ui.h:5
-msgid "Next"
-msgstr ""
-
-#: ../panel-plugin/settings.ui.h:7
-msgid "Play/Pause"
-msgstr ""
-
-#: ../panel-plugin/settings.ui.h:8
-msgid "Previous"
-msgstr ""
-
-#: ../panel-plugin/settings.ui.h:9
-msgid "S_hortcuts"
-msgstr ""
-
-#: ../panel-plugin/settings.ui.h:10
-#, fuzzy
-msgid "Show P_revious button"
-msgstr "Afficher le bouton Précédent"
-
-#: ../panel-plugin/settings.ui.h:11
-#, fuzzy
-msgid "Show Player"
-msgstr "Afficher le lecteur de musique"
-
-#: ../panel-plugin/settings.ui.h:12
-#, fuzzy
-msgid "Show _Next button"
-msgstr "Montre bouton _avant"
-
-#: ../panel-plugin/settings.ui.h:13
-#, fuzzy
-msgid "Show _Tooltips"
-msgstr "Pas de _tooltips"
-
-#: ../panel-plugin/settings.ui.h:14
-#, fuzzy
-msgid "Show noti_fications (e.g. xfce4-notifyd)"
-msgstr "Montrez l'_notifications"
-
-#: ../panel-plugin/settings.ui.h:15
-#, fuzzy
-msgid "SqueezeBox"
-msgstr " SqueezeBox"
-
-#: ../panel-plugin/settings.ui.h:16
-msgid "Stop"
-msgstr ""
-
-#: ../panel-plugin/settings.ui.h:17
-msgid "_Players"
-msgstr ""
+#~ msgid "MPRIS Media Player"
+#~ msgstr "Beep Media Player"
 
 #~ msgid "Select MPD music folder"
 #~ msgstr "Sélectionnez MPD musique dossier"
+
 #~ msgid "Rhythmbox 0.9.x (via DBUS)"
 #~ msgstr "Rhythmbox 0.9.x (via DBUS)"
+
 #~ msgid "Music Player Daemon (libmpd)"
 #~ msgstr "Musique Player Daemon (sur libmpd)"
-

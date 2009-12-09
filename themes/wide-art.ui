@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="theme">
+    <property name="type">popup</property>
+    <property name="default_width">250</property>
+    <property name="default_height">50</property>
+    <property name="type_hint">toolbar</property>
+    <child>
+      <object class="GtkHBox" id="root">
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkButton" id="btnPrev">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="relief">none</property>
+            <child>
+              <object class="GtkImage" id="imgPrev">
+                <property name="visible">True</property>
+                <property name="pixel_size">16</property>
+                <property name="icon_name">media-seek-backward</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="btnPlayPause">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="relief">none</property>
+            <child>
+              <object class="GtkImage" id="imgArt">
+                <property name="visible">True</property>
+                <property name="pixbuf">/tmp/sqicon.png</property>
+                <property name="pixel_size">48</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="btnNext">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="relief">none</property>
+            <child>
+              <object class="GtkImage" id="imgNext">
+                <property name="visible">True</property>
+                <property name="pixel_size">16</property>
+                <property name="icon_name">media-seek-forward</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="lblSong">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">&lt;b&gt;$title&lt;/b&gt;
+$artist ($album)</property>
+            <property name="use_markup">True</property>
+          </object>
+          <packing>
+            <property name="position">3</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

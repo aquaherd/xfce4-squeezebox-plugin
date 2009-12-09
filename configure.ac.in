@@ -218,6 +218,7 @@ AC_CONFIG_FILES([
 	panel-plugin/Makefile
 	po/Makefile.in
 	backends/Makefile
+	redhat/Makefile
 ])
 
 AC_OUTPUT
