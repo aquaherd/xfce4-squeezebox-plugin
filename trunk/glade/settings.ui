@@ -123,7 +123,7 @@
                             <child>
                               <object class="GtkTreeViewColumn" id="tvcPlayers">
                                 <property name="resizable">True</property>
-                                <property name="title">Players</property>
+                                <property name="title" translatable="yes">Players</property>
                                 <property name="clickable">True</property>
                                 <property name="sort_column_id">1</property>
                                 <child>
@@ -424,7 +424,7 @@
                     <child>
                       <object class="GtkTreeViewColumn" id="treeviewcolumn2">
                         <property name="sizing">autosize</property>
-                        <property name="title">Action</property>
+                        <property translatable="yes" name="title">Action</property>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext2"/>
                           <attributes>
@@ -436,7 +436,7 @@
                     <child>
                       <object class="GtkTreeViewColumn" id="treeviewcolumn1">
                         <property name="sizing">autosize</property>
-                        <property name="title">Shortcut</property>
+                        <property name="title" translatable="yes">Shortcut</property>
                         <child>
                           <object class="GtkCellRendererAccel" id="cellrenderShortCut">
                             <property name="editable">True</property>
