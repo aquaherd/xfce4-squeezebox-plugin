@@ -12,7 +12,8 @@ distcheck-bz2: distcheck
 	zcat $(PACKAGE)-$(VERSION)-$(REV).tar.gz | bzip2 --best -c > $(PACKAGE)-$(VERSION)-$(REV).tar.bz2
 	
 rpm: dist
-	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
+	rpmbuild --sign -ta $(PACKAGE)-$(VERSION).tar.gz
+#	rpmbuild -ta $(PACKAGE)-$(VERSION).tar.gz
 
 deb:
 	dpkg-buildpackage -rfakeroot -i.svn
