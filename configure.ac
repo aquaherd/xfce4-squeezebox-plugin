@@ -9,8 +9,6 @@ dnl xfce4-squeezebox-plugin - squeezebox plugin for the XFce4 panel
 dnl
 
 
-dnl AC_CONFIG_MACRO_DIR([m4])
-
 m4_define([squeeze_version_major], [0])
 m4_define([squeeze_version_minor], [1])
 m4_define([squeeze_version_micro], [2])
@@ -18,23 +16,19 @@ m4_define([squeeze_version_build], [r00155])
 m4_define([squeeze_version_tag], [])
 m4_define([squeeze_vers], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()])
 m4_define([squeeze_version], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()ifelse(squeeze_version_tag(), [svn], [squeeze_version_tag()-squeeze_version_build()], [squeeze_version_tag()])])
-AC_INIT([xfce4-squeezebox-plugin], [squeeze_version],
-	[hakan@erduman.de])
+
+AC_INIT([xfce4-squeezebox-plugin],[squeeze_version],[hakan@erduman.de])
 
 AM_INIT_AUTOMAKE([xfce4-squeezebox-plugin], [squeeze_version])
 AC_CONFIG_HEADER([config.h])
 
 AM_MAINTAINER_MODE
-dnl Check for UNIX variants
-AC_AIX
-AC_ISC_POSIX
-AC_MINIX
 
 dnl Check for basic programs
 AC_PROG_CC
 AC_PROG_INSTALL
-AC_PROG_INTLTOOL
-AC_PROG_LIBTOOL
+IT_PROG_INTLTOOL
+LT_INIT
 
 dnl Check for standard header files
 AC_HEADER_STDC
@@ -116,7 +110,7 @@ if test x$enable_MPD = xyes; then
 
 	dnl check for libmpd presence
 	AC_ARG_WITH(libmpd,
-		AC_HELP_STRING([--with-libmpd=path], [path to libmpd directory]),
+		AS_HELP_STRING([--with-libmpd=path],[path to libmpd directory]),
 			LIBMPD_PATH="$withval", LIBMPD_PATH="")
 
 	AC_MSG_CHECKING(whether --libmpd was used)
@@ -224,6 +218,7 @@ AC_CONFIG_FILES([
 	po/Makefile.in
 	backends/Makefile
 	redhat/Makefile
+	redhat/xfce4-squeezebox-plugin.spec
 ])
 
 AC_OUTPUT

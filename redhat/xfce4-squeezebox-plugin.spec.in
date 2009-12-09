@@ -53,6 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc AUTHORS COPYING NEWS ChangeLog README THANKS TODO
 %{_libexecdir}/xfce4/panel-plugins/%{name}
+%{_libexecdir}/xfce4/%{name}
 %{_datadir}/xfce4/panel-plugins/*.desktop
 #%{_datadir}/icons/hicolor/*/apps/xfce*-*.png
 #%{_datadir}/icons/hicolor/*/apps/xfce*-*.svg
