@@ -7,18 +7,18 @@
  ****************************************************************************/
 
 /*
- *  This program is free software; you can redistribute it and/or modify
+ *  thys program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
+ *  thys program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
+ *  along with thys program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
@@ -68,7 +68,7 @@ typedef struct mpdData{
 	XfconfChannel *xfconfChannel;
 } mpdData;
 
-#define MKTHIS mpdData *this = (mpdData *)thsPtr;
+#define MKTHIS mpdData *thys = (mpdData *)thsPtr;
 
 gpointer MPD_attach(SPlayer * player);
 void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
@@ -85,59 +85,60 @@ gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
 	gboolean gConnect = FALSE;
 	LOG("Enter mpdAssure");
-	if (!this->player) {
-		if (this->bUseDefault) {
+	if (!thys->player) {
+		if (thys->bUseDefault) {
 			LOG("    Connecting local...");
-			this->player = mpd_new_default();
+			thys->player = mpd_new_default();
 		} else {
-			LOG("    Connecting to remote host %s:%d...", this->host->str, this->port);
-			this->player = mpd_new(this->host->str,
-					       this->port, this->pass->str);
+			LOG("    Connecting to remote host %s:%d...", thys->host->str, thys->port);
+			thys->player = mpd_new(thys->host->str,
+					       thys->port, thys->pass->str);
 		}
-		if (this->bAutoConnect && this->player) {
-			if (MPD_OK == mpd_connect(this->player)) {
+		if (thys->player) {
+			if (MPD_OK == mpd_connect(thys->player)) {
 				LOG("Connect OK");
+				gConnect = TRUE;
 			}
 		}
-		gConnect = TRUE;
 	}
-	if (this->player != NULL && mpd_status_update(this->player) != MPD_OK) {
+	if (thys->player != NULL && mpd_status_update(thys->player) != MPD_OK) {
 		LOG("reconnecting..");
-		mpd_connect(this->player);
-		//if(!this->bUseDefault)
-		//mpd_send_password(this->player);
-		if (mpd_check_error(this->player)
-		    || mpd_status_update(this->player) != MPD_OK) {
+		mpd_connect(thys->player);
+		//if(!thys->bUseDefault)
+		//mpd_send_password(thys->player);
+		if (mpd_check_error(thys->player)
+		    || mpd_status_update(thys->player) != MPD_OK) {
 			LOG(".Fail.");
-			g_string_assign(this->parent->artist, "");
-			g_string_assign(this->parent->album, "");
-			g_string_assign(this->parent->title, "");
-			g_string_assign(this->parent->albumArt, "");
-			this->parent->Update(this->parent->sd, TRUE, estErr,
+			g_string_assign(thys->parent->artist, "");
+			g_string_assign(thys->parent->album, "");
+			g_string_assign(thys->parent->title, "");
+			g_string_assign(thys->parent->albumArt, "");
+			thys->parent->Update(thys->parent->sd, TRUE, estErr,
 					     _("Can't connect to music player daemon."));
-			mpd_disconnect(this->player);
-			mpd_free(this->player);
-			this->player = NULL;
+			mpd_disconnect(thys->player);
+			mpd_free(thys->player);
+			thys->player = NULL;
 		} else {
 			LOG(".OK.");
+			gConnect = TRUE;
 		}
 	}
 
-	if (gConnect && this->player) {
-		mpd_signal_connect_status_changed(this->player,
+	if (gConnect && thys->player) {
+		mpd_signal_connect_status_changed(thys->player,
 						  mpdCallbackStateChanged,
-						  this);
-		mpdCallbackStateChanged(this->player, MPD_SQ_ALL, this);
+						  thys);
+		mpdCallbackStateChanged(thys->player, MPD_SQ_ALL, thys);
 	}
 
 	LOG("Leave mpdAssure");
-	return (this->player != NULL);
+	return (thys->player != NULL);
 }
 
 gint mpdCallback(gpointer thsPtr) {
 	MKTHIS;
-	if (this->player != NULL) {
-		gint stat = mpd_status_update(this->player);
+	if (thys->player != NULL) {
+		gint stat = mpd_status_update(thys->player);
 		if(MPD_OK != stat) {
 			LOG("Unexpected mpd status %d", stat);
 		}
@@ -149,10 +150,10 @@ gboolean mpdNext(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdNext");
-	if (!mpdAssure(this, TRUE))
+	if (!mpdAssure(thys, TRUE))
 		return FALSE;
 	else
-		bRet = (MPD_OK == mpd_player_next(this->player));
+		bRet = (MPD_OK == mpd_player_next(thys->player));
 	LOG("Leave mpdNext");
 	return bRet;
 }
@@ -161,10 +162,10 @@ gboolean mpdPrevious(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdPrevious");
-	if (!mpdAssure(this, TRUE))
+	if (!mpdAssure(thys, TRUE))
 		return FALSE;
 	else
-		bRet = (MPD_OK == mpd_player_prev(this->player));
+		bRet = (MPD_OK == mpd_player_prev(thys->player));
 	LOG("Leave mpdPrevious");
 	return TRUE;
 }
@@ -173,30 +174,30 @@ gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	LOG("Enter mpdPlayPause");
 	int iRet = MPD_OK;
-	if (!mpdAssure(this, FALSE))
+	if (!mpdAssure(thys, FALSE))
 		return FALSE;
 	else if (newState)
-		iRet = mpd_player_play(this->player);
+		iRet = mpd_player_play(thys->player);
 	else
-		iRet = mpd_player_pause(this->player);
+		iRet = mpd_player_pause(thys->player);
 	LOG("Leave mpdPlayPause");
 	return (iRet == MPD_OK);
 }
 
 gboolean mpdPlayPlaylist(gpointer thsPtr, gchar *playlistName) {
 	MKTHIS;
-	MpdState state = mpd_player_get_state(this->player);
+	MpdState state = mpd_player_get_state(thys->player);
 	LOG("Enter mpdPlayPlaylist");
-	mpd_playlist_clear(this->player);
-	mpd_playlist_queue_load(this->player, playlistName);
-	mpd_playlist_queue_commit(this->player);
+	mpd_playlist_clear(thys->player);
+	mpd_playlist_queue_load(thys->player, playlistName);
+	mpd_playlist_queue_commit(thys->player);
 	switch(state) {
 		case MPD_STATUS_STATE_PLAY:
-			mpd_player_play(this->player);
+			mpd_player_play(thys->player);
 			break;
 		case MPD_STATUS_STATE_PAUSE:
-			mpd_player_play(this->player);
-			mpd_player_pause(this->player);
+			mpd_player_play(thys->player);
+			mpd_player_pause(thys->player);
 			break;
 		case MPD_PLAYER_STOP:
 		case MPD_PLAYER_UNKNOWN:
@@ -211,10 +212,10 @@ gboolean mpdIsPlaying(gpointer thsPtr) {
 	MpdState sStat = MPD_STATUS_STATE_STOP;
 
 	LOG("Enter mpdIsPlaying");
-	if (!mpdAssure(this, TRUE))
+	if (!mpdAssure(thys, TRUE))
 		return FALSE;
-	if (this->player) {
-		sStat = mpd_player_get_state(this->player);
+	if (thys->player) {
+		sStat = mpd_player_get_state(thys->player);
 	}
 	LOG("Leave mpdIsPlaying");
 	return (sStat == MPD_STATUS_STATE_PLAY);
@@ -224,10 +225,10 @@ gboolean mpdToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
 	LOG("Enter mpdToggle");
-	if (!mpdAssure(this, FALSE))
+	if (!mpdAssure(thys, FALSE))
 		return FALSE;
-	oldState = mpdIsPlaying(this);
-	if (!mpdPlayPause(this, !oldState))
+	oldState = mpdIsPlaying(thys);
+	if (!mpdPlayPause(thys, !oldState))
 		return FALSE;
 	if (newState)
 		*newState = !oldState;
@@ -238,17 +239,17 @@ gboolean mpdToggle(gpointer thsPtr, gboolean * newState) {
 gboolean mpdDetach(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter mpdDetach");
-	if (this->player) {
-		mpd_disconnect(this->player);
-		mpd_free(this->player);
-		this->player = NULL;
+	if (thys->player) {
+		mpd_disconnect(thys->player);
+		mpd_free(thys->player);
+		thys->player = NULL;
 	}
-	if (this->intervalID) {
-		g_source_remove(this->intervalID);
-		this->intervalID = 0;
+	if (thys->intervalID) {
+		g_source_remove(thys->intervalID);
+		thys->intervalID = 0;
 	}
-	if (this->xfconfChannel) {
-		g_object_unref(this->xfconfChannel);
+	if (thys->xfconfChannel) {
+		g_object_unref(thys->xfconfChannel);
 	}
 	LOG("Leave mpdDetach");
 	return TRUE;
@@ -258,7 +259,7 @@ gboolean mpdShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	LOG("Enter mpdShow");
 	const gchar *argv[] = {
-		this->pmanager->str,
+		thys->pmanager->str,
 		// here we could have arguments
 		NULL
 	};
@@ -266,13 +267,13 @@ gboolean mpdShow(gpointer thsPtr, gboolean newState) {
 		G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL,
 		NULL, NULL, NULL, NULL);
 	LOG("Leave mpdShow");
-	return this->bUsePManager;
+	return thys->bUsePManager;
 }
 
 gboolean mpdGetRepeat(gpointer thsPtr) {
 	MKTHIS;
-	if (this->player)
-		return mpd_player_get_repeat(this->player);
+	if (thys->player)
+		return mpd_player_get_repeat(thys->player);
 	return FALSE;
 }
 
@@ -280,7 +281,7 @@ gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
 	MKTHIS;
 	if (mpdAssure(thsPtr, TRUE)) {
 		return (MPD_OK ==
-			mpd_player_set_repeat(this->player,
+			mpd_player_set_repeat(thys->player,
 					      (newShuffle) ? 1 : 0));
 	}
 	return FALSE;
@@ -288,8 +289,8 @@ gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
 
 gboolean mpdGetShuffle(gpointer thsPtr) {
 	MKTHIS;
-	if (this->player)
-		return mpd_player_get_random(this->player);
+	if (thys->player)
+		return mpd_player_get_random(thys->player);
 	return FALSE;
 }
 
@@ -297,7 +298,7 @@ gboolean mpdSetShuffle(gpointer thsPtr, gboolean newRandom) {
 	MKTHIS;
 	if (mpdAssure(thsPtr, TRUE)) {
 		return (MPD_OK ==
-			mpd_player_set_random(this->player,
+			mpd_player_set_random(thys->player,
 					      (newRandom) ? 1 : 0));
 	}
 	return FALSE;
@@ -307,16 +308,15 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 			     gpointer thsPtr) {
 	MKTHIS;
 	if (sType & MPD_CST_SONGID) {
+		mpd_Song *song = mpd_playlist_get_current_song(thys->player);
 		LOG("Enter mpdCallback: SongChanged");
-		mpd_Song *song = mpd_playlist_get_current_song(this->player);
-		if (mpdAssure(thsPtr, TRUE) && song != NULL
-		    && song->id != this->songID) {
+		if (song != NULL) {
 			GString *artLocation = NULL;
 			gboolean bFound = FALSE;
 
-			g_string_assign(this->parent->artist, song->artist);
-			g_string_assign(this->parent->album, song->album);
-			g_string_assign(this->parent->title, song->title);
+			g_string_assign(thys->parent->artist, song->artist);
+			g_string_assign(thys->parent->album, song->album);
+			g_string_assign(thys->parent->title, song->title);
 
 			//fetching gmpc covers
 			artLocation = g_string_new(g_get_home_dir());
@@ -324,41 +324,41 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 					       "/.covers/%s - %s.jpg",
 					       song->artist, song->album);
 			LOG("Check 1:'%s'", artLocation->str);
-			g_string_truncate(this->parent->albumArt, 0);
+			g_string_truncate(thys->parent->albumArt, 0);
 
 			if (g_file_test(artLocation->str, G_FILE_TEST_EXISTS)) {
 				bFound = TRUE;
 			} else {
-				if (this->bUseMPDFolder
-				    && g_file_test(this->path->str,
+				if (thys->bUseMPDFolder
+				    && g_file_test(thys->path->str,
 						   G_FILE_TEST_EXISTS)) {
 					g_string_printf(artLocation, "%s/%s",
-							this->path->str,
+							thys->path->str,
 							song->file);
-					this->
+					thys->
 					    parent->FindAlbumArtByFilePath
-					    (this->parent->sd,
+					    (thys->parent->sd,
 					     artLocation->str);
 				}
 			}
 			if (bFound) {
 				// just assign here, scaling is done in callee
-				g_string_assign(this->parent->albumArt,
+				g_string_assign(thys->parent->albumArt,
 						artLocation->str);
 				LOG("Found :'%s'", artLocation->str);
 			}
 
 			g_string_free(artLocation, TRUE);
-			this->parent->Update(this->parent->sd, TRUE, estPlay,
+			thys->parent->Update(thys->parent->sd, TRUE, estPlay,
 					     NULL);
-			this->songID = song->id;
+			thys->songID = song->id;
 		}
 		LOG("Leave mpdCallback: SongChanged");
 	}
 	if (sType & MPD_CST_STATE) {
 		LOG("Enter mpdCallback: StateChanged");
 		eSynoptics eStat;
-		MpdState state = mpd_player_get_state(this->player);
+		MpdState state = mpd_player_get_state(thys->player);
 		switch (state) {
 		    case MPD_PLAYER_PAUSE:
 			    eStat = estPause;
@@ -373,32 +373,32 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 			    eStat = estErr;
 			    break;
 		}
-		this->parent->Update(this->parent->sd, FALSE, eStat, NULL);
+		thys->parent->Update(thys->parent->sd, FALSE, eStat, NULL);
 		LOG("Leave mpdCallback: StateChanged");
 	}
 	if (sType & MPD_CST_REPEAT) {
 		LOG("Enter mpdCallback: RepeatChanged");
-		this->parent->UpdateRepeat(this->parent->sd,
-					   mpd_player_get_repeat(this->player));
+		thys->parent->UpdateRepeat(thys->parent->sd,
+					   mpd_player_get_repeat(thys->player));
 		LOG("Leave mpdCallback: RepeatChanged");
 	}
 	if (sType & MPD_CST_RANDOM) {
 		LOG("Enter mpdCallback: ShuffleChanged");
-		this->parent->UpdateShuffle(this->parent->sd,
+		thys->parent->UpdateShuffle(thys->parent->sd,
 					    mpd_player_get_random
-					    (this->player));
+					    (thys->player));
 		LOG("Leave mpdCallback: ShuffleChanged");
 	}
 	// display elapsed/total ?
 #if 0
 	if (sType & (MPD_CST_ELAPSED_TIME | MPD_CST_TOTAL_TIME)) {
 		   if( sType & MPD_CST_ELAPSED_TIME )
-			   this->parent->secPos = 
-				   mpd_status_get_elapsed_song_time(this->player);
+			   thys->parent->secPos = 
+				   mpd_status_get_elapsed_song_time(thys->player);
 		   if( sType & MPD_CST_TOTAL_TIME )
-			   this->parent->secTot = 
-			   mpd_status_get_total_song_time(this->player);
-		   this->parent->UpdateTimePosition(this->parent->sd);
+			   thys->parent->secTot = 
+			   mpd_status_get_total_song_time(thys->player);
+		   thys->parent->UpdateTimePosition(thys->parent->sd);
 	}
 #endif
 	if(sType & (MPD_CST_STORED_PLAYLIST)) {
@@ -406,24 +406,24 @@ void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
 		mpd_InfoEntity * entity = NULL;
 		char * ls = "";
 		LOG("Enter mpdCallback: PlaylistChanged");
-		if(this->bUseDefault)
+		if(thys->bUseDefault)
 			conn = mpd_newConnection("localhost", 6600, 150);
 		else
-			conn = mpd_newConnection(this->host->str, this->port, 1500);
+			conn = mpd_newConnection(thys->host->str, thys->port, 1500);
 		if(conn) {
-			g_hash_table_remove_all(this->parent->playLists);
+			g_hash_table_remove_all(thys->parent->playLists);
 			mpd_sendLsInfoCommand(conn,ls);
 
 			while((entity = mpd_getNextInfoEntity(conn))) {
 				if(entity->type==
 						MPD_INFO_ENTITY_TYPE_PLAYLISTFILE) {
 					mpd_PlaylistFile * pl = entity->info.playlistFile;
-					g_hash_table_insert(this->parent->playLists, 
+					g_hash_table_insert(thys->parent->playLists, 
 						g_strdup(pl->path), g_strdup("stock_playlist"));
 				}
 				mpd_freeInfoEntity(entity);
 			}
-			this->parent->UpdatePlaylists(this->parent->sd);
+			thys->parent->UpdatePlaylists(thys->parent->sd);
 		}
 		LOG("Leave mpdCallback: PlaylistChanged");
 	}
@@ -435,14 +435,15 @@ void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
 	if(bIsStoring){
 		// nothing to do
 	} else {
-		SPlayer * parent = this->parent;
-		if(this->bUsePManager && (NULL != g_find_program_in_path(this->pmanager->str))) {
+		SPlayer * parent = thys->parent;
+		if(thys->bUsePManager && (NULL != g_find_program_in_path(thys->pmanager->str))) {
 			MPD_MAP(Show);
 		} else {
 			NOMAP(Show);
 		}
-		if(mpdAssure(thsPtr, FALSE) && NULL != this->player) {
-			mpdCallbackStateChanged(this->player, MPD_SQ_ALL, thsPtr);
+		
+		if(mpdAssure(thsPtr, FALSE) && NULL != thys->player) {
+			mpdCallbackStateChanged(thys->player, MPD_SQ_ALL, thsPtr);
 		}
 	}	
 	LOG("Leave mpdPersist");
@@ -455,35 +456,35 @@ EXPORT void on_mpdSettings_response(GtkDialog * dlg, int reponse,
 	LOG("Enter on_mpdSettings_response");
 
     // reconnect if changed
-	if (this->bRequireReconnect )
+	if (thys->bRequireReconnect )
 	{
-		LOG("    Reconnecting to %s", this->host->str);
-		this->bRequireReconnect = FALSE;
-		if (this->player) {
-			mpd_disconnect(this->player);
-			mpd_free(this->player);
-			this->player = NULL;
+		LOG("    Reconnecting to %s", thys->host->str);
+		thys->bRequireReconnect = FALSE;
+		if (thys->player) {
+			mpd_disconnect(thys->player);
+			mpd_free(thys->player);
+			thys->player = NULL;
 		}
 		mpdAssure(thsPtr, FALSE);
 		LOG("    Done reconnect.");
 	}
     
     // don't allow bogus playlist manager
-    manager = gtk_combo_box_get_active_text(GTK_COMBO_BOX(this->wPMgr));
-    g_string_assign(this->pmanager, manager);
+    manager = gtk_combo_box_get_active_text(GTK_COMBO_BOX(thys->wPMgr));
+    g_string_assign(thys->pmanager, manager);
     g_free(manager);
-    if(this->bUsePManager && this->pmanager->len) {
-        gchar *binPath = g_find_program_in_path(this->pmanager->str);
+    if(thys->bUsePManager && thys->pmanager->len) {
+        gchar *binPath = g_find_program_in_path(thys->pmanager->str);
         if(NULL == binPath) {
              GtkWidget *dialog = gtk_message_dialog_new (NULL,
                                               GTK_DIALOG_DESTROY_WITH_PARENT,
                                               GTK_MESSAGE_ERROR,
                                               GTK_BUTTONS_CLOSE,
                                               _("Can't find binary '%s'"),
-                                              this->pmanager->str);
+                                              thys->pmanager->str);
             gtk_dialog_run (GTK_DIALOG (dialog));
             gtk_widget_destroy (dialog);
-            gtk_widget_grab_focus(this->wPMgr);
+            gtk_widget_grab_focus(thys->wPMgr);
             goto errExit;
         }
     }
@@ -498,55 +499,55 @@ errExit:
 EXPORT void on_chkUseDefault_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter on_chkUseDefault_toggled");
-	this->bUseDefault = gtk_toggle_button_get_active(tb);
-	gtk_widget_set_sensitive(this->wHost, !this->bUseDefault);
-	gtk_widget_set_sensitive(this->wPort, !this->bUseDefault);
-	gtk_widget_set_sensitive(this->wPass, !this->bUseDefault);
-	this->bRequireReconnect = TRUE;
+	thys->bUseDefault = gtk_toggle_button_get_active(tb);
+	gtk_widget_set_sensitive(thys->wHost, !thys->bUseDefault);
+	gtk_widget_set_sensitive(thys->wPort, !thys->bUseDefault);
+	gtk_widget_set_sensitive(thys->wPass, !thys->bUseDefault);
+	thys->bRequireReconnect = TRUE;
 	LOG("Leave on_chkUseDefault_toggled");
 }
 
 EXPORT void on_entryHost_changed(GtkEntry *tbd, gpointer thsPtr) {
 	MKTHIS;
-	g_string_assign(this->host, gtk_entry_get_text(tbd));
-	this->bRequireReconnect = TRUE;
+	g_string_assign(thys->host, gtk_entry_get_text(tbd));
+	thys->bRequireReconnect = TRUE;
 }
 
 EXPORT void on_entryPassword_changed(GtkEntry *tbd, gpointer thsPtr) {
 	MKTHIS;
-	g_string_assign(this->pass, gtk_entry_get_text(tbd));
-	this->bRequireReconnect = TRUE;
+	g_string_assign(thys->pass, gtk_entry_get_text(tbd));
+	thys->bRequireReconnect = TRUE;
 }
 
 EXPORT void on_chkUseFolder_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter on_chkUseFolder_toggled");
-	this->bUseMPDFolder = gtk_toggle_button_get_active(tb);
-	this->bRequireReconnect = TRUE;
-	gtk_widget_set_sensitive(this->wPath, this->bUseMPDFolder);
+	thys->bUseMPDFolder = gtk_toggle_button_get_active(tb);
+	thys->bRequireReconnect = TRUE;
+	gtk_widget_set_sensitive(thys->wPath, thys->bUseMPDFolder);
 	LOG("Leave on_chkUseFolder_toggled");
 }
 
 EXPORT void on_spinPort_value_changed(GtkSpinButton *tbd, gpointer thsPtr) {
 	MKTHIS;
-	this->port = (guint)gtk_spin_button_get_value_as_int(tbd);
-	this->bRequireReconnect = TRUE;
+	thys->port = (guint)gtk_spin_button_get_value_as_int(tbd);
+	thys->bRequireReconnect = TRUE;
 }
 
 EXPORT void on_chooserDirectory_current_folder_changed(GtkFileChooserButton *chb, gpointer thsPtr) {
 	MKTHIS;
 	gchar *text = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(chb));
 	LOG("Enter on_chooserDirectory_current_folder_changed: %s", text);
-	xfconf_channel_set_string(this->xfconfChannel, "/MusicFolder", text);
-	this->bRequireReconnect = TRUE;
+	xfconf_channel_set_string(thys->xfconfChannel, "/MusicFolder", text);
+	thys->bRequireReconnect = TRUE;
 	LOG("Leave on_chooserDirectory_current_folder_changed");
 }
 
 EXPORT void on_chkUseListManager_toggled(GtkToggleButton * tb, gpointer thsPtr) {
 	LOG("Enter on_chkUseListManager_toggled");
 	MKTHIS;
-	this->bUsePManager = gtk_toggle_button_get_active(tb);
-	gtk_widget_set_sensitive(this->wPMgr, this->bUsePManager);
+	thys->bUsePManager = gtk_toggle_button_get_active(tb);
+	gtk_widget_set_sensitive(thys->wPMgr, thys->bUsePManager);
 	LOG("Leave on_chkUseListManager_toggled");
 }
 
@@ -592,35 +593,35 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	}
 		
 	
-	this->wDlg = GTK_WIDGET(gtk_builder_get_object(builder, "mpdSettings"));
-	this->wHost = GTK_WIDGET(gtk_builder_get_object(builder, "entryHost"));
-	this->wPort = GTK_WIDGET(gtk_builder_get_object(builder, "spinPort"));
-	this->wPass = GTK_WIDGET(gtk_builder_get_object(builder, "entryPassword"));
-	this->wPMgr = GTK_WIDGET(gtk_builder_get_object(builder, "comboListManager"));
-	this->wPath = GTK_WIDGET(gtk_builder_get_object(builder, "chooserDirectory"));
+	thys->wDlg = GTK_WIDGET(gtk_builder_get_object(builder, "mpdSettings"));
+	thys->wHost = GTK_WIDGET(gtk_builder_get_object(builder, "entryHost"));
+	thys->wPort = GTK_WIDGET(gtk_builder_get_object(builder, "spinPort"));
+	thys->wPass = GTK_WIDGET(gtk_builder_get_object(builder, "entryPassword"));
+	thys->wPMgr = GTK_WIDGET(gtk_builder_get_object(builder, "comboListManager"));
+	thys->wPath = GTK_WIDGET(gtk_builder_get_object(builder, "chooserDirectory"));
 
 	header = GTK_WIDGET(gtk_builder_get_object(builder, "xfce-heading1"));
 	xfce_heading_set_icon(XFCE_HEADING(header), MPD_icon());
 
 	gtk_builder_connect_signals(builder,thsPtr);
 
-  	xfconf_g_property_bind (this->xfconfChannel, "/UseDefault", G_TYPE_BOOLEAN,
+  	xfconf_g_property_bind (thys->xfconfChannel, "/UseDefault", G_TYPE_BOOLEAN,
                           gtk_builder_get_object(builder, "chkUseDefault"), "active");
-  	xfconf_g_property_bind (this->xfconfChannel, "/Host", G_TYPE_STRING,
+  	xfconf_g_property_bind (thys->xfconfChannel, "/Host", G_TYPE_STRING,
                           gtk_builder_get_object(builder, "entryHost"), "text");
-  	xfconf_g_property_bind (this->xfconfChannel, "/Port", G_TYPE_UINT,
+  	xfconf_g_property_bind (thys->xfconfChannel, "/Port", G_TYPE_UINT,
                           gtk_builder_get_object(builder, "spinPort"), "value");
-  	xfconf_g_property_bind (this->xfconfChannel, "/Password", G_TYPE_STRING,
+  	xfconf_g_property_bind (thys->xfconfChannel, "/Password", G_TYPE_STRING,
                           gtk_builder_get_object(builder, "entryPassword"), "text");
   	
-  	xfconf_g_property_bind (this->xfconfChannel, "/UseFolder", G_TYPE_BOOLEAN,
+  	xfconf_g_property_bind (thys->xfconfChannel, "/UseFolder", G_TYPE_BOOLEAN,
                           gtk_builder_get_object(builder, "chkUseFolder"), "active");
-	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(this->wPath), 
-		xfconf_channel_get_string(this->xfconfChannel, "/MusicFolder", "~"));
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(thys->wPath), 
+		xfconf_channel_get_string(thys->xfconfChannel, "/MusicFolder", "~"));
   	
-  	xfconf_g_property_bind (this->xfconfChannel, "/UseListManager", G_TYPE_BOOLEAN,
+  	xfconf_g_property_bind (thys->xfconfChannel, "/UseListManager", G_TYPE_BOOLEAN,
                           gtk_builder_get_object(builder, "chkUseListManager"), "active");
-  	xfconf_g_property_bind (this->xfconfChannel, "/ListManager", G_TYPE_STRING,
+  	xfconf_g_property_bind (thys->xfconfChannel, "/ListManager", G_TYPE_STRING,
                   gtk_bin_get_child(GTK_BIN(GTK_COMBO_BOX_ENTRY(
                   gtk_builder_get_object(builder, "comboListManager")))), "text");
 	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "listManagers"));
@@ -633,8 +634,8 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 		gchar *ptr = NULL;
         if(argv) {
             GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-            if(this->pmanager->len)
-                g_hash_table_insert(table, this->pmanager->str, g_strdup("!"));
+            if(thys->pmanager->len)
+                g_hash_table_insert(table, thys->pmanager->str, g_strdup("!"));
 	        gchar *outText = NULL;
 	        gint exit_status = 0;
 	        if (g_spawn_sync(NULL, argv, NULL, G_SPAWN_STDERR_TO_DEV_NULL,
@@ -678,17 +679,17 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 
 	// fin
 jumpTarget:
-	this->bRequireReconnect = FALSE;
+	thys->bRequireReconnect = FALSE;
 	//gtk_dialog_run
-	gtk_window_set_transient_for(GTK_WINDOW(this->wDlg), GTK_WINDOW(parent));
-	result = gtk_dialog_run (GTK_DIALOG (this->wDlg));
-	xfconf_g_property_unbind_all(this->xfconfChannel);
+	gtk_window_set_transient_for(GTK_WINDOW(thys->wDlg), GTK_WINDOW(parent));
+	result = gtk_dialog_run (GTK_DIALOG (thys->wDlg));
+	xfconf_g_property_unbind_all(thys->xfconfChannel);
 
 	LOG("Leave mpdConfigure");
 }
 
 gpointer MPD_attach(SPlayer * parent) {
-	mpdData *this = g_new0(mpdData, 1);
+	mpdData *thys = g_new0(mpdData, 1);
 	LOG("Enter MPD_attach");
 	MPD_MAP(Assure);
 	MPD_MAP(Next);
@@ -709,35 +710,35 @@ gpointer MPD_attach(SPlayer * parent) {
 	MPD_MAP(SetShuffle);
 	NOMAP(UpdateWindow);
 
-	this->host = g_string_new("");
-	this->pass = g_string_new("");
-	this->path = g_string_new("");
-	this->pmanager = g_string_new("");
+	thys->host = g_string_new("");
+	thys->pass = g_string_new("");
+	thys->path = g_string_new("");
+	thys->pmanager = g_string_new("");
     
 	// always assign
-	this->parent = parent;
-	this->wDlg = NULL;
+	thys->parent = parent;
+	thys->wDlg = NULL;
 
 	// force our own update rate
 	if (parent->updateRateMS < 1000)
 		parent->updateRateMS = 1000;
 
 	// establish the callback function
-	this->intervalID =
-		g_timeout_add(this->parent->updateRateMS, mpdCallback, this);
+	thys->intervalID =
+		g_timeout_add(thys->parent->updateRateMS, mpdCallback, thys);
 		
 	// initialize properties
 
-    this->xfconfChannel = xfconf_channel_new_with_property_base (
+    thys->xfconfChannel = xfconf_channel_new_with_property_base (
     	"xfce4-panel", "/plugins/squeezebox/backends/mpd");
-	this->bUseDefault = xfconf_channel_get_bool(this->xfconfChannel, "/UseDefault", TRUE);
-	this->host->str = xfconf_channel_get_string(this->xfconfChannel, "/Host", "localhost");
-	this->port = xfconf_channel_get_uint(this->xfconfChannel, "/Port", 6600);
-	this->pass->str = xfconf_channel_get_string(this->xfconfChannel, "/Password", "");
-	this->bUseMPDFolder = xfconf_channel_get_bool(this->xfconfChannel, "/UseFolder", TRUE);
-	this->path->str = xfconf_channel_get_string(this->xfconfChannel, "/MusicFolder", "~");
-	this->bUsePManager = xfconf_channel_get_bool(this->xfconfChannel, "/UseListManager", TRUE);
-	this->pmanager->str = xfconf_channel_get_string(this->xfconfChannel, "/ListManager", "");
+	thys->bUseDefault = xfconf_channel_get_bool(thys->xfconfChannel, "/UseDefault", TRUE);
+	thys->host->str = xfconf_channel_get_string(thys->xfconfChannel, "/Host", "localhost");
+	thys->port = xfconf_channel_get_uint(thys->xfconfChannel, "/Port", 6600);
+	thys->pass->str = xfconf_channel_get_string(thys->xfconfChannel, "/Password", "");
+	thys->bUseMPDFolder = xfconf_channel_get_bool(thys->xfconfChannel, "/UseFolder", TRUE);
+	thys->path->str = xfconf_channel_get_string(thys->xfconfChannel, "/MusicFolder", "~");
+	thys->bUsePManager = xfconf_channel_get_bool(thys->xfconfChannel, "/UseListManager", TRUE);
+	thys->pmanager->str = xfconf_channel_get_string(thys->xfconfChannel, "/ListManager", "");
 	
 
 	LOG("Leave MPD_attach:\n"
@@ -748,13 +749,13 @@ gpointer MPD_attach(SPlayer * parent) {
 		" Path:       %s\n"
 		" UseManager: %d\n"
 		" Manager:    %s",
-		this->bUseDefault,
-		this->host->str,
-		this->port,
-		this->bUseMPDFolder,
-		this->path->str,
-		this->bUsePManager,
-		this->pmanager->str);
-	return this;
+		thys->bUseDefault,
+		thys->host->str,
+		thys->port,
+		thys->bUseMPDFolder,
+		thys->path->str,
+		thys->bUsePManager,
+		thys->pmanager->str);
+	return thys;
 }
 #endif

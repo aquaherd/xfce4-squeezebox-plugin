@@ -145,7 +145,7 @@ gboolean qlAssure(gpointer thsPtr, gboolean noCreate) {
 	if (this->parent->bus && !this->qlPlayer) {
 		GError *error = NULL;
 		this->qlPlayer = dbus_g_proxy_new_for_name_owner(this->parent->bus,
-							       QL_dbusName(),
+							       "net.sacredchao.QuodLibet",
 							       "/net/sacredchao/QuodLibet",
 							       "net.sacredchao.QuodLibet",
 							       &error);
@@ -155,7 +155,7 @@ gboolean qlAssure(gpointer thsPtr, gboolean noCreate) {
 			g_error_free(error);
 			error = NULL;
 			if (!noCreate)
-				this->parent->StartService(this->parent->sd);
+				this->parent->StartService(this->parent->sd, "net.sacredchao.QuodLibet");
 		}
 		if (this->qlPlayer) {
 			// state changes
@@ -356,7 +356,7 @@ gboolean qlShow(gpointer thsPtr, gboolean bShow) {
 	return bRet;
 }
 
-static gboolean qlUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+static gboolean qlUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("QuodLibet has started");

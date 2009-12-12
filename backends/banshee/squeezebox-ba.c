@@ -182,7 +182,7 @@ static gboolean baAssure(gpointer thsPtr, gboolean noCreate) {
 	if (db->parent->bus && !db->baPlayerEngine) {
 		GError *error = NULL;
 		db->baPlayerEngine = dbus_g_proxy_new_for_name_owner(db->parent->bus,
-							       BA_dbusName(),
+							       "org.bansheeproject.Banshee",
 							       "/org/bansheeproject/Banshee/PlayerEngine",
 							       "org.bansheeproject.Banshee.PlayerEngine",
 							       &error);
@@ -194,7 +194,7 @@ static gboolean baAssure(gpointer thsPtr, gboolean noCreate) {
 			if (noCreate)
 				bRet = FALSE;
 			else {
-				bRet = db->parent->StartService(db->parent->sd);
+				bRet = db->parent->StartService(db->parent->sd, "org.bansheeproject.Banshee");
 			}
 		}
 		if (db->baPlayerEngine && !db->baPlaybackController) {

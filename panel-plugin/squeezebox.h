@@ -77,7 +77,7 @@ typedef struct SPlayer{
     gboolean(* SetShuffle)(gpointer thsPtr, gboolean newShuffle);
 	gboolean(* IsVisible)(gpointer thsPtr);
 	gboolean(* Show)(gpointer thsPtr, gboolean newState);
-    gboolean(* UpdateDBUS)(gpointer thsPtr, gboolean appeared);
+    gboolean(* UpdateDBUS)(gpointer thsPtr, const gchar *name, gboolean appeared);
 	void(* Persist)(gpointer thsPtr, gboolean bIsStoring);
 	void(* Configure)(gpointer thsPtr, GtkWidget *parent);
 	void(* UpdateWindow)(gpointer thsPtr, WnckWindow *window, gboolean appeared);
@@ -102,7 +102,7 @@ typedef struct SPlayer{
 	guint playerPID;
 
 	// frontend callbacks
-    gboolean(* StartService)(gpointer thsPlayer);
+    gboolean(* StartService)(gpointer thsPlayer, const gchar* serviceName);
     gboolean(* IsServiceRunning)(gpointer thsPlayer, const gchar* dbusName);
 	void(* Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State, 
                    const gchar* playerMessage);
@@ -130,7 +130,7 @@ typedef struct Backend{
     gpointer( *BACKEND_attach)(SPlayer *player);
     const gchar*( *BACKEND_name)();
     GdkPixbuf*( *BACKEND_icon)();
-    const gchar*( *BACKEND_dbusName)();
+    const gchar**( *BACKEND_dbusNames)();
     const gchar*( *BACKEND_commandLine)();
 }Backend;
 
@@ -141,8 +141,9 @@ typedef struct Backend{
     GdkPixbuf *t##_icon(){ \
 		return gdk_pixbuf_new_from_file(BACKENDDIR "/" BASENAME "/" BASENAME ".png", NULL); \
     } \
-    const gchar* t##_dbusName(){ \
-        return d; \
+    const gchar** t##_dbusNames(){ \
+        static const gchar* names[] = {d}; \
+		return &names[0]; \
     } \
     const gchar* t##_commandLine(){ \
     	return c; \
@@ -150,7 +151,7 @@ typedef struct Backend{
 	EXPORT const Backend *backend_info() { \
 		static const Backend backend[2] = { \
 			{BASENAME, dbusBackend, t##_attach, t##_name, \
-			t##_icon, t##_dbusName, t##_commandLine}, \
+			t##_icon, t##_dbusNames, t##_commandLine}, \
 			{NULL} \
 		}; \
 		return &backend[0]; \
