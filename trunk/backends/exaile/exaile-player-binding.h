@@ -446,10 +446,10 @@ static
 inline
 #endif
 gboolean
-org_exaile_Exaile_get_status (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
+org_exaile_Exaile_get_state (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
 {
-  return dbus_g_proxy_call (proxy, "GetStatus", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
+  return dbus_g_proxy_call (proxy, "GetState", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
 static
