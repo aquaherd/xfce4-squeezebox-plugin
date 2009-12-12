@@ -98,14 +98,14 @@ static eSynoptics exTranslateStatus(gchar * exStatus) {
 		return estPause;
 	if (newStat == stopped)
 		return estStop;
-
+	LOG("Can't decode %s", exStatus);
 	return estErr;
 }
 
 static void exCallbackStatusChange(DBusGProxy * proxy, gpointer thsPtr) {
 	MKTHIS;
 	gchar *status = NULL;
-	eSynoptics eStat = estErr;
+	eSynoptics eStat = estStop;
 	LOG("Enter auCallback: StatusChange");
 	if(db->oldInterface) {
 		if (org_exaile_DBusInterface_status(db->exPlayer, &status, NULL)) {
@@ -113,19 +113,10 @@ static void exCallbackStatusChange(DBusGProxy * proxy, gpointer thsPtr) {
 			g_free(status);
 			db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
 		}
-	} else if(org_exaile_Exaile_get_status(db->exPlayer, &status, NULL)) {
-		eStat = exTranslateStatus(status);
+	} else {
+		eStat = exTranslateStatus(db->lastStatus);
 		g_free(status);
 		db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
-	} else {
-		gboolean isPlaying = FALSE;
-		if(org_exaile_Exaile_is_playing(db->exPlayer, &isPlaying, NULL)) {
-			if(db->isPlaying != isPlaying) {
-				db->isPlaying = isPlaying;
-				eStat = db->isPlaying ? estPlay : estStop;
-				db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
-			}
-		}
 	}
 	LOG("Leave auCallback: StatusChange");
 }
@@ -227,11 +218,12 @@ static gint exCallbackFake(gpointer thsPtr) {
 	exData *db = (exData *)thsPtr;
 	static gboolean inTimer = FALSE;
 	gboolean ret = TRUE;
+	gchar *status = NULL;
+	gchar *loc = NULL;
 	if (!inTimer) {
 		inTimer = TRUE;
 		if(db->oldInterface) {
 			if(db->needsPolling) {
-				gchar *loc = NULL;
 				if(org_exaile_DBusInterface_get_track_attr(db->exPlayer, "loc", &loc, NULL)) {
 					if(!db->lastTrack || g_ascii_strcasecmp(db->lastTrack, loc)) {
 						if(db->lastTrack)
@@ -241,9 +233,8 @@ static gint exCallbackFake(gpointer thsPtr) {
 					} else
 						g_free(loc);
 				}
-				gchar *status = NULL;
 				if(org_exaile_DBusInterface_status(db->exPlayer, &status, NULL)) {
-					if(!db->lastStatus || g_ascii_strcasecmp(db->lastStatus, loc)) {
+					if(!db->lastStatus || g_ascii_strcasecmp(db->lastStatus, status)) {
 						if(db->lastStatus)
 							g_free(db->lastStatus);
 						db->lastStatus = status;
@@ -266,7 +257,25 @@ static gint exCallbackFake(gpointer thsPtr) {
 				} else
 					g_free(loc);
 			}
-			exCallbackStatusChange(db->exPlayer, thsPtr);
+			if(org_exaile_Exaile_get_state(db->exPlayer, &status, NULL)) {
+				if(!db->lastStatus || g_ascii_strcasecmp(db->lastStatus, status)) {
+					if(db->lastStatus)
+						g_free(db->lastStatus);
+					db->lastStatus = status;
+					LOG("New Status %s", status);
+					exCallbackStatusChange(db->exPlayer, thsPtr);
+				} else
+					g_free(status);
+			} else {
+				gboolean isPlaying = FALSE;
+				if(org_exaile_Exaile_is_playing(db->exPlayer, &isPlaying, NULL)) {
+					if(db->isPlaying != isPlaying) {
+						eSynoptics eStat = isPlaying ? estPlay : estStop;
+						db->isPlaying = isPlaying;
+						db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
+					}
+				}
+			}
 		}
 		inTimer = FALSE;
 	}
