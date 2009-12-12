@@ -38,18 +38,6 @@
 	(position == XFCE_SCREEN_POSITION_E)
 
 
-#define IMPORT_BACKEND(t) \
- 	extern void * t##_attach(SPlayer *player); \
- 	extern const gchar * t##_name(); \
-    extern GdkPixbuf * t##_icon();
- 
-#define IMPORT_DBUS_BACKEND(t) \
- 	extern void * t##_attach(SPlayer *player); \
- 	extern const gchar * t##_name(); \
-    extern GdkPixbuf * t##_icon(); \
-    extern const gchar * t##_dbusName(); \
-    extern const gchar * t##_commandLine();
-
 static
 #ifdef G_HAVE_INLINE
 inline
@@ -99,7 +87,7 @@ org_freedesktop_DBus_name_has_owner (DBusGProxy *proxy, const char * IN_arg0, gb
 { \
     static const Backend ret[] = { 
 #define BACKEND(t) {otherBackend, t##_attach, t##_name, t##_icon, NULL},
-#define DBUS_BACKEND(t) {dbusBackend, t##_attach, t##_name, t##_icon, t##_dbusName, t##_commandLine},
+#define DBUS_BACKEND(t) {dbusBackend, t##_attach, t##_name, t##_icon, t##_dbusNames, t##_commandLine},
 #define END_BACKEND_MAP() \
         {numBackendTypes, NULL} \
     }; \
@@ -165,7 +153,7 @@ typedef struct BackendCache{
     gchar *name; // localized display name
 	gchar *path; // full path to module
     GdkPixbuf *icon; 
-    gchar *dbusName;
+    gchar **dbusNames;
     gchar *commandLine;
 	gboolean autoAttach;
 }BackendCache;

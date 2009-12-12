@@ -154,22 +154,25 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name) {
     
     // dbus backends need a trigger to awake
     // BOOLEAN NameHasOwner (in STRING name)
-    if(dbusBackend == ptr->BACKEND_TYPE) {
+    if(dbusBackend == ptr->BACKEND_TYPE && ptr->BACKEND_dbusNames) {
     	// this type must have ptr->BACKEND_dbusName && sd->player.UpdateDBUS
-		const gchar *dbusName = ptr->BACKEND_dbusName();
+		const gchar **dbusName = ptr->BACKEND_dbusNames();
 		gboolean hasOwner = FALSE;
 		GError *error = NULL;
-		if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, dbusName, &hasOwner, &error)) {
-			if(hasOwner) {
-				gchar *ownerName = NULL;
-				org_freedesktop_DBus_get_name_owner(sd->player.dbService, dbusName, &ownerName, NULL);
-				squeezebox_dbus_update(sd->player.dbService, dbusName, "", ownerName, sd);
+		while(*dbusName) {
+			if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, *dbusName, &hasOwner, &error)) {
+				if(hasOwner) {
+					gchar *ownerName = NULL;
+					org_freedesktop_DBus_get_name_owner(sd->player.dbService, *dbusName, &ownerName, NULL);
+					squeezebox_dbus_update(sd->player.dbService, *dbusName, "", ownerName, sd);
+				} else {
+					squeezebox_dbus_update(sd->player.dbService, *dbusName, "zzz", "", sd);
+				}
 			} else {
-				squeezebox_dbus_update(sd->player.dbService, dbusName, "zzz", "", sd);
+				LOGWARN("Can't ask DBUS: %s", error->message);
+				g_error_free(error);
 			}
-		} else {
-			LOGWARN("Can't ask DBUS: %s", error->message);
-			g_error_free(error);
+			dbusName++;
 		}
     }
 	gtk_widget_set_sensitive(sd->mnuPlayLists, g_hash_table_size(sd->player.playLists));
@@ -353,10 +356,14 @@ static void
 squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 	MKTHIS;
 	gboolean bFound = FALSE;
+	gchar *realPath = NULL;
 #if HAVE_ID3TAG	// how to query artist with id3tag
-
-	LOG("SB Enter Check #1:'%s' embedded art", path);
-	struct id3_file *fp = id3_file_open(path, ID3_FILE_MODE_READONLY);
+	if(g_str_has_prefix(path, "file://"))
+		realPath = g_filename_from_uri(path, NULL, NULL);
+	else
+		realPath = g_strdup(path);
+	LOG("SB Enter Check #1:'%s' embedded art", realPath);
+	struct id3_file *fp = id3_file_open(realPath, ID3_FILE_MODE_READONLY);
 	if (fp) {
 		struct id3_tag const *tag = id3_file_tag(fp);
 		if (tag) {
@@ -403,7 +410,7 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 	}
 #endif
 	if(!bFound) {
-		gchar *strNext = g_path_get_dirname(path);
+		gchar *strNext = g_path_get_dirname(realPath);
 		GDir *dir = g_dir_open(strNext, 0, NULL);
 		LOG("SB Enter Check #2:'%s/[.][folder|cover|front].jpg'", strNext);
 		if (NULL != dir) {
@@ -430,6 +437,7 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 		}
 		g_free(strNext);
 	}
+	g_free(realPath);
 	LOG("SB: Leave Check");
 }
 
@@ -437,7 +445,6 @@ static void
 squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 		     eSynoptics State, const gchar * playerMessage) {
 	MKTHIS;
-
 	if (sd->state != State) {
 		sd->state = State;
 		squeezebox_update_playbtn(sd);
@@ -554,7 +561,7 @@ static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) 
 	}	
 	xfconf_shutdown();
 	g_free(sd);
-	LOG("Leave squeezebox_free_data");
+	LOG("Leave squeezebox_free_data\n");
 }
 
 static void
@@ -664,6 +671,7 @@ EXPORT void on_dialogSettings_response(GtkWidget * dlg, int reponse, SqueezeBoxD
 	gtk_widget_destroy(dlg);
 	xfce_panel_plugin_unblock_menu(sd->plugin);
 	squeezebox_write_rc_file(sd->plugin, sd);
+	sd->dlg = NULL;
     LOG("Leave DialogResponse");
 }
 
@@ -942,27 +950,31 @@ gboolean squeezebox_play(SqueezeBoxData * sd) {
 }
 gboolean on_btn_clicked(GtkWidget * button, GdkEventButton * event,
 			SqueezeBoxData * sd) {
-	if (3 == event->button && sd->state != estStop) {
+	if (3 == event->button) {
         LOG("RightClick");
-	    gtk_widget_set_sensitive(sd->mnuPlayer, (NULL != sd->player.Show));
-	    gtk_check_menu_item_set_inconsistent(GTK_CHECK_MENU_ITEM(sd->mnuPlayer),
-					         (NULL == sd->player.IsVisible));
-		sd->noUI = TRUE;
-		if (NULL != sd->player.GetRepeat)
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM
-						       (sd->mnuRepeat),
-						       sd->player.GetRepeat
-						       (sd->player.db));
-		if (NULL != sd->player.GetShuffle)
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM
-						       (sd->mnuShuffle),
-						       sd->player.
-						       GetShuffle(sd->player.
-								  db));
-		if(NULL != sd->player.IsVisible)
-			squeezebox_update_visibility(sd,
-						     sd->player.IsVisible(sd->player.db));
-		sd->noUI = FALSE;
+		if(NULL != sd->dlg ) {
+			gtk_window_present_with_time(GTK_WINDOW(sd->dlg), event->time);
+		}
+		if(sd->state != estStop) {
+			gtk_widget_set_sensitive(sd->mnuPlayer, (NULL != sd->player.Show));
+			gtk_check_menu_item_set_inconsistent(GTK_CHECK_MENU_ITEM(sd->mnuPlayer),
+								 (NULL == sd->player.IsVisible));
+			sd->noUI = TRUE;
+			if (NULL != sd->player.GetRepeat)
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM
+								   (sd->mnuRepeat),
+								   sd->player.GetRepeat
+								   (sd->player.db));
+			if (NULL != sd->player.GetShuffle)
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM
+								   (sd->mnuShuffle),
+								   sd->player.
+								   GetShuffle(sd->player.
+									  db));
+			if(NULL != sd->player.IsVisible)
+				squeezebox_update_visibility(sd,
+								 sd->player.IsVisible(sd->player.db));
+		}
 	} else if (2 == event->button) {
         LOG("MiddleClick");
 		if (NULL == sd->player.IsVisible && NULL != sd->player.Show) {
@@ -1225,42 +1237,56 @@ void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 	if (sd->current) {
 		gboolean appeared = (NULL != NewOwner && 0 != NewOwner[0]);
 		const Backend *ptr = squeezebox_get_current_backend(sd);
-		const gchar *dbusName = ptr->BACKEND_dbusName ? 
-			ptr->BACKEND_dbusName() : "";
-		if (dbusName && !g_utf8_collate(Name, dbusName)) {
-			LOG("DBUS name change %s: '%s'->'%s'", Name, OldOwner, NewOwner);
-			if(sd->player.UpdateDBUS)	
-				sd->player.UpdateDBUS(sd->player.db, appeared);
-			sd->player.playerPID = 0;
-			if(appeared 
-				&& org_freedesktop_DBus_get_connection_unix_process_id(
-				sd->player.dbService, NewOwner, &sd->player.playerPID, NULL)
-				&& sd->player.playerPID > 0) {
-				// now we got the process
-			} else {
-				GList *list = g_list_first(sd->list);
-				while(list) {
-					BackendCache *cache = list->data;
-					gboolean hasOwner = FALSE;
-					if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, cache->dbusName, &hasOwner, NULL) && hasOwner ) {
-						squeezebox_init_backend(sd, cache->basename);
-						break;
-					} else if(cache->type == networkBackend) {
-						squeezebox_init_backend(sd, cache->basename);
-						if(sd->player.Assure(sd->player.db, TRUE))
-							break;
+		const gchar **dbusName = ptr->BACKEND_dbusNames ? 
+			ptr->BACKEND_dbusNames() : NULL;
+		while(dbusName && *dbusName) {
+			if (!g_utf8_collate(Name, *dbusName)) {
+				LOG("DBUS name change %s: '%s'->'%s'", Name, OldOwner, NewOwner);
+				if(sd->player.UpdateDBUS)	
+					sd->player.UpdateDBUS(sd->player.db, Name, appeared);
+				sd->player.playerPID = 0;
+				if(appeared 
+					&& org_freedesktop_DBus_get_connection_unix_process_id(
+					sd->player.dbService, NewOwner, &sd->player.playerPID, NULL)
+					&& sd->player.playerPID > 0) {
+					// now we got the process
+				} else if(sd->autoAttach) {
+					GList *list = g_list_first(sd->list);
+					while(list) {
+						BackendCache *cache = list->data;
+						gboolean hasOwner = FALSE;
+						gchar ** dbusName = cache->dbusNames;
+						while(*dbusName) { 
+							if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, *dbusName , &hasOwner, NULL) && hasOwner ) {
+								squeezebox_init_backend(sd, cache->basename);
+								return;
+							} 
+							dbusName++;
+						}
+						if(cache->type == networkBackend) {
+							squeezebox_init_backend(sd, cache->basename);
+							if(sd->player.Assure(sd->player.db, TRUE))
+								return;
+						}
+						
 					}
 				}
 			}
-		} else if(appeared && sd->autoAttach) {
+			dbusName++; 
+		}
+		if(appeared && sd->autoAttach) {
 			GList *list = g_list_first(sd->list);
 			while(list) {
 				BackendCache *cache = list->data;
-				if(cache->autoAttach) {
-					if(cache->dbusName && !g_utf8_collate(cache->dbusName, Name)) {
-						squeezebox_init_backend(sd, cache->basename);
-						if(sd->player.Assure(sd->player.db, TRUE))
-							break;
+				if(cache->autoAttach && cache->type == dbusBackend) {
+					gchar ** dbusName = cache->dbusNames;
+					while(*dbusName) {
+						if(!g_utf8_collate(*dbusName, Name)) {
+							squeezebox_init_backend(sd, cache->basename);
+							if(sd->player.Assure(sd->player.db, TRUE))
+								return;
+						}
+						dbusName++;
 					}
 				}
 				list = g_list_next(list);
@@ -1275,7 +1301,7 @@ static gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* 
 	return org_freedesktop_DBus_name_has_owner(sd->player.dbService, dbusName, &hasOwner, NULL) && hasOwner;
 }
 
-static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
+static gboolean squeezebox_dbus_start_service(gpointer thsPlayer, const gchar* serviceName) {
 	MKTHIS;
 	GError *error = NULL;
 	guint start_service_reply;
@@ -1283,9 +1309,9 @@ static gboolean squeezebox_dbus_start_service(gpointer thsPlayer) {
 	Backend const *ptr = squeezebox_get_current_backend(sd);
 	gchar *path = NULL;
 	
-	LOG("Starting new instance of '%s'", ptr->BACKEND_dbusName());
+	LOG("Starting new instance of '%s'", serviceName);
 	if (!dbus_g_proxy_call(sd->player.dbService, "StartServiceByName", &error,
-			 G_TYPE_STRING, ptr->BACKEND_dbusName(),
+			 G_TYPE_STRING, serviceName,
 			 G_TYPE_UINT, 0, G_TYPE_INVALID,
 			 G_TYPE_UINT, &start_service_reply,
 			 G_TYPE_INVALID)) {
@@ -1335,8 +1361,8 @@ void squeezebox_read_backends(SqueezeBoxData *sd){
 						cache->icon = backend->BACKEND_icon();
 						cache->autoAttach = 
 							xfconf_channel_get_bool(sd->channel, propAuto, TRUE);
-						if(backend->BACKEND_dbusName)
-							cache->dbusName = g_strdup(backend->BACKEND_dbusName());
+						if(backend->BACKEND_dbusNames)
+							cache->dbusNames = g_strdupv((gchar**)backend->BACKEND_dbusNames());
 						if(backend->BACKEND_commandLine)
 							cache->commandLine = g_strdup(backend->BACKEND_commandLine());
 						sd->list = g_list_append(sd->list, cache);

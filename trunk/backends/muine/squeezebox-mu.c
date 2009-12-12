@@ -155,7 +155,7 @@ static gboolean muAssure(gpointer thsPtr, gboolean noCreate) {
 	if (db->parent->bus && !db->muPlayer) {
 		GError *error = NULL;
 		db->muPlayer = dbus_g_proxy_new_for_name_owner(db->parent->bus,
-							       MU_dbusName(),
+							       "org.gnome.Muine",
 							       "/org/gnome/Muine/Player",
 							       "org.gnome.Muine.Player",
 							       &error);
@@ -167,7 +167,7 @@ static gboolean muAssure(gpointer thsPtr, gboolean noCreate) {
 			if (noCreate)
 				bRet = FALSE;
 			else {
-				bRet = db->parent->StartService(db->parent->sd);
+				bRet = db->parent->StartService(db->parent->sd, "org.gnome.Muine");
 			}
 		}
 		if (db->muPlayer) {

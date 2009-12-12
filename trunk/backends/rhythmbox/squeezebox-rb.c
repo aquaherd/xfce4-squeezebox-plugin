@@ -176,7 +176,7 @@ static void rbCallbackFake(gpointer thsPtr) {
 	rbCallbackVisibility(db->rbPlayer, rbIsVisible(db), db);
 }
 
-static gboolean rbUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+static gboolean rbUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("Rhythmbox has started");
@@ -208,7 +208,7 @@ gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 	if (db->parent->bus && !db->rbShell) {
 		GError *error = NULL;
 		db->rbShell = dbus_g_proxy_new_for_name_owner(db->parent->bus,
-							      RB_dbusName(),
+							      "org.gnome.Rhythmbox.Shell",
 							      "/org/gnome/Rhythmbox/Shell",
 							      "org.gnome.Rhythmbox.Shell",
 							      &error);
@@ -220,7 +220,8 @@ gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 			if (noCreate)
 				bRet = FALSE;
 			else {
-				bRet = db->parent->StartService(db->parent->sd);
+				bRet = db->parent->StartService(
+					db->parent->sd, "org.gnome.Rhythmbox.Player");
 			}
 		}
 		if (db->rbShell && !db->rbPlayer) {

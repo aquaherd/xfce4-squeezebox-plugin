@@ -51,7 +51,7 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	}
 
 	if (bAct) {
-		LOG("New track '%s' from '%s' by '%s'\n",
+		LOG("New track '%s' from '%s' by '%s'",
 			sd->player.title->str, sd->player.artist->str,
 			sd->player.album->str);
 		GString *albumArt = g_string_new(sd->player.albumArt->str);

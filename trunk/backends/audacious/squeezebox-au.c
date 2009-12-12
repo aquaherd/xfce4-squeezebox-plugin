@@ -148,7 +148,7 @@ static void auCallbackFake(gpointer thsPtr) {
 	LOG("Leave auCallbackFake");
 }
 
-static gboolean auUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+static gboolean auUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("Audacious has started");
@@ -177,7 +177,7 @@ static gboolean auAssure(gpointer thsPtr, gboolean noCreate) {
 	if (db->parent->bus && !db->auPlayer) {
 		GError *error = NULL;
 		db->auPlayer = dbus_g_proxy_new_for_name_owner(db->parent->bus,
-							       AU_dbusName(),
+							       "org.mpris.audacious",
 							       "/Player",
 							       "org.freedesktop.MediaPlayer",
 							       &error);
@@ -189,7 +189,7 @@ static gboolean auAssure(gpointer thsPtr, gboolean noCreate) {
 			if (noCreate)
 				bRet = FALSE;
 			else {
-				bRet = db->parent->StartService(db->parent->sd);
+				bRet = db->parent->StartService(db->parent->sd, "org.mpris.audacious");
 			}
 		}
 		if (db->auPlayer) {

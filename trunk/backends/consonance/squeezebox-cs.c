@@ -239,7 +239,7 @@ static gboolean csAssure(gpointer thsPtr, gboolean noCreate) {
 				error->message);
 			g_error_free(error);
 			if (!noCreate) {
-				bRet = db->parent->StartService(db->parent->sd);
+				bRet = db->parent->StartService(db->parent->sd, DBUS_NAME);
 			}
 		}
 	}
@@ -338,7 +338,7 @@ static gboolean csDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
-static gboolean csUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+static gboolean csUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("consonance has started");
