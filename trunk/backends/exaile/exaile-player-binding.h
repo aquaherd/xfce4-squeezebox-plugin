@@ -435,6 +435,17 @@ static
 inline
 #endif
 gboolean
+org_exaile_Exaile_gui_toggle_visible (DBusGProxy *proxy, GError **error)
+
+{
+  return dbus_g_proxy_call (proxy, "GuiToggleVisible", error, G_TYPE_INVALID, G_TYPE_INVALID);
+}
+
+static
+#ifdef G_HAVE_INLINE
+inline
+#endif
+gboolean
 org_exaile_Exaile_is_playing (DBusGProxy *proxy, gboolean* OUT_arg0, GError **error)
 
 {

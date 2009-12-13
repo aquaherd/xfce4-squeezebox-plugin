@@ -442,7 +442,7 @@ gboolean exShow(gpointer thsPtr, gboolean newState) {
 	if(db->oldInterface) {
 		return org_exaile_DBusInterface_toggle_visibility(db->exPlayer, NULL);
 	} else {
-		return FALSE;
+		return org_exaile_Exaile_gui_toggle_visible(db->exPlayer, NULL);
 	}
 	return FALSE;
 }
