@@ -68,4 +68,6 @@ GType g_mpd_get_type (void);
 GMpd *g_mpd_new(void);
 gboolean g_mpd_connect(GMpd *object, const gchar* host, const int port);
 void g_mpd_disconnect(GMpd *object);
+gboolean g_mpd_next(GMpd *object);
+gboolean g_mpd_prev(GMpd *object);
 #endif /* __G_MPD_H__ */

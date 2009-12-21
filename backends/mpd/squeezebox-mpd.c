@@ -137,6 +137,7 @@ gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 	
 	if (!thys->gmpd) {
 		thys->gmpd = g_mpd_new();
+		g_mpd_connect(thys->gmpd, "localhost", 6600);
 	}
 
 	LOG("Leave mpdAssure");
@@ -161,7 +162,8 @@ gboolean mpdNext(gpointer thsPtr) {
 	if (!mpdAssure(thys, TRUE))
 		return FALSE;
 	else
-		bRet = (MPD_OK == mpd_player_next(thys->player));
+		//bRet = (MPD_OK == mpd_player_next(thys->player));
+		bRet = g_mpd_next(thys->gmpd);
 	LOG("Leave mpdNext");
 	return bRet;
 }
