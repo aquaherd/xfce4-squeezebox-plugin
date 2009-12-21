@@ -134,49 +134,50 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name) {
 
 	// call init of backend
 	ptr = squeezebox_load_backend(sd, name);
-	sd->player.db = ptr->BACKEND_attach(&sd->player);
-	sd->current = ptr;
+	if (ptr) {
+		sd->player.db = ptr->BACKEND_attach(&sd->player);
+		sd->current = ptr;
 
-	// have menu populated
-	gtk_widget_set_sensitive(sd->mnuPlayer, (NULL != sd->player.Show));
-	gtk_check_menu_item_set_inconsistent(GTK_CHECK_MENU_ITEM(sd->mnuPlayer),
-					     (NULL == sd->player.IsVisible));
-	gtk_widget_set_sensitive(sd->mnuRepeat,
-				 (NULL != sd->player.GetRepeat
-				  && NULL != sd->player.SetRepeat));
-	gtk_widget_set_sensitive(sd->mnuShuffle,
-				 (NULL != sd->player.GetShuffle
-				  && NULL != sd->player.SetShuffle));
+		// have menu populated
+		gtk_widget_set_sensitive(sd->mnuPlayer, (NULL != sd->player.Show));
+		gtk_check_menu_item_set_inconsistent(GTK_CHECK_MENU_ITEM(sd->mnuPlayer),
+							 (NULL == sd->player.IsVisible));
+		gtk_widget_set_sensitive(sd->mnuRepeat,
+					 (NULL != sd->player.GetRepeat
+					  && NULL != sd->player.SetRepeat));
+		gtk_widget_set_sensitive(sd->mnuShuffle,
+					 (NULL != sd->player.GetShuffle
+					  && NULL != sd->player.SetShuffle));
 
-	// try connect happens in created backend
-    if(sd->player.Persist)
-        sd->player.Persist(sd->player.db, FALSE);
-    
-    // dbus backends need a trigger to awake
-    // BOOLEAN NameHasOwner (in STRING name)
-    if(dbusBackend == ptr->BACKEND_TYPE && ptr->BACKEND_dbusNames) {
-    	// this type must have ptr->BACKEND_dbusName && sd->player.UpdateDBUS
-		const gchar **dbusName = ptr->BACKEND_dbusNames();
-		gboolean hasOwner = FALSE;
-		GError *error = NULL;
-		while(*dbusName) {
-			if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, *dbusName, &hasOwner, &error)) {
-				if(hasOwner) {
-					gchar *ownerName = NULL;
-					org_freedesktop_DBus_get_name_owner(sd->player.dbService, *dbusName, &ownerName, NULL);
-					squeezebox_dbus_update(sd->player.dbService, *dbusName, "", ownerName, sd);
+		// try connect happens in created backend
+		if(sd->player.Persist)
+			sd->player.Persist(sd->player.db, FALSE);
+		
+		// dbus backends need a trigger to awake
+		// BOOLEAN NameHasOwner (in STRING name)
+		if(dbusBackend == ptr->BACKEND_TYPE && ptr->BACKEND_dbusNames) {
+			// this type must have ptr->BACKEND_dbusName && sd->player.UpdateDBUS
+			const gchar **dbusName = ptr->BACKEND_dbusNames();
+			gboolean hasOwner = FALSE;
+			GError *error = NULL;
+			while(*dbusName) {
+				if(org_freedesktop_DBus_name_has_owner(sd->player.dbService, *dbusName, &hasOwner, &error)) {
+					if(hasOwner) {
+						gchar *ownerName = NULL;
+						org_freedesktop_DBus_get_name_owner(sd->player.dbService, *dbusName, &ownerName, NULL);
+						squeezebox_dbus_update(sd->player.dbService, *dbusName, "", ownerName, sd);
+					} else {
+						squeezebox_dbus_update(sd->player.dbService, *dbusName, "zzz", "", sd);
+					}
 				} else {
-					squeezebox_dbus_update(sd->player.dbService, *dbusName, "zzz", "", sd);
+					LOGWARN("Can't ask DBUS: %s", error->message);
+					g_error_free(error);
 				}
-			} else {
-				LOGWARN("Can't ask DBUS: %s", error->message);
-				g_error_free(error);
+				dbusName++;
 			}
-			dbusName++;
 		}
-    }
-	gtk_widget_set_sensitive(sd->mnuPlayLists, g_hash_table_size(sd->player.playLists));
-    
+		gtk_widget_set_sensitive(sd->mnuPlayLists, g_hash_table_size(sd->player.playLists));
+	}
     LOG("Leave squeezebox_init_backend");
 }
 
@@ -871,7 +872,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 				   TEXT_COLUMN, ptr->name, 
                    INDEX_COLUMN, ptr->basename, 
 				   AVAIL_COLUMN, ptr->autoAttach, -1);
-		if( !g_utf8_collate(sd->current->basename, ptr->basename)) {
+		if( sd->current && !g_utf8_collate(sd->current->basename, ptr->basename)) {
 			GtkTreeSelection *selection = gtk_tree_view_get_selection(view);
 			gtk_tree_selection_select_iter(selection, &iter);
 			gtk_widget_set_sensitive(
