@@ -445,6 +445,7 @@ static void
 squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 		     eSynoptics State, const gchar * playerMessage) {
 	MKTHIS;
+	LOG("Enter squeezebox_update_UI %d %d", updateSong, State);
 	if (sd->state != State) {
 		sd->state = State;
 		squeezebox_update_playbtn(sd);
@@ -488,10 +489,11 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 		} else {
 			g_string_assign(sd->toolTipText, "");
 		}
-		if (sd->notify) {
+		if (sd->notify && !sd->inCreate) {
 			squeezebox_update_UI_show_toaster(thsPlayer);
 		}
 	}
+	LOG("Leave squeezebox_update_UI %d %s", sd->notify, sd->toolTipText->str);
 }
 
 static gboolean squeezebox_set_size(XfcePanelPlugin * plugin, int size,
@@ -582,13 +584,6 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	};
 	LOG("Enter squeezebox_read_rc_file");
 
-	// Always init backend
-	backend = xfconf_channel_get_string(sd->channel, "/Current", backend);
-	bAutoConnect = xfconf_channel_get_bool(sd->channel, "/AutoConnect", bAutoConnect);
-	sd->player.sd = sd;
-	sd->autoAttach = bAutoConnect;
-	squeezebox_init_backend(sd, backend);
-	
 	// Appearance
 	bShowNext = xfconf_channel_get_bool(sd->channel, "/ShowNext", bShowNext);
 	bShowPrev = xfconf_channel_get_bool(sd->channel, "/ShowPrev", bShowPrev);
@@ -640,6 +635,14 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 			g_free(path2);
 		}
     }
+
+	// Always init backend
+	backend = xfconf_channel_get_string(sd->channel, "/Current", backend);
+	bAutoConnect = xfconf_channel_get_bool(sd->channel, "/AutoConnect", bAutoConnect);
+	sd->player.sd = sd;
+	sd->autoAttach = bAutoConnect;
+	squeezebox_init_backend(sd, backend);
+	
 	LOG("Leave squeezebox_read_rc_file");
 }
 
@@ -974,6 +977,7 @@ gboolean on_btn_clicked(GtkWidget * button, GdkEventButton * event,
 			if(NULL != sd->player.IsVisible)
 				squeezebox_update_visibility(sd,
 								 sd->player.IsVisible(sd->player.db));
+			sd->noUI = FALSE;
 		}
 	} else if (2 == event->button) {
         LOG("MiddleClick");
