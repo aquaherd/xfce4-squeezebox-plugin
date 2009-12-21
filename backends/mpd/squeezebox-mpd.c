@@ -43,6 +43,9 @@
 #include <libmpd/libmpd.h>
 #include <libxfcegui4/libxfcegui4.h>
 
+// standalone glib mpd
+#include "gmpd.h"
+
 #define MPD_MAP(a) parent->a = mpd##a
 #ifndef MPD_CST_STORED_PLAYLIST
 #define MPD_CST_STORED_PLAYLIST 0x20000
@@ -56,6 +59,7 @@ typedef struct mpdData{
 	GString *path;
 	GString *pmanager;
 	MpdObj *player;
+	GMpd *gmpd;
 	gboolean bUseDefault;
 	gboolean bUseMPDFolder;
 	gboolean bUsePManager;
@@ -129,6 +133,10 @@ gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 						  mpdCallbackStateChanged,
 						  thys);
 		mpdCallbackStateChanged(thys->player, MPD_SQ_ALL, thys);
+	}
+	
+	if (!thys->gmpd) {
+		thys->gmpd = g_mpd_new();
 	}
 
 	LOG("Leave mpdAssure");
@@ -250,6 +258,9 @@ gboolean mpdDetach(gpointer thsPtr) {
 	}
 	if (thys->xfconfChannel) {
 		g_object_unref(thys->xfconfChannel);
+	}
+	if (!thys->gmpd) {
+		g_object_unref(thys->gmpd);
 	}
 	LOG("Leave mpdDetach");
 	return TRUE;
