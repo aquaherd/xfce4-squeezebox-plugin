@@ -25,9 +25,8 @@
 #define __G_MPD_H__
 
 #include <glib-object.h>
-/*
- * Potentially, include other headers on which this header depends.
- */
+
+G_BEGIN_DECLS
 
 /*
  * Type macros.
@@ -70,4 +69,14 @@ gboolean g_mpd_connect(GMpd *object, const gchar* host, const int port);
 void g_mpd_disconnect(GMpd *object);
 gboolean g_mpd_next(GMpd *object);
 gboolean g_mpd_prev(GMpd *object);
+gboolean g_mpd_play(GMpd *object);
+gboolean g_mpd_pause(GMpd *object);
+GHashTable *g_mpd_get_current_track(GMpd *object);
+GHashTable *g_mpd_get_state_info(GMpd *object);
+GHashTable *g_mpd_get_playlists(GMpd *object);
+gboolean g_mpd_is_playing(GMpd *object);
+gboolean g_mpd_switch_playlist(GMpd *object, const gchar *playlist);
+
+G_END_DECLS
+
 #endif /* __G_MPD_H__ */
