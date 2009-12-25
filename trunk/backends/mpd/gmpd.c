@@ -48,7 +48,6 @@ struct _GMpdPrivate
 	GHashTable *playlists;
 	GHashTable *stateinfo;
 	GHashTable *changes;
-	gint signal[4];
 	GMpd *self;
 };
 
@@ -102,6 +101,7 @@ static void _update_dispatch(GMpdPrivate *priv, gchar *changeDetail) {
 
 static void _idle_cb(GObject *source_object, GAsyncResult *res,  gpointer user_data) {
 	GMpdPrivate *priv = G_MPD_GET_PRIVATE(user_data);
+	GMpdClass *klass = G_MPD_GET_CLASS(user_data);
 	gssize sz = 0;
 	_error_clear(priv);
 	gchar *line = g_data_input_stream_read_line_finish(priv->istm, res, &sz, &priv->error);
@@ -116,7 +116,7 @@ static void _idle_cb(GObject *source_object, GAsyncResult *res,  gpointer user_d
 			// read OK
 			gchar *line2 = _read_response_line(priv);
 			g_free(line2);
-			g_signal_emit(priv->self, priv->signal[SIGNAL_IDLE], 0, changeDetail);
+			g_signal_emit(priv->self, klass->signal[SIGNAL_IDLE], 0, changeDetail);
 			_update_dispatch(priv, changeDetail);
 		}
 		g_free(line);
@@ -165,6 +165,10 @@ static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...
 	return (NULL == priv->error);
 }
 
+static void _update_database(GMpdPrivate *priv, gchar *changeDetail) {
+	/* nothing to do for now */
+}
+
 static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail) {
 	if(_send_command_raw(priv, "listplaylists\n")) {
 		gchar *line = _read_response_line(priv);
@@ -183,7 +187,8 @@ static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail) {
 			g_free(line);
 			line = _read_response_line(priv);
 		}
-		g_signal_emit(priv->self, priv->signal[SIGNAL_PLAYLIST], 0);
+		GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
+		g_signal_emit(priv->self, klass->signal[SIGNAL_PLAYLIST], 0);
 	}
 }
 
@@ -197,6 +202,7 @@ static void _update_player(GMpdPrivate *priv, gchar *changeDetail) {
 
 static void _update_status(GMpdPrivate *priv, gchar *changeDetail) {
 	if(_send_command_raw(priv, "status\n")) {
+		GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
 		gchar *line = _read_response_line(priv);
 		gboolean changed = FALSE;
 		if(_error_extract(priv, line)) {
@@ -214,12 +220,13 @@ static void _update_status(GMpdPrivate *priv, gchar *changeDetail) {
 			line = _read_response_line(priv);
 		}
 		if(changed)
-			g_signal_emit(priv->self, priv->signal[SIGNAL_STATUS], 0);
+			g_signal_emit(priv->self, klass->signal[SIGNAL_STATUS], 0);
 	}
 }
 
 static void _update_currentsong(GMpdPrivate *priv, gchar *changeDetail) {
 	if(_send_command_raw(priv, "currentsong\n")) {
+		GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
 		gchar *line = _read_response_line(priv);
 		gboolean changed = FALSE;
 		if(_error_extract(priv, line)) {
@@ -237,7 +244,7 @@ static void _update_currentsong(GMpdPrivate *priv, gchar *changeDetail) {
 			line = _read_response_line(priv);
 		}
 		if(changed)
-			g_signal_emit(priv->self, priv->signal[SIGNAL_SONG], 0);
+			g_signal_emit(priv->self, klass->signal[SIGNAL_SONG], 0);
 	}
 }
 
@@ -252,7 +259,7 @@ static void g_mpd_dispose (GObject *gobject) {
 	g_hash_table_destroy(priv->currentsong);
 	g_hash_table_destroy(priv->playlists);
 	g_hash_table_destroy(priv->stateinfo);
-	g_hash_table_destroy(priv->changes);
+	//g_hash_table_destroy(priv->changes);
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS (g_mpd_parent_class)->dispose (gobject);
 }
@@ -269,7 +276,56 @@ static void g_mpd_class_init (GMpdClass *klass)
 
 	gobject_class->dispose = g_mpd_dispose;
 	gobject_class->finalize = g_mpd_finalize;  
+
+	klass->signal[SIGNAL_IDLE] = g_signal_new ("idle-changed",
+		G_TYPE_FROM_CLASS(klass),
+		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+		0 /* offset */,
+		NULL /* accumulator */,
+		NULL /* accumulator data */,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE /* return_type */,
+		1     /* n_params */,
+		G_TYPE_STRING /* what has changed */
+		);
+	
+	klass->signal[SIGNAL_STATUS] = g_signal_new ("status-changed",
+		G_TYPE_FROM_CLASS(klass),
+		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+		0 /* offset */,
+		NULL /* accumulator */,
+		NULL /* accumulator data */,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE /* return_type */,
+		0     /* no params */
+		);
+	
+	klass->signal[SIGNAL_SONG] = g_signal_new ("song-changed",
+		G_TYPE_FROM_CLASS(klass),
+		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+		0 /* offset */,
+		NULL /* accumulator */,
+		NULL /* accumulator data */,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE /* return_type */,
+		0     /* no params */
+		);
+	
+	klass->signal[SIGNAL_PLAYLIST] = g_signal_new ("playlist-changed",
+		G_TYPE_FROM_CLASS(klass),
+		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+		0 /* offset */,
+		NULL /* accumulator */,
+		NULL /* accumulator data */,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE /* return_type */,
+		0     /* no params */
+		);
+	
 	g_type_class_add_private (klass, sizeof (GMpdPrivate));
+}
+
+static void _free(void *ptr) {
 }
 
 static void
@@ -286,57 +342,12 @@ g_mpd_init (GMpd *self)
 	priv->stateinfo = 
 		g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	priv->changes = 
-		g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+		g_hash_table_new_full(g_str_hash, g_str_equal, g_free, _free);
 		
-	priv->signal[SIGNAL_IDLE] = g_signal_new ("idle-changed",
-		G_TYPE_FROM_INSTANCE(self),
-		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-		0 /* offset */,
-		NULL /* accumulator */,
-		NULL /* accumulator data */,
-		g_cclosure_marshal_VOID__VOID,
-		G_TYPE_NONE /* return_type */,
-		1     /* n_params */,
-		G_TYPE_STRING /* what has changed */
-		);
-	
-	priv->signal[SIGNAL_STATUS] = g_signal_new ("status-changed",
-		G_TYPE_FROM_INSTANCE(self),
-		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-		0 /* offset */,
-		NULL /* accumulator */,
-		NULL /* accumulator data */,
-		g_cclosure_marshal_VOID__VOID,
-		G_TYPE_NONE /* return_type */,
-		0     /* no params */
-		);
-	
-	priv->signal[SIGNAL_SONG] = g_signal_new ("song-changed",
-		G_TYPE_FROM_INSTANCE(self),
-		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-		0 /* offset */,
-		NULL /* accumulator */,
-		NULL /* accumulator data */,
-		g_cclosure_marshal_VOID__VOID,
-		G_TYPE_NONE /* return_type */,
-		0     /* no params */
-		);
-	
-	priv->signal[SIGNAL_PLAYLIST] = g_signal_new ("playlist-changed",
-		G_TYPE_FROM_INSTANCE(self),
-		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-		0 /* offset */,
-		NULL /* accumulator */,
-		NULL /* accumulator data */,
-		g_cclosure_marshal_VOID__VOID,
-		G_TYPE_NONE /* return_type */,
-		0     /* no params */
-		);
-	
 	priv->self = self;
 	
-	g_hash_table_insert(priv->changes, "database", NULL);
-	g_hash_table_insert(priv->changes, "update", NULL);
+	g_hash_table_insert(priv->changes, "database", _update_database);
+	g_hash_table_insert(priv->changes, "update", _update_database);
 	g_hash_table_insert(priv->changes, "stored_playlist", _update_playlists);
 	g_hash_table_insert(priv->changes, "playlist", _update_playlists);
 	g_hash_table_insert(priv->changes, "player", _update_player);
@@ -354,7 +365,8 @@ void g_mpd_disconnect(GMpd *self) {
 	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
 
 	if(priv->connection) {
-		_send_command_simple(priv, "close\n");
+		_idle_cancel(priv);
+		_send_command_raw(priv, "close\n");
 	}
 	_clear_object((GObject**)&priv->istm);
 	_clear_object((GObject**)&priv->connection);
@@ -362,7 +374,7 @@ void g_mpd_disconnect(GMpd *self) {
 	_clear_object((GObject**)&priv->address);
 }
 gboolean g_mpd_connect(GMpd *self, const gchar* host, const int port) {
-	g_return_if_fail (G_IS_MPD (self));
+	g_return_val_if_fail (G_IS_MPD (self), FALSE);
 	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
 
 	g_mpd_disconnect(self);

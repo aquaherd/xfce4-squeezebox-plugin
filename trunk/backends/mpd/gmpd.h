@@ -44,18 +44,19 @@ typedef struct _GMpdPrivate GMpdPrivate;
 
 struct _GMpd
 {
-  GObject parent_instance;
+	GObject parent_instance;
 
-  /* instance members */
-  /*< private >*/
-  GMpdPrivate *priv;
+	/* instance members */
+	/*< private >*/
+	GMpdPrivate *priv;
 };
 
 struct _GMpdClass
 {
-  GObjectClass parent_class;
+	GObjectClass parent_class;
 
-  /* class members */
+	/* class members */
+	gint signal[4];
 };
 
 /* used by G_MPD_TYPE */
