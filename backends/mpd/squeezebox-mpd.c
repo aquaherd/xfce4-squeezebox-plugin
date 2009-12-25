@@ -39,18 +39,12 @@
 
 #include <string.h>
 
-// libmpd for music player daemon remote
-#include <libmpd/libmpd.h>
 #include <libxfcegui4/libxfcegui4.h>
 
 // standalone glib mpd
 #include "gmpd.h"
 
 #define MPD_MAP(a) parent->a = mpd##a
-#ifndef MPD_CST_STORED_PLAYLIST
-#define MPD_CST_STORED_PLAYLIST 0x20000
-#endif
-#define MPD_SQ_ALL (MPD_CST_SONGID|MPD_CST_STATE|MPD_CST_REPEAT|MPD_CST_RANDOM|MPD_CST_STORED_PLAYLIST|MPD_CST_PLAYLIST)
 typedef struct mpdData{
 	SPlayer *parent;
 	guint port;
@@ -58,7 +52,6 @@ typedef struct mpdData{
 	GString *pass;
 	GString *path;
 	GString *pmanager;
-	MpdObj *player;
 	GMpd *gmpd;
 	gboolean bUseDefault;
 	gboolean bUseMPDFolder;
@@ -75,84 +68,88 @@ typedef struct mpdData{
 #define MKTHIS mpdData *thys = (mpdData *)thsPtr;
 
 gpointer MPD_attach(SPlayer * player);
-void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
-			     gpointer thsPtr);
-gint mpdCallback(gpointer thsPtr);
 
 #define BASENAME "mpd"
 DEFINE_BACKEND(MPD, _("Music Player Daemon"))
 
 // implementation
 
+void on_gmpd_song_changed(GMpd *gmpd, gpointer thsPtr) {
+	MKTHIS;
+	GHashTable *song_info = g_mpd_get_current_track(thys->gmpd);
+	gboolean bFound = FALSE;
+
+	g_string_assign(thys->parent->artist, g_hash_table_lookup(song_info, "Artist"));
+	g_string_assign(thys->parent->album, g_hash_table_lookup(song_info, "Album"));
+	g_string_assign(thys->parent->title, g_hash_table_lookup(song_info, "Title"));
+
+	if (thys->bUseMPDFolder
+		&& g_file_test(thys->path->str, G_FILE_TEST_EXISTS)) {
+		GString *artLocation = g_string_new("");
+		g_string_printf(artLocation, "%s/%s", 
+			thys->path->str, 
+			(gchar*) g_hash_table_lookup(song_info, "file"));
+		thys->parent->FindAlbumArtByFilePath(
+			thys->parent->sd,
+			artLocation->str);
+		g_string_free(artLocation, TRUE);
+	}
+	thys->parent->Update(thys->parent->sd, TRUE, estPlay, NULL);
+}
+
+void on_gmpd_status_changed(GMpd *gmpd, gpointer thsPtr) {
+	MKTHIS;
+	eSynoptics eStat = estErr;
+	GHashTable *state_info = g_mpd_get_state_info(thys->gmpd);
+	gchar *state = g_hash_table_lookup(state_info, "state");
+	if(!g_strcmp0(state, "play"))
+		eStat = estPlay;
+	else if(!g_strcmp0(state, "pause"))
+		eStat = estPause;
+	else if(!g_strcmp0(state, "stop"))
+		eStat = estStop;
+	
+	thys->parent->Update(thys->parent->sd, FALSE, eStat, NULL);
+}
+
+void _clone_playlists(gpointer key, gpointer value, gpointer thsPtr) {
+	LOG("Playlist %s", (gchar*)key);
+	g_hash_table_insert(thsPtr, g_strdup(key), g_strdup(value));
+}
+
+void on_gmpd_playlist_changed(GMpd *gmpd, gpointer thsPtr) {
+	MKTHIS;
+	
+	g_hash_table_remove_all(thys->parent->playLists);
+	g_hash_table_foreach(
+		g_mpd_get_playlists(thys->gmpd), 
+		_clone_playlists, 
+		thys->parent->playLists);
+	
+	thys->parent->UpdatePlaylists(thys->parent->sd);
+}
+
 gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 
 	MKTHIS;
-	gboolean gConnect = FALSE;
+	gboolean gConnect = TRUE;
 	LOG("Enter mpdAssure");
-	if (!thys->player) {
-		if (thys->bUseDefault) {
-			LOG("    Connecting local...");
-			thys->player = mpd_new_default();
-		} else {
-			LOG("    Connecting to remote host %s:%d...", thys->host->str, thys->port);
-			thys->player = mpd_new(thys->host->str,
-					       thys->port, thys->pass->str);
-		}
-		if (thys->player) {
-			if (MPD_OK == mpd_connect(thys->player)) {
-				LOG("Connect OK");
-				gConnect = TRUE;
-			}
-		}
-	}
-	if (thys->player != NULL && mpd_status_update(thys->player) != MPD_OK) {
-		LOG("reconnecting..");
-		mpd_connect(thys->player);
-		//if(!thys->bUseDefault)
-		//mpd_send_password(thys->player);
-		if (mpd_check_error(thys->player)
-		    || mpd_status_update(thys->player) != MPD_OK) {
-			LOG(".Fail.");
-			g_string_assign(thys->parent->artist, "");
-			g_string_assign(thys->parent->album, "");
-			g_string_assign(thys->parent->title, "");
-			g_string_assign(thys->parent->albumArt, "");
-			thys->parent->Update(thys->parent->sd, TRUE, estErr,
-					     _("Can't connect to music player daemon."));
-			mpd_disconnect(thys->player);
-			mpd_free(thys->player);
-			thys->player = NULL;
-		} else {
-			LOG(".OK.");
-			gConnect = TRUE;
-		}
-	}
-
-	if (gConnect && thys->player) {
-		mpd_signal_connect_status_changed(thys->player,
-						  mpdCallbackStateChanged,
-						  thys);
-		mpdCallbackStateChanged(thys->player, MPD_SQ_ALL, thys);
-	}
-	
 	if (!thys->gmpd) {
 		thys->gmpd = g_mpd_new();
-		g_mpd_connect(thys->gmpd, "localhost", 6600);
+		g_signal_connect(thys->gmpd, "song-changed", 
+			G_CALLBACK(on_gmpd_song_changed), thsPtr);
+		g_signal_connect(thys->gmpd, "status-changed", 
+			G_CALLBACK(on_gmpd_status_changed), thsPtr);
+		g_signal_connect(thys->gmpd, "playlist-changed", 
+			G_CALLBACK(on_gmpd_playlist_changed), thsPtr);
+		if(thys->bUseDefault)
+			gConnect = g_mpd_connect(thys->gmpd, "localhost", 6600);
+		else
+			gConnect = g_mpd_connect(thys->gmpd, thys->host->str, thys->port);
 	}
 
 	LOG("Leave mpdAssure");
-	return (thys->player != NULL);
-}
-
-gint mpdCallback(gpointer thsPtr) {
-	MKTHIS;
-	if (thys->player != NULL) {
-		gint stat = mpd_status_update(thys->player);
-		if(MPD_OK != stat) {
-			LOG("Unexpected mpd status %d", stat);
-		}
-	}
-	return TRUE;
+	return gConnect;
 }
 
 gboolean mpdNext(gpointer thsPtr) {
@@ -162,7 +159,6 @@ gboolean mpdNext(gpointer thsPtr) {
 	if (!mpdAssure(thys, TRUE))
 		return FALSE;
 	else
-		//bRet = (MPD_OK == mpd_player_next(thys->player));
 		bRet = g_mpd_next(thys->gmpd);
 	LOG("Leave mpdNext");
 	return bRet;
@@ -175,60 +171,47 @@ gboolean mpdPrevious(gpointer thsPtr) {
 	if (!mpdAssure(thys, TRUE))
 		return FALSE;
 	else
-		bRet = (MPD_OK == mpd_player_prev(thys->player));
+		bRet = g_mpd_prev(thys->gmpd);
 	LOG("Leave mpdPrevious");
 	return TRUE;
 }
 
 gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	LOG("Enter mpdPlayPause");
-	int iRet = MPD_OK;
+	gboolean bRet = FALSE;
+	LOG("Enter mpdPlayPause %d", newState);
 	if (!mpdAssure(thys, FALSE))
-		return FALSE;
+		bRet = FALSE;
 	else if (newState)
-		iRet = mpd_player_play(thys->player);
+		bRet = g_mpd_play(thys->gmpd);
 	else
-		iRet = mpd_player_pause(thys->player);
+		bRet = g_mpd_pause(thys->gmpd);
 	LOG("Leave mpdPlayPause");
-	return (iRet == MPD_OK);
+	return bRet;
 }
 
 gboolean mpdPlayPlaylist(gpointer thsPtr, gchar *playlistName) {
 	MKTHIS;
-	MpdState state = mpd_player_get_state(thys->player);
+	gboolean bRet = FALSE;
+	gboolean bPlaying = g_mpd_is_playing(thys->gmpd);
 	LOG("Enter mpdPlayPlaylist");
-	mpd_playlist_clear(thys->player);
-	mpd_playlist_queue_load(thys->player, playlistName);
-	mpd_playlist_queue_commit(thys->player);
-	switch(state) {
-		case MPD_STATUS_STATE_PLAY:
-			mpd_player_play(thys->player);
-			break;
-		case MPD_STATUS_STATE_PAUSE:
-			mpd_player_play(thys->player);
-			mpd_player_pause(thys->player);
-			break;
-		case MPD_PLAYER_STOP:
-		case MPD_PLAYER_UNKNOWN:
-			break;
-	}
+	bRet = g_mpd_switch_playlist(thys->gmpd, playlistName);
+	if(bPlaying)
+		bRet &= g_mpd_play(thys->gmpd);
 	LOG("Leave mpdPlayPlaylist");
-	return TRUE;
+	return bRet;
 }
 
 gboolean mpdIsPlaying(gpointer thsPtr) {
 	MKTHIS;
-	MpdState sStat = MPD_STATUS_STATE_STOP;
-
+	gboolean bRet = FALSE;
 	LOG("Enter mpdIsPlaying");
 	if (!mpdAssure(thys, TRUE))
-		return FALSE;
-	if (thys->player) {
-		sStat = mpd_player_get_state(thys->player);
-	}
+		bRet = FALSE;
+	else
+		bRet = g_mpd_is_playing(thys->gmpd);
 	LOG("Leave mpdIsPlaying");
-	return (sStat == MPD_STATUS_STATE_PLAY);
+	return bRet;
 }
 
 gboolean mpdToggle(gpointer thsPtr, gboolean * newState) {
@@ -242,27 +225,19 @@ gboolean mpdToggle(gpointer thsPtr, gboolean * newState) {
 		return FALSE;
 	if (newState)
 		*newState = !oldState;
-	LOG("Leave mpdToggle");
+	LOG("Leave mpdToggle %d", oldState);
 	return TRUE;
 }
 
 gboolean mpdDetach(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter mpdDetach");
-	if (thys->player) {
-		mpd_disconnect(thys->player);
-		mpd_free(thys->player);
-		thys->player = NULL;
-	}
-	if (thys->intervalID) {
-		g_source_remove(thys->intervalID);
-		thys->intervalID = 0;
-	}
 	if (thys->xfconfChannel) {
 		g_object_unref(thys->xfconfChannel);
 	}
 	if (!thys->gmpd) {
 		g_object_unref(thys->gmpd);
+		thys->gmpd = NULL;
 	}
 	LOG("Leave mpdDetach");
 	return TRUE;
@@ -285,161 +260,28 @@ gboolean mpdShow(gpointer thsPtr, gboolean newState) {
 
 gboolean mpdGetRepeat(gpointer thsPtr) {
 	MKTHIS;
-	if (thys->player)
-		return mpd_player_get_repeat(thys->player);
-	return FALSE;
+	return g_mpd_get_repeat(thys->gmpd);
 }
 
 gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
 	MKTHIS;
 	if (mpdAssure(thsPtr, TRUE)) {
-		return (MPD_OK ==
-			mpd_player_set_repeat(thys->player,
-					      (newShuffle) ? 1 : 0));
+		return g_mpd_set_repeat(thys->gmpd, newShuffle);
 	}
 	return FALSE;
 }
 
 gboolean mpdGetShuffle(gpointer thsPtr) {
 	MKTHIS;
-	if (thys->player)
-		return mpd_player_get_random(thys->player);
-	return FALSE;
+	return g_mpd_get_random(thys->gmpd);
 }
 
 gboolean mpdSetShuffle(gpointer thsPtr, gboolean newRandom) {
 	MKTHIS;
 	if (mpdAssure(thsPtr, TRUE)) {
-		return (MPD_OK ==
-			mpd_player_set_random(thys->player,
-					      (newRandom) ? 1 : 0));
+		return g_mpd_set_random(thys->gmpd, newRandom);
 	}
 	return FALSE;
-}
-
-void mpdCallbackStateChanged(MpdObj * player, ChangedStatusType sType,
-			     gpointer thsPtr) {
-	MKTHIS;
-	if (sType & MPD_CST_SONGID) {
-		mpd_Song *song = mpd_playlist_get_current_song(thys->player);
-		LOG("Enter mpdCallback: SongChanged");
-		if (song != NULL) {
-			GString *artLocation = NULL;
-			gboolean bFound = FALSE;
-
-			g_string_assign(thys->parent->artist, song->artist);
-			g_string_assign(thys->parent->album, song->album);
-			g_string_assign(thys->parent->title, song->title);
-
-			//fetching gmpc covers
-			artLocation = g_string_new(g_get_home_dir());
-			g_string_append_printf(artLocation,
-					       "/.covers/%s - %s.jpg",
-					       song->artist, song->album);
-			LOG("Check 1:'%s'", artLocation->str);
-			g_string_truncate(thys->parent->albumArt, 0);
-
-			if (g_file_test(artLocation->str, G_FILE_TEST_EXISTS)) {
-				bFound = TRUE;
-			} else {
-				if (thys->bUseMPDFolder
-				    && g_file_test(thys->path->str,
-						   G_FILE_TEST_EXISTS)) {
-					g_string_printf(artLocation, "%s/%s",
-							thys->path->str,
-							song->file);
-					thys->
-					    parent->FindAlbumArtByFilePath
-					    (thys->parent->sd,
-					     artLocation->str);
-				}
-			}
-			if (bFound) {
-				// just assign here, scaling is done in callee
-				g_string_assign(thys->parent->albumArt,
-						artLocation->str);
-				LOG("Found :'%s'", artLocation->str);
-			}
-
-			g_string_free(artLocation, TRUE);
-			thys->parent->Update(thys->parent->sd, TRUE, estPlay,
-					     NULL);
-			thys->songID = song->id;
-		}
-		LOG("Leave mpdCallback: SongChanged");
-	}
-	if (sType & MPD_CST_STATE) {
-		LOG("Enter mpdCallback: StateChanged");
-		eSynoptics eStat;
-		MpdState state = mpd_player_get_state(thys->player);
-		switch (state) {
-		    case MPD_PLAYER_PAUSE:
-			    eStat = estPause;
-			    break;
-		    case MPD_PLAYER_PLAY:
-			    eStat = estPlay;
-			    break;
-		    case MPD_PLAYER_STOP:
-			    eStat = estStop;
-			    break;
-		    default:
-			    eStat = estErr;
-			    break;
-		}
-		thys->parent->Update(thys->parent->sd, FALSE, eStat, NULL);
-		LOG("Leave mpdCallback: StateChanged");
-	}
-	if (sType & MPD_CST_REPEAT) {
-		LOG("Enter mpdCallback: RepeatChanged");
-		thys->parent->UpdateRepeat(thys->parent->sd,
-					   mpd_player_get_repeat(thys->player));
-		LOG("Leave mpdCallback: RepeatChanged");
-	}
-	if (sType & MPD_CST_RANDOM) {
-		LOG("Enter mpdCallback: ShuffleChanged");
-		thys->parent->UpdateShuffle(thys->parent->sd,
-					    mpd_player_get_random
-					    (thys->player));
-		LOG("Leave mpdCallback: ShuffleChanged");
-	}
-	// display elapsed/total ?
-#if 0
-	if (sType & (MPD_CST_ELAPSED_TIME | MPD_CST_TOTAL_TIME)) {
-		   if( sType & MPD_CST_ELAPSED_TIME )
-			   thys->parent->secPos = 
-				   mpd_status_get_elapsed_song_time(thys->player);
-		   if( sType & MPD_CST_TOTAL_TIME )
-			   thys->parent->secTot = 
-			   mpd_status_get_total_song_time(thys->player);
-		   thys->parent->UpdateTimePosition(thys->parent->sd);
-	}
-#endif
-	if(sType & (MPD_CST_STORED_PLAYLIST)) {
-		mpd_Connection * conn = NULL;
-		mpd_InfoEntity * entity = NULL;
-		char * ls = "";
-		LOG("Enter mpdCallback: PlaylistChanged");
-		if(thys->bUseDefault)
-			conn = mpd_newConnection("localhost", 6600, 150);
-		else
-			conn = mpd_newConnection(thys->host->str, thys->port, 1500);
-		if(conn) {
-			g_hash_table_remove_all(thys->parent->playLists);
-			mpd_sendLsInfoCommand(conn,ls);
-
-			while((entity = mpd_getNextInfoEntity(conn))) {
-				if(entity->type==
-						MPD_INFO_ENTITY_TYPE_PLAYLISTFILE) {
-					mpd_PlaylistFile * pl = entity->info.playlistFile;
-					g_hash_table_insert(thys->parent->playLists, 
-						g_strdup(pl->path), g_strdup("stock_playlist"));
-				}
-				mpd_freeInfoEntity(entity);
-			}
-			thys->parent->UpdatePlaylists(thys->parent->sd);
-		}
-		LOG("Leave mpdCallback: PlaylistChanged");
-	}
 }
 
 void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
@@ -454,11 +296,8 @@ void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
 		} else {
 			NOMAP(Show);
 		}
-		
-		if(mpdAssure(thsPtr, FALSE) && NULL != thys->player) {
-			mpdCallbackStateChanged(thys->player, MPD_SQ_ALL, thsPtr);
-		}
 	}	
+	mpdAssure(thsPtr, FALSE);
 	LOG("Leave mpdPersist");
 }
 
@@ -473,10 +312,10 @@ EXPORT void on_mpdSettings_response(GtkDialog * dlg, int reponse,
 	{
 		LOG("    Reconnecting to %s", thys->host->str);
 		thys->bRequireReconnect = FALSE;
-		if (thys->player) {
-			mpd_disconnect(thys->player);
-			mpd_free(thys->player);
-			thys->player = NULL;
+		if (thys->gmpd) {
+			g_mpd_disconnect(thys->gmpd);
+			g_object_unref(thys->gmpd);
+			thys->gmpd = NULL;
 		}
 		mpdAssure(thsPtr, FALSE);
 		LOG("    Done reconnect.");
@@ -732,14 +571,6 @@ gpointer MPD_attach(SPlayer * parent) {
 	thys->parent = parent;
 	thys->wDlg = NULL;
 
-	// force our own update rate
-	if (parent->updateRateMS < 1000)
-		parent->updateRateMS = 1000;
-
-	// establish the callback function
-	thys->intervalID =
-		g_timeout_add(thys->parent->updateRateMS, mpdCallback, thys);
-		
 	// initialize properties
 
     thys->xfconfChannel = xfconf_channel_new_with_property_base (

@@ -12,7 +12,7 @@ dnl
 m4_define([squeeze_version_major], [0])
 m4_define([squeeze_version_minor], [1])
 m4_define([squeeze_version_micro], [2])
-m4_define([squeeze_version_build], [r00162])
+m4_define([squeeze_version_build], [r00165])
 m4_define([squeeze_version_tag], [])
 m4_define([squeeze_vers], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()])
 m4_define([squeeze_version], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()ifelse(squeeze_version_tag(), [svn], [squeeze_version_tag()-squeeze_version_build()], [squeeze_version_tag()])])
@@ -109,23 +109,6 @@ fi
 AC_ARG_ENABLE(MPD,[  --disable-MPD           disable MPD support (default: enable)],[enable_MPD=$enableval],[enable_MPD=yes])
 if test x$enable_MPD = xyes; then
 	AC_DEFINE(HAVE_BACKEND_MPD,1,[Define to use MPD])
-
-	dnl check for libmpd presence
-	AC_ARG_WITH(libmpd,
-		AS_HELP_STRING([--with-libmpd=path],[path to libmpd directory]),
-			LIBMPD_PATH="$withval", LIBMPD_PATH="")
-
-	AC_MSG_CHECKING(whether --libmpd was used)
-	if test -n "$LIBMPD_PATH" ; then
-	   AC_MSG_RESULT(yes, using $LIBMPD_PATH)
-	   LIBMPD_CFLAGS="-I${LIBMPD_PATH}/include/"
-	   LIBMPD_LIBS="-L${LIBMPD_PATH}/lib/ -lmpd"
-	else
-	   AC_MSG_RESULT(no, falling back to pkg-config)
-	   PKG_CHECK_MODULES([LIBMPD], [libmpd >= 0.12])
-	fi
-	AC_SUBST([LIBMPD_CFLAGS])
-	AC_SUBST([LIBMPD_LIBS])
 	AC_CONFIG_FILES([backends/mpd/Makefile])
 	subdirs="$subdirs mpd"
 fi
