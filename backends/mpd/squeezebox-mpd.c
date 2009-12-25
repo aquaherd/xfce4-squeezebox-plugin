@@ -61,6 +61,7 @@ typedef struct mpdData{
 	gint intervalID;
 	gint songID;
 	gint songLength;
+	eSynoptics state;
 	GtkWidget *wHost, *wPass, *wPort, *wDlg, *wPath, *wPMgr;
 	XfconfChannel *xfconfChannel;
 } mpdData;
@@ -94,22 +95,23 @@ void on_gmpd_song_changed(GMpd *gmpd, gpointer thsPtr) {
 			artLocation->str);
 		g_string_free(artLocation, TRUE);
 	}
-	thys->parent->Update(thys->parent->sd, TRUE, estPlay, NULL);
+	thys->parent->Update(thys->parent->sd, TRUE, thys->state, NULL);
 }
 
 void on_gmpd_status_changed(GMpd *gmpd, gpointer thsPtr) {
 	MKTHIS;
-	eSynoptics eStat = estErr;
 	GHashTable *state_info = g_mpd_get_state_info(thys->gmpd);
 	gchar *state = g_hash_table_lookup(state_info, "state");
 	if(!g_strcmp0(state, "play"))
-		eStat = estPlay;
+		thys->state = estPlay;
 	else if(!g_strcmp0(state, "pause"))
-		eStat = estPause;
+		thys->state = estPause;
 	else if(!g_strcmp0(state, "stop"))
-		eStat = estStop;
+		thys->state = estStop;
+	else
+		thys->state = estErr;
 	
-	thys->parent->Update(thys->parent->sd, FALSE, eStat, NULL);
+	thys->parent->Update(thys->parent->sd, FALSE, thys->state, NULL);
 }
 
 void _clone_playlists(gpointer key, gpointer value, gpointer thsPtr) {
@@ -313,7 +315,6 @@ EXPORT void on_mpdSettings_response(GtkDialog * dlg, int reponse,
 		LOG("    Reconnecting to %s", thys->host->str);
 		thys->bRequireReconnect = FALSE;
 		if (thys->gmpd) {
-			g_mpd_disconnect(thys->gmpd);
 			g_object_unref(thys->gmpd);
 			thys->gmpd = NULL;
 		}
