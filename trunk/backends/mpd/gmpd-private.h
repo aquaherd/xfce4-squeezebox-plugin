@@ -26,6 +26,11 @@
 static GQuark G_MPD_DOMAIN;
 #define G_MPD_ERROR 4711
 
+#define SIGNAL_IDLE 0
+#define SIGNAL_STATUS 1
+#define SIGNAL_SONG 2
+#define SIGNAL_PLAYLIST 3
+
 static void _clear_object(GObject **socket);
 static void _error_clear(GMpdPrivate *priv);
 static gboolean _error_extract(GMpdPrivate *priv, const gchar* line);
@@ -36,6 +41,7 @@ static void _idle_cb(GObject *source_object, GAsyncResult *res,  gpointer user_d
 static void _idle_enter(GMpdPrivate *priv);
 static void _idle_cancel(GMpdPrivate *priv);
 static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...);
+static void _update_player(GMpdPrivate *priv, gchar *changeDetail);
 static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail);
 static void _update_status(GMpdPrivate *priv, gchar *changeDetail);
 static void _update_currentsong(GMpdPrivate *priv, gchar *changeDetail);

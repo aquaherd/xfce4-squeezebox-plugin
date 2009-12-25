@@ -48,7 +48,7 @@ struct _GMpdPrivate
 	GHashTable *playlists;
 	GHashTable *stateinfo;
 	GHashTable *changes;
-	gint signal;
+	gint signal[4];
 	GMpd *self;
 };
 
@@ -110,15 +110,15 @@ static void _idle_cb(GObject *source_object, GAsyncResult *res,  gpointer user_d
 		LOG("GMpd:IdleComplete:%s", priv->error->message);
 		g_cancellable_reset(priv->cancel);
 	} else {
-		LOG("GMpd:IdleComplete:%d:%s", priv->signal, line);
+		LOG("GMpd:IdleComplete:%s", line);
 		if(g_str_has_prefix(line, "changed: ")) {
 			gchar *changeDetail = line + 9;
+			// read OK
+			gchar *line2 = _read_response_line(priv);
+			g_free(line2);
+			g_signal_emit(priv->self, priv->signal[SIGNAL_IDLE], 0, changeDetail);
 			_update_dispatch(priv, changeDetail);
-			g_signal_emit(priv->self, priv->signal, 0, changeDetail);
 		}
-		g_free(line);
-		// read OK
-		line = _read_response_line(priv);
 		g_free(line);
 		_idle_enter(priv);
 	}
@@ -166,61 +166,79 @@ static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...
 }
 
 static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail) {
-	//_idle_cancel(priv);
 	if(_send_command_raw(priv, "listplaylists\n")) {
 		gchar *line = _read_response_line(priv);
+		gboolean changed = FALSE;
 		if(_error_extract(priv, line)) {
 			g_free(line);
 			return;
 		}
+		g_hash_table_remove_all(priv->playlists);
 		while(line && g_strcmp0(line, "OK")) {
-			if(!g_str_has_prefix(line, "playlist: ")) {
+			if(g_str_has_prefix(line, "playlist: ")) {
+				gchar *newList = g_strdup(line + 10);
 				g_hash_table_insert(priv->playlists, 
-					g_strdup(line + 10), g_strdup("stock_playlist"));
+					newList, g_strdup("stock_playlist"));
 			}
 			g_free(line);
 			line = _read_response_line(priv);
 		}
+		g_signal_emit(priv->self, priv->signal[SIGNAL_PLAYLIST], 0);
 	}
-	//_idle_enter(priv);
+}
+
+static void _update_player(GMpdPrivate *priv, gchar *changeDetail) {
+	gchar *oldSongID = g_strdup(g_hash_table_lookup(priv->stateinfo, "songid"));
+	_update_status(priv, changeDetail);
+	if(g_strcmp0(oldSongID, g_hash_table_lookup(priv->stateinfo, "songid")))
+		_update_currentsong(priv, changeDetail);
+	g_free(oldSongID);
 }
 
 static void _update_status(GMpdPrivate *priv, gchar *changeDetail) {
-	//_idle_cancel(priv);
 	if(_send_command_raw(priv, "status\n")) {
 		gchar *line = _read_response_line(priv);
+		gboolean changed = FALSE;
 		if(_error_extract(priv, line)) {
 			g_free(line);
 			return;
 		}
 		while(line && g_strcmp0(line, "OK")) {
 			gchar **tokens = g_strsplit(line, ":", 2);
-			g_hash_table_insert(priv->stateinfo, g_strdup(tokens[0]), g_strdup(tokens[1]));
+			gchar *oldKey = tokens[0];
+			gchar *newValue = g_strdup(tokens[1]+1);
+			changed |= g_strcmp0(newValue, g_hash_table_lookup(priv->stateinfo, oldKey));
+			g_hash_table_insert(priv->stateinfo, g_strdup(oldKey), newValue);
 			g_free(line);
 			g_strfreev(tokens);
 			line = _read_response_line(priv);
 		}
+		if(changed)
+			g_signal_emit(priv->self, priv->signal[SIGNAL_STATUS], 0);
 	}
-	//_idle_enter(priv);
 }
 
 static void _update_currentsong(GMpdPrivate *priv, gchar *changeDetail) {
-	//_idle_cancel(priv);
 	if(_send_command_raw(priv, "currentsong\n")) {
 		gchar *line = _read_response_line(priv);
+		gboolean changed = FALSE;
 		if(_error_extract(priv, line)) {
 			g_free(line);
 			return;
 		}
 		while(line && !g_str_has_prefix(line, "OK")) {
 			gchar **tokens = g_strsplit(line, ":", 2);
-			g_hash_table_insert(priv->currentsong, g_strdup(tokens[0]), g_strdup(tokens[1]));
+			gchar *oldKey = tokens[0];
+			gchar *newValue = g_strdup(tokens[1]+1);
+			changed |= g_strcmp0(newValue, g_hash_table_lookup(priv->currentsong, oldKey));
+			g_hash_table_insert(priv->currentsong, g_strdup(oldKey), newValue);
 			g_free(line);
 			g_strfreev(tokens);
 			line = _read_response_line(priv);
 		}
+		if(changed)
+			g_signal_emit(priv->self, priv->signal[SIGNAL_SONG], 0);
 	}
-	//_idle_enter(priv);
 }
 
 /* endregion */
@@ -234,6 +252,7 @@ static void g_mpd_dispose (GObject *gobject) {
 	g_hash_table_destroy(priv->currentsong);
 	g_hash_table_destroy(priv->playlists);
 	g_hash_table_destroy(priv->stateinfo);
+	g_hash_table_destroy(priv->changes);
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS (g_mpd_parent_class)->dispose (gobject);
 }
@@ -269,7 +288,7 @@ g_mpd_init (GMpd *self)
 	priv->changes = 
 		g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 		
-	priv->signal = g_signal_new ("mpd-changed",
+	priv->signal[SIGNAL_IDLE] = g_signal_new ("idle-changed",
 		G_TYPE_FROM_INSTANCE(self),
 		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
 		0 /* offset */,
@@ -280,13 +299,47 @@ g_mpd_init (GMpd *self)
 		1     /* n_params */,
 		G_TYPE_STRING /* what has changed */
 		);
+	
+	priv->signal[SIGNAL_STATUS] = g_signal_new ("status-changed",
+		G_TYPE_FROM_INSTANCE(self),
+		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+		0 /* offset */,
+		NULL /* accumulator */,
+		NULL /* accumulator data */,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE /* return_type */,
+		0     /* no params */
+		);
+	
+	priv->signal[SIGNAL_SONG] = g_signal_new ("song-changed",
+		G_TYPE_FROM_INSTANCE(self),
+		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+		0 /* offset */,
+		NULL /* accumulator */,
+		NULL /* accumulator data */,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE /* return_type */,
+		0     /* no params */
+		);
+	
+	priv->signal[SIGNAL_PLAYLIST] = g_signal_new ("playlist-changed",
+		G_TYPE_FROM_INSTANCE(self),
+		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+		0 /* offset */,
+		NULL /* accumulator */,
+		NULL /* accumulator data */,
+		g_cclosure_marshal_VOID__VOID,
+		G_TYPE_NONE /* return_type */,
+		0     /* no params */
+		);
+	
 	priv->self = self;
 	
 	g_hash_table_insert(priv->changes, "database", NULL);
 	g_hash_table_insert(priv->changes, "update", NULL);
 	g_hash_table_insert(priv->changes, "stored_playlist", _update_playlists);
 	g_hash_table_insert(priv->changes, "playlist", _update_playlists);
-	g_hash_table_insert(priv->changes, "player", _update_currentsong);
+	g_hash_table_insert(priv->changes, "player", _update_player);
 	g_hash_table_insert(priv->changes, "mixer", _update_status);
 	g_hash_table_insert(priv->changes, "output", _update_status);
 	g_hash_table_insert(priv->changes, "options", _update_status);
@@ -329,15 +382,12 @@ gboolean g_mpd_connect(GMpd *self, const gchar* host, const int port) {
 
 		gchar *line = _read_response_line(priv);
 		if (line) {
-			LOG("GMpd: %s", line);
 			g_free(line);
 		}
-		if(g_mpd_get_current_track(self) &&
-			g_mpd_get_playlists(self) &&
-			g_mpd_get_state_info(self) ) {
-			_idle_enter(priv);
-			return TRUE;
-		}
+		_update_player(priv, "");
+		_update_playlists(priv, "");
+		_idle_enter(priv);
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -398,5 +448,36 @@ gboolean g_mpd_switch_playlist(GMpd *self, const gchar *playlist) {
 gboolean g_mpd_is_playing(GMpd *self) {
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
 	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
-	return !g_strcmp0(g_hash_table_lookup(priv->stateinfo, "state"), "playing");
+	return !g_strcmp0(g_hash_table_lookup(priv->stateinfo, "state"), "play");
 }
+
+gboolean g_mpd_get_random(GMpd *self) {
+	g_return_val_if_fail (G_IS_MPD (self), FALSE);
+	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	return !g_strcmp0(g_hash_table_lookup(priv->stateinfo, "random"), "1");
+}
+
+gboolean g_mpd_set_random(GMpd *self, gboolean newRandow) {
+	g_return_val_if_fail (G_IS_MPD (self), FALSE);
+	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	return _send_command_simple(priv, "random %d",  newRandow ? 1 : 0);
+}
+
+gboolean g_mpd_get_repeat(GMpd *self) {
+	g_return_val_if_fail (G_IS_MPD (self), FALSE);
+	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	return !g_strcmp0(g_hash_table_lookup(priv->stateinfo, "repeat"), "1");
+}
+
+gboolean g_mpd_set_repeat(GMpd *self, gboolean newRepeat) {
+	g_return_val_if_fail (G_IS_MPD (self), FALSE);
+	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	return _send_command_simple(priv, "repeat %d",  newRepeat ? 1 : 0);
+}
+
+GError * g_mpd_get_last_error(GMpd *self) {
+	g_return_val_if_fail (G_IS_MPD (self), NULL);
+	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	return g_error_copy(priv->error);
+}
+
