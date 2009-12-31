@@ -2,7 +2,7 @@ include $(top_srcdir)/backends/common.mk
 plugindir = $(backenddir)/mpd
 plugin_LTLIBRARIES = mpd.la
 
-mpd_la_LIBADD = $(COMMONLIBS) @LIBXFCE4UTIL_LIBS@
+mpd_la_LIBADD = $(COMMONLIBS) @LIBXFCE4UTIL_LIBS@ @LIBGTHREAD_LIBS@
 mpd_la_CFLAGS = $(AM_CFLAGS) @LIBXFCE4UTIL_CFLAGS@
 
 mpd_la_SOURCES = \

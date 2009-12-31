@@ -23,6 +23,14 @@
 #ifndef __G_MPD_PRIVATE_H__
 #define __G_MPD_PRIVATE_H__
 
+#undef G_LOG_DOMAIN
+#define G_LOG_DOMAIN "GMpd"
+#if DEBUG_TRACE
+	#define LOG g_message
+#else
+	#define LOG(...)
+#endif
+
 static GQuark G_MPD_DOMAIN;
 #define G_MPD_ERROR 4711
 
@@ -37,9 +45,10 @@ static gboolean _error_extract(GMpdPrivate *priv, const gchar* line);
 static gchar * _read_response_line(GMpdPrivate *priv);
 static gboolean _send_command_raw(GMpdPrivate *priv, const gchar* command);
 static void _update_dispatch(GMpdPrivate *priv, gchar *changeDetail);
-static void _idle_cb(GObject *source_object, GAsyncResult *res,  gpointer user_data);
 static void _idle_enter(GMpdPrivate *priv);
 static void _idle_cancel(GMpdPrivate *priv);
+//static gboolean _idle_cb(gpointer user_data);
+static gpointer _idle_thread(gpointer user_data);
 static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...);
 static void _update_database(GMpdPrivate *priv, gchar *changeDetail);
 static void _update_player(GMpdPrivate *priv, gchar *changeDetail);

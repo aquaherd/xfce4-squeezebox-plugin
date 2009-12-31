@@ -56,7 +56,7 @@ struct _GMpdClass
 	GObjectClass parent_class;
 
 	/* class members */
-	gint signal[4];
+	gint signal[4]; /* idle-changed, status-changed, song-changed, playlist-changed */
 };
 
 /* used by G_MPD_TYPE */
@@ -69,7 +69,7 @@ GMpd *g_mpd_new(void);
 gboolean g_mpd_connect(GMpd *self, const gchar* host, const int port);
 void g_mpd_disconnect(GMpd *self);
 gboolean g_mpd_next(GMpd *self);
-gboolean g_mpd_prev(GMpd *self);
+gboolean g_mpd_previous(GMpd *self);
 gboolean g_mpd_play(GMpd *self);
 gboolean g_mpd_pause(GMpd *self);
 gboolean g_mpd_get_random(GMpd *self);

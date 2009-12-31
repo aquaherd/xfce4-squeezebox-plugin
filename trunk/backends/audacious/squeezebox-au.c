@@ -53,7 +53,7 @@ static gboolean auAssure(gpointer thsPtr, gboolean noCreate);
 DEFINE_DBUS_BACKEND(AU, _("Audacious"), "org.mpris.audacious", "audacious2")
 
 
-#define MKTHIS auData *db = (auData *)thsPtr;
+#define MKTHIS auData *db = (auData *)thsPtr
 // implementation
 
 static void auCallbackCapsChange(DBusGProxy * proxy, gint caps, gpointer thsPtr) {
@@ -89,8 +89,8 @@ static eSynoptics auTranslateStatusPack(GValueArray *status) {
 static void auCallbackStatusChange(DBusGProxy * proxy, gint status,
 				   gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter auCallback: StatusChange");
 	eSynoptics eStat = auTranslateStatus(status);
+	LOG("Enter auCallback: StatusChange");
 	db->parent->Update(db->parent->sd, FALSE, eStat, NULL);
 	LOG("Leave auCallback: StatusChange %d", (int)eStat);
 }
@@ -315,7 +315,7 @@ static gboolean auDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
-gboolean auIsVisible(gpointer thsPtr) {
+static gboolean auIsVisible(gpointer thsPtr) {
 	MKTHIS;
 	if (auAssure(thsPtr, FALSE) && NULL != db->auTheme) {
 		org_atheme_audacious_main_win_visible(db->auTheme,
@@ -324,7 +324,7 @@ gboolean auIsVisible(gpointer thsPtr) {
 	return db->Visibility;
 }
 
-gboolean auShow(gpointer thsPtr, gboolean newState) {
+static gboolean auShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if (auAssure(thsPtr, FALSE) && NULL != db->auTheme) {
 		org_atheme_audacious_show_main_win(db->auTheme,
@@ -334,7 +334,7 @@ gboolean auShow(gpointer thsPtr, gboolean newState) {
 	return FALSE;
 }
 
-gboolean auGetShuffle(gpointer thsPtr) {
+static gboolean auGetShuffle(gpointer thsPtr) {
 	MKTHIS;
 	if (db->auTheme) 
 		org_atheme_audacious_shuffle(db->auTheme, &db->Shuffle, NULL);
@@ -343,7 +343,7 @@ gboolean auGetShuffle(gpointer thsPtr) {
 	return db->Shuffle;
 }
 
-gboolean auSetShuffle(gpointer thsPtr, gboolean newShuffle) {
+static gboolean auSetShuffle(gpointer thsPtr, gboolean newShuffle) {
 	MKTHIS;
 	if (auAssure(thsPtr, FALSE) && NULL != db->auTheme) {
 		org_atheme_audacious_toggle_shuffle(db->auTheme, NULL);
@@ -351,7 +351,7 @@ gboolean auSetShuffle(gpointer thsPtr, gboolean newShuffle) {
 	return TRUE;
 }
 
-gboolean auGetRepeat(gpointer thsPtr) {
+static gboolean auGetRepeat(gpointer thsPtr) {
 	MKTHIS;
 	if (db->auTheme)
 		org_atheme_audacious_repeat(db->auTheme, &db->Repeat, NULL);
@@ -360,7 +360,7 @@ gboolean auGetRepeat(gpointer thsPtr) {
 	return db->Repeat;
 }
 
-gboolean auSetRepeat(gpointer thsPtr, gboolean newRepeat) {
+static gboolean auSetRepeat(gpointer thsPtr, gboolean newRepeat) {
 	MKTHIS;
 	if (auAssure(thsPtr, FALSE) && NULL != db->auTheme) {
 		return org_atheme_audacious_toggle_repeat(db->auTheme, NULL);

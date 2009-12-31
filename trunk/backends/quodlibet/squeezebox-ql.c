@@ -44,7 +44,7 @@
 
 /* --- */
 #define QL_MAP(a) parent->a = ql##a;
-#define MKTHIS qlData *this = (qlData *)thsPtr;
+#define MKTHIS qlData *this = (qlData *)thsPtr
 #define QL_FIFO_PATH "/.quodlibet/control"
 //#define QL_STAT_PATH "/.quodlibet/current"
 #define QL_ALBUM_ART_PATH "/.quodlibet/current.cover"
@@ -106,11 +106,11 @@ static void qlCallbackUnpaused(DBusGProxy * proxy, gpointer thsPtr) {
 
 static void qlCallbackSongStarted(DBusGProxy * proxy, GHashTable *table, gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter qlCallback: SongStarted");
 	const gchar *unknown = _("[Unknown]");
 	gchar *tmpArtist = g_hash_table_lookup(table, "artist");
 	gchar *tmpAlbum = g_hash_table_lookup(table, "album");
 	gchar *tmpTitle = g_hash_table_lookup(table, "title");
+	LOG("Enter qlCallback: SongStarted");
 
 	if (g_file_test(this->cover, G_FILE_TEST_EXISTS))
 		g_string_assign(this->parent->albumArt, this->cover);
@@ -128,8 +128,8 @@ static void qlCallbackSongStarted(DBusGProxy * proxy, GHashTable *table, gpointe
 
 static void qlCallbackFake(gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter qlCallback: Fake");
 	GHashTable *table = NULL;
+	LOG("Enter qlCallback: Fake");
 	if(ql_CurrentSong(this->qlPlayer, &table) && table){
 		qlCallbackSongStarted(this->qlPlayer, table, thsPtr);
 		g_hash_table_destroy(table);
@@ -139,7 +139,7 @@ static void qlCallbackFake(gpointer thsPtr) {
 	LOG("Enter qlCallback: Fake");
 }
 
-gboolean qlAssure(gpointer thsPtr, gboolean noCreate) {
+static gboolean qlAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
 	LOG("Enter qlAssure");
 	if (this->parent->bus && !this->qlPlayer) {
@@ -189,14 +189,14 @@ gboolean qlAssure(gpointer thsPtr, gboolean noCreate) {
 	return (NULL != this->qlPlayer && 0 != this->fp);
 }
 
-gboolean qlPrintFlush(FILE * fp, const char *str) {
+static gboolean qlPrintFlush(FILE * fp, const char *str) {
 	int iLen = strlen(str);
 	int iRet = fputs(str, fp);
 	fflush(fp);
 	return (iLen == iRet);
 }
 
-gboolean qlNext(gpointer thsPtr) {
+static gboolean qlNext(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlNext");
@@ -206,7 +206,7 @@ gboolean qlNext(gpointer thsPtr) {
 	return bRet;
 }
 
-gboolean qlPrevious(gpointer thsPtr) {
+static gboolean qlPrevious(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlPrevious");
@@ -216,17 +216,17 @@ gboolean qlPrevious(gpointer thsPtr) {
 	return bRet;
 }
 
-gboolean qlPlayPause(gpointer thsPtr, gboolean newState) {
+static gboolean qlPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	LOG("Enter qlPlayPause");
 	gboolean bRet = FALSE;
+	LOG("Enter qlPlayPause");
 	if (qlAssure(this, FALSE))
 		bRet = ql_PlayPause(this->qlPlayer);
 	LOG("LEAVE qlPlayPause");
 	return bRet;
 }
 
-gboolean qlIsPlaying(gpointer thsPtr) {
+static gboolean qlIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	return this->isPlaying;
 }
@@ -274,7 +274,7 @@ void qlStatus(gpointer thsPtr, const gchar * args) {
 	}
 }
 
-gboolean qlToggle(gpointer thsPtr, gboolean * newState) {
+static gboolean qlToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlToggle");
@@ -285,7 +285,7 @@ gboolean qlToggle(gpointer thsPtr, gboolean * newState) {
 	return bRet;
 }
 
-gboolean qlDetach(gpointer thsPtr) {
+static gboolean qlDetach(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter qlDetach");
@@ -304,16 +304,16 @@ gboolean qlDetach(gpointer thsPtr) {
 	return bRet;
 }
 
-gboolean qlGetRepeat(gpointer thsPtr) {
+static gboolean qlGetRepeat(gpointer thsPtr) {
 	MKTHIS;
 	qlStatus(thsPtr, "--status");
 	return this->isRepeat;
 }
 
-gboolean qlSetRepeat(gpointer thsPtr, gboolean newRepeat) {
+static gboolean qlSetRepeat(gpointer thsPtr, gboolean newRepeat) {
 	MKTHIS;
-	LOG("Enter qlSetRepeat");
 	gboolean bRet = FALSE;
+	LOG("Enter qlSetRepeat");
 	if (qlAssure(this, FALSE)) {
 		qlStatus(thsPtr, (newRepeat) ? "--repeat=1" : "--repeat=0");
 		bRet = TRUE;
@@ -322,16 +322,16 @@ gboolean qlSetRepeat(gpointer thsPtr, gboolean newRepeat) {
 	return bRet;
 }
 
-gboolean qlGetShuffle(gpointer thsPtr) {
+static gboolean qlGetShuffle(gpointer thsPtr) {
 	MKTHIS;
 	qlStatus(thsPtr, "--status");
 	return this->isShuffle;
 }
 
-gboolean qlSetShuffle(gpointer thsPtr, gboolean newShuffle) {
+static gboolean qlSetShuffle(gpointer thsPtr, gboolean newShuffle) {
 	MKTHIS;
-	LOG("Enter qlSetShuffle");
 	gboolean bRet = FALSE;
+	LOG("Enter qlSetShuffle");
 	if (qlAssure(this, FALSE)) {
 		qlStatus(thsPtr, (newShuffle) ?
 			 "--order=shuffle" : "--order=inorder");
@@ -341,15 +341,15 @@ gboolean qlSetShuffle(gpointer thsPtr, gboolean newShuffle) {
 	return bRet;
 }
 
-gboolean qlIsVisible(gpointer thsPtr) {
+static gboolean qlIsVisible(gpointer thsPtr) {
 	MKTHIS;
 	return this->isVisible;
 }
 
-gboolean qlShow(gpointer thsPtr, gboolean bShow) {
+static gboolean qlShow(gpointer thsPtr, gboolean bShow) {
 	MKTHIS;
-	LOG("Enter qlShow");
 	gboolean bRet = FALSE;
+	LOG("Enter qlShow");
 	if (qlAssure(this, FALSE))
 		bRet = qlPrintFlush(this->fp, "toggle-window");
 	LOG("Leave qlShow");
@@ -381,7 +381,7 @@ static gboolean qlUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appear
 	return TRUE;
 }
 
-void qlUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
+static void qlUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
 	MKTHIS;
 	LOG("QuodLibet is %s", (appeared)?"visible":"invisible");
 	this->isVisible = appeared;

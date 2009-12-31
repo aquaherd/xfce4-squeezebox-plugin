@@ -20,34 +20,42 @@
  */
 
 #include <gio/gio.h>
+#include <gdk/gdk.h>
 #include <string.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include "gmpd.h"
 #include "gmpd-private.h"
 
 
 G_DEFINE_TYPE (GMpd, g_mpd, G_TYPE_OBJECT);
 #define G_MPD_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), G_MPD_TYPE, GMpdPrivate))
-#ifndef LOG
-#undef G_LOG_DOMAIN
-#define G_LOG_DOMAIN "GMpd"
-#define LOG g_message
-#endif
-
 /* region Private Realm */
+
+typedef enum GMpdPropNames
+{
+  PROP_0,
+
+  PROP_HOST,
+  PROP_PORT,
+  PROP_PASS
+}GMpdPropNames;
 
 struct _GMpdPrivate
 {
 	GSocketConnectable *address;
 	GSocketClient *client;
 	GSocketConnection *connection;
+	gchar *pass;
 	GDataInputStream *istm;
-	GCancellable *cancel;
 	GError *error;
 	gboolean inIdle;
 	GHashTable *currentsong;
 	GHashTable *playlists;
 	GHashTable *stateinfo;
 	GHashTable *changes;
+	GThread *thread;
 	GMpd *self;
 };
 
@@ -76,82 +84,138 @@ static gboolean _error_extract(GMpdPrivate *priv, const gchar* line) {
 }
 
 static gchar * _read_response_line(GMpdPrivate *priv) {
+	gchar *line;
 	_error_clear(priv);
-	gchar *line = g_data_input_stream_read_line(priv->istm, NULL, NULL, &priv->error);
-	LOG("GMpd:got  %s", line);
+	line = g_data_input_stream_read_line(priv->istm, NULL, NULL, &priv->error);
+	LOG("got  %s", line);
 	return line;
 }
 
 static gboolean _send_command_raw(GMpdPrivate *priv, const gchar* command) {
 	GOutputStream *ostm = g_io_stream_get_output_stream(G_IO_STREAM(priv->connection));
-	gssize sz1 = strlen(command);
+	gssize sz1 = strlen(command), sz2;
 	_error_clear(priv);
-	gssize sz2 = g_output_stream_write(ostm, command, sz1, NULL, &priv->error);
-	LOG("GMpd:sent %s", command);
+	sz2 = g_output_stream_write(ostm, command, sz1, NULL, &priv->error);
+	LOG("sent %s", command);
 	return (sz1 == sz2 || NULL == priv->error);
 }
 
 static void _update_dispatch(GMpdPrivate *priv, gchar *changeDetail) {
+	GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
+	gchar **changes = g_strsplit(changeDetail, ",", 0);
 	void( *update_func)(GMpdPrivate *priv, gchar *changeDetail);
-	update_func = g_hash_table_lookup(priv->changes, changeDetail);
-	LOG("Dispatch %s->%p", changeDetail, update_func);
-	if(update_func)
-		update_func(priv, changeDetail);
-}
-
-static void _idle_cb(GObject *source_object, GAsyncResult *res,  gpointer user_data) {
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(user_data);
-	GMpdClass *klass = G_MPD_GET_CLASS(user_data);
-	gssize sz = 0;
-	_error_clear(priv);
-	gchar *line = g_data_input_stream_read_line_finish(priv->istm, res, &sz, &priv->error);
-	priv->inIdle = FALSE;
-	if(priv->error) {
-		LOG("GMpd:IdleComplete:%s", priv->error->message);
-		g_cancellable_reset(priv->cancel);
-	} else {
-		LOG("GMpd:IdleComplete:%s", line);
-		if(g_str_has_prefix(line, "changed: ")) {
-			gchar *changeDetail = line + 9;
-			// read OK
-			gchar *line2 = _read_response_line(priv);
-			g_free(line2);
-			g_signal_emit(priv->self, klass->signal[SIGNAL_IDLE], 0, changeDetail);
-			_update_dispatch(priv, changeDetail);
-		}
-		g_free(line);
-		_idle_enter(priv);
+	gchar **change = changes;
+	
+	gdk_threads_enter();
+	g_signal_emit(priv->self, klass->signal[SIGNAL_IDLE], 0, changeDetail);
+	
+	while(*change) {
+		update_func = g_hash_table_lookup(priv->changes, *change);
+		LOG("Dispatch %s->%p", *change, update_func);
+		if(update_func)
+			update_func(priv, changeDetail);
+		change++;
 	}
+	g_strfreev(changes);
+	gdk_threads_leave();
 }
-
+/*
+static gboolean _idle_cb(gpointer user_data) {
+	GMpdPrivate *priv = G_MPD_GET_PRIVATE(user_data);
+	if(priv->inIdle) {
+		GSocket *socket = g_socket_connection_get_socket(priv->connection);
+		GIOCondition cond = g_socket_condition_check(socket, G_IO_IN);
+		if(cond & G_IO_IN) {
+			GString *changes = g_string_new("");
+			gchar *line = _read_response_line(priv);
+			LOG("IdleComplete:%x:%s", cond, line);
+			priv->inIdle  = FALSE;
+			if(NULL == line) {
+				return TRUE;
+			} else {
+				while(g_str_has_prefix(line, "changed: ")) {
+					gchar *changeDetail = line + 9;
+					g_string_append(changes, changeDetail);
+					g_free(line);
+					line = _read_response_line(priv);
+					if(g_strcmp0(line, "OK"))
+						g_string_append(changes, ",");
+				}
+				g_free(line);
+				_update_dispatch(priv, changes->str);
+				g_string_free(changes, TRUE);
+			}
+			_idle_enter(priv);
+		} else if(cond & (G_IO_HUP|G_IO_ERR)) {
+			LOG("Unexpected socket error.");
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+*/
 static void _idle_enter(GMpdPrivate *priv) {
 	if(!priv->inIdle) {
-		LOG("GMpd:IdleEnter");
+		LOG("IdleEnter");
 		priv->inIdle = TRUE;
 		_send_command_raw(priv, "idle\n");
-		g_data_input_stream_read_line_async(
-			priv->istm, G_PRIORITY_DEFAULT, priv->cancel, _idle_cb, priv->self);
 	}
 }
 
 static void _idle_cancel(GMpdPrivate *priv) {
 	if(priv->inIdle) {
+		gchar *line;
+		gboolean isOK;
 		priv->inIdle = FALSE;
-		g_cancellable_cancel(priv->cancel);
-		// flush the cancel events
-		g_main_context_iteration(g_main_context_default(), TRUE);
 		_send_command_raw(priv, "noidle\n");
-		gchar *line = _read_response_line(priv);
-		g_free(line);
+		do {
+			line = _read_response_line(priv);
+			isOK = !g_strcmp0(line, "OK") || g_str_has_prefix(line, "ACK ");
+			g_free(line);
+		} while(!isOK);
 	}
+}
+
+static gpointer _idle_thread(gpointer user_data) {
+	GMpdPrivate *priv = G_MPD_GET_PRIVATE(user_data);
+	GSocket *socket = g_socket_connection_get_socket(priv->connection);
+	LOG("EnterThread");
+	while(g_socket_condition_wait(socket, G_IO_IN|G_IO_PRI, NULL, NULL)) {
+		if(priv->inIdle) {
+			GString *changes = g_string_new("");
+			gchar *line = _read_response_line(priv);
+			LOG("IdleComplete:%s", line);
+			priv->inIdle  = FALSE;
+			if(NULL == line) {
+				break;
+			} else {
+				while(g_str_has_prefix(line, "changed: ")) {
+					gchar *changeDetail = line + 9;
+					g_string_append(changes, changeDetail);
+					g_free(line);
+					line = _read_response_line(priv);
+					if(g_strcmp0(line, "OK"))
+						g_string_append(changes, ",");
+				}
+				g_free(line);
+				_update_dispatch(priv, changes->str);
+				g_string_free(changes, TRUE);
+			}
+			_idle_enter(priv);
+		}
+	}
+	LOG("LeaveThread");
+	return NULL;
 }
 
 static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...) {
 	va_list args;
+	gchar *command;
 	va_start(args, format);
-	gchar *command = g_strdup_vprintf(format, args);
+	command = g_strdup_vprintf(format, args);
 	_idle_cancel(priv);
 	_send_command_raw(priv, command);
+	g_usleep(25000);
 	if(NULL == priv->error) {
 		gchar *line = _read_response_line(priv);
 		if (line) {
@@ -171,8 +235,9 @@ static void _update_database(GMpdPrivate *priv, gchar *changeDetail) {
 
 static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail) {
 	if(_send_command_raw(priv, "listplaylists\n")) {
+		GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
 		gchar *line = _read_response_line(priv);
-		gboolean changed = FALSE;
+		//gboolean changed = FALSE;
 		if(_error_extract(priv, line)) {
 			g_free(line);
 			return;
@@ -187,7 +252,6 @@ static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail) {
 			g_free(line);
 			line = _read_response_line(priv);
 		}
-		GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
 		g_signal_emit(priv->self, klass->signal[SIGNAL_PLAYLIST], 0);
 	}
 }
@@ -252,10 +316,10 @@ static void _update_currentsong(GMpdPrivate *priv, gchar *changeDetail) {
 
 static void g_mpd_dispose (GObject *gobject) {
 	/* Free all stateful data */
-	g_mpd_disconnect(G_MPD(gobject));
 	GMpdPrivate *priv = G_MPD_GET_PRIVATE(gobject);
+	LOG("Dispose");
+	g_mpd_disconnect(G_MPD(gobject));
 	_error_clear(priv);
-	_clear_object((GObject**)&priv->cancel);
 	g_hash_table_destroy(priv->currentsong);
 	g_hash_table_destroy(priv->playlists);
 	g_hash_table_destroy(priv->stateinfo);
@@ -266,17 +330,66 @@ static void g_mpd_dispose (GObject *gobject) {
 
 static void g_mpd_finalize (GObject *gobject) {
 
+	LOG("Finalize");
 	/* Chain up to the parent class */
 	G_OBJECT_CLASS (g_mpd_parent_class)->finalize (gobject);
 }
 
+static void g_mpd_set_property(GObject *self, guint property_id,
+                        const GValue *value, GParamSpec *pspec) {
+	GMpdPrivate *priv;
+	g_return_if_fail (G_IS_MPD (self));
+	priv = G_MPD_GET_PRIVATE(self);
+	switch(property_id) {
+		/*
+		case PROP_HOST:
+			g_free(priv->host);
+			priv->host = g_value_dup_string(value);
+			break;
+		case PROP_PORT:
+			priv->port = g_value_get_int(value);
+			break;
+		*/
+		case PROP_PASS:
+			g_free(priv->pass);
+			priv->pass = g_value_dup_string(value);
+			break;
+	}
+}
+
+static void g_mpd_get_property(GObject *self, guint property_id,
+                        GValue *value, GParamSpec *pspec) {
+	GMpdPrivate *priv;
+	g_return_if_fail (G_IS_MPD (self));
+	priv = G_MPD_GET_PRIVATE(self);
+	switch(property_id) {
+		case PROP_HOST:
+			g_value_set_string(value, 
+				g_network_address_get_hostname(G_NETWORK_ADDRESS(priv->address)));
+			break;
+		case PROP_PORT:
+			g_value_set_int(value, 
+				g_network_address_get_port(G_NETWORK_ADDRESS(priv->address)));
+			break;
+		case PROP_PASS:
+			g_value_set_string(value, "");
+			break;
+	}
+}						
+   
+
 static void g_mpd_class_init (GMpdClass *klass)
 {
+	/* class init */
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+	GParamSpec *pspec;
 
 	gobject_class->dispose = g_mpd_dispose;
-	gobject_class->finalize = g_mpd_finalize;  
+	gobject_class->finalize = g_mpd_finalize;
+	gobject_class->set_property = g_mpd_set_property;  
+	gobject_class->get_property = g_mpd_get_property;  
 
+	/* signals */	
 	klass->signal[SIGNAL_IDLE] = g_signal_new ("idle-changed",
 		G_TYPE_FROM_CLASS(klass),
 		G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -321,7 +434,24 @@ static void g_mpd_class_init (GMpdClass *klass)
 		G_TYPE_NONE /* return_type */,
 		0     /* no params */
 		);
-	
+		
+	/* properties */
+	pspec = g_param_spec_string ("host",
+		"MPD Host", "Set MPD's host", "localhost" /* default value */,
+		G_PARAM_READABLE);
+	g_object_class_install_property (gobject_class, PROP_PASS, pspec);	
+
+	pspec = g_param_spec_int ("port",
+		"MPD Port", "Set MPD's port", 1, 65535, 6600 /* default value */,
+		G_PARAM_READABLE);
+	g_object_class_install_property (gobject_class, PROP_PASS, pspec);	
+
+	pspec = g_param_spec_string ("password",
+		"MPD Passphrase", "Set MPD's passphrase", NULL /* default value */,
+		G_PARAM_READWRITE);
+	g_object_class_install_property (gobject_class, PROP_PASS, pspec);	
+
+	/* private data */
 	g_type_class_add_private (klass, sizeof (GMpdPrivate));
 }
 
@@ -334,7 +464,6 @@ g_mpd_init (GMpd *self)
 	GMpdPrivate *priv;
 	G_MPD_DOMAIN = g_quark_from_static_string("MPD");
 	self->priv = priv = G_MPD_GET_PRIVATE (self);
-	priv->cancel = g_cancellable_new();
 	priv->currentsong = 
 		g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	priv->playlists = 
@@ -361,8 +490,10 @@ GMpd *g_mpd_new(void) {
 }
 
 void g_mpd_disconnect(GMpd *self) {
+	GMpdPrivate *priv;
+	LOG("Disconnect");
 	g_return_if_fail (G_IS_MPD (self));
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 
 	if(priv->connection) {
 		_idle_cancel(priv);
@@ -375,121 +506,147 @@ void g_mpd_disconnect(GMpd *self) {
 }
 gboolean g_mpd_connect(GMpd *self, const gchar* host, const int port) {
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	{
+		GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+		GSocketConnectable *connectable;
+		
+		g_mpd_disconnect(self);
+		LOG("Connect");
+		
+		priv->address = g_network_address_new(host, port);
+		connectable = priv->address;
+		priv->client = g_socket_client_new();
+		_error_clear(priv);
 
-	g_mpd_disconnect(self);
-	
-	priv->address = g_network_address_new(host, port);
-	
-	GSocketConnectable *connectable = priv->address;
-	priv->client = g_socket_client_new();
-	_error_clear(priv);
-	priv->connection = g_socket_client_connect(priv->client, connectable, NULL, &priv->error);
-	LOG("GMpd:%p/%p", priv->client, priv->connection);
-	if(NULL == priv->connection && priv->error) {
-		LOG("GMpd:%s", priv->error->message);
-	} else {
-		priv->istm = g_data_input_stream_new(
-			g_io_stream_get_input_stream(G_IO_STREAM(priv->connection)));
+		priv->connection = g_socket_client_connect(priv->client, connectable, NULL, &priv->error);
+		LOG("%p/%p", priv->client, priv->connection);
 
-		gchar *line = _read_response_line(priv);
-		if (line) {
+		if(NULL == priv->connection && priv->error) {
+			LOG("%s", priv->error->message);
+		} else {
+			gchar *line;
+			priv->istm = g_data_input_stream_new(
+				g_io_stream_get_input_stream(G_IO_STREAM(priv->connection)));
+
+			line = _read_response_line(priv);
 			g_free(line);
+			if(priv->pass) {
+				_send_command_simple(priv, "password %s", priv->pass);
+				line = _read_response_line(priv); 
+				g_free(line);
+			}
+			_update_player(priv, "");
+			_update_playlists(priv, "");
+			if(NULL != priv->error) {
+				LOG("Error %s", priv->error->message);
+			}
+			_idle_enter(priv);
+			priv->thread = g_thread_create(_idle_thread, self, TRUE, NULL);
+			return (priv->error == NULL);
 		}
-		_update_player(priv, "");
-		_update_playlists(priv, "");
-		_idle_enter(priv);
-		return TRUE;
 	}
 	return FALSE;
 }
 
 gboolean g_mpd_next(GMpd *self){
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 
 	return _send_command_simple(priv, "next\n");
 }
-gboolean g_mpd_prev(GMpd *self){
+gboolean g_mpd_previous(GMpd *self){
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 
-	return _send_command_simple(priv, "prev\n");
+	return _send_command_simple(priv, "previous\n");
 }
 gboolean g_mpd_play(GMpd *self){
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 
 	return _send_command_simple(priv, "play\n");
 }
 gboolean g_mpd_pause(GMpd *self){
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 
 	return _send_command_simple(priv, "pause\n");
 }
 
 GHashTable *g_mpd_get_current_track(GMpd *self) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 	return priv->currentsong;
 }
 
 GHashTable *g_mpd_get_state_info(GMpd *self) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 	return priv->stateinfo;
 }
 
 GHashTable *g_mpd_get_playlists(GMpd *self) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 	return priv->playlists;
 }
 
 gboolean g_mpd_switch_playlist(GMpd *self, const gchar *playlist) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
-	if(_send_command_simple(priv, "clear\n")) {
-		if(_send_command_simple(priv, "load %s\n", playlist))
-			return TRUE;
-	}
-	return FALSE;
+	priv = G_MPD_GET_PRIVATE(self);
+	_send_command_simple(priv, "clear\n");
+	//_idle_cb(self);
+	_send_command_simple(priv, "load %s\n", playlist);
+	return TRUE;
 }
 
 gboolean g_mpd_is_playing(GMpd *self) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 	return !g_strcmp0(g_hash_table_lookup(priv->stateinfo, "state"), "play");
 }
 
 gboolean g_mpd_get_random(GMpd *self) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 	return !g_strcmp0(g_hash_table_lookup(priv->stateinfo, "random"), "1");
 }
 
 gboolean g_mpd_set_random(GMpd *self, gboolean newRandow) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
-	return _send_command_simple(priv, "random %d",  newRandow ? 1 : 0);
+	priv = G_MPD_GET_PRIVATE(self);
+	return _send_command_simple(priv, "random %d\n",  newRandow ? 1 : 0);
 }
 
 gboolean g_mpd_get_repeat(GMpd *self) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 	return !g_strcmp0(g_hash_table_lookup(priv->stateinfo, "repeat"), "1");
 }
 
 gboolean g_mpd_set_repeat(GMpd *self, gboolean newRepeat) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
-	return _send_command_simple(priv, "repeat %d",  newRepeat ? 1 : 0);
+	priv = G_MPD_GET_PRIVATE(self);
+	return _send_command_simple(priv, "repeat %d\n",  newRepeat ? 1 : 0);
 }
 
 GError * g_mpd_get_last_error(GMpd *self) {
+	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), NULL);
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+	priv = G_MPD_GET_PRIVATE(self);
 	return g_error_copy(priv->error);
 }
 

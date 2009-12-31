@@ -99,7 +99,7 @@ typedef struct SPlayer{
     // frontend globals
 	DBusGConnection *bus;
     DBusGProxy		*dbService;
-	guint playerPID;
+	gint playerPID;
 
 	// frontend callbacks
     gboolean(* StartService)(gpointer thsPlayer, const gchar* serviceName);
@@ -135,20 +135,21 @@ typedef struct Backend{
 }Backend;
 
 #define DEFINE_DBUS_BACKEND(t,n,d,c)  \
-    const gchar* t##_name(){ \
+	const Backend *backend_info(void); \
+    static const gchar* t##_name(void){ \
         return _(n); \
     } \
-    GdkPixbuf *t##_icon(){ \
+    static GdkPixbuf *t##_icon(void){ \
 		return gdk_pixbuf_new_from_file(BACKENDDIR "/" BASENAME "/" BASENAME ".png", NULL); \
     } \
-    const gchar** t##_dbusNames(){ \
+    static const gchar** t##_dbusNames(void){ \
         static const gchar* names[] = {d}; \
 		return &names[0]; \
     } \
-    const gchar* t##_commandLine(){ \
+    static const gchar* t##_commandLine(void){ \
     	return c; \
 	} \
-	EXPORT const Backend *backend_info() { \
+	EXPORT const Backend *backend_info(void) { \
 		static const Backend backend[2] = { \
 			{BASENAME, dbusBackend, t##_attach, t##_name, \
 			t##_icon, t##_dbusNames, t##_commandLine}, \
@@ -157,13 +158,14 @@ typedef struct Backend{
 		return &backend[0]; \
 	}
 #define DEFINE_BACKEND(t,n) \
-    G_MODULE_EXPORT const gchar* t##_name(){ \
+	const Backend *backend_info(void); \
+    static const gchar* t##_name(void){ \
         return _(n); \
     } \
-    GdkPixbuf *t##_icon(){ \
+    static GdkPixbuf *t##_icon(void){ \
 		return gdk_pixbuf_new_from_file(BACKENDDIR "/" BASENAME "/" BASENAME ".png", NULL); \
     } \
-	EXPORT const Backend *backend_info() { \
+	EXPORT const Backend *backend_info(void) { \
 		static const Backend backend[2] = { \
 			{BASENAME, networkBackend, t##_attach, t##_name, \
 			t##_icon, NULL, NULL}, \

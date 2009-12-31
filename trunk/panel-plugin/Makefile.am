@@ -5,13 +5,15 @@ xfce4_squeezebox_plugin_CFLAGS = -Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squee
     -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ \
     @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ $(PATH_DEFINES) \
     -DG_LOG_DOMAIN=\"SBP\" \
-    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@ -export-dynamic -fvisibility=hidden
+    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@ \
+    -export-dynamic -fvisibility=hidden
 
 #todo: use --dynamic-list=someFile instead of -Wl -rdynamic
 #    -Wl -rdynamic 
 
 xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBXFCONF_LIBS@ \
-	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ -Wl -rdynamic
+	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ @LIBGTHREAD_LIBS@ \
+	-Wl -rdynamic
 
 xfce4_squeezebox_plugin_SOURCES = \
 	squeezebox.h     squeezebox-private.h squeezebox.c \
