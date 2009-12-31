@@ -180,7 +180,7 @@ static gpointer _idle_thread(gpointer user_data) {
 	GMpdPrivate *priv = G_MPD_GET_PRIVATE(user_data);
 	GSocket *socket = g_socket_connection_get_socket(priv->connection);
 	LOG("EnterThread");
-	while(g_socket_condition_wait(socket, G_IO_IN|G_IO_PRI, NULL, NULL)) {
+	while(g_socket_condition_wait(socket, G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP, NULL, NULL)) {
 		if(priv->inIdle) {
 			GString *changes = g_string_new("");
 			gchar *line = _read_response_line(priv);
@@ -498,6 +498,11 @@ void g_mpd_disconnect(GMpd *self) {
 	if(priv->connection) {
 		_idle_cancel(priv);
 		_send_command_raw(priv, "close\n");
+		if(priv->thread) {
+			_idle_enter(priv);
+			g_thread_join(priv->thread);
+			priv->thread = NULL;
+		}
 	}
 	_clear_object((GObject**)&priv->istm);
 	_clear_object((GObject**)&priv->connection);
