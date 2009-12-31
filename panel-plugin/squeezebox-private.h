@@ -167,6 +167,32 @@ void on_keyPrev_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
 void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd);
+void on_dialogSettings_response(GtkWidget * dlg, int reponse, SqueezeBoxData * sd);
+void on_btnAdd_clicked(GtkButton * btn, SqueezeBoxData * sd);
+void on_btnRemove_clicked(GtkButton * btn, SqueezeBoxData * sd);
+void on_btnEdit_clicked(GtkButton * btn, SqueezeBoxData * sd);
+void on_tvPlayers_cursor_changed(GtkTreeView * tv, SqueezeBoxData * sd);
+void on_cellrenderertoggle1_toggled(GtkCellRendererToggle * crt, 
+		gchar                *path_string,
+		SqueezeBoxData * sd);
+void on_cellrenderShortCut_accel_cleared(GtkCellRendererAccel *accel,
+		gchar                *path_string,
+		SqueezeBoxData		 *sd);
+void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
+		gchar                *path_string,
+		guint                 accel_key,
+		GdkModifierType       accel_mods,
+		guint                 hardware_keycode,
+		SqueezeBoxData		 *sd);
+		
+void on_chkAutoAttach_toggled(GtkToggleButton *button, SqueezeBoxData * sd);
+void on_chkShowPrevious_toggled(GtkToggleButton *button, SqueezeBoxData *sd);
+void on_chkShowNext_toggled(GtkToggleButton *button, SqueezeBoxData *sd);
+void on_chkShowToolTips_toggled(GtkToggleButton *button, SqueezeBoxData *sd);
+void on_chkShowNotifications_toggled(GtkToggleButton *button, SqueezeBoxData *sd);
+void on_spinNotificationTimeout_change_value(GtkSpinButton *button, SqueezeBoxData *sd);
+
+				
 gboolean squeezebox_grab_key(guint accel_key, guint accel_mods, SqueezeBoxData *sd);
 void squeezebox_ungrab_key(guint accel_key, guint accel_mods, SqueezeBoxData *sd);
 
@@ -178,7 +204,7 @@ void squeezebox_construct(XfcePanelPlugin * plugin);
 
 const Backend* squeezebox_get_backends();
 const Backend* squeezebox_get_current_backend(SqueezeBoxData * sd);
-
+const Backend *squeezebox_load_backend(SqueezeBoxData * sd, const gchar *name);
 
 #endif
 

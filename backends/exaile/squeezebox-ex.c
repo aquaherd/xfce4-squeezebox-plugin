@@ -53,7 +53,7 @@ typedef struct exData{
 	gboolean oldInterface;
 } exData;
 
-#define MKTHIS exData *db = (exData *)thsPtr;
+#define MKTHIS exData *db = (exData *)thsPtr
 // init Quarks
 GQuark stopped = 0;
 GQuark paused = 0;
@@ -62,23 +62,24 @@ GQuark playing = 0;
 gpointer EX_attach(SPlayer * parent);
 #define BASENAME "exaile"
 //DEFINE_DBUS_BACKEND(EX, _("Exaile"), "org.exaile.*", "exaile")
-const gchar* EX_name(){ 
+static const gchar* EX_name(void){ 
 	return _("Exaile"); 
 } 
-GdkPixbuf *EX_icon(){ 
+static GdkPixbuf *EX_icon(void){ 
 	return gdk_pixbuf_new_from_file(BACKENDDIR "/" BASENAME "/" BASENAME ".png", NULL); 
 } 
-const gchar** EX_dbusNames(){ 
+static const gchar** EX_dbusNames(void){ 
 	static const gchar* names[] = {
 		"org.exaile.DBusInterface",
 		"org.exaile.Exaile"
 	}; 
 	return &names[0]; 
 } 
-const gchar* EX_commandLine(){ 
+static const gchar* EX_commandLine(void){ 
 	return "exaile"; 
 } 
-EXPORT const Backend *backend_info() { 
+const Backend *backend_info(void);
+EXPORT const Backend *backend_info(void) { 
 	static const Backend backend[2] = { 
 		{BASENAME, dbusBackend, EX_attach, EX_name, 
 		EX_icon, EX_dbusNames, EX_commandLine}, 
@@ -126,9 +127,9 @@ static void exCallbackTrackChange(DBusGProxy * proxy, gpointer thsPtr) {
 	gchar *artist = NULL, *album = NULL, *title = NULL, *cover = NULL;
 	gboolean act = FALSE;
 	gchar *status = NULL;
+	eSynoptics eStat = estErr;
 
 	LOG("Enter auCallback: TrackChange");
-	eSynoptics eStat = estErr;
 	if(db->oldInterface) {
 		if (org_exaile_DBusInterface_status(db->exPlayer, &status, NULL)) {
 			eStat = exTranslateStatus(status);
@@ -217,7 +218,6 @@ static void exCallbackTrackChange(DBusGProxy * proxy, gpointer thsPtr) {
 static gint exCallbackFake(gpointer thsPtr) {
 	exData *db = (exData *)thsPtr;
 	static gboolean inTimer = FALSE;
-	gboolean ret = TRUE;
 	gchar *status = NULL;
 	gchar *loc = NULL;
 	if (!inTimer) {
@@ -247,7 +247,7 @@ static gint exCallbackFake(gpointer thsPtr) {
 				exCallbackStatusChange(db->exPlayer, thsPtr);
 			}
 		} else {
-			gchar *loc = NULL;
+			loc = NULL;
 			if(org_exaile_Exaile_get_track_attr(db->exPlayer, "__loc", &loc, NULL)) {
 				if(!db->lastTrack || g_ascii_strcasecmp(db->lastTrack, loc)) {
 					if(db->lastTrack)
@@ -285,10 +285,11 @@ static gint exCallbackFake(gpointer thsPtr) {
 static gboolean exAssure(gpointer thsPtr, gboolean noCreate) {
 	MKTHIS;
 	gboolean bRet = TRUE;
+	GError *error = NULL;
+
 	LOG("Enter exAssure");
 	if (db->parent->bus && !db->exPlayer) {
 		db->needsPolling = TRUE;
-		GError *error = NULL;
 		if(db->oldInterface)
 			db->exPlayer = dbus_g_proxy_new_for_name_owner(db->parent->bus,
 							       "org.exaile.DBusInterface",
@@ -429,13 +430,13 @@ static gboolean exToggle(gpointer thsPtr, gboolean * newState) {
 	return TRUE;
 }
 
-gboolean exIsVisible(gpointer thsPtr) {
+static gboolean exIsVisible(gpointer thsPtr) {
 	MKTHIS;
 	return db->Visibility;
 }
 
 
-gboolean exShow(gpointer thsPtr, gboolean newState) {
+static gboolean exShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if (!exAssure(thsPtr, FALSE))
 		return FALSE;
@@ -516,7 +517,7 @@ static gboolean exUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appear
 	return TRUE;
 }
 
-void exUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
+static void exUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
 	MKTHIS;
 	LOG("exaile is %s", (appeared)?"visible":"invisible");
 	db->Visibility = appeared;

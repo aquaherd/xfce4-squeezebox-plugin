@@ -54,7 +54,7 @@ typedef struct rbData{
 	gboolean Visibility;
 } rbData;
 
-#define MKTHIS rbData *db = (rbData *)thsPtr;
+#define MKTHIS rbData *db = (rbData *)thsPtr
 gboolean rbAssure(gpointer thsPtr, gboolean noCreate);
 gpointer RB_attach(SPlayer * parent);
 #define BASENAME "rhythmbox"
@@ -64,9 +64,9 @@ DEFINE_DBUS_BACKEND(RB, _("Rhythmbox"), "org.gnome.Rhythmbox", "rhythmbox")
 
 static void rbCallbackPlayPause(DBusGProxy * proxy, const gboolean playing,
 				gpointer thsPtr) {
+	eSynoptics eStat;
 	MKTHIS;
 	LOG("Enter rbCallback: StateChanged %d", playing);
-	eSynoptics eStat;
 	if (playing)
 		eStat = estPlay;
 	else
@@ -96,8 +96,8 @@ rbCallback(DBusGProxy * proxy, const gchar * uri, gpointer thsPtr) {
 			GValue *tmpArtist = g_hash_table_lookup(table, "artist");
 			GValue *tmpAlbum = g_hash_table_lookup(table, "album");
 			GValue *tmpTitle = g_hash_table_lookup(table, "title");
-
 			GString *artLocation = g_string_new("");
+			gboolean bFound = FALSE;
 
 			g_string_assign(db->parent->artist,
 					g_value_get_string(tmpArtist));
@@ -113,7 +113,6 @@ rbCallback(DBusGProxy * proxy, const gchar * uri, gpointer thsPtr) {
 					db->parent->album->str);
 			LOG("Check 1: '%s'", artLocation->str);
 
-			gboolean bFound = FALSE;
 			if (g_file_test(artLocation->str, G_FILE_TEST_EXISTS)) {
 				bFound = TRUE;
 			} else {
@@ -144,7 +143,7 @@ rbCallback(DBusGProxy * proxy, const gchar * uri, gpointer thsPtr) {
 
 }
 
-gboolean rbIsPlaying(gpointer thsPtr) {
+static gboolean rbIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRes = FALSE;
 	if (!rbAssure(db, TRUE))
@@ -158,7 +157,7 @@ gboolean rbIsPlaying(gpointer thsPtr) {
 	return bRes;
 }
 
-gboolean rbIsVisible(gpointer thsPtr) {
+static gboolean rbIsVisible(gpointer thsPtr) {
 	MKTHIS;
 	return db->Visibility;
 }
@@ -202,8 +201,8 @@ static gboolean rbUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appear
 }
 
 gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
-	gboolean bRet = TRUE;
 	MKTHIS;
+	gboolean bRet = TRUE;
 	LOG("Enter rbAssure");
 	if (db->parent->bus && !db->rbShell) {
 		GError *error = NULL;
@@ -280,7 +279,7 @@ gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 	return bRet;
 }
 
-gboolean rbNext(gpointer thsPtr) {
+static gboolean rbNext(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter rbNext");
 	if (!rbAssure(db, TRUE))
@@ -294,7 +293,7 @@ gboolean rbNext(gpointer thsPtr) {
 	return TRUE;
 }
 
-gboolean rbPrevious(gpointer thsPtr) {
+static gboolean rbPrevious(gpointer thsPtr) {
 	MKTHIS;
 	if (!rbAssure(db, TRUE))
 		return FALSE;
@@ -306,7 +305,7 @@ gboolean rbPrevious(gpointer thsPtr) {
 	return TRUE;
 }
 
-gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
+static gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if (!rbAssure(db, FALSE))
 		return FALSE;
@@ -319,7 +318,7 @@ gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
 	return TRUE;
 }
 
-gboolean rbToggle(gpointer thsPtr, gboolean * newState) {
+static gboolean rbToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
 	if (!rbAssure(db, FALSE))
@@ -333,7 +332,7 @@ gboolean rbToggle(gpointer thsPtr, gboolean * newState) {
 	return TRUE;
 }
 
-gboolean rbDetach(gpointer thsPtr) {
+static gboolean rbDetach(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter rbDetach");
 	if (db->rbPlayer) {
@@ -350,7 +349,7 @@ gboolean rbDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
-gboolean rbShow(gpointer thsPtr, gboolean newState) {
+static gboolean rbShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if (rbAssure(thsPtr, FALSE)) {
 		org_gnome_Rhythmbox_Shell_present(db->rbPlayer,

@@ -44,7 +44,7 @@ typedef struct muData {
 	gchar* artLocation;
 } muData;
 
-#define MKTHIS muData *db = (muData *)thsPtr;
+#define MKTHIS muData *db = (muData *)thsPtr
 static gboolean muAssure(gpointer thsPtr, gboolean noCreate);
 gpointer MU_attach(SPlayer * parent);
 #define BASENAME "muine"
@@ -55,8 +55,8 @@ DEFINE_DBUS_BACKEND(MU, _("Muine"), "org.gnome.Muine", "muine")
 
 static void muCallbackStateChanged(DBusGProxy * proxy, gboolean newState, gpointer thsPtr) {
 	MKTHIS;
-	LOG("Enter muCallback: StateChanged");
 	gboolean actPlaying = FALSE;
+	LOG("Enter muCallback: StateChanged");
 	if(org_gnome_Muine_Player_get_playing(db->muPlayer, &actPlaying, NULL))
 		db->eStat = (actPlaying)?estPlay:estPause;
 	else
@@ -65,11 +65,12 @@ static void muCallbackStateChanged(DBusGProxy * proxy, gboolean newState, gpoint
 	LOG("Leave muCallback: StateChanged");
 }
 
-const gchar* muFindTag(const gchar* tagName, const gchar* track) {
+static const gchar* muFindTag(const gchar* tagName, const gchar* track) {
 	gchar *ptr = g_strstr_len(track, -1, tagName);
+	gchar *ptrStop;
 	if(ptr) {
 		ptr += strlen(tagName);
-		gchar *ptrStop = g_strstr_len(ptr, -1, "\n");
+		ptrStop = g_strstr_len(ptr, -1, "\n");
 		ptr = g_strndup(ptr, ptrStop-ptr);
 	}		
 	return (const gchar*)ptr;
@@ -77,6 +78,7 @@ const gchar* muFindTag(const gchar* tagName, const gchar* track) {
 
 static void muCallbackSongChanged(DBusGProxy * proxy, gchar* track, gpointer thsPtr) {
 	MKTHIS;
+	gboolean success = FALSE;
 	LOG("Enter muCallback: SongChanged");
 	/* What we get gere with Muine 0.8.9:
 	uri: /home/herd/Music/Nine Inch Nails/Halo 6 - Fixed/04 - Throw This Away.ogg
@@ -94,7 +96,6 @@ static void muCallbackSongChanged(DBusGProxy * proxy, gchar* track, gpointer ths
 	if(g_file_test(db->artLocation, G_FILE_TEST_EXISTS))
 		g_unlink(db->artLocation);
 	
-	gboolean success = FALSE;
 	if(org_gnome_Muine_Player_write_album_cover_to_file(
 		db->muPlayer, db->artLocation, &success, NULL) && success) {
 		g_string_assign(db->parent->albumArt, db->artLocation);
@@ -125,7 +126,7 @@ static void muCallbackFake(gpointer thsPtr) {
 	LOG("Leave muCallback: Fake");
 }
 
-static gboolean muUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+static gboolean muUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("Muine has started");
@@ -274,7 +275,7 @@ static gboolean muDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
-gboolean muIsVisible(gpointer thsPtr) {
+static gboolean muIsVisible(gpointer thsPtr) {
 	MKTHIS;
 	if (muAssure(thsPtr, TRUE)) {
 		org_gnome_Muine_Player_get_window_visible(db->muPlayer, &db->Visibility, NULL);
@@ -282,7 +283,7 @@ gboolean muIsVisible(gpointer thsPtr) {
 	return db->Visibility;
 }
 
-gboolean muShow(gpointer thsPtr, gboolean newState) {
+static gboolean muShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if (muAssure(thsPtr, FALSE)) {
 		return org_gnome_Muine_Player_set_window_visible(db->muPlayer, newState, 0, NULL);

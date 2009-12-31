@@ -25,6 +25,13 @@
 #include "notifications.h"
 
 void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
+	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
+	gboolean bAct = TRUE;
+	GdkPixbuf *pixbuf = NULL;
+	gchar *pixPath = "/tmp/sqicon.png"; //use g_get_tmp_dir();
+	GHashTable *table = g_hash_table_new(g_str_hash, g_str_equal);
+	LOG("show_toaster ");
+
 	/*
 	 "xfce", 
 	 12, 
@@ -36,13 +43,6 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	 1200	 
 	 */
 
-	LOG("show_toaster ");
-	SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer;
-	gboolean bAct = TRUE;
-	GdkPixbuf *pixbuf = NULL;
-	gchar *pixPath = "/tmp/sqicon.png"; //use g_get_tmp_dir();
-	GHashTable *table = g_hash_table_new(g_str_hash, g_str_equal);
-
 	if (bAct) {
 		bAct = ((sd->player.title->str && sd->player.title->str[0]) ||
 			(sd->player.album->str && sd->player.album->str[0]) ||
@@ -51,9 +51,6 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	}
 
 	if (bAct) {
-		LOG("New track '%s' from '%s' by '%s'",
-			sd->player.title->str, sd->player.artist->str,
-			sd->player.album->str);
 		GString *albumArt = g_string_new(sd->player.albumArt->str);
 		gchar *ntTitle = g_strdup(sd->player.title->str);
 		//happily, we easily can escape ampersands and other usual suspects.
@@ -61,6 +58,9 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		    g_markup_printf_escaped(_("by <b>%s</b>\nfrom <i>%s</i>"),
 					    sd->player.artist->str,
 					    sd->player.album->str);
+		LOG("New track '%s' from '%s' by '%s'",
+			sd->player.title->str, sd->player.artist->str,
+			sd->player.album->str);
 
 		if (albumArt->len) {
 			pixbuf =

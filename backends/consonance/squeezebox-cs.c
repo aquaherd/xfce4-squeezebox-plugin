@@ -49,7 +49,7 @@ typedef struct csData{
 	eSynoptics oldStat;
 } csData;
 
-#define MKTHIS csData *db = (csData *)thsPtr;
+#define MKTHIS csData *db = (csData *)thsPtr
 /* taken from consonance/consonance.h */
 #define DBUS_PATH           "/org/consonance/DBus"
 #define DBUS_NAME           "org.consonance.DBus"
@@ -70,11 +70,11 @@ gpointer CS_attach(SPlayer * parent);
 DEFINE_DBUS_BACKEND(CS, _("Consonance"), DBUS_NAME, "consonance");
 
 /* Send a signal to a running instance */
-void dbus_send_signal(const gchar * signal, void *thsPtr) {
+static void dbus_send_signal(const gchar * signalName, void *thsPtr) {
 	MKTHIS;
 	DBusMessage *msg = NULL;
 
-	msg = dbus_message_new_signal(DBUS_PATH, DBUS_INTERFACE, signal);
+	msg = dbus_message_new_signal(DBUS_PATH, DBUS_INTERFACE, signalName);
 
 	if (!msg) {
 		g_critical("(%s): Unable to allocate memory for DBUS message",
@@ -102,8 +102,9 @@ static gboolean csPoll(gpointer thsPtr) {
 	DBusError d_error;
 	const char *state, *file, *title, *artist, *album;
 	eSynoptics eStat = estStop;
-	dbus_error_init(&d_error);
+	GQuark csAct;
 
+	dbus_error_init(&d_error);
 	msg = dbus_message_new_method_call(DBUS_NAME,
 					   DBUS_PATH,
 					   DBUS_INTERFACE,
@@ -135,7 +136,7 @@ static gboolean csPoll(gpointer thsPtr) {
 		goto bad;
 	}
 
-	GQuark csAct = g_quark_from_string(state);
+	csAct = g_quark_from_string(state);
 	if (csAct == db->csStopped)
 		eStat = estStop;
 	else if (csAct == db->csPaused)
@@ -294,10 +295,10 @@ static gboolean csIsPlaying(gpointer thsPtr) {
 
 static gboolean csToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
+	gboolean newStat = FALSE;
 	LOG("Enter csToggle");
 	if (!csAssure(db, TRUE))
 		return FALSE;
-	gboolean newStat = FALSE;
 	switch (db->oldStat) {
 	    case estPlay:
 		    newStat = FALSE;

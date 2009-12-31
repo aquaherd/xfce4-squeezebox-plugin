@@ -62,20 +62,22 @@ gpointer BA_attach(SPlayer * parent);
 static gboolean baAssure(gpointer thsPtr, gboolean noCreate);
 #define BASENAME "banshee"
 DEFINE_DBUS_BACKEND(BA, _("Banshee"), "org.bansheeproject.Banshee", "banshee")
-#define MKTHIS baData *db = (baData *)thsPtr;
+#define MKTHIS baData *db = (baData *)thsPtr
 
 // implementation
 
-const gchar* baFindTag(const gchar* tagName, const gchar* track) {
+/*
+static const gchar* baFindTag(const gchar* tagName, const gchar* track) {
 	gchar *ptr = g_strstr_len(track, -1, tagName);
+	gchar *ptrStop;
 	if(ptr) {
 		ptr += strlen(tagName);
-		gchar *ptrStop = g_strstr_len(ptr, -1, "\n");
+		ptrStop = g_strstr_len(ptr, -1, "\n");
 		ptr = g_strndup(ptr, ptrStop-ptr);
 	}		
 	return (const gchar*)ptr;
 }
-
+*/
 static void baDumpProp(gpointer key, gpointer value, gpointer thsPtr) {
 	GValue *val = (GValue*)value;
 	if(G_VALUE_HOLDS_STRING(val))
@@ -99,13 +101,14 @@ static void baCallbackEventChanged(DBusGProxy * proxy,
 	if(!g_ascii_strcasecmp(text1, "trackinfoupdated")) {
 		GHashTable *table = NULL;
 		GError *error = NULL;
+		gchar *path;
 		if(org_bansheeproject_Banshee_PlayerEngine_get_currenttrack(
 			db->baPlayerEngine, &table, &error) && table) {
 			g_hash_table_foreach(table, baDumpProp, thsPtr);
 			g_string_assign(db->parent->artist, baGetProp(table, "artist"));
 			g_string_assign(db->parent->album, baGetProp(table, "album"));
 			g_string_assign(db->parent->title, baGetProp(table, "name"));
-			gchar *path = g_filename_from_uri(baGetProp(table, "URI"), NULL, NULL);
+			path = g_filename_from_uri(baGetProp(table, "URI"), NULL, NULL);
 			if(path && path[0]) {
 				db->parent->FindAlbumArtByFilePath(db->parent->sd, path);
 				g_free(path);
@@ -153,7 +156,7 @@ static void baCallbackFake(gpointer thsPtr) {
 	LOG("Leave baCallback: Fake");
 }
 
-static gboolean baUpdateDBUS(gpointer thsPtr, gboolean appeared) {
+static gboolean baUpdateDBUS(gpointer thsPtr, const gchar* dbusName, gboolean appeared) {
 	MKTHIS;
 	if (appeared) {
 		LOG("Banshee has started");
@@ -304,12 +307,12 @@ static gboolean baDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
-gboolean baIsVisible(gpointer thsPtr) {
+static gboolean baIsVisible(gpointer thsPtr) {
 	MKTHIS;
 	return db->Visibility;
 }
 
-gboolean baShow(gpointer thsPtr, gboolean newState) {
+static gboolean baShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	if (baAssure(thsPtr, FALSE) && NULL != db->baClientWindow) {
 		if(newState)
@@ -320,7 +323,7 @@ gboolean baShow(gpointer thsPtr, gboolean newState) {
 	return FALSE;
 }
 
-void baUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
+static void baUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
 	MKTHIS;
 	LOG("banshee is %s", (appeared)?"visible":"invisible");
 	db->Visibility = appeared;

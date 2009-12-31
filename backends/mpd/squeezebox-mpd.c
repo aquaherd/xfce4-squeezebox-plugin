@@ -66,19 +66,27 @@ typedef struct mpdData{
 	XfconfChannel *xfconfChannel;
 } mpdData;
 
-#define MKTHIS mpdData *thys = (mpdData *)thsPtr;
+#define MKTHIS mpdData *thys = (mpdData *)thsPtr
 
 gpointer MPD_attach(SPlayer * player);
+void on_mpdSettings_response(GtkDialog * dlg, int reponse,
+				      gpointer thsPtr);
+void on_chkUseDefault_toggled(GtkToggleButton * tb, gpointer thsPtr);
+void on_entryHost_changed(GtkEntry *tbd, gpointer thsPtr);
+void on_entryPassword_changed(GtkEntry *tbd, gpointer thsPtr);
+void on_chkUseFolder_toggled(GtkToggleButton * tb, gpointer thsPtr);
+void on_spinPort_value_changed(GtkSpinButton *tbd, gpointer thsPtr);
+void on_chooserDirectory_current_folder_changed(GtkFileChooserButton *chb, gpointer thsPtr);
+void on_chkUseListManager_toggled(GtkToggleButton * tb, gpointer thsPtr);
 
 #define BASENAME "mpd"
 DEFINE_BACKEND(MPD, _("Music Player Daemon"))
 
 // implementation
 
-void on_gmpd_song_changed(GMpd *gmpd, gpointer thsPtr) {
+static void on_gmpd_song_changed(GMpd *gmpd, gpointer thsPtr) {
 	MKTHIS;
 	GHashTable *song_info = g_mpd_get_current_track(thys->gmpd);
-	gboolean bFound = FALSE;
 
 	g_string_assign(thys->parent->artist, g_hash_table_lookup(song_info, "Artist"));
 	g_string_assign(thys->parent->album, g_hash_table_lookup(song_info, "Album"));
@@ -98,7 +106,7 @@ void on_gmpd_song_changed(GMpd *gmpd, gpointer thsPtr) {
 	thys->parent->Update(thys->parent->sd, TRUE, thys->state, NULL);
 }
 
-void on_gmpd_status_changed(GMpd *gmpd, gpointer thsPtr) {
+static void on_gmpd_status_changed(GMpd *gmpd, gpointer thsPtr) {
 	MKTHIS;
 	GHashTable *state_info = g_mpd_get_state_info(thys->gmpd);
 	gchar *state = g_hash_table_lookup(state_info, "state");
@@ -114,12 +122,12 @@ void on_gmpd_status_changed(GMpd *gmpd, gpointer thsPtr) {
 	thys->parent->Update(thys->parent->sd, FALSE, thys->state, NULL);
 }
 
-void _clone_playlists(gpointer key, gpointer value, gpointer thsPtr) {
+static void _clone_playlists(gpointer key, gpointer value, gpointer thsPtr) {
 	LOG("Playlist %s", (gchar*)key);
 	g_hash_table_insert(thsPtr, g_strdup(key), g_strdup(value));
 }
 
-void on_gmpd_playlist_changed(GMpd *gmpd, gpointer thsPtr) {
+static void on_gmpd_playlist_changed(GMpd *gmpd, gpointer thsPtr) {
 	MKTHIS;
 	
 	g_hash_table_remove_all(thys->parent->playLists);
@@ -131,7 +139,7 @@ void on_gmpd_playlist_changed(GMpd *gmpd, gpointer thsPtr) {
 	thys->parent->UpdatePlaylists(thys->parent->sd);
 }
 
-gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
+static gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 
 	MKTHIS;
 	gboolean gConnect = TRUE;
@@ -154,7 +162,7 @@ gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 	return gConnect;
 }
 
-gboolean mpdNext(gpointer thsPtr) {
+static gboolean mpdNext(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdNext");
@@ -166,19 +174,19 @@ gboolean mpdNext(gpointer thsPtr) {
 	return bRet;
 }
 
-gboolean mpdPrevious(gpointer thsPtr) {
+static gboolean mpdPrevious(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdPrevious");
 	if (!mpdAssure(thys, TRUE))
 		return FALSE;
 	else
-		bRet = g_mpd_prev(thys->gmpd);
+		bRet = g_mpd_previous(thys->gmpd);
 	LOG("Leave mpdPrevious");
 	return TRUE;
 }
 
-gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
+static gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdPlayPause %d", newState);
@@ -192,7 +200,7 @@ gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
 	return bRet;
 }
 
-gboolean mpdPlayPlaylist(gpointer thsPtr, gchar *playlistName) {
+static gboolean mpdPlayPlaylist(gpointer thsPtr, gchar *playlistName) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	gboolean bPlaying = g_mpd_is_playing(thys->gmpd);
@@ -204,7 +212,7 @@ gboolean mpdPlayPlaylist(gpointer thsPtr, gchar *playlistName) {
 	return bRet;
 }
 
-gboolean mpdIsPlaying(gpointer thsPtr) {
+static gboolean mpdIsPlaying(gpointer thsPtr) {
 	MKTHIS;
 	gboolean bRet = FALSE;
 	LOG("Enter mpdIsPlaying");
@@ -216,7 +224,7 @@ gboolean mpdIsPlaying(gpointer thsPtr) {
 	return bRet;
 }
 
-gboolean mpdToggle(gpointer thsPtr, gboolean * newState) {
+static gboolean mpdToggle(gpointer thsPtr, gboolean * newState) {
 	MKTHIS;
 	gboolean oldState = FALSE;
 	LOG("Enter mpdToggle");
@@ -231,13 +239,13 @@ gboolean mpdToggle(gpointer thsPtr, gboolean * newState) {
 	return TRUE;
 }
 
-gboolean mpdDetach(gpointer thsPtr) {
+static gboolean mpdDetach(gpointer thsPtr) {
 	MKTHIS;
 	LOG("Enter mpdDetach");
 	if (thys->xfconfChannel) {
 		g_object_unref(thys->xfconfChannel);
 	}
-	if (!thys->gmpd) {
+	if (thys->gmpd) {
 		g_object_unref(thys->gmpd);
 		thys->gmpd = NULL;
 	}
@@ -245,14 +253,14 @@ gboolean mpdDetach(gpointer thsPtr) {
 	return TRUE;
 }
 
-gboolean mpdShow(gpointer thsPtr, gboolean newState) {
+static gboolean mpdShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
-	LOG("Enter mpdShow");
 	const gchar *argv[] = {
 		thys->pmanager->str,
 		// here we could have arguments
 		NULL
 	};
+	LOG("Enter mpdShow");
 	g_spawn_async(NULL, (gchar**)argv, NULL, 
 		G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL,
 		NULL, NULL, NULL, NULL);
@@ -260,12 +268,12 @@ gboolean mpdShow(gpointer thsPtr, gboolean newState) {
 	return thys->bUsePManager;
 }
 
-gboolean mpdGetRepeat(gpointer thsPtr) {
+static gboolean mpdGetRepeat(gpointer thsPtr) {
 	MKTHIS;
 	return g_mpd_get_repeat(thys->gmpd);
 }
 
-gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
+static gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
 	MKTHIS;
 	if (mpdAssure(thsPtr, TRUE)) {
 		return g_mpd_set_repeat(thys->gmpd, newShuffle);
@@ -273,12 +281,12 @@ gboolean mpdSetRepeat(gpointer thsPtr, gboolean newShuffle) {
 	return FALSE;
 }
 
-gboolean mpdGetShuffle(gpointer thsPtr) {
+static gboolean mpdGetShuffle(gpointer thsPtr) {
 	MKTHIS;
 	return g_mpd_get_random(thys->gmpd);
 }
 
-gboolean mpdSetShuffle(gpointer thsPtr, gboolean newRandom) {
+static gboolean mpdSetShuffle(gpointer thsPtr, gboolean newRandom) {
 	MKTHIS;
 	if (mpdAssure(thsPtr, TRUE)) {
 		return g_mpd_set_random(thys->gmpd, newRandom);
@@ -286,9 +294,9 @@ gboolean mpdSetShuffle(gpointer thsPtr, gboolean newRandom) {
 	return FALSE;
 }
 
-void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
-	LOG("Enter mpdPersist");
+static void mpdPersist(gpointer thsPtr, gboolean bIsStoring) {
 	MKTHIS;
+	LOG("Enter mpdPersist");
 	if(bIsStoring){
 		// nothing to do
 	} else {
@@ -397,14 +405,14 @@ EXPORT void on_chooserDirectory_current_folder_changed(GtkFileChooserButton *chb
 }
 
 EXPORT void on_chkUseListManager_toggled(GtkToggleButton * tb, gpointer thsPtr) {
-	LOG("Enter on_chkUseListManager_toggled");
 	MKTHIS;
+	LOG("Enter on_chkUseListManager_toggled");
 	thys->bUsePManager = gtk_toggle_button_get_active(tb);
 	gtk_widget_set_sensitive(thys->wPMgr, thys->bUsePManager);
 	LOG("Leave on_chkUseListManager_toggled");
 }
 
-gchar** mpdGetIndexerArgs(){
+static gchar** mpdGetIndexerArgs(void){
 	gchar *tracker = g_find_program_in_path("tracker-search");
 	gchar **argv = NULL;
 	if(tracker) {
@@ -423,23 +431,21 @@ gchar** mpdGetIndexerArgs(){
 			argv[2] = "mpd";
 			argv[3] = NULL;
 		}
-	}
+	} 
 	if(argv)
 		LOG("\tIndexer is:%s", argv[0]);
 	return argv;
 }
 
 static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
-	LOG("Enter mpdConfigure");
 	MKTHIS;
-	GtkWidget *header, *vbox, *cb1, *label1, *label2, *label3, *cb2, *cb3;
-	GtkTable *table;
+	GtkWidget *header;
     GtkListStore *store;
     GtkTreeIter iter = {0};
     gint result;
     GtkBuilder* builder = gtk_builder_new();
 	GError *error = NULL;
-	XfceHeading *heading = NULL;
+	LOG("Enter mpdConfigure");
 	if(!gtk_builder_add_from_file(builder, BACKENDDIR "/" BASENAME "/settings-mpd.ui", &error)){
 		LOG("mpdConfigure unexpected:\n %s", error->message);
 		return;
@@ -486,11 +492,11 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 		gchar **argv = mpdGetIndexerArgs();
 		gchar *ptr = NULL;
         if(argv) {
+	        gchar *outText = NULL;
+	        gint exit_status = 0;
             GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
             if(thys->pmanager->len)
                 g_hash_table_insert(table, thys->pmanager->str, g_strdup("!"));
-	        gchar *outText = NULL;
-	        gint exit_status = 0;
 	        if (g_spawn_sync(NULL, argv, NULL, G_SPAWN_STDERR_TO_DEV_NULL,
 			         NULL, NULL, &outText, NULL, &exit_status, NULL)) {
                  LOG("Indexer says:%s", outText);
@@ -512,8 +518,9 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
                              const gchar *binPath = g_app_info_get_executable(
                                                     G_APP_INFO(app));   
                              if(!g_hash_table_lookup_extended(table, binPath, NULL, NULL)) {
+								 /*
 								 GIcon *icon = g_app_info_get_icon(
-                                                    G_APP_INFO(app));   
+                                                    G_APP_INFO(app));   */
                                  LOG("\tFound: %s", binPath);
                                  gtk_list_store_append(store, &iter);
                                  gtk_list_store_set(store, &iter, 0, binPath, -1);
@@ -530,8 +537,6 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
     }
 	#endif
 
-	// fin
-jumpTarget:
 	thys->bRequireReconnect = FALSE;
 	//gtk_dialog_run
 	gtk_window_set_transient_for(GTK_WINDOW(thys->wDlg), GTK_WINDOW(parent));
