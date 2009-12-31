@@ -95,7 +95,8 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name) {
     if (sd->player.Detach) {
 		sd->player.Detach(sd->player.db);
 		g_free(sd->player.db);
-		g_module_close(sd->module);
+		/* keep loaded until type system solved
+		g_module_close(sd->module); */
 	}
 	UNSET(Assure);
 	UNSET(Next);
