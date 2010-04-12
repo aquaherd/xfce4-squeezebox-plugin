@@ -1467,7 +1467,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 			 G_CALLBACK(squeezebox_properties_dialog), sd);
 
 	// add menu items
-	sd->mnuPlayer = gtk_check_menu_item_new_with_label(_("Show player"));
+	sd->mnuPlayer = gtk_check_menu_item_new_with_mnemonic(_("Show player"));
 	gtk_widget_show(sd->mnuPlayer);
 	xfce_panel_plugin_menu_insert_item(sd->plugin,
 					   GTK_MENU_ITEM(sd->mnuPlayer));
@@ -1475,14 +1475,14 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 			 G_CALLBACK(on_mnuPlayerToggled), sd);
 	g_object_ref(sd->mnuPlayer);
 
-	sd->mnuPlayLists = gtk_menu_item_new_with_label(_("Playlists"));
+	sd->mnuPlayLists = gtk_menu_item_new_with_mnemonic(_("Playlists"));
 	gtk_widget_show(sd->mnuPlayLists);
 	gtk_widget_set_sensitive(sd->mnuPlayLists, FALSE);
 	xfce_panel_plugin_menu_insert_item(sd->plugin,
 					   GTK_MENU_ITEM(sd->mnuPlayLists));
 	g_object_ref(sd->mnuPlayLists);
 
-	sd->mnuShuffle = gtk_check_menu_item_new_with_label(_("Shuffle"));
+	sd->mnuShuffle = gtk_check_menu_item_new_with_mnemonic(_("Shuffle"));
 	gtk_widget_show(sd->mnuShuffle);
 	xfce_panel_plugin_menu_insert_item(sd->plugin,
 					   GTK_MENU_ITEM(sd->mnuShuffle));
@@ -1490,7 +1490,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 			 G_CALLBACK(on_mnuShuffleToggled), sd);
 	g_object_ref(sd->mnuShuffle);
 
-	sd->mnuRepeat = gtk_check_menu_item_new_with_label(_("Repeat"));
+	sd->mnuRepeat = gtk_check_menu_item_new_with_mnemonic(_("Repeat"));
 	gtk_widget_show(sd->mnuRepeat);
 	xfce_panel_plugin_menu_insert_item(sd->plugin,
 					   GTK_MENU_ITEM(sd->mnuRepeat));
