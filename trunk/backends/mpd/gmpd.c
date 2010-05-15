@@ -59,10 +59,10 @@ struct _GMpdPrivate
 	GMpd *self;
 };
 
-static void _clear_object(GObject **socket) {
+static void _clear_object(gpointer *socket) {
 	if(*socket) {
 		g_object_unref(*socket);
-		socket = NULL;
+		*socket = NULL;
 	}
 }
 
@@ -71,6 +71,10 @@ static void _error_clear(GMpdPrivate *priv) {
 		g_error_free(priv->error);
 		priv->error = NULL;
 	}
+}
+
+static void _free(void *ptr) {
+	// can't possibly free function pointers, so this is a dummy.
 }
 
 static gboolean _error_extract(GMpdPrivate *priv, const gchar* line) {
@@ -94,6 +98,8 @@ static gchar * _read_response_line(GMpdPrivate *priv) {
 static gboolean _send_command_raw(GMpdPrivate *priv, const gchar* command) {
 	GOutputStream *ostm = g_io_stream_get_output_stream(G_IO_STREAM(priv->connection));
 	gssize sz1 = strlen(command), sz2;
+	if (NULL == priv->connection)
+		return FALSE;
 	_error_clear(priv);
 	sz2 = g_output_stream_write(ostm, command, sz1, NULL, &priv->error);
 	LOG("sent %s", command);
@@ -106,6 +112,7 @@ static void _update_dispatch(GMpdPrivate *priv, gchar *changeDetail) {
 	void( *update_func)(GMpdPrivate *priv, gchar *changeDetail);
 	gchar **change = changes;
 	
+	LOG("_update_dispatch %s", changeDetail);
 	gdk_threads_enter();
 	g_signal_emit(priv->self, klass->signal[SIGNAL_IDLE], 0, changeDetail);
 	
@@ -119,41 +126,29 @@ static void _update_dispatch(GMpdPrivate *priv, gchar *changeDetail) {
 	g_strfreev(changes);
 	gdk_threads_leave();
 }
-/*
-static gboolean _idle_cb(gpointer user_data) {
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(user_data);
-	if(priv->inIdle) {
-		GSocket *socket = g_socket_connection_get_socket(priv->connection);
-		GIOCondition cond = g_socket_condition_check(socket, G_IO_IN);
-		if(cond & G_IO_IN) {
-			GString *changes = g_string_new("");
-			gchar *line = _read_response_line(priv);
-			LOG("IdleComplete:%x:%s", cond, line);
-			priv->inIdle  = FALSE;
-			if(NULL == line) {
-				return TRUE;
-			} else {
-				while(g_str_has_prefix(line, "changed: ")) {
-					gchar *changeDetail = line + 9;
-					g_string_append(changes, changeDetail);
-					g_free(line);
-					line = _read_response_line(priv);
-					if(g_strcmp0(line, "OK"))
-						g_string_append(changes, ",");
-				}
-				g_free(line);
-				_update_dispatch(priv, changes->str);
-				g_string_free(changes, TRUE);
-			}
+
+static void _disconnect(GMpdPrivate *priv, gboolean threaded) {
+	GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
+	LOG("Disconnect");
+
+	if(threaded && priv->connection) {
+		if(priv->thread) {
+			gdk_threads_leave();
+			_idle_cancel(priv);
 			_idle_enter(priv);
-		} else if(cond & (G_IO_HUP|G_IO_ERR)) {
-			LOG("Unexpected socket error.");
-			return FALSE;
+			_send_command_raw(priv, "close\n");
+			g_thread_join(priv->thread);
+			priv->thread = NULL;
+			gdk_threads_enter();
 		}
 	}
-	return TRUE;
+	_clear_object((gpointer*)&priv->istm);
+	_clear_object((gpointer*)&priv->connection);
+	_clear_object((gpointer*)&priv->client);
+	_clear_object((gpointer*)&priv->address);
+	g_signal_emit(priv->self, klass->signal[SIGNAL_STATUS], 0);
 }
-*/
+
 static void _idle_enter(GMpdPrivate *priv) {
 	if(!priv->inIdle) {
 		LOG("IdleEnter");
@@ -204,6 +199,7 @@ static gpointer _idle_thread(gpointer user_data) {
 			_idle_enter(priv);
 		}
 	}
+	_update_dispatch(priv, "socket");
 	LOG("LeaveThread");
 	return NULL;
 }
@@ -211,6 +207,8 @@ static gpointer _idle_thread(gpointer user_data) {
 static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...) {
 	va_list args;
 	gchar *command;
+	if (NULL == priv->connection)
+		return FALSE;
 	va_start(args, format);
 	command = g_strdup_vprintf(format, args);
 	_idle_cancel(priv);
@@ -237,7 +235,7 @@ static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail) {
 	if(_send_command_raw(priv, "listplaylists\n")) {
 		GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
 		gchar *line = _read_response_line(priv);
-		//gboolean changed = FALSE;
+
 		if(_error_extract(priv, line)) {
 			g_free(line);
 			return;
@@ -264,7 +262,15 @@ static void _update_player(GMpdPrivate *priv, gchar *changeDetail) {
 	g_free(oldSongID);
 }
 
+static void _update_socket(GMpdPrivate *priv, gchar *changeDetail) {
+	// we have gotten hang up.
+	LOG("_update_socket: %s.", changeDetail);
+	_disconnect(priv, FALSE);
+	priv->connection = NULL;
+}
+
 static void _update_status(GMpdPrivate *priv, gchar *changeDetail) {
+	LOG("_update_status: %s.", changeDetail);
 	if(_send_command_raw(priv, "status\n")) {
 		GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
 		gchar *line = _read_response_line(priv);
@@ -314,6 +320,8 @@ static void _update_currentsong(GMpdPrivate *priv, gchar *changeDetail) {
 
 /* endregion */
 
+
+/* region public realm */
 static void g_mpd_dispose (GObject *gobject) {
 	/* Free all stateful data */
 	GMpdPrivate *priv = G_MPD_GET_PRIVATE(gobject);
@@ -455,9 +463,6 @@ static void g_mpd_class_init (GMpdClass *klass)
 	g_type_class_add_private (klass, sizeof (GMpdPrivate));
 }
 
-static void _free(void *ptr) {
-}
-
 static void
 g_mpd_init (GMpd *self)
 {
@@ -483,6 +488,7 @@ g_mpd_init (GMpd *self)
 	g_hash_table_insert(priv->changes, "mixer", _update_status);
 	g_hash_table_insert(priv->changes, "output", _update_status);
 	g_hash_table_insert(priv->changes, "options", _update_status);
+	g_hash_table_insert(priv->changes, "socket", _update_socket);
 }
 
 GMpd *g_mpd_new(void) {
@@ -490,24 +496,11 @@ GMpd *g_mpd_new(void) {
 }
 
 void g_mpd_disconnect(GMpd *self) {
-	GMpdPrivate *priv;
-	LOG("Disconnect");
 	g_return_if_fail (G_IS_MPD (self));
-	priv = G_MPD_GET_PRIVATE(self);
-
-	if(priv->connection) {
-		_idle_cancel(priv);
-		_send_command_raw(priv, "close\n");
-		if(priv->thread) {
-			_idle_enter(priv);
-			g_thread_join(priv->thread);
-			priv->thread = NULL;
-		}
+	{
+		GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
+		_disconnect(priv, TRUE);
 	}
-	_clear_object((GObject**)&priv->istm);
-	_clear_object((GObject**)&priv->connection);
-	_clear_object((GObject**)&priv->client);
-	_clear_object((GObject**)&priv->address);
 }
 gboolean g_mpd_connect(GMpd *self, const gchar* host, const int port) {
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
@@ -515,7 +508,7 @@ gboolean g_mpd_connect(GMpd *self, const gchar* host, const int port) {
 		GMpdPrivate *priv = G_MPD_GET_PRIVATE(self);
 		GSocketConnectable *connectable;
 		
-		g_mpd_disconnect(self);
+		_disconnect(priv, FALSE);
 		LOG("Connect");
 		
 		priv->address = g_network_address_new(host, port);
@@ -620,6 +613,13 @@ gboolean g_mpd_is_playing(GMpd *self) {
 	return !g_strcmp0(g_hash_table_lookup(priv->stateinfo, "state"), "play");
 }
 
+gboolean g_mpd_is_online(GMpd *self) {
+	GMpdPrivate *priv;
+	g_return_val_if_fail (G_IS_MPD (self), FALSE);
+	priv = G_MPD_GET_PRIVATE(self);
+	return (NULL != priv->connection);
+}
+
 gboolean g_mpd_get_random(GMpd *self) {
 	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), FALSE);
@@ -652,6 +652,8 @@ GError * g_mpd_get_last_error(GMpd *self) {
 	GMpdPrivate *priv;
 	g_return_val_if_fail (G_IS_MPD (self), NULL);
 	priv = G_MPD_GET_PRIVATE(self);
-	return g_error_copy(priv->error);
+	
+	return (priv->error) ? g_error_copy(priv->error) : NULL;
 }
 
+/* endregion */

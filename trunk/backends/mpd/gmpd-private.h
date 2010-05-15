@@ -39,7 +39,7 @@ static GQuark G_MPD_DOMAIN;
 #define SIGNAL_SONG 2
 #define SIGNAL_PLAYLIST 3
 
-static void _clear_object(GObject **socket);
+static void _clear_object(gpointer *socket);
 static void _error_clear(GMpdPrivate *priv);
 static gboolean _error_extract(GMpdPrivate *priv, const gchar* line);
 static gchar * _read_response_line(GMpdPrivate *priv);

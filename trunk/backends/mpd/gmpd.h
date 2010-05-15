@@ -79,6 +79,7 @@ gboolean g_mpd_set_repeat(GMpd *self, gboolean newRepeat);
 GHashTable *g_mpd_get_current_track(GMpd *self);
 GHashTable *g_mpd_get_state_info(GMpd *self);
 GHashTable *g_mpd_get_playlists(GMpd *self);
+gboolean g_mpd_is_online(GMpd *self);
 gboolean g_mpd_is_playing(GMpd *self);
 gboolean g_mpd_switch_playlist(GMpd *self, const gchar *playlist);
 GError * g_mpd_get_last_error(GMpd *self);
