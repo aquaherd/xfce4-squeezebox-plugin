@@ -161,8 +161,8 @@ if test x$enable_debug_trace = xyes; then
     AC_DEFINE([DEBUG_TRACE], [1], [Set this to 1 to enable full trace debugging.])
 fi
 
-AM_PATH_GLIB_2_0(2.12.0,,AC_MSG_ERROR([
-*** GLib 2.12 is required to build xfce4-squeezebox-plugin; please make sure you have the
+AM_PATH_GLIB_2_0(2.22.0,,AC_MSG_ERROR([
+*** GLib 2.22 is required to build xfce4-squeezebox-plugin; please make sure you have the
 *** GLib development headers installed. The latest version of GLib is always
 *** available at http://www.gtk.org/.]))
 AC_SUBST(GLIB_LIBS)

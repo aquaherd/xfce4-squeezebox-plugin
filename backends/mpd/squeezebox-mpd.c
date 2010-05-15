@@ -83,6 +83,22 @@ void on_chkUseListManager_toggled(GtkToggleButton * tb, gpointer thsPtr);
 DEFINE_BACKEND(MPD, _("Music Player Daemon"))
 
 // implementation
+static void _convert_state(GMpd *gmpd, mpdData *thys)
+{
+	GHashTable *state_info = g_mpd_get_state_info(thys->gmpd);
+	gchar *state = g_hash_table_lookup(state_info, "state");
+	if(!g_mpd_is_online(thys->gmpd))
+		thys->state = estErr;
+	else if(!g_strcmp0(state, "play"))
+		thys->state = estPlay;
+	else if(!g_strcmp0(state, "pause"))
+		thys->state = estPause;
+	else if(!g_strcmp0(state, "stop"))
+		thys->state = estStop;
+	else
+		thys->state = estErr;
+	
+}
 
 static void on_gmpd_song_changed(GMpd *gmpd, gpointer thsPtr) {
 	MKTHIS;
@@ -103,22 +119,13 @@ static void on_gmpd_song_changed(GMpd *gmpd, gpointer thsPtr) {
 			artLocation->str);
 		g_string_free(artLocation, TRUE);
 	}
+	_convert_state(gmpd, thys);
 	thys->parent->Update(thys->parent->sd, TRUE, thys->state, NULL);
 }
 
 static void on_gmpd_status_changed(GMpd *gmpd, gpointer thsPtr) {
 	MKTHIS;
-	GHashTable *state_info = g_mpd_get_state_info(thys->gmpd);
-	gchar *state = g_hash_table_lookup(state_info, "state");
-	if(!g_strcmp0(state, "play"))
-		thys->state = estPlay;
-	else if(!g_strcmp0(state, "pause"))
-		thys->state = estPause;
-	else if(!g_strcmp0(state, "stop"))
-		thys->state = estStop;
-	else
-		thys->state = estErr;
-	
+	_convert_state(gmpd, thys);
 	thys->parent->Update(thys->parent->sd, FALSE, thys->state, NULL);
 }
 
@@ -152,13 +159,18 @@ static gboolean mpdAssure(gpointer thsPtr, gboolean noCreate) {
 			G_CALLBACK(on_gmpd_status_changed), thsPtr);
 		g_signal_connect(thys->gmpd, "playlist-changed", 
 			G_CALLBACK(on_gmpd_playlist_changed), thsPtr);
+	}
+	if (g_mpd_is_online(thys->gmpd)) {
+		gConnect = TRUE;
+	} else {
 		if(thys->bUseDefault)
 			gConnect = g_mpd_connect(thys->gmpd, "localhost", 6600);
 		else
 			gConnect = g_mpd_connect(thys->gmpd, thys->host->str, thys->port);
 	}
+	
 
-	LOG("Leave mpdAssure");
+	LOG("Leave mpdAssure %d", gConnect);
 	return gConnect;
 }
 
