@@ -113,7 +113,12 @@ typedef struct SqueezeBoxData{
 	gint notifyTimeout;
 	guint notifyID;
 	// menu items
-	GtkWidget *mnuShuffle, *mnuRepeat, *mnuPlayer, *mnuPlayLists;
+	GtkWidget 
+		*mnuShuffle,   // toggle shuffle
+		*mnuRepeat,    // toggle repeat
+		*mnuPlayer,    // show/hide player
+		*mnuPlayLists, // expand playlists
+		*mnuSong;	   // show song in thunar
 	gboolean noUI;
 
 	gint toolTipStyle;

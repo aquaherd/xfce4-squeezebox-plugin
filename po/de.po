@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-05 21:50+0200\n"
-"PO-Revision-Date: 2010-08-05 21:18+0100\n"
+"POT-Creation-Date: 2010-08-06 00:31+0200\n"
+"PO-Revision-Date: 2010-08-06 00:32+0100\n"
 "Last-Translator: Hakan Erduman <hakan.erduman@web.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -107,25 +107,30 @@ msgstr "%s: Keine Info"
 msgid "This backend has no configurable properties"
 msgstr "Dieses backend hat keine konfigurierbaren Eigenschaften"
 
-#: ../panel-plugin/squeezebox.c:1393 ../panel-plugin/squeezebox.c:1394
-#: ../panel-plugin/squeezebox.c:1395
+#: ../panel-plugin/squeezebox.c:1406
+#: ../panel-plugin/squeezebox.c:1407
+#: ../panel-plugin/squeezebox.c:1408
 msgid "(unknown)"
 msgstr "(unbekannt)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1471
+#: ../panel-plugin/squeezebox.c:1484
 msgid "Show player"
 msgstr "Player _anzeigen"
 
-#: ../panel-plugin/squeezebox.c:1479
+#: ../panel-plugin/squeezebox.c:1492
+msgid "Show song"
+msgstr "Titel anzeigen"
+
+#: ../panel-plugin/squeezebox.c:1500
 msgid "Playlists"
 msgstr "Wiedergabelisten"
 
-#: ../panel-plugin/squeezebox.c:1486
+#: ../panel-plugin/squeezebox.c:1507
 msgid "Shuffle"
 msgstr "Zufall"
 
-#: ../panel-plugin/squeezebox.c:1494
+#: ../panel-plugin/squeezebox.c:1515
 msgid "Repeat"
 msgstr "Wiederholen"
 
@@ -140,8 +145,7 @@ msgstr ""
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:1
 msgid " Control various audio players; display album art"
-msgstr ""
-" Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Covern"
+msgstr " Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Covern"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:2
 msgid " SqueezeBox"
@@ -277,57 +281,40 @@ msgstr "label"
 
 #~ msgid "Can't connect to music player daemon."
 #~ msgstr "Kann Verbindung zum Music Player Dämon nicht herstellen."
-
 #~ msgid "Media buttons"
 #~ msgstr "Medien-Tasten"
-
 #~ msgid "Grab state of multimedia keys"
 #~ msgstr "Zustand Medien-Tasten"
-
 #~ msgid "Squeezebox"
 #~ msgstr "Squeezebox"
-
 #~ msgid "Appearance"
 #~ msgstr "Erscheinungsbild"
-
 #~ msgid "Show p_revious button"
 #~ msgstr "Zeige Schaltfläche _Zurück"
-
 #~ msgid "Show _next button"
 #~ msgstr "Zeige Schaltfläche _weiter"
-
 #~ msgid "Grab _media buttons, if available"
 #~ msgstr "Nutze Medien-Tasten, wenn möglich"
-
 #~ msgid "_Details..."
 #~ msgstr "_Details..."
-
 #~ msgid "No _tooltips"
 #~ msgstr "Keine Tool_tips"
-
 #~ msgid "_Simple tooltips"
 #~ msgstr "_Einfache Tooltips"
-
 #~ msgid "Show noti_fications (notify daemon)"
 #~ msgstr "Zeige Benachrichtigungen (noti_fy Dämon)"
-
 #~ msgid "_Backend"
 #~ msgstr "_Backend"
-
 #~ msgid "_Settings..."
 #~ msgstr "Ein_stellungen..."
-
 #~ msgid "MPRIS Media Player"
 #~ msgstr "MPRIS-Medien-Player"
-
 #~ msgid "Beep Media Player"
 #~ msgstr "Beep Media Player"
-
 #~ msgid "Select MPD music folder"
 #~ msgstr "MPD Musik-Ordner wählen"
-
 #~ msgid "Rhythmbox 0.9.x (via DBUS)"
 #~ msgstr "Rhythmbox 0.9.x (über DBUS)"
-
 #~ msgid "Music Player Daemon (libmpd)"
 #~ msgstr "Music Player Dämon (über libmpd)"
+
