@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-09 18:19+0100\n"
-"PO-Revision-Date: 2009-12-01 10:42+0100\n"
+"POT-Creation-Date: 2010-08-05 21:50+0200\n"
+"PO-Revision-Date: 2010-08-05 21:21+0100\n"
 "Last-Translator: Hakan Erduman <hakan@erduman.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -24,7 +24,7 @@ msgstr "Rhythmbox"
 msgid "QuodLibet"
 msgstr "QuodLibet"
 
-#: ../backends/quodlibet/squeezebox-ql.c:110
+#: ../backends/quodlibet/squeezebox-ql.c:109
 msgid "[Unknown]"
 msgstr "[inconnu]"
 
@@ -32,15 +32,11 @@ msgstr "[inconnu]"
 msgid "Muine"
 msgstr "Muine"
 
-#: ../backends/mpd/squeezebox-mpd.c:79
+#: ../backends/mpd/squeezebox-mpd.c:83
 msgid "Music Player Daemon"
 msgstr "Music Player Daemon"
 
-#: ../backends/mpd/squeezebox-mpd.c:117
-msgid "Can't connect to music player daemon."
-msgstr "Pas de possible contacter le MPD"
-
-#: ../backends/mpd/squeezebox-mpd.c:482
+#: ../backends/mpd/squeezebox-mpd.c:356
 #, c-format
 msgid "Can't find binary '%s'"
 msgstr "Ne trouve pas '%s' binaires"
@@ -102,38 +98,38 @@ msgstr "Audacious"
 msgid "Banshee"
 msgstr "Banshee"
 
-#: ../panel-plugin/squeezebox.c:457
+#: ../panel-plugin/squeezebox.c:468
 #, c-format
 msgid "%s: No info"
 msgstr "%s: Pas d'info"
 
-#: ../panel-plugin/squeezebox.c:686
+#: ../panel-plugin/squeezebox.c:700
 msgid "This backend has no configurable properties"
 msgstr "Ceci Backend n'avez pas proprietes confinubles"
 
-#: ../panel-plugin/squeezebox.c:1364 ../panel-plugin/squeezebox.c:1365
-#: ../panel-plugin/squeezebox.c:1366
+#: ../panel-plugin/squeezebox.c:1393 ../panel-plugin/squeezebox.c:1394
+#: ../panel-plugin/squeezebox.c:1395
 msgid "(unknown)"
 msgstr "(pas de connaitre)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1442
+#: ../panel-plugin/squeezebox.c:1471
 msgid "Show player"
 msgstr "Afficher le lecteur de musique"
 
-#: ../panel-plugin/squeezebox.c:1450
+#: ../panel-plugin/squeezebox.c:1479
 msgid "Playlists"
 msgstr "Listes de lecture"
 
-#: ../panel-plugin/squeezebox.c:1457
+#: ../panel-plugin/squeezebox.c:1486
 msgid "Shuffle"
 msgstr "Shuffle"
 
-#: ../panel-plugin/squeezebox.c:1465
+#: ../panel-plugin/squeezebox.c:1494
 msgid "Repeat"
 msgstr "Rappel"
 
-#: ../panel-plugin/notifications.c:61
+#: ../panel-plugin/notifications.c:58
 #, c-format
 msgid ""
 "by <b>%s</b>\n"
@@ -195,56 +191,61 @@ msgid "Players"
 msgstr "Afficher le lecteur de musique"
 
 #: ../glade/settings.ui.h:10
-msgid "Previous"
+msgid "Popup notification"
 msgstr ""
 
 #: ../glade/settings.ui.h:11
-msgid "S_hortcuts"
+msgid "Previous"
 msgstr ""
 
 #: ../glade/settings.ui.h:12
-msgid "Shortcut"
+msgid "S_hortcuts"
 msgstr ""
 
 #: ../glade/settings.ui.h:13
+msgid "Shortcut"
+msgstr ""
+
+#: ../glade/settings.ui.h:14
 #, fuzzy
 msgid "Show P_revious button"
 msgstr "Afficher le bouton Précédent"
 
-#: ../glade/settings.ui.h:14
+#: ../glade/settings.ui.h:15
 #, fuzzy
 msgid "Show Player"
 msgstr "Afficher le lecteur de musique"
 
-#: ../glade/settings.ui.h:15
+#: ../glade/settings.ui.h:16
 #, fuzzy
 msgid "Show _Next button"
 msgstr "Montre bouton _avant"
 
-#: ../glade/settings.ui.h:16
+#: ../glade/settings.ui.h:17
 #, fuzzy
 msgid "Show _Tooltips"
 msgstr "Pas de _tooltips"
 
-#: ../glade/settings.ui.h:17
+#: ../glade/settings.ui.h:18
 #, fuzzy
 msgid "Show noti_fications (e.g. xfce4-notifyd)"
 msgstr "Montrez l'_notifications"
 
-#: ../glade/settings.ui.h:18
+#: ../glade/settings.ui.h:19
 #, fuzzy
 msgid "SqueezeBox"
 msgstr " SqueezeBox"
 
-#: ../glade/settings.ui.h:19
+#: ../glade/settings.ui.h:20
 msgid "Stop"
 msgstr ""
 
-#: ../glade/settings.ui.h:20
-msgid "_Players"
-msgstr ""
-
 #: ../glade/settings.ui.h:21
+#, fuzzy
+msgid "_Players"
+msgstr "Afficher le lecteur de musique"
+
+#: ../glade/settings.ui.h:22
 msgid "media player remote"
 msgstr "télécommande de lecteur de musique"
 
@@ -277,6 +278,9 @@ msgstr ""
 #: ../glade/mpris-wizard.ui.h:13
 msgid "label"
 msgstr ""
+
+#~ msgid "Can't connect to music player daemon."
+#~ msgstr "Pas de possible contacter le MPD"
 
 #~ msgid "Media buttons"
 #~ msgstr "Touches multimédia"

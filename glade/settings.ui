@@ -50,6 +50,11 @@
         <col id="1">0</col>
         <col id="2"></col>
       </row>
+      <row>
+        <col id="0" translatable="yes">Popup notification</col>
+        <col id="1">0</col>
+        <col id="2"></col>
+      </row>
     </data>
   </object>
   <object class="GtkDialog" id="dialogSettings">
@@ -62,12 +67,10 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
             <child>
               <object class="XfceHeading" id="xfce-heading1">
                 <property name="visible">True</property>
@@ -89,7 +92,6 @@
                   <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
                     <property name="border_width">4</property>
-                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkCheckButton" id="chkAutoAttach">
                         <property name="label" translatable="yes">Au_tomatically attach to these players</property>
@@ -248,7 +250,6 @@
                     <child>
                       <object class="GtkVBox" id="vbox3">
                         <property name="visible">True</property>
-                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkLabel" id="label5">
                             <property name="visible">True</property>
