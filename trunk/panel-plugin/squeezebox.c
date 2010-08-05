@@ -1076,6 +1076,15 @@ void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 	squeezebox_next(sd);
 }
 
+/*
+ * Reveals the current song (if possible) in thunar
+ */
+static void squeezebox_reveal(SqueezeBoxData *sd) {
+}
+
+/*
+ * Shows the player
+ */
 static gboolean squeezebox_show(gboolean show, SqueezeBoxData * sd) {
 	gboolean bRet = FALSE;
 	if (sd->noUI == FALSE && sd->player.Show) {
@@ -1087,6 +1096,10 @@ static gboolean squeezebox_show(gboolean show, SqueezeBoxData * sd) {
 				
 	}
 	return bRet;
+}
+
+static void on_mnuSongToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
+	squeezebox_reveal(sd);
 }
 
 static void on_mnuPlayerToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
@@ -1475,6 +1488,14 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	g_signal_connect(G_OBJECT(sd->mnuPlayer), "toggled",
 			 G_CALLBACK(on_mnuPlayerToggled), sd);
 	g_object_ref(sd->mnuPlayer);
+
+	sd->mnuSong = gtk_check_menu_item_new_with_mnemonic(_("Show song"));
+	gtk_widget_show(sd->mnuSong);
+	xfce_panel_plugin_menu_insert_item(sd->plugin,
+					   GTK_MENU_ITEM(sd->mnuSong));
+	g_signal_connect(G_OBJECT(sd->mnuSong), "toggled",
+			 G_CALLBACK(on_mnuSongToggled), sd);
+	g_object_ref(sd->mnuSong);
 
 	sd->mnuPlayLists = gtk_menu_item_new_with_mnemonic(_("Playlists"));
 	gtk_widget_show(sd->mnuPlayLists);
