@@ -86,8 +86,9 @@ typedef struct SPlayer{
 	GString *artist;
 	GString *album;
 	GString *title;
-	GString *albumArt;  // path to image file
-	GHashTable *playLists; // Playlistname:State
+	GString *albumArt;  	// path to image file
+	GString *path;			// full path to song (optional)
+	GHashTable *playLists; 	// Playlistname:State
 	
 	// backend "this" pointer, first param of above functions
 	gpointer db;

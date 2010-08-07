@@ -125,6 +125,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name) {
 	g_string_set_size(sd->player.album, 0);
 	g_string_set_size(sd->player.title, 0);
 	g_string_set_size(sd->player.albumArt, 0);
+	g_string_set_size(sd->player.path, 0);
 	
 	// clear playlists
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), NULL);
@@ -1080,6 +1081,8 @@ void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
  * Reveals the current song (if possible) in thunar
  */
 static void squeezebox_reveal(SqueezeBoxData *sd) {
+	if(sd->player.path->len && g_file_test(sd->player.path->str, G_FILE_TEST_EXISTS)) {
+	}
 }
 
 /*
@@ -1110,10 +1113,7 @@ static void on_mnuShuffleToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxDat
 	if (sd->noUI == FALSE && sd->player.SetShuffle) {
 		sd->player.SetShuffle(sd->player.db, checkmenuitem->active);
 		if (sd->player.GetShuffle)
-			squeezebox_update_shuffle(sd,
-						  sd->player.GetShuffle(sd->
-									player.
-									db));
+			squeezebox_update_shuffle(sd, sd->player.GetShuffle(sd->player.db));
 	}
 }
 
@@ -1407,6 +1407,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	sd->player.album = g_string_new(_("(unknown)"));
 	sd->player.title = g_string_new(_("(unknown)"));
 	sd->player.albumArt = g_string_new("");
+	sd->player.path = g_string_new("");
     sd->player.playLists = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	sd->player.Update = squeezebox_update_UI;
 	sd->player.UpdatePlaylists = squeezebox_update_playlists;
