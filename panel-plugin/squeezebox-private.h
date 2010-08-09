@@ -162,7 +162,7 @@ typedef struct BackendCache{
     gchar *commandLine;
 	gboolean autoAttach;
 }BackendCache;
-
+gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* dbusName);
 void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 				   const gchar * OldOwner,
 				   const gchar * NewOwner,

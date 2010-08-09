@@ -370,6 +370,7 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 	fp = id3_file_open(realPath, ID3_FILE_MODE_READONLY);
 	if (fp) {
 		struct id3_tag const *tag = id3_file_tag(fp);
+		g_string_assign(sd->player.path, realPath);
 		if (tag) {
 			const gchar *coverart = NULL;
 			int i;
@@ -1081,8 +1082,32 @@ void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
  * Reveals the current song (if possible) in thunar
  */
 static void squeezebox_reveal(SqueezeBoxData *sd) {
+	LOG("Enter squeezebox_reveal");
 	if(sd->player.path->len && g_file_test(sd->player.path->str, G_FILE_TEST_EXISTS)) {
+		LOG("File exists %s", sd->player.path->str);
+		if(squeezebox_dbus_service_exists(sd, "org.xfce.FileManager")) {
+			GError *error = NULL;
+			DBusGProxy *thunar = dbus_g_proxy_new_for_name_owner(sd->player.bus,
+							       "org.xfce.FileManager",
+							       "/org/xfce/FileManager",
+							       "org.xfce.FileManager",
+							       &error);
+			LOG("Thunar exists, proxy: %s", (NULL == error) ? "OK" : error->message);
+			if(thunar) {
+				gchar *dir = g_path_get_dirname(sd->player.path->str);
+				gchar *base = g_path_get_basename(sd->player.path->str);
+				dbus_g_proxy_call (thunar, "DisplayFolderAndSelect", &error, 
+					G_TYPE_STRING, dir, 
+					G_TYPE_STRING, base, 
+					G_TYPE_STRING, "", // current display, else ":0.0" etc.
+					G_TYPE_INVALID, G_TYPE_INVALID);
+				g_free(dir);
+				g_free(base);
+				g_object_unref(thunar);
+			}
+		}
 	}
+	LOG("Leave squeezebox_reveal");
 }
 
 /*
@@ -1311,7 +1336,7 @@ void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 	}
 }
 
-static gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* dbusName) {
+gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* dbusName) {
 	MKTHIS;
 	gboolean hasOwner;
 	return org_freedesktop_DBus_name_has_owner(sd->player.dbService, dbusName, &hasOwner, NULL) && hasOwner;
