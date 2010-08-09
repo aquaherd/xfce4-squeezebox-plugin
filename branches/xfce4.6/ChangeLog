@@ -1,0 +1,23 @@
+2009-11-21 (0.1-2)
+
+  * Initial beta release for xfce 4.6
+    - packages built for rpm and deb
+    - audacious, exaile, consonance, muine and banshee backends added
+    - bmpx backend dropped
+    - switching from ini-files to xfconf, libnotify dependency dropped
+
+2008-03-13 (0.1-1)
+
+  * Initial beta release for xfce 4.4
+    - package built successfully
+    - quodlibet backend added
+
+2007-11-14 (0.1-0)
+
+  * Initial beta nonrelease 
+    - rhythmbox backend
+    - mpd backend
+
+2006-08-18 - Creation
+
+

@@ -125,7 +125,6 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name) {
 	g_string_set_size(sd->player.album, 0);
 	g_string_set_size(sd->player.title, 0);
 	g_string_set_size(sd->player.albumArt, 0);
-	g_string_set_size(sd->player.path, 0);
 	
 	// clear playlists
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), NULL);
@@ -370,7 +369,6 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 	fp = id3_file_open(realPath, ID3_FILE_MODE_READONLY);
 	if (fp) {
 		struct id3_tag const *tag = id3_file_tag(fp);
-		g_string_assign(sd->player.path, realPath);
 		if (tag) {
 			const gchar *coverart = NULL;
 			int i;
@@ -1078,41 +1076,6 @@ void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 	squeezebox_next(sd);
 }
 
-/*
- * Reveals the current song (if possible) in thunar
- */
-static void squeezebox_reveal(SqueezeBoxData *sd) {
-	LOG("Enter squeezebox_reveal");
-	if(sd->player.path->len && g_file_test(sd->player.path->str, G_FILE_TEST_EXISTS)) {
-		LOG("File exists %s", sd->player.path->str);
-		if(squeezebox_dbus_service_exists(sd, "org.xfce.FileManager")) {
-			GError *error = NULL;
-			DBusGProxy *thunar = dbus_g_proxy_new_for_name_owner(sd->player.bus,
-							       "org.xfce.FileManager",
-							       "/org/xfce/FileManager",
-							       "org.xfce.FileManager",
-							       &error);
-			LOG("Thunar exists, proxy: %s", (NULL == error) ? "OK" : error->message);
-			if(thunar) {
-				gchar *dir = g_path_get_dirname(sd->player.path->str);
-				gchar *base = g_path_get_basename(sd->player.path->str);
-				dbus_g_proxy_call (thunar, "DisplayFolderAndSelect", &error, 
-					G_TYPE_STRING, dir, 
-					G_TYPE_STRING, base, 
-					G_TYPE_STRING, "", // current display, else ":0.0" etc.
-					G_TYPE_INVALID, G_TYPE_INVALID);
-				g_free(dir);
-				g_free(base);
-				g_object_unref(thunar);
-			}
-		}
-	}
-	LOG("Leave squeezebox_reveal");
-}
-
-/*
- * Shows the player
- */
 static gboolean squeezebox_show(gboolean show, SqueezeBoxData * sd) {
 	gboolean bRet = FALSE;
 	if (sd->noUI == FALSE && sd->player.Show) {
@@ -1126,10 +1089,6 @@ static gboolean squeezebox_show(gboolean show, SqueezeBoxData * sd) {
 	return bRet;
 }
 
-static void on_mnuSongToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
-	squeezebox_reveal(sd);
-}
-
 static void on_mnuPlayerToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
 	squeezebox_show(checkmenuitem->active, sd);
 }
@@ -1138,7 +1097,10 @@ static void on_mnuShuffleToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxDat
 	if (sd->noUI == FALSE && sd->player.SetShuffle) {
 		sd->player.SetShuffle(sd->player.db, checkmenuitem->active);
 		if (sd->player.GetShuffle)
-			squeezebox_update_shuffle(sd, sd->player.GetShuffle(sd->player.db));
+			squeezebox_update_shuffle(sd,
+						  sd->player.GetShuffle(sd->
+									player.
+									db));
 	}
 }
 
@@ -1336,7 +1298,7 @@ void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 	}
 }
 
-gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* dbusName) {
+static gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* dbusName) {
 	MKTHIS;
 	gboolean hasOwner;
 	return org_freedesktop_DBus_name_has_owner(sd->player.dbService, dbusName, &hasOwner, NULL) && hasOwner;
@@ -1432,7 +1394,6 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	sd->player.album = g_string_new(_("(unknown)"));
 	sd->player.title = g_string_new(_("(unknown)"));
 	sd->player.albumArt = g_string_new("");
-	sd->player.path = g_string_new("");
     sd->player.playLists = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	sd->player.Update = squeezebox_update_UI;
 	sd->player.UpdatePlaylists = squeezebox_update_playlists;
@@ -1514,14 +1475,6 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	g_signal_connect(G_OBJECT(sd->mnuPlayer), "toggled",
 			 G_CALLBACK(on_mnuPlayerToggled), sd);
 	g_object_ref(sd->mnuPlayer);
-
-	sd->mnuSong = gtk_check_menu_item_new_with_mnemonic(_("Show song"));
-	gtk_widget_show(sd->mnuSong);
-	xfce_panel_plugin_menu_insert_item(sd->plugin,
-					   GTK_MENU_ITEM(sd->mnuSong));
-	g_signal_connect(G_OBJECT(sd->mnuSong), "toggled",
-			 G_CALLBACK(on_mnuSongToggled), sd);
-	g_object_ref(sd->mnuSong);
 
 	sd->mnuPlayLists = gtk_menu_item_new_with_mnemonic(_("Playlists"));
 	gtk_widget_show(sd->mnuPlayLists);

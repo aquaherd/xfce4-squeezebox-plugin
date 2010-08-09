@@ -1,0 +1,8 @@
+# Watch control file for uscan
+# See uscan(1) for format
+
+# Compulsory line, this is a version 3 file
+version=3
+
+# Uncomment to examine a Webserver directory
+#http://goodies.xfce.org/releases/xfce4-squeezebox-plugin/xfce4-squeezebox-plugin-(.*)\.tar\.gz

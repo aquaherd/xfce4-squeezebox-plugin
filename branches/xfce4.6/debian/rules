@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+DEB_CONFIGURE_EXTRA_FLAGS=--enable-maintainer-mode
+
+binary-post-install/xfce4-squeezebox-plugin::
+	-rm -rf debian/`dh_listpackages`/usr/lib/xfce4/panel-plugins/*.a
+	-rm -rf debian/`dh_listpackages`/usr/lib/xfce4/panel-plugins/*.la
