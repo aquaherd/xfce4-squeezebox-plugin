@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-06 00:31+0200\n"
+"POT-Creation-Date: 2010-08-05 21:50+0200\n"
 "PO-Revision-Date: 2010-08-05 21:21+0100\n"
 "Last-Translator: Hakan Erduman <hakan@erduman.de>\n"
 "Language-Team: \n"
@@ -107,29 +107,25 @@ msgstr "%s: Pas d'info"
 msgid "This backend has no configurable properties"
 msgstr "Ceci Backend n'avez pas proprietes confinubles"
 
-#: ../panel-plugin/squeezebox.c:1406 ../panel-plugin/squeezebox.c:1407
-#: ../panel-plugin/squeezebox.c:1408
+#: ../panel-plugin/squeezebox.c:1393 ../panel-plugin/squeezebox.c:1394
+#: ../panel-plugin/squeezebox.c:1395
 msgid "(unknown)"
 msgstr "(pas de connaitre)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1484
+#: ../panel-plugin/squeezebox.c:1471
 msgid "Show player"
 msgstr "Afficher le lecteur de musique"
 
-#: ../panel-plugin/squeezebox.c:1492
-msgid "Show song"
-msgstr ""
-
-#: ../panel-plugin/squeezebox.c:1500
+#: ../panel-plugin/squeezebox.c:1479
 msgid "Playlists"
 msgstr "Listes de lecture"
 
-#: ../panel-plugin/squeezebox.c:1507
+#: ../panel-plugin/squeezebox.c:1486
 msgid "Shuffle"
 msgstr "Shuffle"
 
-#: ../panel-plugin/squeezebox.c:1515
+#: ../panel-plugin/squeezebox.c:1494
 msgid "Repeat"
 msgstr "Rappel"
 

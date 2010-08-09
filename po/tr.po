@@ -3,8 +3,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-06 00:31+0200\n"
-"PO-Revision-Date: 2010-08-06 00:33+0100\n"
+"POT-Creation-Date: 2010-08-05 21:50+0200\n"
+"PO-Revision-Date: 2010-08-05 21:21+0100\n"
 "Last-Translator: Hakan Erduman <hakan.erduman@web.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -106,30 +106,25 @@ msgstr "%s: Detaysız"
 msgid "This backend has no configurable properties"
 msgstr "Bu arkalık değiştirilebilir kullanımlara sahip değildir"
 
-#: ../panel-plugin/squeezebox.c:1406
-#: ../panel-plugin/squeezebox.c:1407
-#: ../panel-plugin/squeezebox.c:1408
+#: ../panel-plugin/squeezebox.c:1393 ../panel-plugin/squeezebox.c:1394
+#: ../panel-plugin/squeezebox.c:1395
 msgid "(unknown)"
 msgstr "(bilinmiyor)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1484
+#: ../panel-plugin/squeezebox.c:1471
 msgid "Show player"
 msgstr "Çaları göster"
 
-#: ../panel-plugin/squeezebox.c:1492
-msgid "Show song"
-msgstr "Şarkıyı göster"
-
-#: ../panel-plugin/squeezebox.c:1500
+#: ../panel-plugin/squeezebox.c:1479
 msgid "Playlists"
 msgstr "Çalma Listeleri"
 
-#: ../panel-plugin/squeezebox.c:1507
+#: ../panel-plugin/squeezebox.c:1486
 msgid "Shuffle"
 msgstr "Tesadüfle"
 
-#: ../panel-plugin/squeezebox.c:1515
+#: ../panel-plugin/squeezebox.c:1494
 msgid "Repeat"
 msgstr "Tekrarla"
 
@@ -269,7 +264,8 @@ msgstr ""
 "çalarlara MPRİS-standardına uygun çalar eklenir.\n"
 "\n"
 "MPRİS'in meali 'Media Player Remote Interfacing Specification'.\n"
-"Detay için internette <a href=\"http://wiki.xmms2.xmms.se/wiki/MPRIS\" şuraya/> bakınız.\n"
+"Detay için internette <a href=\"http://wiki.xmms2.xmms.se/wiki/MPRIS\" "
+"şuraya/> bakınız.\n"
 "\n"
 "Eğer çalarınız MPRİS-stadardına uygun deyilse, \n"
 "bir ekleme bunu mümkün edebilir.\n"
@@ -280,40 +276,57 @@ msgstr "etiket"
 
 #~ msgid "Can't connect to music player daemon."
 #~ msgstr "Müzik çalar cinine bağlantı kurulamıyor."
+
 #~ msgid "Media buttons"
 #~ msgstr "Medya tuşları"
+
 #~ msgid "Grab state of multimedia keys"
 #~ msgstr "Medya tuşlarının bağlantı hali"
+
 #~ msgid "Squeezebox"
 #~ msgstr " Squeezebox"
+
 #~ msgid "Appearance"
 #~ msgstr "Görünüm"
+
 #~ msgid "Show p_revious button"
 #~ msgstr "_Geri tuşunu göster"
+
 #~ msgid "Show _next button"
 #~ msgstr "_ileri tuşunu göster"
+
 #~ msgid "Grab _media buttons, if available"
 #~ msgstr "Medya tuşlarını varsa bağla"
+
 #~ msgid "_Details..."
 #~ msgstr "_Detaylar..."
+
 #~ msgid "No _tooltips"
 #~ msgstr "İpuç gösterme"
+
 #~ msgid "_Simple tooltips"
 #~ msgstr "Ba_sit ipuçları"
+
 #~ msgid "Show noti_fications (notify daemon)"
 #~ msgstr "Not göster (notify deamon)"
+
 #~ msgid "_Backend"
 #~ msgstr "Ar_kalık"
+
 #~ msgid "_Settings..."
 #~ msgstr "_Ayarlar..."
+
 #~ msgid "MPRIS Media Player"
 #~ msgstr "MPRIS Media Player"
+
 #~ msgid "Beep Media Player"
 #~ msgstr "Beep Media Player"
+
 #~ msgid "Select MPD music folder"
 #~ msgstr "MPD müzik dizinini belirle"
+
 #~ msgid "Rhythmbox 0.9.x (via DBUS)"
 #~ msgstr "Rhythmbox 0.9.x (DBUS üzeri)"
+
 #~ msgid "Music Player Daemon (libmpd)"
 #~ msgstr "Müzik Çalar Cini (libmpd üzeri)"
-
