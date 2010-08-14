@@ -1,0 +1,29 @@
+<node>
+  <interface name="org.gnome.Rhythmbox.PlaylistManager">
+    <method name="importPlaylist">
+      <arg name="uri" type="s" direction="in"/>
+    </method>
+    <method name="exportPlaylist">
+      <arg name="playlist" type="s" direction="in"/>
+      <arg name="uri" type="s" direction="in"/>
+      <arg name="m3u_format" type="b" direction="in"/>
+    </method>
+    <method name="removeFromPlaylist">
+      <arg name="playlist" type="s" direction="in"/>
+      <arg name="uri" type="s" direction="in"/>
+    </method>
+    <method name="addToPlaylist">
+      <arg name="playlist" type="s" direction="in"/>
+      <arg name="uri" type="s" direction="in"/>
+    </method>
+    <method name="deletePlaylist">
+      <arg name="name" type="s" direction="in"/>
+    </method>
+    <method name="createPlaylist">
+      <arg name="name" type="s" direction="in"/>
+    </method>
+    <method name="getPlaylists">
+      <arg name="arg0" type="as" direction="out"/>
+    </method>
+  </interface>
+</node>
