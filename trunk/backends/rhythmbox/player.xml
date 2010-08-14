@@ -1,0 +1,53 @@
+<node>
+  <interface name="org.gnome.Rhythmbox.Player">
+    <method name="getMute">
+      <arg name="mute" type="b" direction="out"/>
+    </method>
+    <method name="setMute">
+      <arg name="mute" type="b" direction="in"/>
+    </method>
+    <method name="setVolumeRelative">
+      <arg name="volume" type="d" direction="in"/>
+    </method>
+    <method name="setVolume">
+      <arg name="volume" type="d" direction="in"/>
+    </method>
+    <method name="getVolume">
+      <arg name="volume" type="d" direction="out"/>
+    </method>
+    <method name="setElapsed">
+      <arg name="elapsed" type="u" direction="in"/>
+    </method>
+    <method name="getElapsed">
+      <arg name="elapsed" type="u" direction="out"/>
+    </method>
+    <method name="getPlayingUri">
+      <arg name="uri" type="s" direction="out"/>
+    </method>
+    <method name="getPlaying">
+      <arg name="playing" type="b" direction="out"/>
+    </method>
+    <method name="next">
+    </method>
+    <method name="previous">
+    </method>
+    <method name="playPause">
+      <arg name="arg0" type="b" direction="in"/>
+    </method>
+    <signal name="playingSongPropertyChanged">
+      <arg type="s"/>
+      <arg type="s"/>
+      <arg type="v"/>
+      <arg type="v"/>
+    </signal>
+    <signal name="elapsedChanged">
+      <arg type="u"/>
+    </signal>
+    <signal name="playingUriChanged">
+      <arg type="s"/>
+    </signal>
+    <signal name="playingChanged">
+      <arg type="b"/>
+    </signal>
+  </interface>
+</node>
