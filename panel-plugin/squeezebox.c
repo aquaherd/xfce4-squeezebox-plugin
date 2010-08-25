@@ -627,7 +627,7 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	LOG("Grab %d", sd->grabmedia);
   	if (sd->grabmedia) {
 		int idx;
-		for(idx = 0; idx < 6; idx++) {
+		for(idx = 0; idx < 7; idx++) {
 			gchar *path1 = NULL, *path2 = NULL;
 			path1 = g_strdup_printf("/MediaKeys/Key%d", idx);
 			path2 = xfconf_channel_get_string(sd->channel, path1, defaultKeys[idx]);		
@@ -1172,7 +1172,7 @@ static void on_shortcutActivated(XfceShortcutsGrabber *grabber, gchar *shortcut,
 	GQuark quark = g_quark_from_string(shortcut);
 	int i;
 	LOG("Enter on_shortcutActivated %s", shortcut);
-	for(i = 0; i < 6; i++) {
+	for(i = 0; i < 7; i++) {
 		if(sd->shortcuts[i] == quark) {
 			switch(i) {
 				case 0: squeezebox_play(sd); break;
@@ -1181,6 +1181,7 @@ static void on_shortcutActivated(XfceShortcutsGrabber *grabber, gchar *shortcut,
 				case 3: squeezebox_show(TRUE, sd); break;
 				case 4: squeezebox_stop(sd); break;
 				case 5: squeezebox_update_UI_show_toaster(sd); break;
+				case 6: squeezebox_reveal(sd); break;
 			}
 			break;
 		}
