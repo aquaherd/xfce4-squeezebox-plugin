@@ -91,7 +91,7 @@ static gchar * _read_response_line(GMpdPrivate *priv) {
 	gchar *line;
 	_error_clear(priv);
 	line = g_data_input_stream_read_line(priv->istm, NULL, NULL, &priv->error);
-	LOG("got  %s", line);
+	LOG("got  '%s'", line);
 	return line;
 }
 
@@ -102,29 +102,31 @@ static gboolean _send_command_raw(GMpdPrivate *priv, const gchar* command) {
 		return FALSE;
 	_error_clear(priv);
 	sz2 = g_output_stream_write(ostm, command, sz1, NULL, &priv->error);
-	LOG("sent %s", command);
+	LOG("sent '%s'", command);
 	return (sz1 == sz2 || NULL == priv->error);
 }
 
 static void _update_dispatch(GMpdPrivate *priv, gchar *changeDetail) {
 	GMpdClass *klass = G_MPD_GET_CLASS(priv->self);
-	gchar **changes = g_strsplit(changeDetail, ",", 0);
-	void( *update_func)(GMpdPrivate *priv, gchar *changeDetail);
-	gchar **change = changes;
 	
-	LOG("_update_dispatch %s", changeDetail);
-	gdk_threads_enter();
-	g_signal_emit(priv->self, klass->signal[SIGNAL_IDLE], 0, changeDetail);
-	
-	while(*change) {
-		update_func = g_hash_table_lookup(priv->changes, *change);
-		LOG("Dispatch %s->%p", *change, update_func);
-		if(update_func)
-			update_func(priv, changeDetail);
-		change++;
+	LOG("_update_dispatch '%s'", changeDetail);
+	if(changeDetail && *changeDetail) {
+		gchar **changes = g_strsplit(changeDetail, ",", 0);
+		void( *update_func)(GMpdPrivate *priv, gchar *changeDetail);
+		gchar **change = changes;
+		gdk_threads_enter();
+		g_signal_emit(priv->self, klass->signal[SIGNAL_IDLE], 0, changeDetail);
+		
+		while(*change) {
+			update_func = g_hash_table_lookup(priv->changes, *change);
+			LOG("Dispatch %s->%p", *change, update_func);
+			if(update_func)
+				update_func(priv, changeDetail);
+			change++;
+		}
+		g_strfreev(changes);
+		gdk_threads_leave();
 	}
-	g_strfreev(changes);
-	gdk_threads_leave();
 }
 
 static void _disconnect(GMpdPrivate *priv, gboolean threaded) {
@@ -165,7 +167,7 @@ static void _idle_cancel(GMpdPrivate *priv) {
 		_send_command_raw(priv, "noidle\n");
 		do {
 			line = _read_response_line(priv);
-			isOK = !g_strcmp0(line, "OK") || g_str_has_prefix(line, "ACK ");
+			isOK = NULL != line && (!g_strcmp0(line, "OK") || g_str_has_prefix(line, "ACK "));
 			g_free(line);
 		} while(!isOK);
 	}
@@ -602,7 +604,7 @@ gboolean g_mpd_switch_playlist(GMpd *self, const gchar *playlist) {
 	priv = G_MPD_GET_PRIVATE(self);
 	_send_command_simple(priv, "clear\n");
 	//_idle_cb(self);
-	_send_command_simple(priv, "load %s\n", playlist);
+	_send_command_simple(priv, "load \"%s\"\n", playlist);
 	return TRUE;
 }
 
