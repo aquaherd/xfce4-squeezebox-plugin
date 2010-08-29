@@ -1516,7 +1516,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 			 G_CALLBACK(on_mnuPlayerToggled), sd);
 	g_object_ref(sd->mnuPlayer);
 
-	sd->mnuSong = gtk_check_menu_item_new_with_mnemonic(_("Show song"));
+	sd->mnuSong = gtk_menu_item_new_with_mnemonic(_("Show song"));
 	gtk_widget_show(sd->mnuSong);
 	xfce_panel_plugin_menu_insert_item(sd->plugin,
 					   GTK_MENU_ITEM(sd->mnuSong));
