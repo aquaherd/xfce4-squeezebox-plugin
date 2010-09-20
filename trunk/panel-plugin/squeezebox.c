@@ -1520,7 +1520,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	gtk_widget_show(sd->mnuSong);
 	xfce_panel_plugin_menu_insert_item(sd->plugin,
 					   GTK_MENU_ITEM(sd->mnuSong));
-	g_signal_connect(G_OBJECT(sd->mnuSong), "toggled",
+	g_signal_connect(G_OBJECT(sd->mnuSong), "activate",
 			 G_CALLBACK(on_mnuSongToggled), sd);
 	g_object_ref(sd->mnuSong);
 
