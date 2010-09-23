@@ -151,7 +151,7 @@ static gboolean rbIsPlaying(gpointer thsPtr) {
 	if (!dbus_g_proxy_call(db->rbPlayer, "getPlaying", NULL,
 			       G_TYPE_INVALID,
 			       G_TYPE_BOOLEAN, &bRes, G_TYPE_INVALID)) {
-		LOGERR("Failed to complete getPlaying");
+		LOGWARN("Failed to complete getPlaying");
 		return FALSE;
 	}
 	return bRes;
@@ -207,7 +207,7 @@ gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 	if (db->parent->bus && !db->rbShell) {
 		GError *error = NULL;
 		db->rbShell = dbus_g_proxy_new_for_name_owner(db->parent->bus,
-							      "org.gnome.Rhythmbox.Shell",
+							      "org.gnome.Rhythmbox",
 							      "/org/gnome/Rhythmbox/Shell",
 							      "org.gnome.Rhythmbox.Shell",
 							      &error);
@@ -220,7 +220,7 @@ gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 				bRet = FALSE;
 			else {
 				bRet = db->parent->StartService(
-					db->parent->sd, "org.gnome.Rhythmbox.Player");
+					db->parent->sd, "org.gnome.Rhythmbox");
 			}
 		}
 		if (db->rbShell && !db->rbPlayer) {
@@ -231,7 +231,7 @@ gboolean rbAssure(gpointer thsPtr, gboolean noCreate) {
 				g_object_unref(G_OBJECT(db->rbShell));
 				db->rbShell = NULL;
 				db->rbPlayer = NULL;
-				LOGERR("Couldn't connect to player proxy");
+				LOGWARN("Couldn't connect to player proxy");
 				bRet = FALSE;
 			} else {
 				// state changes
@@ -286,7 +286,7 @@ static gboolean rbNext(gpointer thsPtr) {
 		return FALSE;
 	if (!dbus_g_proxy_call(db->rbPlayer, "next", NULL,
 			       G_TYPE_INVALID, G_TYPE_INVALID)) {
-		LOGERR("Failed to complete Next");
+		LOGWARN("Failed to complete Next");
 		return FALSE;
 	}
 	LOG("Leave rbNext");
@@ -299,7 +299,7 @@ static gboolean rbPrevious(gpointer thsPtr) {
 		return FALSE;
 	if (!dbus_g_proxy_call(db->rbPlayer, "previous", NULL,
 			       G_TYPE_INVALID, G_TYPE_INVALID)) {
-		LOGERR("Failed to complete Prev");
+		LOGWARN("Failed to complete Prev");
 		return FALSE;
 	}
 	return TRUE;
@@ -312,7 +312,7 @@ static gboolean rbPlayPause(gpointer thsPtr, gboolean newState) {
 	if (!dbus_g_proxy_call(db->rbPlayer, "playPause", NULL,
 			       G_TYPE_BOOLEAN, newState, G_TYPE_INVALID,
 			       G_TYPE_INVALID)) {
-		LOGERR("Failed to complete playPause");
+		LOGWARN("Failed to complete playPause");
 		return FALSE;
 	}
 	return TRUE;
