@@ -31,7 +31,7 @@ long term goal. Currently, one can select one in the plugin properties.
     
     Currently available backends: (in order of appearance)
     - Rhythmbox 0.95 (via DBUS)
-    - Music Player Daemon (via libmpd)
+    - Music Player Daemon (without libmpd)
     - QuodLibet (via pipe and DBUS)
     - audacious 1.5.x (via DBUS)
     - exaile 0.2.14devel [r1629] (via DBUS, see README.exaile below)
@@ -40,27 +40,26 @@ long term goal. Currently, one can select one in the plugin properties.
     - banshee (via DBUS)
     
     Queued backends:
-    - Xfmedia (has no info)
     - decibel-audio-player (DBUS interface lacklustre)
     - listen (dito)
-    - amarok (won't introduce DCOP dependency, awaiting DBUS interface)
+    - generic MPRIS/MPRIS2 players
 
     Dropped backends:
-    - BMPX
+    - BMPXlibmpd-dev
     
     Remotely possible backends:
     - mplayer (via -silent -idle switches with own playlist management)
     - lua scripted with lua-dbus bindings
     - SlimServer (as a nod to aforesaid naming issues)
     - Shuffle anything audio from a tracker query (should be nice)
-    - xmms (need to catch up with reading)
-    - xmms2 (dito)
+    - amarok (won't introduce DCOP dependency, awaiting DBUS interface)
+    - built-in (via gstreamer)
 
     If not listed above:
     - anything GTK+-ish that plays audio and has a DBUS interface or
       features any way of being controlled is welcome.
 --
-Hakan Erduman
+Hakan Erduman, 2010-11-06
 
 
 =============
@@ -138,15 +137,13 @@ $ sudo gmake install
 =================
 README.Packagers:
 =================
-- MPD backend requires libmpd, everything else is possibly already a dependency of xfce.
-  ./configure --disable-MPD, if in doubt.
 - the current french and turkish translations are, being sketchy attempts, better not be 
   packaged.
 - 'weibullguy' from forum.xfce.org reports 'Cross Linux from Scratch' as 
   a distro this plugin is also known to build on.
 - A full build on debian Lenny needs:
-xfce4-dev-tools xfce4-panel-dev libdbus-glib-1-dev libmpd-dev libexo-0.3-dev libid3tag0-dev libwnck-dev libnotify-0-dev
+xfce4-dev-tools xfce4-panel-dev libdbus-glib-1-dev libexo-0.3-dev libid3tag0-dev libwnck-dev libnotify-0-dev
 - A full trunk build on ubuntu karmic needs:
-xfce4-dev-tools xfce4-panel-dev libmpd-dev libexo-0.3-dev libid3tag0-dev libwnck-dev lixfconf-0-dev
+xfce4-dev-tools xfce4-panel-dev libexo-0.3-dev libid3tag0-dev libwnck-dev lixfconf-0-dev
 - Dependencies on Fedora are:
 xfce4-panel-devel libxfcegui4-devel xfconf-devel libwnck-devel libid3tag-devel exo-devel

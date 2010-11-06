@@ -1,4 +1,4 @@
-/***************************************************************************
+g/***************************************************************************
  *            squeezebox.c - frontend of xfce4-squeezebox-plugin
  *
  *  Fri Aug 25 17:20:09 2006
@@ -584,8 +584,10 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 		"XF86AudioPlay",
 		"XF86AudioNext",
 		"XF86AudioPrev",
-		"XF86AudioMedia",
-		"XF86AudioStop"
+		"XF86AudioMedia",	// show media player
+		"XF86AudioStop",
+		"<Super>w", 		// what's that song
+		"<Super>t"			// show in thunar
 	};
 	LOG("Enter squeezebox_read_rc_file");
 
