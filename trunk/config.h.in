@@ -51,9 +51,6 @@
 /* Define if having gio-unix-2.0 */
 #undef HAVE_GIO
 
-/* Define if GtkTooltips is deprecated */
-#undef HAVE_GTK_2_12
-
 /* Define to use ID3TAG */
 #undef HAVE_ID3TAG
 
@@ -62,6 +59,9 @@
 
 /* Define if your <locale.h> file defines LC_MESSAGES. */
 #undef HAVE_LC_MESSAGES
+
+/* Define if libX11 is available */
+#undef HAVE_LIBX11
 
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
@@ -93,6 +93,9 @@
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #undef LT_OBJDIR
+
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+#undef NO_MINUS_C_MINUS_O
 
 /* Name of package */
 #undef PACKAGE
@@ -142,6 +145,9 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Define to 1 if the X Window System is missing or not being used. */
+#undef X_DISPLAY_MISSING
 
 /* Define to 1 if on MINIX. */
 #undef _MINIX

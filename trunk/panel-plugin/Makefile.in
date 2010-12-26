@@ -119,7 +119,11 @@ DATADIRNAME = @DATADIRNAME@
 DBUS_CFLAGS = @DBUS_CFLAGS@
 DBUS_GLIB_CFLAGS = @DBUS_GLIB_CFLAGS@
 DBUS_GLIB_LIBS = @DBUS_GLIB_LIBS@
+DBUS_GLIB_REQUIRED_VERSION = @DBUS_GLIB_REQUIRED_VERSION@
+DBUS_GLIB_VERSION = @DBUS_GLIB_VERSION@
 DBUS_LIBS = @DBUS_LIBS@
+DBUS_REQUIRED_VERSION = @DBUS_REQUIRED_VERSION@
+DBUS_VERSION = @DBUS_VERSION@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DSYMUTIL = @DSYMUTIL@
@@ -129,8 +133,6 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-EXO_CFLAGS = @EXO_CFLAGS@
-EXO_LIBS = @EXO_LIBS@
 FGREP = @FGREP@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
 GLIB_CFLAGS = @GLIB_CFLAGS@
@@ -141,12 +143,10 @@ GMOFILES = @GMOFILES@
 GMSGFMT = @GMSGFMT@
 GOBJECT_QUERY = @GOBJECT_QUERY@
 GREP = @GREP@
-GTK_New_Tooltip_API_CFLAGS = @GTK_New_Tooltip_API_CFLAGS@
-GTK_New_Tooltip_API_LIBS = @GTK_New_Tooltip_API_LIBS@
-ID3TAG_CFLAGS = @ID3TAG_CFLAGS@
-ID3TAG_LIBS = @ID3TAG_LIBS@
-ID3TAG_REQUIRED_VERSION = @ID3TAG_REQUIRED_VERSION@
-ID3TAG_VERSION = @ID3TAG_VERSION@
+GTK_CFLAGS = @GTK_CFLAGS@
+GTK_LIBS = @GTK_LIBS@
+GTK_REQUIRED_VERSION = @GTK_REQUIRED_VERSION@
+GTK_VERSION = @GTK_VERSION@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -160,6 +160,10 @@ INTLTOOL_PERL = @INTLTOOL_PERL@
 INTLTOOL_UPDATE = @INTLTOOL_UPDATE@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LIBEXO_CFLAGS = @LIBEXO_CFLAGS@
+LIBEXO_LIBS = @LIBEXO_LIBS@
+LIBEXO_REQUIRED_VERSION = @LIBEXO_REQUIRED_VERSION@
+LIBEXO_VERSION = @LIBEXO_VERSION@
 LIBGIO_CFLAGS = @LIBGIO_CFLAGS@
 LIBGIO_LIBS = @LIBGIO_LIBS@
 LIBGTHERAD_LIBS = @LIBGTHERAD_LIBS@
@@ -167,8 +171,10 @@ LIBGTHREAD_CFLAGS = @LIBGTHREAD_CFLAGS@
 LIBGTHREAD_LIBS = @LIBGTHREAD_LIBS@
 LIBGTHREAD_REQUIRED_VERSION = @LIBGTHREAD_REQUIRED_VERSION@
 LIBGTHREAD_VERSION = @LIBGTHREAD_VERSION@
-LIBGTK_CFLAGS = @LIBGTK_CFLAGS@
-LIBGTK_LIBS = @LIBGTK_LIBS@
+LIBID3TAG_CFLAGS = @LIBID3TAG_CFLAGS@
+LIBID3TAG_LIBS = @LIBID3TAG_LIBS@
+LIBID3TAG_REQUIRED_VERSION = @LIBID3TAG_REQUIRED_VERSION@
+LIBID3TAG_VERSION = @LIBID3TAG_VERSION@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
@@ -176,12 +182,21 @@ LIBWNCK_CFLAGS = @LIBWNCK_CFLAGS@
 LIBWNCK_LIBS = @LIBWNCK_LIBS@
 LIBWNCK_REQUIRED_VERSION = @LIBWNCK_REQUIRED_VERSION@
 LIBWNCK_VERSION = @LIBWNCK_VERSION@
+LIBX11_CFLAGS = @LIBX11_CFLAGS@
+LIBX11_LDFLAGS = @LIBX11_LDFLAGS@
+LIBX11_LIBS = @LIBX11_LIBS@
 LIBXFCE4PANEL_CFLAGS = @LIBXFCE4PANEL_CFLAGS@
 LIBXFCE4PANEL_LIBS = @LIBXFCE4PANEL_LIBS@
 LIBXFCE4PANEL_REQUIRED_VERSION = @LIBXFCE4PANEL_REQUIRED_VERSION@
 LIBXFCE4PANEL_VERSION = @LIBXFCE4PANEL_VERSION@
+LIBXFCE4UI_CFLAGS = @LIBXFCE4UI_CFLAGS@
+LIBXFCE4UI_LIBS = @LIBXFCE4UI_LIBS@
+LIBXFCE4UI_REQUIRED_VERSION = @LIBXFCE4UI_REQUIRED_VERSION@
+LIBXFCE4UI_VERSION = @LIBXFCE4UI_VERSION@
 LIBXFCE4UTIL_CFLAGS = @LIBXFCE4UTIL_CFLAGS@
 LIBXFCE4UTIL_LIBS = @LIBXFCE4UTIL_LIBS@
+LIBXFCE4UTIL_REQUIRED_VERSION = @LIBXFCE4UTIL_REQUIRED_VERSION@
+LIBXFCE4UTIL_VERSION = @LIBXFCE4UTIL_VERSION@
 LIBXFCONF_CFLAGS = @LIBXFCONF_CFLAGS@
 LIBXFCONF_LIBS = @LIBXFCONF_LIBS@
 LIBXFCONF_REQUIRED_VERSION = @LIBXFCONF_REQUIRED_VERSION@
@@ -232,6 +247,11 @@ VERMINOR = @VERMINOR@
 VERSION = @VERSION@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_ARGS = @XGETTEXT_ARGS@
+XMKMF = @XMKMF@
+X_CFLAGS = @X_CFLAGS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_LIBS = @X_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -285,40 +305,60 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-plugindir = $(libexecdir)/xfce4/panel-plugins
-xfce4_squeezebox_plugin_CFLAGS = -Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
-    -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ \
-    @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ $(PATH_DEFINES) \
-    -DG_LOG_DOMAIN=\"SBP\" \
-    @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@ \
+INCLUDES = \
+	-I$(top_srcdir) \
+	-Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
+	-DLOCALEDIR=\"$(localedir)\" \
+	-DG_LOG_DOMAIN=\"SBP\" \
     -export-dynamic -fvisibility=hidden
 
+plugindir = $(libdir)/xfce4/panel/plugins
+xfce4_squeezebox_plugin_CFLAGS = \
+	$(LIBX11_CFLAGS) \
+	$(LIBXFCE4PANEL_CFLAGS) \
+	$(LIBXFCE4UTIL_CFLAGS) \
+	$(LIBXFCE4UI_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(DBUS_GLIB_CFLAGS) \
+    $(LIBEXO_CFLAGS) \
+    $(LIBWNCK_CFLAGS) \
+    $(PATH_DEFINES) \
+    $(LIBGIO_CFLAGS) \
+    $(LIBID3TAG_CFLAGS) \
+    $(LIBXFCONF_CFLAGS)
 
-#todo: use --dynamic-list=someFile instead of -Wl -rdynamic
-#    -Wl -rdynamic 
-xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBXFCONF_LIBS@ \
-	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ @LIBGTHREAD_LIBS@ \
+xfce4_squeezebox_plugin_LDFLAGS = \
+	$(LIBX11_LIBS) \
+	$(LIBXFCE4PANEL_LIBS) \
+	$(LIBXFCE4UTIL_LIBS) \
+	$(LIBXFCE4UI_LIBS) \
+	$(GTK_LIBS) \
+	$(DBUS_GLIB_LIBS) \
+	$(LIBEXO_LIBS) \
+	$(LIBWNCK_LIBS) \
+	$(LIBGTHREAD_LIBS) \
+	$(LIBGIO_LIBS) \
+	$(LIBID3TAG_LIBS) \
+	$(LIBXFCONF_LIBS) \
 	-Wl -rdynamic
 
 xfce4_squeezebox_plugin_SOURCES = \
-	squeezebox.h     squeezebox-private.h squeezebox.c \
-	notifications.c  notifications.h notifications-binding.h \
-	xfce-shortcuts-grabber.c xfce-shortcuts-grabber.h
+	squeezebox.h \
+	squeezebox-private.h\
+	squeezebox.c \
+	notifications.c \
+	notifications.h \
+	notifications-binding.h \
+	xfce-shortcuts-grabber.c \
+	xfce-shortcuts-grabber.h
 
 
 # .desktop file
-#
-# Some automake trickery here. Because we cannot use $(libexecdir) in the
-# automake stage, we'll use sed to get the full path into the .desktop file.
-# We also need to let intltool merge the translated fields, so we add an
-# additional level of indirection: a <name>.desktop.in.in file.
-# 
-desktop_in_in_files = squeezebox.desktop.in.in
-desktop_in_files = $(desktop_in_in_files:.desktop.in.in=.desktop.in)
 desktopdir = $(datadir)/xfce4/panel-plugins
+desktop_in_files = squeezebox.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
-EXTRA_DIST = $(desktop_in_in_files)
-DISTCLEANFILES = $(desktop_DATA) $(desktop_in_files) $(BUILT_SOURCES)
+EXTRA_DIST = $(desktop_in_files)
+DISTCLEANFILES = $(BUILT_SOURCES) $(desktop_DATA)
 all: all-am
 
 .SUFFIXES:
@@ -702,19 +742,14 @@ uninstall-am: uninstall-desktopDATA uninstall-pluginPROGRAMS
 	tags uninstall uninstall-am uninstall-desktopDATA \
 	uninstall-pluginPROGRAMS
 
-
 @INTLTOOL_DESKTOP_RULE@
-
-# get full path into .desktop file
-%.desktop.in: %.desktop.in.in
-	sed -e "s^@PLUGIN_PATH@^$(libexecdir)/xfce4/panel-plugins^" $< > $@
 
 splint:
 	splint -warnposix +ignoresigns -stats \
 	*.c  \
-	@LIBXFCE4PANEL_CFLAGS@ @DBUSGLIB_CFLAGS@ \
-	@LIBMPD_CFLAGS@ @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ \
-	@LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@
+	$(LIBXFCE4PANEL_CFLAGS) $(DBUSGLIB_CFLAGS) \
+	$(LIBXFCONF_CFLAGS) $(EXO_CFLAGS) $(LIBWNCK_CFLAGS) \
+	$(LIBGIO_CFLAGS) $(ID3TAG_CFLAGS)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
