@@ -469,28 +469,8 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 				g_string_printf(sd->toolTipText,
 						_("%s: No info"), ptr->BACKEND_name());
 			}
-#if HAVE_GTK_2_12
 			gtk_tooltip_trigger_tooltip_query
 			    (gdk_display_get_default());
-#else
-			if (sd->show[ebtnPrev])
-				gtk_tooltips_set_tip(sd->tooltips,
-						     sd->button[ebtnPrev],
-						     sd->toolTipText->str,
-						     NULL);
-
-			if (sd->show[ebtnPlay])
-				gtk_tooltips_set_tip(sd->tooltips,
-						     sd->button[ebtnPlay],
-						     sd->toolTipText->str,
-						     NULL);
-
-			if (sd->show[ebtnNext])
-				gtk_tooltips_set_tip(sd->tooltips,
-						     sd->button[ebtnNext],
-						     sd->toolTipText->str,
-						     NULL);
-#endif
 		} else {
 			g_string_assign(sd->toolTipText, "");
 		}
@@ -536,12 +516,6 @@ static void squeezebox_free_cache(gpointer listItem, gpointer sd) {
 
 static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	LOG("Enter squeezebox_free_data");
-#ifndef HAVE_GTK_2_12
-	if (sd->tooltips) {
-		g_object_unref(sd->tooltips);
-		sd->tooltips = NULL;
-	}
-#endif
 	if (sd->player.dbService) {
 		g_object_unref(G_OBJECT(sd->player.dbService));
 		sd->player.dbService = NULL;
@@ -617,12 +591,6 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	if (toolTipStyle < ettNone)
 		toolTipStyle = ettNone;
 	sd->toolTipStyle = toolTipStyle;
-#ifndef HAVE_GTK_2_12
-	if (sd->toolTipStyle == ettSimple)
-		gtk_tooltips_enable(sd->tooltips);
-	else
-		gtk_tooltips_disable(sd->tooltips);
-#endif
 
 	// Media buttons
 	sd->grabmedia = xfconf_channel_get_bool(sd->channel, "/MediaKeys/Grab", TRUE);
@@ -1047,14 +1015,8 @@ EXPORT void on_chkShowNext_toggled(GtkToggleButton *button, SqueezeBoxData *sd) 
 EXPORT void on_chkShowToolTips_toggled(GtkToggleButton *button, SqueezeBoxData *sd) {
 	if (gtk_toggle_button_get_active(button)) {
 		sd->toolTipStyle = ettSimple;
-#ifndef HAVE_GTK_2_12
-		gtk_tooltips_enable(sd->tooltips);
-#endif
 	} else {
 		sd->toolTipStyle = ettNone;
-#ifndef HAVE_GTK_2_12
-		gtk_tooltips_disable(sd->tooltips);
-#endif
 	}
 }
 
@@ -1149,7 +1111,6 @@ static void on_mnuRepeatToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData
 		sd->player.SetRepeat(sd->player.db, checkmenuitem->active);
 }
 
-#if HAVE_GTK_2_12
 static gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
 			  gboolean keyboard_mode, GtkTooltip * tooltip,
 			  SqueezeBoxData * sd) {
@@ -1168,7 +1129,6 @@ static gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
 	}
 	return FALSE;
 }
-#endif
 
 static void on_shortcutActivated(XfceShortcutsGrabber *grabber, gchar *shortcut, SqueezeBoxData *sd) {
 	GQuark quark = g_quark_from_string(shortcut);
@@ -1201,11 +1161,9 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 	gtk_widget_show(sd->table);
 	gtk_container_add(GTK_CONTAINER(window1), sd->table);
 
-#ifndef HAVE_GTK_2_12
 	sd->tooltips = gtk_tooltips_new();
 	g_object_ref(sd->tooltips);
 	gtk_object_sink(GTK_OBJECT(sd->tooltips));
-#endif
 
 	sd->button[ebtnPrev] = gtk_button_new();
 	gtk_button_set_relief(GTK_BUTTON(sd->button[ebtnPrev]),
@@ -1267,7 +1225,7 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 	g_signal_connect((gpointer) sd->button[ebtnNext], "button-press-event",
 			 G_CALLBACK(on_btn_clicked), sd);
 
-	if (sd->state != ebtnPlay)
+	if (sd->state != (eSynoptics)ebtnPlay)
 		squeezebox_update_playbtn(sd);
 
 	LOG("Leave squeezebox_create");
@@ -1425,7 +1383,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	int i = 0;
 	SqueezeBoxData *sd = g_new0(SqueezeBoxData, 1);
 
-	xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
+	xfce_textdomain(GETTEXT_PACKAGE, LOCALEDIR, "UTF-8");
 	LOG("Enter squeezebox_construct");
 	
 	sd->plugin = plugin;
@@ -1549,14 +1507,12 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 			 G_CALLBACK(on_mnuRepeatToggled), sd);
 	g_object_ref(sd->mnuRepeat);
 
-#if HAVE_GTK_2_12
-// newish tooltips
+	// tooltips
 	for (i = 0; i < 3; i++) {
 		g_object_set(sd->button[i], "has-tooltip", TRUE, NULL);
 		g_signal_connect(G_OBJECT(sd->button[i]), "query-tooltip",
 				 G_CALLBACK(on_query_tooltip), sd);
 	}
-#endif
 
 	// Read properties from channel
     sd->channel = xfconf_channel_new_with_property_base (
