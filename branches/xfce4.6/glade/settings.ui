@@ -55,6 +55,11 @@
         <col id="1">0</col>
         <col id="2"></col>
       </row>
+      <row>
+        <col id="0" translatable="yes">Show title in thunar</col>
+        <col id="1">0</col>
+        <col id="2"></col>
+      </row>
     </data>
   </object>
   <object class="GtkDialog" id="dialogSettings">
