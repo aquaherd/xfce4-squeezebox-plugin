@@ -106,25 +106,30 @@ msgstr "%s: Detaysız"
 msgid "This backend has no configurable properties"
 msgstr "Bu arkalık değiştirilebilir kullanımlara sahip değildir"
 
-#: ../panel-plugin/squeezebox.c:1393 ../panel-plugin/squeezebox.c:1394
-#: ../panel-plugin/squeezebox.c:1395
+#: ../panel-plugin/squeezebox.c:1406
+#: ../panel-plugin/squeezebox.c:1407
+#: ../panel-plugin/squeezebox.c:1408
 msgid "(unknown)"
 msgstr "(bilinmiyor)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1471
+#: ../panel-plugin/squeezebox.c:1484
 msgid "Show player"
 msgstr "Çaları göster"
 
-#: ../panel-plugin/squeezebox.c:1479
+#: ../panel-plugin/squeezebox.c:1492
+msgid "Show song"
+msgstr "Şarkıyı göster"
+
+#: ../panel-plugin/squeezebox.c:1500
 msgid "Playlists"
 msgstr "Çalma Listeleri"
 
-#: ../panel-plugin/squeezebox.c:1486
+#: ../panel-plugin/squeezebox.c:1507
 msgid "Shuffle"
 msgstr "Tesadüfle"
 
-#: ../panel-plugin/squeezebox.c:1494
+#: ../panel-plugin/squeezebox.c:1515
 msgid "Repeat"
 msgstr "Tekrarla"
 
@@ -264,8 +269,7 @@ msgstr ""
 "çalarlara MPRİS-standardına uygun çalar eklenir.\n"
 "\n"
 "MPRİS'in meali 'Media Player Remote Interfacing Specification'.\n"
-"Detay için internette <a href=\"http://wiki.xmms2.xmms.se/wiki/MPRIS\" "
-"şuraya/> bakınız.\n"
+"Detay için internette <a href=\"http://wiki.xmms2.xmms.se/wiki/MPRIS\" şuraya/> bakınız.\n"
 "\n"
 "Eğer çalarınız MPRİS-stadardına uygun deyilse, \n"
 "bir ekleme bunu mümkün edebilir.\n"

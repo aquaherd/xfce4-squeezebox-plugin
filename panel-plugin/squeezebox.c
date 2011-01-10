@@ -125,6 +125,7 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name) {
 	g_string_set_size(sd->player.album, 0);
 	g_string_set_size(sd->player.title, 0);
 	g_string_set_size(sd->player.albumArt, 0);
+	g_string_set_size(sd->player.path, 0);
 	
 	// clear playlists
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(sd->mnuPlayLists), NULL);
@@ -369,6 +370,7 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 	fp = id3_file_open(realPath, ID3_FILE_MODE_READONLY);
 	if (fp) {
 		struct id3_tag const *tag = id3_file_tag(fp);
+		g_string_assign(sd->player.path, realPath);
 		if (tag) {
 			const gchar *coverart = NULL;
 			int i;
@@ -582,8 +584,10 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 		"XF86AudioPlay",
 		"XF86AudioNext",
 		"XF86AudioPrev",
-		"XF86AudioMedia",
-		"XF86AudioStop"
+		"XF86AudioMedia",	// show media player
+		"XF86AudioStop",
+		"<Super>w", 		// what's that song
+		"<Super>t"			// show in thunar
 	};
 	LOG("Enter squeezebox_read_rc_file");
 
@@ -625,7 +629,7 @@ squeezebox_read_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	LOG("Grab %d", sd->grabmedia);
   	if (sd->grabmedia) {
 		int idx;
-		for(idx = 0; idx < 6; idx++) {
+		for(idx = 0; idx < 7; idx++) {
 			gchar *path1 = NULL, *path2 = NULL;
 			path1 = g_strdup_printf("/MediaKeys/Key%d", idx);
 			path2 = xfconf_channel_get_string(sd->channel, path1, defaultKeys[idx]);		
@@ -1076,6 +1080,41 @@ void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 	squeezebox_next(sd);
 }
 
+/*
+ * Reveals the current song (if possible) in thunar
+ */
+static void squeezebox_reveal(SqueezeBoxData *sd) {
+	LOG("Enter squeezebox_reveal");
+	if(sd->player.path->len && g_file_test(sd->player.path->str, G_FILE_TEST_EXISTS)) {
+		LOG("File exists %s", sd->player.path->str);
+		if(squeezebox_dbus_service_exists(sd, "org.xfce.FileManager")) {
+			GError *error = NULL;
+			DBusGProxy *thunar = dbus_g_proxy_new_for_name_owner(sd->player.bus,
+							       "org.xfce.FileManager",
+							       "/org/xfce/FileManager",
+							       "org.xfce.FileManager",
+							       &error);
+			LOG("Thunar exists, proxy: %s", (NULL == error) ? "OK" : error->message);
+			if(thunar) {
+				gchar *dir = g_path_get_dirname(sd->player.path->str);
+				gchar *base = g_path_get_basename(sd->player.path->str);
+				dbus_g_proxy_call (thunar, "DisplayFolderAndSelect", &error, 
+					G_TYPE_STRING, dir, 
+					G_TYPE_STRING, base, 
+					G_TYPE_STRING, "", // current display, else ":0.0" etc.
+					G_TYPE_INVALID, G_TYPE_INVALID);
+				g_free(dir);
+				g_free(base);
+				g_object_unref(thunar);
+			}
+		}
+	}
+	LOG("Leave squeezebox_reveal");
+}
+
+/*
+ * Shows the player
+ */
 static gboolean squeezebox_show(gboolean show, SqueezeBoxData * sd) {
 	gboolean bRet = FALSE;
 	if (sd->noUI == FALSE && sd->player.Show) {
@@ -1089,6 +1128,10 @@ static gboolean squeezebox_show(gboolean show, SqueezeBoxData * sd) {
 	return bRet;
 }
 
+static void on_mnuSongToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
+	squeezebox_reveal(sd);
+}
+
 static void on_mnuPlayerToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
 	squeezebox_show(checkmenuitem->active, sd);
 }
@@ -1097,10 +1140,7 @@ static void on_mnuShuffleToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxDat
 	if (sd->noUI == FALSE && sd->player.SetShuffle) {
 		sd->player.SetShuffle(sd->player.db, checkmenuitem->active);
 		if (sd->player.GetShuffle)
-			squeezebox_update_shuffle(sd,
-						  sd->player.GetShuffle(sd->
-									player.
-									db));
+			squeezebox_update_shuffle(sd, sd->player.GetShuffle(sd->player.db));
 	}
 }
 
@@ -1134,7 +1174,7 @@ static void on_shortcutActivated(XfceShortcutsGrabber *grabber, gchar *shortcut,
 	GQuark quark = g_quark_from_string(shortcut);
 	int i;
 	LOG("Enter on_shortcutActivated %s", shortcut);
-	for(i = 0; i < 6; i++) {
+	for(i = 0; i < 7; i++) {
 		if(sd->shortcuts[i] == quark) {
 			switch(i) {
 				case 0: squeezebox_play(sd); break;
@@ -1143,6 +1183,7 @@ static void on_shortcutActivated(XfceShortcutsGrabber *grabber, gchar *shortcut,
 				case 3: squeezebox_show(TRUE, sd); break;
 				case 4: squeezebox_stop(sd); break;
 				case 5: squeezebox_update_UI_show_toaster(sd); break;
+				case 6: squeezebox_reveal(sd); break;
 			}
 			break;
 		}
@@ -1298,7 +1339,7 @@ void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 	}
 }
 
-static gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* dbusName) {
+gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* dbusName) {
 	MKTHIS;
 	gboolean hasOwner;
 	return org_freedesktop_DBus_name_has_owner(sd->player.dbService, dbusName, &hasOwner, NULL) && hasOwner;
@@ -1394,6 +1435,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	sd->player.album = g_string_new(_("(unknown)"));
 	sd->player.title = g_string_new(_("(unknown)"));
 	sd->player.albumArt = g_string_new("");
+	sd->player.path = g_string_new("");
     sd->player.playLists = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	sd->player.Update = squeezebox_update_UI;
 	sd->player.UpdatePlaylists = squeezebox_update_playlists;
@@ -1475,6 +1517,14 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	g_signal_connect(G_OBJECT(sd->mnuPlayer), "toggled",
 			 G_CALLBACK(on_mnuPlayerToggled), sd);
 	g_object_ref(sd->mnuPlayer);
+
+	sd->mnuSong = gtk_menu_item_new_with_mnemonic(_("Show song"));
+	gtk_widget_show(sd->mnuSong);
+	xfce_panel_plugin_menu_insert_item(sd->plugin,
+					   GTK_MENU_ITEM(sd->mnuSong));
+	g_signal_connect(G_OBJECT(sd->mnuSong), "activate",
+			 G_CALLBACK(on_mnuSongToggled), sd);
+	g_object_ref(sd->mnuSong);
 
 	sd->mnuPlayLists = gtk_menu_item_new_with_mnemonic(_("Playlists"));
 	gtk_widget_show(sd->mnuPlayLists);

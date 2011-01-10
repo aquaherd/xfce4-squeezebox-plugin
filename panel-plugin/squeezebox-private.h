@@ -113,7 +113,12 @@ typedef struct SqueezeBoxData{
 	gint notifyTimeout;
 	guint notifyID;
 	// menu items
-	GtkWidget *mnuShuffle, *mnuRepeat, *mnuPlayer, *mnuPlayLists;
+	GtkWidget 
+		*mnuShuffle,   // toggle shuffle
+		*mnuRepeat,    // toggle repeat
+		*mnuPlayer,    // show/hide player
+		*mnuPlayLists, // expand playlists
+		*mnuSong;	   // show song in thunar
 	gboolean noUI;
 
 	gint toolTipStyle;
@@ -157,7 +162,7 @@ typedef struct BackendCache{
     gchar *commandLine;
 	gboolean autoAttach;
 }BackendCache;
-
+gboolean squeezebox_dbus_service_exists(gpointer thsPlayer, const gchar* dbusName);
 void squeezebox_dbus_update(DBusGProxy * proxy, const gchar * Name,
 				   const gchar * OldOwner,
 				   const gchar * NewOwner,

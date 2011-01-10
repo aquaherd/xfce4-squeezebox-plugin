@@ -107,25 +107,30 @@ msgstr "%s: Keine Info"
 msgid "This backend has no configurable properties"
 msgstr "Dieses backend hat keine konfigurierbaren Eigenschaften"
 
-#: ../panel-plugin/squeezebox.c:1393 ../panel-plugin/squeezebox.c:1394
-#: ../panel-plugin/squeezebox.c:1395
+#: ../panel-plugin/squeezebox.c:1406
+#: ../panel-plugin/squeezebox.c:1407
+#: ../panel-plugin/squeezebox.c:1408
 msgid "(unknown)"
 msgstr "(unbekannt)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1471
+#: ../panel-plugin/squeezebox.c:1484
 msgid "Show player"
 msgstr "Player _anzeigen"
 
-#: ../panel-plugin/squeezebox.c:1479
+#: ../panel-plugin/squeezebox.c:1492
+msgid "Show song"
+msgstr "Titel anzeigen"
+
+#: ../panel-plugin/squeezebox.c:1500
 msgid "Playlists"
 msgstr "Wiedergabelisten"
 
-#: ../panel-plugin/squeezebox.c:1486
+#: ../panel-plugin/squeezebox.c:1507
 msgid "Shuffle"
 msgstr "Zufall"
 
-#: ../panel-plugin/squeezebox.c:1494
+#: ../panel-plugin/squeezebox.c:1515
 msgid "Repeat"
 msgstr "Wiederholen"
 
@@ -140,8 +145,7 @@ msgstr ""
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:1
 msgid " Control various audio players; display album art"
-msgstr ""
-" Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Covern"
+msgstr " Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Covern"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:2
 msgid " SqueezeBox"
