@@ -12,7 +12,7 @@ dnl
 m4_define([squeeze_version_major], [0])
 m4_define([squeeze_version_minor], [1])
 m4_define([squeeze_version_micro], [2])
-m4_define([squeeze_version_build], [r00191])
+m4_define([squeeze_version_build], [r00193])
 m4_define([squeeze_version_tag], [])
 m4_define([squeeze_vers], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()])
 m4_define([squeeze_version], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()ifelse(squeeze_version_tag(), [svn], [squeeze_version_tag()-squeeze_version_build()], [squeeze_version_tag()])])
@@ -145,6 +145,13 @@ if test x$enable_consonance = xyes; then
 	subdirs="$subdirs consonance"
 fi
 
+AC_ARG_ENABLE(pragha,[  --disable-pragha          disable pragha support (default: enable)],[enable_pragha=$enableval],[enable_pragha=yes])
+if test x$enable_pragha = xyes; then
+	AC_DEFINE(HAVE_BACKEND_PRAGHA,1,[Define to use pragha])
+	AC_CONFIG_FILES([backends/pragha/Makefile])
+	subdirs="$subdirs pragha"
+fi
+
 AC_ARG_ENABLE(muine,[  --disable-muine     disable Muine support (default: enable)],[enable_muine=$enableval],[enable_muine=yes])
 if test x$enable_muine = xyes; then
 	AC_DEFINE(HAVE_BACKEND_MUINE,1,[Define to use Muine])
@@ -266,6 +273,12 @@ if test x$enable_consonance = xyes; then
 	echo " consonance support ............enabled"
 else
 	echo " consonance support ............disabled"
+fi
+
+if test x$enable_pragha = xyes; then
+	echo " pragha support ................enabled"
+else
+	echo " pragha support ................disabled"
 fi
 
 if test x$enable_muine = xyes; then

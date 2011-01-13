@@ -30,6 +30,9 @@
 /* Define to use Muine */
 #undef HAVE_BACKEND_MUINE
 
+/* Define to use pragha */
+#undef HAVE_BACKEND_PRAGHA
+
 /* Define to use QL */
 #undef HAVE_BACKEND_QUODLIBET
 
