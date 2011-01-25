@@ -3,10 +3,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-05 21:50+0200\n"
+"POT-Creation-Date: 2011-01-26 00:06+0100\n"
 "PO-Revision-Date: 2010-08-05 21:21+0100\n"
 "Last-Translator: Hakan Erduman <hakan@erduman.de>\n"
 "Language-Team: \n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -98,38 +99,38 @@ msgstr "Audacious"
 msgid "Banshee"
 msgstr "Banshee"
 
-#: ../panel-plugin/squeezebox.c:468
+#: ../panel-plugin/squeezebox.c:470
 #, c-format
 msgid "%s: No info"
 msgstr "%s: Pas d'info"
 
-#: ../panel-plugin/squeezebox.c:700
+#: ../panel-plugin/squeezebox.c:704
 msgid "This backend has no configurable properties"
 msgstr "Ceci Backend n'avez pas proprietes confinubles"
 
-#: ../panel-plugin/squeezebox.c:1406 ../panel-plugin/squeezebox.c:1407
-#: ../panel-plugin/squeezebox.c:1408
+#: ../panel-plugin/squeezebox.c:1434 ../panel-plugin/squeezebox.c:1435
+#: ../panel-plugin/squeezebox.c:1436
 msgid "(unknown)"
 msgstr "(pas de connaitre)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1484
+#: ../panel-plugin/squeezebox.c:1513
 msgid "Show player"
 msgstr "Afficher le lecteur de musique"
 
-#: ../panel-plugin/squeezebox.c:1492
+#: ../panel-plugin/squeezebox.c:1521
 msgid "Show song"
 msgstr ""
 
-#: ../panel-plugin/squeezebox.c:1500
+#: ../panel-plugin/squeezebox.c:1529
 msgid "Playlists"
 msgstr "Listes de lecture"
 
-#: ../panel-plugin/squeezebox.c:1507
+#: ../panel-plugin/squeezebox.c:1536
 msgid "Shuffle"
 msgstr "Shuffle"
 
-#: ../panel-plugin/squeezebox.c:1515
+#: ../panel-plugin/squeezebox.c:1544
 msgid "Repeat"
 msgstr "Rappel"
 
@@ -236,20 +237,24 @@ msgid "Show noti_fications (e.g. xfce4-notifyd)"
 msgstr "Montrez l'_notifications"
 
 #: ../glade/settings.ui.h:19
+msgid "Show title in thunar"
+msgstr ""
+
+#: ../glade/settings.ui.h:20
 #, fuzzy
 msgid "SqueezeBox"
 msgstr " SqueezeBox"
 
-#: ../glade/settings.ui.h:20
+#: ../glade/settings.ui.h:21
 msgid "Stop"
 msgstr ""
 
-#: ../glade/settings.ui.h:21
+#: ../glade/settings.ui.h:22
 #, fuzzy
 msgid "_Players"
 msgstr "Afficher le lecteur de musique"
 
-#: ../glade/settings.ui.h:22
+#: ../glade/settings.ui.h:23
 msgid "media player remote"
 msgstr "télécommande de lecteur de musique"
 

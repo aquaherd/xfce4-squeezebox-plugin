@@ -3,10 +3,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-05 21:50+0200\n"
-"PO-Revision-Date: 2010-08-05 21:18+0100\n"
-"Last-Translator: Hakan Erduman <hakan.erduman@web.de>\n"
+"POT-Creation-Date: 2011-01-26 00:06+0100\n"
+"PO-Revision-Date: 2011-01-26 00:09+0100\n"
+"Last-Translator: Hakan Erduman <hakan@erduman.de>\n"
 "Language-Team: \n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -98,39 +99,38 @@ msgstr "Audacious"
 msgid "Banshee"
 msgstr "Banshee"
 
-#: ../panel-plugin/squeezebox.c:468
+#: ../panel-plugin/squeezebox.c:470
 #, c-format
 msgid "%s: No info"
 msgstr "%s: Keine Info"
 
-#: ../panel-plugin/squeezebox.c:700
+#: ../panel-plugin/squeezebox.c:704
 msgid "This backend has no configurable properties"
 msgstr "Dieses backend hat keine konfigurierbaren Eigenschaften"
 
-#: ../panel-plugin/squeezebox.c:1406
-#: ../panel-plugin/squeezebox.c:1407
-#: ../panel-plugin/squeezebox.c:1408
+#: ../panel-plugin/squeezebox.c:1434 ../panel-plugin/squeezebox.c:1435
+#: ../panel-plugin/squeezebox.c:1436
 msgid "(unknown)"
 msgstr "(unbekannt)"
 
 #. add menu items
-#: ../panel-plugin/squeezebox.c:1484
+#: ../panel-plugin/squeezebox.c:1513
 msgid "Show player"
 msgstr "Player _anzeigen"
 
-#: ../panel-plugin/squeezebox.c:1492
+#: ../panel-plugin/squeezebox.c:1521
 msgid "Show song"
 msgstr "Titel anzeigen"
 
-#: ../panel-plugin/squeezebox.c:1500
+#: ../panel-plugin/squeezebox.c:1529
 msgid "Playlists"
 msgstr "Wiedergabelisten"
 
-#: ../panel-plugin/squeezebox.c:1507
+#: ../panel-plugin/squeezebox.c:1536
 msgid "Shuffle"
 msgstr "Zufall"
 
-#: ../panel-plugin/squeezebox.c:1515
+#: ../panel-plugin/squeezebox.c:1544
 msgid "Repeat"
 msgstr "Wiederholen"
 
@@ -145,7 +145,8 @@ msgstr ""
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:1
 msgid " Control various audio players; display album art"
-msgstr " Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Covern"
+msgstr ""
+" Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Covern"
 
 #: ../panel-plugin/squeezebox.desktop.in.in.h:2
 msgid " SqueezeBox"
@@ -228,18 +229,22 @@ msgid "Show noti_fications (e.g. xfce4-notifyd)"
 msgstr "Zeige Benachrichtigungen (noti_fy Dämon)"
 
 #: ../glade/settings.ui.h:19
+msgid "Show title in thunar"
+msgstr "Titel in Thunar anzeigen"
+
+#: ../glade/settings.ui.h:20
 msgid "SqueezeBox"
 msgstr "SqueezeBox"
 
-#: ../glade/settings.ui.h:20
+#: ../glade/settings.ui.h:21
 msgid "Stop"
 msgstr "Stop"
 
-#: ../glade/settings.ui.h:21
+#: ../glade/settings.ui.h:22
 msgid "_Players"
 msgstr "Spieler"
 
-#: ../glade/settings.ui.h:22
+#: ../glade/settings.ui.h:23
 msgid "media player remote"
 msgstr "Medien-Spieler Fernbedienung"
 
