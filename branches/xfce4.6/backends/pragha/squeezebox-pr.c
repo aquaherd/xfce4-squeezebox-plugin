@@ -294,7 +294,7 @@ static gboolean prIsPlaying(gpointer thsPtr) {
 	return (db->oldStat == estPlay);
 }
 
-static gboolean prShow(gpointer thsPtr, gboolean * newState) {
+static gboolean prShow(gpointer thsPtr, gboolean newState) {
 	MKTHIS;
 	LOG("Enter prPrevious");
 	if (!prAssure(db, TRUE))
