@@ -4,28 +4,30 @@ INCLUDES = \
 	-Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DG_LOG_DOMAIN=\"SBP\" \
-    -export-dynamic -fvisibility=hidden
+	-export-dynamic
+
+# -fvisibility=hidden
 	
 
 plugindir = $(libdir)/xfce4/panel/plugins
 
-plugin_PROGRAMS = xfce4-squeezebox-plugin
+plugin_LTLIBRARIES = libxfce4-squeezebox-plugin.la
 
-xfce4_squeezebox_plugin_CFLAGS = \
+libxfce4_squeezebox_plugin_la_CFLAGS = \
 	$(LIBX11_CFLAGS) \
 	$(LIBXFCE4PANEL_CFLAGS) \
 	$(LIBXFCE4UTIL_CFLAGS) \
 	$(LIBXFCE4UI_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(DBUS_GLIB_CFLAGS) \
-    $(LIBEXO_CFLAGS) \
-    $(LIBWNCK_CFLAGS) \
-    $(PATH_DEFINES) \
-    $(LIBGIO_CFLAGS) \
-    $(LIBID3TAG_CFLAGS) \
-    $(LIBXFCONF_CFLAGS)
+	$(LIBEXO_CFLAGS) \
+	$(LIBWNCK_CFLAGS) \
+	$(PATH_DEFINES) \
+	$(LIBGIO_CFLAGS) \
+	$(LIBID3TAG_CFLAGS) \
+	$(LIBXFCONF_CFLAGS)
 
-xfce4_squeezebox_plugin_LDFLAGS = \
+libxfce4_squeezebox_plugin_la_LIBADD = \
 	$(LIBX11_LIBS) \
 	$(LIBXFCE4PANEL_LIBS) \
 	$(LIBXFCE4UTIL_LIBS) \
@@ -37,10 +39,15 @@ xfce4_squeezebox_plugin_LDFLAGS = \
 	$(LIBGTHREAD_LIBS) \
 	$(LIBGIO_LIBS) \
 	$(LIBID3TAG_LIBS) \
-	$(LIBXFCONF_LIBS) \
-	-Wl -rdynamic
+	$(LIBXFCONF_LIBS)
 
-xfce4_squeezebox_plugin_SOURCES = \
+libxfce4_squeezebox_plugin_la_LDFLAGS = \
+	-module -avoid-version \
+	-export-symbols-regex '^xfce_panel_module_(preinit|init|construct)'
+#	-Wl -rdynamic
+
+
+libxfce4_squeezebox_plugin_la_SOURCES = \
 	squeezebox.h \
 	squeezebox-private.h\
 	squeezebox.c \
@@ -60,7 +67,7 @@ desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 
 EXTRA_DIST = $(desktop_in_files)
 
-DISTCLEANFILES = $(BUILT_SOURCES) $(desktop_DATA)
+DISTCLEANFILES = $(desktop_DATA)
 
 splint:
 	splint -warnposix +ignoresigns -stats \

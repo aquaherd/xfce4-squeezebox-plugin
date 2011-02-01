@@ -5,7 +5,8 @@ _GenericName=Music Player
 _Name= SqueezeBox
 _Comment= Control various audio players; display album art
 Icon=applications-multimedia
-X-XFCE-Exec=xfce4-squeezebox-plugin
+X-XFCE-Module=xfce4-squeezebox-plugin
 X-XFCE-Unique=true
+X-XFCE-Internal=TRUE
 
 

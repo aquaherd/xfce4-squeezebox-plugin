@@ -35,7 +35,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-plugin_PROGRAMS = xfce4-squeezebox-plugin$(EXEEXT)
 subdir = panel-plugin
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -46,34 +45,6 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(plugindir)" "$(DESTDIR)$(desktopdir)"
-PROGRAMS = $(plugin_PROGRAMS)
-am_xfce4_squeezebox_plugin_OBJECTS =  \
-	xfce4_squeezebox_plugin-squeezebox.$(OBJEXT) \
-	xfce4_squeezebox_plugin-notifications.$(OBJEXT) \
-	xfce4_squeezebox_plugin-xfce-shortcuts-grabber.$(OBJEXT)
-xfce4_squeezebox_plugin_OBJECTS =  \
-	$(am_xfce4_squeezebox_plugin_OBJECTS)
-xfce4_squeezebox_plugin_LDADD = $(LDADD)
-xfce4_squeezebox_plugin_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) \
-	$(xfce4_squeezebox_plugin_LDFLAGS) $(LDFLAGS) -o $@
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
-	$(LDFLAGS) -o $@
-SOURCES = $(xfce4_squeezebox_plugin_SOURCES)
-DIST_SOURCES = $(xfce4_squeezebox_plugin_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -95,6 +66,57 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__installdirs = "$(DESTDIR)$(plugindir)" "$(DESTDIR)$(desktopdir)"
+LTLIBRARIES = $(plugin_LTLIBRARIES)
+am__DEPENDENCIES_1 =
+libxfce4_squeezebox_plugin_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
+am_libxfce4_squeezebox_plugin_la_OBJECTS =  \
+	libxfce4_squeezebox_plugin_la-squeezebox.lo \
+	libxfce4_squeezebox_plugin_la-notifications.lo \
+	libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.lo
+libxfce4_squeezebox_plugin_la_OBJECTS =  \
+	$(am_libxfce4_squeezebox_plugin_la_OBJECTS)
+AM_V_lt = $(am__v_lt_$(V))
+am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
+am__v_lt_0 = --silent
+libxfce4_squeezebox_plugin_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libxfce4_squeezebox_plugin_la_CFLAGS) $(CFLAGS) \
+	$(libxfce4_squeezebox_plugin_la_LDFLAGS) $(LDFLAGS) -o $@
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+depcomp = $(SHELL) $(top_srcdir)/depcomp
+am__depfiles_maybe = depfiles
+am__mv = mv -f
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS)
+AM_V_CC = $(am__v_CC_$(V))
+am__v_CC_ = $(am__v_CC_$(AM_DEFAULT_VERBOSITY))
+am__v_CC_0 = @echo "  CC    " $@;
+AM_V_at = $(am__v_at_$(V))
+am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+am__v_at_0 = @
+CCLD = $(CC)
+LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CCLD = $(am__v_CCLD_$(V))
+am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
+am__v_CCLD_0 = @echo "  CCLD  " $@;
+AM_V_GEN = $(am__v_GEN_$(V))
+am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
+am__v_GEN_0 = @echo "  GEN   " $@;
+SOURCES = $(libxfce4_squeezebox_plugin_la_SOURCES)
+DIST_SOURCES = $(libxfce4_squeezebox_plugin_la_SOURCES)
 DATA = $(desktop_DATA)
 ETAGS = etags
 CTAGS = ctags
@@ -102,6 +124,7 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ALL_LINGUAS = @ALL_LINGUAS@
 AMTAR = @AMTAR@
+AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
@@ -310,24 +333,27 @@ INCLUDES = \
 	-Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DG_LOG_DOMAIN=\"SBP\" \
-    -export-dynamic -fvisibility=hidden
+	-export-dynamic
 
+
+# -fvisibility=hidden
 plugindir = $(libdir)/xfce4/panel/plugins
-xfce4_squeezebox_plugin_CFLAGS = \
+plugin_LTLIBRARIES = libxfce4-squeezebox-plugin.la
+libxfce4_squeezebox_plugin_la_CFLAGS = \
 	$(LIBX11_CFLAGS) \
 	$(LIBXFCE4PANEL_CFLAGS) \
 	$(LIBXFCE4UTIL_CFLAGS) \
 	$(LIBXFCE4UI_CFLAGS) \
 	$(GTK_CFLAGS) \
 	$(DBUS_GLIB_CFLAGS) \
-    $(LIBEXO_CFLAGS) \
-    $(LIBWNCK_CFLAGS) \
-    $(PATH_DEFINES) \
-    $(LIBGIO_CFLAGS) \
-    $(LIBID3TAG_CFLAGS) \
-    $(LIBXFCONF_CFLAGS)
+	$(LIBEXO_CFLAGS) \
+	$(LIBWNCK_CFLAGS) \
+	$(PATH_DEFINES) \
+	$(LIBGIO_CFLAGS) \
+	$(LIBID3TAG_CFLAGS) \
+	$(LIBXFCONF_CFLAGS)
 
-xfce4_squeezebox_plugin_LDFLAGS = \
+libxfce4_squeezebox_plugin_la_LIBADD = \
 	$(LIBX11_LIBS) \
 	$(LIBXFCE4PANEL_LIBS) \
 	$(LIBXFCE4UTIL_LIBS) \
@@ -339,10 +365,14 @@ xfce4_squeezebox_plugin_LDFLAGS = \
 	$(LIBGTHREAD_LIBS) \
 	$(LIBGIO_LIBS) \
 	$(LIBID3TAG_LIBS) \
-	$(LIBXFCONF_LIBS) \
-	-Wl -rdynamic
+	$(LIBXFCONF_LIBS)
 
-xfce4_squeezebox_plugin_SOURCES = \
+libxfce4_squeezebox_plugin_la_LDFLAGS = \
+	-module -avoid-version \
+	-export-symbols-regex '^xfce_panel_module_(preinit|init|construct)'
+
+#	-Wl -rdynamic
+libxfce4_squeezebox_plugin_la_SOURCES = \
 	squeezebox.h \
 	squeezebox-private.h\
 	squeezebox.c \
@@ -358,7 +388,7 @@ desktopdir = $(datadir)/xfce4/panel-plugins
 desktop_in_files = squeezebox.desktop.in
 desktop_DATA = $(desktop_in_files:.desktop.in=.desktop)
 EXTRA_DIST = $(desktop_in_files)
-DISTCLEANFILES = $(BUILT_SOURCES) $(desktop_DATA)
+DISTCLEANFILES = $(desktop_DATA)
 all: all-am
 
 .SUFFIXES:
@@ -393,52 +423,39 @@ $(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-pluginPROGRAMS: $(plugin_PROGRAMS)
+install-pluginLTLIBRARIES: $(plugin_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
 	test -z "$(plugindir)" || $(MKDIR_P) "$(DESTDIR)$(plugindir)"
-	@list='$(plugin_PROGRAMS)'; test -n "$(plugindir)" || list=; \
-	for p in $$list; do echo "$$p $$p"; done | \
-	sed 's/$(EXEEXT)$$//' | \
-	while read p p1; do if test -f $$p || test -f $$p1; \
-	  then echo "$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n;h' -e 's|.*|.|' \
-	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
-	sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
-	    else { print "f", $$3 "/" $$4, $$1; } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	    test -z "$$files" || { \
-	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(plugindir)$$dir'"; \
-	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(plugindir)$$dir" || exit $$?; \
-	    } \
-	; done
+	@list='$(plugin_LTLIBRARIES)'; test -n "$(plugindir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(plugindir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(plugindir)"; \
+	}
 
-uninstall-pluginPROGRAMS:
+uninstall-pluginLTLIBRARIES:
 	@$(NORMAL_UNINSTALL)
-	@list='$(plugin_PROGRAMS)'; test -n "$(plugindir)" || list=; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
-	      -e 's/$$/$(EXEEXT)/' `; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(plugindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(plugindir)" && rm -f $$files
+	@list='$(plugin_LTLIBRARIES)'; test -n "$(plugindir)" || list=; \
+	for p in $$list; do \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(plugindir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(plugindir)/$$f"; \
+	done
 
-clean-pluginPROGRAMS:
-	@list='$(plugin_PROGRAMS)'; test -n "$$list" || exit 0; \
-	echo " rm -f" $$list; \
-	rm -f $$list || exit $$?; \
-	test -n "$(EXEEXT)" || exit 0; \
-	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
-	echo " rm -f" $$list; \
-	rm -f $$list
-xfce4-squeezebox-plugin$(EXEEXT): $(xfce4_squeezebox_plugin_OBJECTS) $(xfce4_squeezebox_plugin_DEPENDENCIES) 
-	@rm -f xfce4-squeezebox-plugin$(EXEEXT)
-	$(xfce4_squeezebox_plugin_LINK) $(xfce4_squeezebox_plugin_OBJECTS) $(xfce4_squeezebox_plugin_LDADD) $(LIBS)
+clean-pluginLTLIBRARIES:
+	-test -z "$(plugin_LTLIBRARIES)" || rm -f $(plugin_LTLIBRARIES)
+	@list='$(plugin_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
+libxfce4-squeezebox-plugin.la: $(libxfce4_squeezebox_plugin_la_OBJECTS) $(libxfce4_squeezebox_plugin_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libxfce4_squeezebox_plugin_la_LINK) -rpath $(plugindir) $(libxfce4_squeezebox_plugin_la_OBJECTS) $(libxfce4_squeezebox_plugin_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -446,72 +463,57 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-notifications.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-squeezebox.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libxfce4_squeezebox_plugin_la-notifications.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libxfce4_squeezebox_plugin_la-squeezebox.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.Plo@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
 .c.lo:
-@am__fastdepCC_TRUE@	$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LTCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
-xfce4_squeezebox_plugin-squeezebox.o: squeezebox.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-squeezebox.o -MD -MP -MF $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox.Tpo -c -o xfce4_squeezebox_plugin-squeezebox.o `test -f 'squeezebox.c' || echo '$(srcdir)/'`squeezebox.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox.Tpo $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='squeezebox.c' object='xfce4_squeezebox_plugin-squeezebox.o' libtool=no @AMDEPBACKSLASH@
+libxfce4_squeezebox_plugin_la-squeezebox.lo: squeezebox.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libxfce4_squeezebox_plugin_la_CFLAGS) $(CFLAGS) -MT libxfce4_squeezebox_plugin_la-squeezebox.lo -MD -MP -MF $(DEPDIR)/libxfce4_squeezebox_plugin_la-squeezebox.Tpo -c -o libxfce4_squeezebox_plugin_la-squeezebox.lo `test -f 'squeezebox.c' || echo '$(srcdir)/'`squeezebox.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libxfce4_squeezebox_plugin_la-squeezebox.Tpo $(DEPDIR)/libxfce4_squeezebox_plugin_la-squeezebox.Plo
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='squeezebox.c' object='libxfce4_squeezebox_plugin_la-squeezebox.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-squeezebox.o `test -f 'squeezebox.c' || echo '$(srcdir)/'`squeezebox.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libxfce4_squeezebox_plugin_la_CFLAGS) $(CFLAGS) -c -o libxfce4_squeezebox_plugin_la-squeezebox.lo `test -f 'squeezebox.c' || echo '$(srcdir)/'`squeezebox.c
 
-xfce4_squeezebox_plugin-squeezebox.obj: squeezebox.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-squeezebox.obj -MD -MP -MF $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox.Tpo -c -o xfce4_squeezebox_plugin-squeezebox.obj `if test -f 'squeezebox.c'; then $(CYGPATH_W) 'squeezebox.c'; else $(CYGPATH_W) '$(srcdir)/squeezebox.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox.Tpo $(DEPDIR)/xfce4_squeezebox_plugin-squeezebox.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='squeezebox.c' object='xfce4_squeezebox_plugin-squeezebox.obj' libtool=no @AMDEPBACKSLASH@
+libxfce4_squeezebox_plugin_la-notifications.lo: notifications.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libxfce4_squeezebox_plugin_la_CFLAGS) $(CFLAGS) -MT libxfce4_squeezebox_plugin_la-notifications.lo -MD -MP -MF $(DEPDIR)/libxfce4_squeezebox_plugin_la-notifications.Tpo -c -o libxfce4_squeezebox_plugin_la-notifications.lo `test -f 'notifications.c' || echo '$(srcdir)/'`notifications.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libxfce4_squeezebox_plugin_la-notifications.Tpo $(DEPDIR)/libxfce4_squeezebox_plugin_la-notifications.Plo
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='notifications.c' object='libxfce4_squeezebox_plugin_la-notifications.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-squeezebox.obj `if test -f 'squeezebox.c'; then $(CYGPATH_W) 'squeezebox.c'; else $(CYGPATH_W) '$(srcdir)/squeezebox.c'; fi`
+@am__fastdepCC_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libxfce4_squeezebox_plugin_la_CFLAGS) $(CFLAGS) -c -o libxfce4_squeezebox_plugin_la-notifications.lo `test -f 'notifications.c' || echo '$(srcdir)/'`notifications.c
 
-xfce4_squeezebox_plugin-notifications.o: notifications.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-notifications.o -MD -MP -MF $(DEPDIR)/xfce4_squeezebox_plugin-notifications.Tpo -c -o xfce4_squeezebox_plugin-notifications.o `test -f 'notifications.c' || echo '$(srcdir)/'`notifications.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/xfce4_squeezebox_plugin-notifications.Tpo $(DEPDIR)/xfce4_squeezebox_plugin-notifications.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='notifications.c' object='xfce4_squeezebox_plugin-notifications.o' libtool=no @AMDEPBACKSLASH@
+libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.lo: xfce-shortcuts-grabber.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libxfce4_squeezebox_plugin_la_CFLAGS) $(CFLAGS) -MT libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.lo -MD -MP -MF $(DEPDIR)/libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.Tpo -c -o libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.lo `test -f 'xfce-shortcuts-grabber.c' || echo '$(srcdir)/'`xfce-shortcuts-grabber.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.Tpo $(DEPDIR)/libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.Plo
+@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xfce-shortcuts-grabber.c' object='libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-notifications.o `test -f 'notifications.c' || echo '$(srcdir)/'`notifications.c
-
-xfce4_squeezebox_plugin-notifications.obj: notifications.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-notifications.obj -MD -MP -MF $(DEPDIR)/xfce4_squeezebox_plugin-notifications.Tpo -c -o xfce4_squeezebox_plugin-notifications.obj `if test -f 'notifications.c'; then $(CYGPATH_W) 'notifications.c'; else $(CYGPATH_W) '$(srcdir)/notifications.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/xfce4_squeezebox_plugin-notifications.Tpo $(DEPDIR)/xfce4_squeezebox_plugin-notifications.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='notifications.c' object='xfce4_squeezebox_plugin-notifications.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-notifications.obj `if test -f 'notifications.c'; then $(CYGPATH_W) 'notifications.c'; else $(CYGPATH_W) '$(srcdir)/notifications.c'; fi`
-
-xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o: xfce-shortcuts-grabber.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o -MD -MP -MF $(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo -c -o xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o `test -f 'xfce-shortcuts-grabber.c' || echo '$(srcdir)/'`xfce-shortcuts-grabber.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo $(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xfce-shortcuts-grabber.c' object='xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-xfce-shortcuts-grabber.o `test -f 'xfce-shortcuts-grabber.c' || echo '$(srcdir)/'`xfce-shortcuts-grabber.c
-
-xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj: xfce-shortcuts-grabber.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -MT xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj -MD -MP -MF $(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo -c -o xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj `if test -f 'xfce-shortcuts-grabber.c'; then $(CYGPATH_W) 'xfce-shortcuts-grabber.c'; else $(CYGPATH_W) '$(srcdir)/xfce-shortcuts-grabber.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Tpo $(DEPDIR)/xfce4_squeezebox_plugin-xfce-shortcuts-grabber.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='xfce-shortcuts-grabber.c' object='xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_squeezebox_plugin_CFLAGS) $(CFLAGS) -c -o xfce4_squeezebox_plugin-xfce-shortcuts-grabber.obj `if test -f 'xfce-shortcuts-grabber.c'; then $(CYGPATH_W) 'xfce-shortcuts-grabber.c'; else $(CYGPATH_W) '$(srcdir)/xfce-shortcuts-grabber.c'; fi`
+@am__fastdepCC_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libxfce4_squeezebox_plugin_la_CFLAGS) $(CFLAGS) -c -o libxfce4_squeezebox_plugin_la-xfce-shortcuts-grabber.lo `test -f 'xfce-shortcuts-grabber.c' || echo '$(srcdir)/'`xfce-shortcuts-grabber.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -623,7 +625,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) $(DATA)
+all-am: Makefile $(LTLIBRARIES) $(DATA)
 installdirs:
 	for dir in "$(DESTDIR)$(plugindir)" "$(DESTDIR)$(desktopdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
@@ -656,7 +658,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-pluginPROGRAMS \
+clean-am: clean-generic clean-libtool clean-pluginLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -677,7 +679,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-desktopDATA install-pluginPROGRAMS
+install-data-am: install-desktopDATA install-pluginLTLIBRARIES
 
 install-dvi: install-dvi-am
 
@@ -723,24 +725,24 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-desktopDATA uninstall-pluginPROGRAMS
+uninstall-am: uninstall-desktopDATA uninstall-pluginLTLIBRARIES
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-pluginPROGRAMS ctags distclean \
+	clean-libtool clean-pluginLTLIBRARIES ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am \
 	install-desktopDATA install-dvi install-dvi-am install-exec \
 	install-exec-am install-html install-html-am install-info \
 	install-info-am install-man install-pdf install-pdf-am \
-	install-pluginPROGRAMS install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-desktopDATA \
-	uninstall-pluginPROGRAMS
+	install-pluginLTLIBRARIES install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-desktopDATA uninstall-pluginLTLIBRARIES
 
 @INTLTOOL_DESKTOP_RULE@
 
