@@ -903,7 +903,7 @@ static void squeezebox_prev(SqueezeBoxData * sd) {
 static void on_btnPrev_clicked(GtkButton * button, SqueezeBoxData * sd) {
 	squeezebox_prev(sd);
 }
-void on_keyPrev_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
+EXPORT void on_keyPrev_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 	squeezebox_prev(sd);
 }
 
@@ -915,7 +915,7 @@ static gboolean squeezebox_stop(SqueezeBoxData * sd) {
 	return bRet;
 }
 
-void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
+EXPORT void on_keyStop_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 }
 
 static gboolean squeezebox_play(SqueezeBoxData * sd) {
@@ -973,7 +973,7 @@ static gboolean on_btn_clicked(GtkWidget * button, GdkEventButton * event,
 static void on_btnPlay_clicked(GtkButton * button, SqueezeBoxData * sd) {
 	squeezebox_play(sd);
 }
-void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
+EXPORT void on_keyPlay_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 	squeezebox_play(sd);
 }
 
@@ -1038,7 +1038,7 @@ static void squeezebox_next(SqueezeBoxData * sd) {
 static void on_btnNext_clicked(GtkButton * button, SqueezeBoxData * sd) {
 	squeezebox_next(sd);
 }
-void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
+EXPORT void on_keyNext_clicked(gpointer noIdea1, int noIdea2, SqueezeBoxData * sd) {
 	squeezebox_next(sd);
 }
 
@@ -1064,6 +1064,7 @@ static void squeezebox_reveal(SqueezeBoxData *sd) {
 					G_TYPE_STRING, dir, 
 					G_TYPE_STRING, base, 
 					G_TYPE_STRING, "", // current display, else ":0.0" etc.
+					G_TYPE_STRING, "", // new 4.8: startup_id
 					G_TYPE_INVALID, G_TYPE_INVALID);
 				g_free(dir);
 				g_free(base);
@@ -1534,7 +1535,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	LOG("Leave squeezebox_construct");
 
 }
-
+/*
 static gboolean squeezebox_init(int argc, char **argv) {
 	
 	
@@ -1544,6 +1545,8 @@ static gboolean squeezebox_init(int argc, char **argv) {
 	
 	return TRUE;
 }
-
-/*XFCE_PANEL_PLUGIN_REGISTER_INTERNAL_FULL (squeezebox_construct, squeezebox_init, NULL);*/
-XFCE_PANEL_PLUGIN_REGISTER_EXTERNAL_FULL(squeezebox_construct, squeezebox_init, NULL);
+ */
+XFCE_PANEL_PLUGIN_REGISTER(squeezebox_construct)
+/* XFCE_PANEL_DEFINE_PREINIT_FUNC(squeezebox_init) */
+/*XFCE_PANEL_PLUGIN_REGISTER_INTERNAL_FULL (squeezebox_construct, squeezebox_init, NULL)*/
+/*XFCE_PANEL_PLUGIN_REGISTER_EXTERNAL_FULL(squeezebox_construct, squeezebox_init, NULL);*/

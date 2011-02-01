@@ -12,13 +12,17 @@ dnl
 m4_define([squeeze_version_major], [0])
 m4_define([squeeze_version_minor], [1])
 m4_define([squeeze_version_micro], [2])
-m4_define([squeeze_version_build], [r00191])
+m4_define([squeeze_version_build], [r00193])
 m4_define([squeeze_version_tag], [])
 m4_define([squeeze_vers], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()])
 m4_define([squeeze_version], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()ifelse(squeeze_version_tag(), [svn], [squeeze_version_tag()-squeeze_version_build()], [squeeze_version_tag()])])
 AC_INIT([xfce4-squeezebox-plugin],[squeeze_version],[hakan@erduman.de])
 
 AM_INIT_AUTOMAKE([xfce4-squeezebox-plugin], [squeeze_version])
+
+# Use AM_SILENT_RULES if present
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
 AC_CONFIG_HEADER([config.h])
 
 AM_MAINTAINER_MODE
@@ -48,14 +52,14 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define to the Gettext p
 AM_GLIB_GNU_GETTEXT
 
 dnl Check for required packages
-XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.7.0])
-XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-1], [4.7.0])
+XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.8.0])
+XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-1], [4.8.0])
 XDT_CHECK_PACKAGE([GTK], [gtk+-2.0], [2.14.0])
 XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.22])
 XDT_CHECK_PACKAGE([DBUS], [dbus-1], [1.0.0])
 XDT_CHECK_PACKAGE([DBUS_GLIB], [dbus-glib-1], [0.73])
-XDT_CHECK_PACKAGE([LIBXFCONF], [libxfconf-0], [4.7.0])
-XDT_CHECK_PACKAGE([LIBEXO], [exo-1], [0.5.5])
+XDT_CHECK_PACKAGE([LIBXFCONF], [libxfconf-0], [4.8.0])
+XDT_CHECK_PACKAGE([LIBEXO], [exo-1], [0.6.0])
 
 dnl check for gvfs presence
 PKG_CHECK_MODULES([LIBGIO], 
@@ -180,7 +184,7 @@ AC_SUBST([VERMINOR])
 AC_SUBST([VERMICRO])
 
 dnl PATH defines
-PATH_DEFINES='-DBACKENDDIR="\"$(libexecdir)/xfce4/xfce4-squeezebox-plugin/backends\"" -DGLADEDIR="\"$(libexecdir)/xfce4/xfce4-squeezebox-plugin/glade\""'
+PATH_DEFINES='-DBACKENDDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/backends\"" -DGLADEDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/glade\""'
 AC_SUBST([PATH_DEFINES])
 AC_SUBST([subdirs])
 
@@ -204,12 +208,6 @@ if test x$enable_ID3TAG = xyes; then
 	echo " ID3 tag support ...............enabled"
 else
 	echo " ID3 tag support ...............disabled"
-fi
-
-if test x$have_newtooltips = xyes ; then
-	echo " Tooltips API ..................new"
-else
-	echo " Tooltips API ..................old"
 fi
 
 echo ""
