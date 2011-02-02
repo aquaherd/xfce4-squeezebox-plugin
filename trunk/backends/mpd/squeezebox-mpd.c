@@ -428,12 +428,11 @@ static gchar** mpdGetIndexerArgs(void){
 	gchar *tracker = g_find_program_in_path("tracker-search");
 	gchar **argv = NULL;
 	if(tracker) {
-		argv = g_new(gchar*, 5);
+		argv = g_new(gchar*, 4);
 		argv[0] = tracker;
-		argv[1] = "--service";
-		argv[2] = "Applications";
-		argv[3] = "mpd";
-		argv[4] = NULL;
+		argv[1] = "-a";
+		argv[2] = "mpd";
+		argv[3] = NULL;
 	} else {
 		gchar *beagle = g_find_program_in_path("beagle-query");
 		if(beagle) {

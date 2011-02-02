@@ -832,12 +832,16 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 	gboolean valid;
 	gint idx;
 	GtkBuilder* builder;
+	GError *error = NULL;
 	LOG("Enter squeezebox_properties_dialog "GLADEDIR"/settings.ui");
-	xfce_panel_plugin_block_menu(plugin);
 
     // new
     builder = gtk_builder_new();
-	gtk_builder_add_from_file(builder, GLADEDIR"/settings.ui", NULL);
+	if(!gtk_builder_add_from_file(builder, GLADEDIR"/settings.ui", &error)) {
+		LOGWARN("Can't add builder: %s", error->message);
+		return;
+	}
+	xfce_panel_plugin_block_menu(plugin);
 	sd->dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dialogSettings"));
 	store = GTK_LIST_STORE(gtk_builder_get_object(builder, "datastore"));
 	view = GTK_TREE_VIEW(gtk_builder_get_object(builder, "tvPlayers"));
