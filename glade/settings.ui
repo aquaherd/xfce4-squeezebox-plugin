@@ -77,12 +77,18 @@
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
             <child>
-              <object class="XfceHeading" id="xfce-heading1">
-                <property name="visible">True</property>
-                <property name="icon_name">applications-multimedia</property>
-                <property name="subtitle" translatable="yes">media player remote</property>
-                <property name="title" translatable="yes">SqueezeBox</property>
-              </object>
+          <object class="GtkLabel" id="xfce-heading1">
+            <property name="visible">True</property>
+            <property name="xpad">5</property>
+            <property name="ypad">7</property>
+            <property name="label" translatable="yes">MPD - Music Player Daemon</property>
+            <property name="use_underline">True</property>
+            <property name="justify">center</property>
+            <attributes>
+              <attribute name="variant" value="normal"/>
+              <attribute name="background" value="#ea522a522a52"/>
+            </attributes>
+          </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
