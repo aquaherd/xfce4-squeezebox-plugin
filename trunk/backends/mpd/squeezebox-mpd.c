@@ -40,7 +40,6 @@
 #include <string.h>
 
 #include <libxfce4ui/libxfce4ui.h>
-#include <libxfcegui4/libxfcegui4.h>
 
 // standalone glib mpd
 #include "gmpd.h"
