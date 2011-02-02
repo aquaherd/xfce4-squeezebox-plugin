@@ -40,6 +40,7 @@
 #include <string.h>
 
 #include <libxfce4ui/libxfce4ui.h>
+#include <libxfcegui4/libxfcegui4.h>
 
 // standalone glib mpd
 #include "gmpd.h"
@@ -472,7 +473,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent) {
 	thys->wPath = GTK_WIDGET(gtk_builder_get_object(builder, "chooserDirectory"));
 
 	header = GTK_WIDGET(gtk_builder_get_object(builder, "xfce-heading1"));
-	xfce_heading_set_icon(XFCE_HEADING(header), MPD_icon());
+	//xfce_heading_set_icon(XFCE_HEADING(header), MPD_icon());
 
 	gtk_builder_connect_signals(builder,thsPtr);
 

@@ -791,6 +791,37 @@ EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
 	}
 }
 
+static void squeezebox_connect_signals(GtkBuilder *builder,
+									 GObject *object,
+									 const gchar *signal_name,
+									 const gchar *handler_name,
+									 GObject *connect_object,
+									 GConnectFlags flags,
+									 gpointer user_data) {
+	#define MAP_SIG(x) \
+		if(!g_strcmp0(handler_name, #x)) { \
+			g_signal_connect(object, signal_name, G_CALLBACK(x), user_data); \
+			bFound = TRUE; \
+			}
+	gboolean bFound = FALSE;
+	MAP_SIG(on_dialogSettings_response)
+	MAP_SIG(on_cellrenderShortCut_accel_edited)
+	MAP_SIG(on_cellrenderShortCut_accel_cleared)
+	MAP_SIG(on_spinNotificationTimeout_change_value)
+	MAP_SIG(on_chkShowNotifications_toggled)
+	MAP_SIG(on_chkShowToolTips_toggled)
+	MAP_SIG(on_chkShowNext_toggled)
+	MAP_SIG(on_chkShowPrevious_toggled)
+	MAP_SIG(on_btnEdit_clicked)
+	MAP_SIG(on_btnRemove_clicked)
+	MAP_SIG(on_btnAdd_clicked)
+	MAP_SIG(on_tvPlayers_cursor_changed)
+	MAP_SIG(on_cellrenderertoggle1_toggled)
+	MAP_SIG(on_chkAutoAttach_toggled)
+	if(!bFound)
+		LOGWARN("Can't connect signal %s to handler %s", signal_name, handler_name);
+}
+
 void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
 	// backends
 	GtkListStore *store;
@@ -801,7 +832,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 	gboolean valid;
 	gint idx;
 	GtkBuilder* builder;
-	LOG("Enter squeezebox_properties_dialog");
+	LOG("Enter squeezebox_properties_dialog "GLADEDIR"/settings.ui");
 	xfce_panel_plugin_block_menu(plugin);
 
     // new
@@ -891,7 +922,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 		g_free(path2);
     }	
 	// liftoff
-	gtk_builder_connect_signals(builder, sd);
+	gtk_builder_connect_signals_full(builder, squeezebox_connect_signals, sd);
 	gtk_dialog_run(GTK_DIALOG(sd->dlg));
 	LOG("Leave squeezebox_properties_dialog");
 }
@@ -1386,6 +1417,12 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 
 	xfce_textdomain(GETTEXT_PACKAGE, LOCALEDIR, "UTF-8");
 	LOG("Enter squeezebox_construct");
+	
+	// instead of init:
+	if(!g_thread_get_initialized())
+		g_thread_init(NULL);
+	gdk_threads_init();
+	gdk_threads_enter();
 	
 	sd->plugin = plugin;
     sd->properties = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
