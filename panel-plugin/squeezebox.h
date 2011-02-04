@@ -176,7 +176,7 @@ typedef struct Backend{
 	}
     
 
-#if DEBUG_TRACE
+#ifdef DEBUG_TRACE
 #define LOG g_message
 #define LOGERR g_error
 #define LOGWARN g_warning
