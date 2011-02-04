@@ -443,8 +443,9 @@ static gchar** mpdGetIndexerArgs(void){
 			argv[3] = NULL;
 		}
 	} 
-	if(argv)
+	if(argv) {
 		LOG("\tIndexer is:%s", argv[0]);
+	}
 	return argv;
 }
 

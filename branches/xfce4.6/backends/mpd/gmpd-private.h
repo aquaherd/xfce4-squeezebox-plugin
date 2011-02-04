@@ -25,7 +25,7 @@
 
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "GMpd"
-#if DEBUG_TRACE
+#ifdef DEBUG_TRACE
 	#define LOG g_message
 #else
 	#define LOG(...)
