@@ -115,10 +115,6 @@ static void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name) {
 	UNSET(Persist);
 	UNSET(Configure);
 	UNSET(UpdateDBUS);
-    // clear old property address map
-    if(g_hash_table_size(sd->propertyAddresses)) {
-        g_hash_table_remove_all(sd->propertyAddresses);
-    }
 
 	// clear current song info
 	g_string_set_size(sd->player.artist, 0);
@@ -1429,8 +1425,6 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	gdk_threads_enter();
 	
 	sd->plugin = plugin;
-    sd->properties = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-    sd->propertyAddresses = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
 	sd->player.artist = g_string_new(_("(unknown)"));
 	sd->player.album = g_string_new(_("(unknown)"));
 	sd->player.title = g_string_new(_("(unknown)"));
