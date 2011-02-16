@@ -1375,7 +1375,7 @@ static void squeezebox_read_backends(SqueezeBoxData *sd){
 	const gchar *backends = BACKENDDIR;
 	GDir *dir = g_dir_open(backends, 0, NULL);
 	const gchar *fnam = NULL;
-	LOG("Enter squeezebox_read_backends");
+	LOG("Enter squeezebox_read_backends: '%s'", backends);
 	while ((fnam = g_dir_read_name(dir))) {
 		gchar *fpath = g_strdup_printf("%s%c%s%c%s.%s",
 			backends, G_DIR_SEPARATOR, fnam, G_DIR_SEPARATOR, fnam, G_MODULE_SUFFIX);
