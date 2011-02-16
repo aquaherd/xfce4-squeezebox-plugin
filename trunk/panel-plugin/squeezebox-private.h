@@ -135,10 +135,6 @@ typedef struct SqueezeBoxData{
 	XfceShortcutsGrabber *grabber;
 	GQuark shortcuts[5];
     
-    // property handling
-    GHashTable *properties;
-    GHashTable *propertyAddresses;
-    
     WnckScreen *wnckScreen;
     
     // settings dialog
