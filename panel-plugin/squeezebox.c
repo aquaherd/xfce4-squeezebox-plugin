@@ -1188,7 +1188,8 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 	GError *error = NULL;
 	LOG("Enter squeezebox_create");
 	xfconf_init(&error);
-	
+	if(NULL != error)
+		LOGERR("xfconf_init failed %s", error->message);
 	sd->table = gtk_table_new(1, 3, FALSE);
 	gtk_widget_show(sd->table);
 	gtk_container_add(GTK_CONTAINER(window1), sd->table);
