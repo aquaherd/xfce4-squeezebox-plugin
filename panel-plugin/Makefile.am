@@ -72,7 +72,4 @@ DISTCLEANFILES = $(desktop_DATA)
 splint:
 	splint -warnposix +ignoresigns -stats \
 	*.c  \
-	$(LIBXFCE4PANEL_CFLAGS) $(DBUSGLIB_CFLAGS) \
-	$(LIBXFCONF_CFLAGS) $(EXO_CFLAGS) $(LIBWNCK_CFLAGS) \
-	$(LIBGIO_CFLAGS) $(ID3TAG_CFLAGS)
-
+	$(libxfce4_squeezebox_plugin_la_CFLAGS)

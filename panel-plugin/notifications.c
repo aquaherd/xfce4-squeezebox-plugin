@@ -62,7 +62,7 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 			sd->player.title->str, sd->player.artist->str,
 			sd->player.album->str);
 
-		if (albumArt->len) {
+		if (albumArt->len > 0) {
 			pixbuf =
 			    gdk_pixbuf_new_from_file_at_size(albumArt->str, 64, 64, NULL);
 		}
