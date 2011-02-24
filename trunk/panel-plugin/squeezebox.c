@@ -537,7 +537,7 @@ static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd) 
 		g_list_free(sd->list);
 	}	
 	xfconf_shutdown();
-	g_slice_free(SqueezeBoxData, sd);
+	g_free(sd);
 	LOG("Leave squeezebox_free_data\n");
 }
 
@@ -1414,18 +1414,17 @@ static void squeezebox_read_backends(SqueezeBoxData *sd){
 }
 EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	int i = 0;
-	SqueezeBoxData *sd = g_slice_new0(SqueezeBoxData);
+	SqueezeBoxData *sd = g_new0(SqueezeBoxData, 1);
 
 	xfce_textdomain(GETTEXT_PACKAGE, LOCALEDIR, "UTF-8");
 	LOG("Enter squeezebox_construct");
 	
 	// instead of init:
-	/* we are a module now
 	if(!g_thread_get_initialized())
 		g_thread_init(NULL);
 	gdk_threads_init();
 	gdk_threads_enter();
-	*/
+	
 	sd->plugin = plugin;
 	sd->player.artist = g_string_new(_("(unknown)"));
 	sd->player.album = g_string_new(_("(unknown)"));
