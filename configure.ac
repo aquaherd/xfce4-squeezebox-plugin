@@ -12,7 +12,7 @@ dnl
 m4_define([squeeze_version_major], [0])
 m4_define([squeeze_version_minor], [1])
 m4_define([squeeze_version_micro], [2])
-m4_define([squeeze_version_build], [r00203])
+m4_define([squeeze_version_build], [r00212])
 m4_define([squeeze_version_tag], [])
 m4_define([squeeze_vers], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()])
 m4_define([squeeze_version], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()ifelse(squeeze_version_tag(), [svn], [squeeze_version_tag()-squeeze_version_build()], [squeeze_version_tag()])])
@@ -38,6 +38,9 @@ LT_INIT
 
 dnl Check for standard header files
 AC_HEADER_STDC
+
+dnl Check for X11 installed
+XDT_CHECK_LIBX11_REQUIRE()
 
 dnl configure the panel plugin
 XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.3.99])
