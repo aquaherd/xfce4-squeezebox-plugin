@@ -34,6 +34,9 @@ LT_INIT
 dnl Check for standard header files
 AC_HEADER_STDC
 
+dnl Check for X11 installed
+XDT_CHECK_LIBX11_REQUIRE()
+
 dnl configure the panel plugin
 XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.3.99])
 

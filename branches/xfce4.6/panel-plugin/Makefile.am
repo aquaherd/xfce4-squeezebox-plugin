@@ -3,6 +3,7 @@ plugin_PROGRAMS = xfce4-squeezebox-plugin
 
 xfce4_squeezebox_plugin_CFLAGS = -Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
     -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ \
+    $(LIBX11_CFLAGS) \
     @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ $(PATH_DEFINES) \
     -DG_LOG_DOMAIN=\"SBP\" \
     @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@ \
@@ -12,6 +13,7 @@ xfce4_squeezebox_plugin_CFLAGS = -Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squee
 #    -Wl -rdynamic 
 
 xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBXFCONF_LIBS@ \
+	$(LIBX11_LIBS) \
 	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ @LIBGTHREAD_LIBS@ \
 	-Wl -rdynamic
 

@@ -193,6 +193,9 @@ LIBWNCK_CFLAGS = @LIBWNCK_CFLAGS@
 LIBWNCK_LIBS = @LIBWNCK_LIBS@
 LIBWNCK_REQUIRED_VERSION = @LIBWNCK_REQUIRED_VERSION@
 LIBWNCK_VERSION = @LIBWNCK_VERSION@
+LIBX11_CFLAGS = @LIBX11_CFLAGS@
+LIBX11_LDFLAGS = @LIBX11_LDFLAGS@
+LIBX11_LIBS = @LIBX11_LIBS@
 LIBXFCE4PANEL_CFLAGS = @LIBXFCE4PANEL_CFLAGS@
 LIBXFCE4PANEL_LIBS = @LIBXFCE4PANEL_LIBS@
 LIBXFCE4PANEL_REQUIRED_VERSION = @LIBXFCE4PANEL_REQUIRED_VERSION@
@@ -249,6 +252,11 @@ VERMINOR = @VERMINOR@
 VERSION = @VERSION@
 XGETTEXT = @XGETTEXT@
 XGETTEXT_ARGS = @XGETTEXT_ARGS@
+XMKMF = @XMKMF@
+X_CFLAGS = @X_CFLAGS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_LIBS = @X_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -285,7 +293,6 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_ECHO = @lt_ECHO@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -305,6 +312,7 @@ top_srcdir = @top_srcdir@
 plugindir = $(libexecdir)/xfce4/panel-plugins
 xfce4_squeezebox_plugin_CFLAGS = -Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
     -DPACKAGE_LOCALE_DIR=\"$(localedir)\" @LIBXFCE4PANEL_CFLAGS@ \
+    $(LIBX11_CFLAGS) \
     @EXO_CFLAGS@ @LIBWNCK_CFLAGS@ $(PATH_DEFINES) \
     -DG_LOG_DOMAIN=\"SBP\" \
     @LIBGIO_CFLAGS@ @ID3TAG_CFLAGS@ @LIBXFCONF_CFLAGS@ \
@@ -314,6 +322,7 @@ xfce4_squeezebox_plugin_CFLAGS = -Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squee
 #todo: use --dynamic-list=someFile instead of -Wl -rdynamic
 #    -Wl -rdynamic 
 xfce4_squeezebox_plugin_LDFLAGS = @LIBXFCE4PANEL_LIBS@ @LIBXFCONF_LIBS@ \
+	$(LIBX11_LIBS) \
 	@EXO_LIBS@ @LIBWNCK_LIBS@ @LIBGIO_LIBS@ @ID3TAG_LIBS@ @LIBGTHREAD_LIBS@ \
 	-Wl -rdynamic
 
