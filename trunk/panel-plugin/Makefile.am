@@ -1,8 +1,7 @@
-
 INCLUDES = \
 	-I$(top_srcdir) \
 	-Wall -DDATA_DIR=\"$(datadir)/xfce4/xfce4-squeezebox-plugin\"		\
-	-DLOCALEDIR=\"$(localedir)\" \
+	-DLOCALEDIR=\"$(datadir)/locale\" \
 	-DG_LOG_DOMAIN=\"SBP\" \
 	-export-dynamic
 
