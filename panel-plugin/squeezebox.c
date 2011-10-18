@@ -37,8 +37,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#if HAVE_ID3TAG
+#if HAVE_LIBID3TAG
 #include <id3tag.h>
+#endif
+#if HAVE_LIBZEITGEIST
+#include <zeitgeist.h>
 #endif
 #include <libintl.h>
 typedef enum eButtons {
@@ -312,7 +315,7 @@ squeezebox_update_visibility(gpointer thsPlayer, gboolean newVisible) {
 	LOG("Leave squeezebox_update_visibility");
 }
 
-#if HAVE_ID3TAG
+#if HAVE_LIBID3TAG
 // this shippet is from gtkpod
 static const gchar* id3_get_binary (struct id3_tag const *tag,
 				    char *frame_name,
@@ -356,7 +359,7 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 	MKTHIS;
 	gboolean bFound = FALSE;
 	gchar *realPath = NULL;
-#if HAVE_ID3TAG	// how to query artist with id3tag
+#if HAVE_LIBID3TAG	// how to query artist with id3tag
 	struct id3_file *fp = NULL;
 	if(g_str_has_prefix(path, "file://"))
 		realPath = g_filename_from_uri(path, NULL, NULL);
@@ -442,6 +445,37 @@ squeezebox_find_albumart_by_filepath(gpointer thsPlayer, const gchar * path) {
 	LOG("SB: Leave Check");
 }
 
+#if HAVE_LIBZEITGEIST
+static void
+squeezebox_update_zeitgeist(SqueezeBoxData *sd) {
+	if(g_file_test(sd->player.path->str, G_FILE_TEST_EXISTS)) {
+		ZeitgeistLog *log = zeitgeist_log_new();
+		ZeitgeistEvent *event = zeitgeist_event_new();
+		GFile *file = g_file_new_for_path(sd->player.path->str);
+		gchar *uri = g_file_get_uri(file);
+		gchar *baseName = g_file_get_basename(file);
+		gchar *parent = g_file_get_path(file);
+		GMount *mount = g_file_find_enclosing_mount(file, NULL, NULL);
+		gchar *uuid = g_mount_get_uuid(mount);
+		ZeitgeistSubject *subject = zeitgeist_subject_new_full(uri, ZEITGEIST_NFO_AUDIO, 
+															   ZEITGEIST_NFO_FILE_DATA_OBJECT, 
+															   "audio/mpeg", baseName, parent, uuid);
+		GDateTime *gtime = g_date_time_new_now_utc();
+		zeitgeist_event_set_actor(event, "app://squeezebox.desktop");
+		zeitgeist_event_set_timestamp(event, g_date_time_to_unix(gtime));
+		zeitgeist_event_add_subject(event, subject);
+		zeitgeist_log_insert_events_no_reply(log, event, NULL);
+		g_date_time_unref(gtime);
+		g_object_unref(file);
+		g_free(uri);
+		g_free(baseName);
+		g_free(parent);
+		g_free(uuid);
+		g_object_unref(mount);
+		zeitgeist_log_quit(log, NULL, NULL, NULL);
+	}
+}
+#endif
 static void
 squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 		     eSynoptics State, const gchar * playerMessage) {
@@ -455,12 +489,15 @@ squeezebox_update_UI(gpointer thsPlayer, gboolean updateSong,
 	if (updateSong) {
 		if (sd->toolTipStyle == ettSimple) {
 			if (sd->player.artist->len + sd->player.album->len +
-			    sd->player.title->len)
+			    sd->player.title->len) {
 				g_string_printf(sd->toolTipText, "%s: %s - %s",
 						sd->player.artist->str,
 						sd->player.album->str,
 						sd->player.title->str);
-			else {
+						#if HAVE_LIBZEITGEIST
+						squeezebox_update_zeitgeist(sd);
+						#endif
+			} else {
 				const Backend *ptr = squeezebox_get_current_backend(sd);
 				g_string_printf(sd->toolTipText,
 						_("%s: No info"), ptr->BACKEND_name());
@@ -814,8 +851,9 @@ static void squeezebox_connect_signals(GtkBuilder *builder,
 	MAP_SIG(on_tvPlayers_cursor_changed)
 	MAP_SIG(on_cellrenderertoggle1_toggled)
 	MAP_SIG(on_chkAutoAttach_toggled)
-	if(!bFound)
+	if(!bFound) {
 		LOGWARN("Can't connect signal %s to handler %s", signal_name, handler_name);
+	}
 }
 
 void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd) {
@@ -1127,12 +1165,12 @@ static void on_mnuSongToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData *
 }
 
 static void on_mnuPlayerToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
-	squeezebox_show(checkmenuitem->active, sd);
+	squeezebox_show(gtk_check_menu_item_get_active(checkmenuitem), sd);
 }
 
 static void on_mnuShuffleToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
 	if (sd->noUI == FALSE && sd->player.SetShuffle) {
-		sd->player.SetShuffle(sd->player.db, checkmenuitem->active);
+		sd->player.SetShuffle(sd->player.db, gtk_check_menu_item_get_active(checkmenuitem));
 		if (sd->player.GetShuffle)
 			squeezebox_update_shuffle(sd, sd->player.GetShuffle(sd->player.db));
 	}
@@ -1140,7 +1178,7 @@ static void on_mnuShuffleToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxDat
 
 static void on_mnuRepeatToggled(GtkCheckMenuItem * checkmenuitem, SqueezeBoxData * sd) {
 	if (sd->noUI == FALSE && sd->player.SetRepeat)
-		sd->player.SetRepeat(sd->player.db, checkmenuitem->active);
+		sd->player.SetRepeat(sd->player.db, gtk_check_menu_item_get_active(checkmenuitem));
 }
 
 static gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
@@ -1188,15 +1226,12 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd) {
 	GError *error = NULL;
 	LOG("Enter squeezebox_create");
 	xfconf_init(&error);
-	if(NULL != error)
+	if(NULL != error) {
 		LOGERR("xfconf_init failed %s", error->message);
+	}
 	sd->table = gtk_table_new(1, 3, FALSE);
 	gtk_widget_show(sd->table);
 	gtk_container_add(GTK_CONTAINER(window1), sd->table);
-
-	sd->tooltips = gtk_tooltips_new();
-	g_object_ref(sd->tooltips);
-	gtk_object_sink(GTK_OBJECT(sd->tooltips));
 
 	sd->button[ebtnPrev] = gtk_button_new();
 	gtk_button_set_relief(GTK_BUTTON(sd->button[ebtnPrev]),

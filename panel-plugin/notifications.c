@@ -1,18 +1,18 @@
 /*
  *      notifications.c
- *      
+ *
  *      Copyright 2009 Hakan Erduman <hakan@erduman.de>
- *      
+ *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
  *      the Free Software Foundation; either version 2 of the License, or
  *      (at your option) any later version.
- *      
+ *
  *      This program is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
  *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *      GNU General Public License for more details.
- *      
+ *
  *      You should have received a copy of the GNU General Public License
  *      along with this program; if not, write to the Free Software
  *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -33,21 +33,21 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 	LOG("show_toaster ");
 
 	/*
-	 "xfce", 
-	 12, 
-	 "/home/herd/Music/Faith No More/The Real Thing/folder.jpg", 
-	 "Faith no more", 
+	 "xfce",
+	 12,
+	 "/home/herd/Music/Faith No More/The Real Thing/folder.jpg",
+	 "Faith no more",
 	 "The Real Thing<br>The Real Thing",
 	 "",
 	 "",
-	 1200	 
+	 1200
 	 */
 
 	if (bAct) {
 		bAct = ((sd->player.title->str && sd->player.title->str[0]) ||
-			(sd->player.album->str && sd->player.album->str[0]) ||
-			(sd->player.artist->str && sd->player.artist->str[0])
-		    );
+		        (sd->player.album->str && sd->player.album->str[0]) ||
+		        (sd->player.artist->str && sd->player.artist->str[0])
+		       );
 	}
 
 	if (bAct) {
@@ -56,11 +56,11 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		//happily, we easily can escape ampersands and other usual suspects.
 		gchar *ntDetails =
 		    g_markup_printf_escaped(_("by <b>%s</b>\nfrom <i>%s</i>"),
-					    sd->player.artist->str,
-					    sd->player.album->str);
+		                            sd->player.artist->str,
+		                            sd->player.album->str);
 		LOG("New track '%s' from '%s' by '%s'",
-			sd->player.title->str, sd->player.artist->str,
-			sd->player.album->str);
+		    sd->player.title->str, sd->player.artist->str,
+		    sd->player.album->str);
 
 		if (albumArt->len > 0) {
 			pixbuf =
@@ -72,21 +72,20 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		if(NULL != pixbuf) {
 			gdk_pixbuf_save(pixbuf, pixPath, "png", NULL, NULL);
 			g_object_unref(pixbuf);
-		}
-		else
+		} else
 			pixPath = NULL;
-		
-		
+
+
 		//Let's show
 		if (sd->note) {
 			LOG("notify-ignition %d", sd->notifyID);
 			if(sd->notifyID > 0)
 				notifications_close_notification(sd->note, sd->notifyID, NULL);
-			notifications_notify(sd->note, 
-				"xfce4-squeezebox-plugin", sd->notifyID, pixPath, 
-				ntTitle, ntDetails, NULL, table, sd->notifyTimeout * 1000, 
-				&sd->notifyID, NULL);
-		} 
+			notifications_notify(sd->note,
+			                     "xfce4-squeezebox-plugin", sd->notifyID, pixPath,
+			                     ntTitle, ntDetails, NULL, table, sd->notifyTimeout * 1000,
+			                     &sd->notifyID, NULL);
+		}
 		g_free(ntTitle);
 		g_free(ntDetails);
 		g_string_free(albumArt, TRUE);
