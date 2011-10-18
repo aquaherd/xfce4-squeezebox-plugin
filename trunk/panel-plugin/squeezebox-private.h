@@ -122,9 +122,6 @@ typedef struct SqueezeBoxData{
 	gboolean noUI;
 
 	gint toolTipStyle;
-#ifndef HAVE_GTK_2_12
-	GtkTooltips *tooltips;
-#endif
 	GString *toolTipText;
 
 	SPlayer player;

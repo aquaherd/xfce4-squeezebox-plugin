@@ -24,6 +24,7 @@ libxfce4_squeezebox_plugin_la_CFLAGS = \
 	$(PATH_DEFINES) \
 	$(LIBGIO_CFLAGS) \
 	$(LIBID3TAG_CFLAGS) \
+	$(LIBZEITGEIST_CFLAGS) \
 	$(LIBXFCONF_CFLAGS)
 
 libxfce4_squeezebox_plugin_la_LIBADD = \
@@ -38,6 +39,7 @@ libxfce4_squeezebox_plugin_la_LIBADD = \
 	$(LIBGTHREAD_LIBS) \
 	$(LIBGIO_LIBS) \
 	$(LIBID3TAG_LIBS) \
+	$(LIBZEITGEIST_LIBS) \
 	$(LIBXFCONF_LIBS)
 
 libxfce4_squeezebox_plugin_la_LDFLAGS = \

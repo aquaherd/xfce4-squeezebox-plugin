@@ -54,17 +54,23 @@
 /* Define if having gio-unix-2.0 */
 #undef HAVE_GIO
 
-/* Define to use ID3TAG */
-#undef HAVE_ID3TAG
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
 /* Define if your <locale.h> file defines LC_MESSAGES. */
 #undef HAVE_LC_MESSAGES
 
+/* Define if id3tag >= 0.15 present */
+#undef HAVE_LIBID3TAG
+
+/* Define if indicate-0.5 >= 0.5.0 present */
+#undef HAVE_LIBINDICATE
+
 /* Define if libX11 is available */
 #undef HAVE_LIBX11
+
+/* Define if zeitgeist-1.0 >= 0.3.10 present */
+#undef HAVE_LIBZEITGEIST
 
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
