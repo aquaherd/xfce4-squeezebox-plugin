@@ -868,6 +868,12 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 	GtkBuilder* builder;
 	GError *error = NULL;
 	LOG("Enter squeezebox_properties_dialog "GLADEDIR"/settings.ui");
+	
+	if (xfce_titled_dialog_get_type () == 0) 
+	{
+		LOGWARN("Can't build UI: XfceTitledDialog missing.");
+		return;
+	}
 
     // new
     builder = gtk_builder_new();
