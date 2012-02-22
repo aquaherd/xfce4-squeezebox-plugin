@@ -79,8 +79,8 @@ void squeezebox_update_UI_show_toaster(gpointer thsPlayer) {
 		//Let's show
 		if (sd->note) {
 			LOG("notify-ignition %d", sd->notifyID);
-			if(sd->notifyID > 0)
-				notifications_close_notification(sd->note, sd->notifyID, NULL);
+			//if(sd->notifyID > 0)
+				//notifications_close_notification(sd->note, sd->notifyID, NULL);
 			notifications_notify(sd->note,
 			                     "xfce4-squeezebox-plugin", sd->notifyID, pixPath,
 			                     ntTitle, ntDetails, NULL, table, sd->notifyTimeout * 1000,
