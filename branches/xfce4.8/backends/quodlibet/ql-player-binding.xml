@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<node name="/net/sacredchao/QuodLibet">
+  <interface name="net.sacredchao.QuodLibet">
+    <method name="GetPosition">
+      <arg type="u" name="actPos" direction="out" />
+    </method>
+    <method name="IsPlaying">
+      <arg type="b" name="bRet" direction="out" />
+    </method>
+    <method name="CurrentSong">
+      <arg type="a{ss}" name="songProps" direction="out" />
+    </method>
+    <method name="Next"></method>
+    <method name="Previous"></method>
+    <method name="IsPlaying">
+      <arg type="b" name="bIsPlaying" direction="out" />
+    </method>
+    <method name="Pause">
+      <arg type="b" name="bIsPaused" direction="out" />
+    </method>
+    <method name="Play"></method>
+    <method name="PlayPause">
+      <arg type="b" name="bIsPaused" direction="out" />
+    </method>
+    <signal name="Paused" />
+    <signal name="Unpaused" />
+    <signal name="SongStarted">
+      <arg type="a{ss}" name="song" />
+    </signal>
+    <signal name="SongEnded">
+      <arg type="a{ss}" name="song" />
+      <arg type="b" name="skipped" />
+    </signal>
+  </interface>
+</node>

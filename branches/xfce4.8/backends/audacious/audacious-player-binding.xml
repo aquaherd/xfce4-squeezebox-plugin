@@ -1,0 +1,283 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.freedesktop.MediaPlayer">
+    <method name="Quit">
+    </method>
+    <method name="Identity">
+      <arg name="arg0" type="s" direction="out"/>
+    </method>
+  </interface>
+  <node name="Player">
+      <interface name="org.freedesktop.MediaPlayer">
+        <method name="PositionGet">
+          <arg name="arg0" type="i" direction="out"/>
+        </method>
+        <method name="PositionSet">
+          <arg name="arg0" type="i" direction="in"/>
+        </method>
+        <method name="VolumeGet">
+          <arg name="arg0" type="i" direction="out"/>
+        </method>
+        <method name="VolumeSet">
+          <arg name="arg0" type="i" direction="in"/>
+        </method>
+        <method name="GetCaps">
+          <arg name="arg0" type="i" direction="out"/>
+        </method>
+        <method name="GetMetadata">
+          <arg name="arg0" type="a{sv}" direction="out"/>
+        </method>
+        <method name="GetStatus">
+          <arg name="arg0" type="(iiii)" direction="out"/>
+        </method>
+        <method name="Repeat">
+          <arg name="arg0" type="b" direction="in"/>
+        </method>
+        <method name="Play"/>
+        <method name="Stop"/>
+        <method name="Pause"/>
+        <method name="Prev"/>
+        <method name="Next"/>
+        <signal name="CapsChange">
+          <arg type="i"/>
+        </signal>
+        <signal name="StatusChange">
+          <arg type="i"/>
+        </signal>
+        <signal name="TrackChange">
+          <arg type="a{sv}"/>
+        </signal>
+      </interface>
+  </node>
+  <node name="TrackList">
+      <interface name="org.freedesktop.MediaPlayer">
+        <method name="Random">
+          <arg name="arg0" type="b" direction="in"/>
+        </method>
+        <method name="Loop">
+          <arg name="arg0" type="b" direction="in"/>
+        </method>
+        <method name="DelTrack">
+          <arg name="arg0" type="i" direction="in"/>
+        </method>
+        <method name="AddTrack">
+          <arg name="arg0" type="s" direction="in"/>
+          <arg name="arg1" type="b" direction="in"/>
+        </method>
+        <method name="GetLength">
+          <arg name="arg0" type="i" direction="out"/>
+        </method>
+        <method name="GetCurrentTrack">
+          <arg name="arg0" type="i" direction="out"/>
+        </method>
+        <method name="GetMetadata">
+          <arg name="arg0" type="i" direction="in"/>
+          <arg name="arg1" type="a{sv}" direction="out"/>
+        </method>
+      </interface>
+  </node>
+  <node name="org">
+      <interface name="org.atheme.audacious">
+        <method name="EqualizerActivate">
+          <arg name="active" type="b" direction="in"/>
+        </method>
+        <method name="SetEqBand">
+          <arg name="band" type="i" direction="in"/>
+          <arg name="value" type="d" direction="in"/>
+        </method>
+        <method name="SetEqPreamp">
+          <arg name="preamp" type="d" direction="in"/>
+        </method>
+        <method name="SetEq">
+          <arg name="preamp" type="d" direction="in"/>
+          <arg name="bands" type="ad" direction="in"/>
+        </method>
+        <method name="GetEqBand">
+          <arg name="band" type="i" direction="in"/>
+          <arg name="value" type="d" direction="out"/>
+        </method>
+        <method name="GetEqPreamp">
+          <arg name="preamp" type="d" direction="out"/>
+        </method>
+        <method name="GetEq">
+          <arg name="preamp" type="d" direction="out"/>
+          <arg name="bands" type="ad" direction="out"/>
+        </method>
+        <method name="PlaylistEnqueueToTemp">
+          <arg name="url" type="s" direction="in"/>
+        </method>
+        <method name="PlayqueueIsQueued">
+          <arg name="pos" type="i" direction="in"/>
+          <arg name="is_queued" type="b" direction="out"/>
+        </method>
+        <method name="PlayqueueClear"/>
+        <method name="PlayqueueRemove">
+          <arg name="pos" type="i" direction="in"/>
+        </method>
+        <method name="PlayqueueAdd">
+          <arg name="pos" type="i" direction="in"/>
+        </method>
+        <method name="PlaylistAdd">
+          <arg name="list" type="s" direction="in"/>
+        </method>
+        <method name="PlaylistInsUrlString">
+          <arg name="url" type="s" direction="in"/>
+          <arg name="pos" type="i" direction="in"/>
+        </method>
+        <method name="GetPlayqueueLength">
+          <arg name="length" type="i" direction="out"/>
+        </method>
+        <method name="ToggleAot">
+          <arg name="ontop" type="b" direction="in"/>
+        </method>
+        <method name="GetInfo">
+          <arg name="rate" type="i" direction="out"/>
+          <arg name="freq" type="i" direction="out"/>
+          <arg name="nch" type="i" direction="out"/>
+        </method>
+        <method name="QueueGetQueuePos">
+          <arg name="pos" type="u" direction="in"/>
+          <arg name="qpos" type="u" direction="out"/>
+        </method>
+        <method name="QueueGetListPos">
+          <arg name="qpos" type="u" direction="in"/>
+          <arg name="pos" type="u" direction="out"/>
+        </method>
+        <method name="Activate"/>
+        <method name="PlayPause"/>
+        <method name="ShowFilebrowser">
+          <arg name="show" type="b" direction="in"/>
+        </method>
+        <method name="ShowJtfBox">
+          <arg name="show" type="b" direction="in"/>
+        </method>
+        <method name="ShowAboutBox">
+          <arg name="show" type="b" direction="in"/>
+        </method>
+        <method name="ShowPrefsBox">
+          <arg name="show" type="b" direction="in"/>
+        </method>
+        <method name="ToggleShuffle"/>
+        <method name="Shuffle">
+          <arg name="is_shuffle" type="b" direction="out"/>
+        </method>
+        <method name="ToggleRepeat">
+        </method>
+        <method name="Repeat">
+          <arg name="is_repeat" type="b" direction="out"/>
+        </method>
+        <method name="ToggleAutoAdvance">
+        </method>
+        <method name="AutoAdvance">
+          <arg name="is_advance" type="b" direction="out"/>
+        </method>
+        <method name="Clear">
+        </method>
+        <method name="Delete">
+          <arg name="pos" type="u" direction="in"/>
+        </method>
+        <method name="AddUrl">
+          <arg name="url" type="s" direction="in"/>
+        </method>
+        <method name="Add">
+          <arg name="file" type="s" direction="in"/>
+        </method>
+        <method name="Jump">
+          <arg name="pos" type="u" direction="in"/>
+        </method>
+        <method name="SongTuple">
+          <arg name="pos" type="u" direction="in"/>
+          <arg name="tuple" type="s" direction="in"/>
+          <arg name="value" type="v" direction="out"/>
+        </method>
+        <method name="SongFrames">
+          <arg name="pos" type="u" direction="in"/>
+          <arg name="length" type="i" direction="out"/>
+        </method>
+        <method name="SongLength">
+          <arg name="pos" type="u" direction="in"/>
+          <arg name="length" type="i" direction="out"/>
+        </method>
+        <method name="SongFilename">
+          <arg name="pos" type="u" direction="in"/>
+          <arg name="filename" type="s" direction="out"/>
+        </method>
+        <method name="SongTitle">
+          <arg name="pos" type="u" direction="in"/>
+          <arg name="title" type="s" direction="out"/>
+        </method>
+        <method name="Length">
+          <arg name="length" type="i" direction="out"/>
+        </method>
+        <method name="Reverse"/>
+        <method name="Advance"/>
+        <method name="Position">
+          <arg name="pos" type="u" direction="out"/>
+        </method>
+        <method name="Balance">
+          <arg name="balance" type="i" direction="out"/>
+        </method>
+        <method name="SetVolume">
+          <arg name="vl" type="i" direction="in"/>
+          <arg name="vr" type="i" direction="in"/>
+        </method>
+        <method name="Volume">
+          <arg name="vl" type="i" direction="out"/>
+          <arg name="vr" type="i" direction="out"/>
+        </method>
+        <method name="Seek">
+          <arg name="pos" type="u" direction="in"/>
+        </method>
+        <method name="Time">
+          <arg name="time" type="u" direction="out"/>
+        </method>
+        <method name="Info">
+          <arg name="rate" type="i" direction="out"/>
+          <arg name="freq" type="i" direction="out"/>
+          <arg name="nch" type="i" direction="out"/>
+        </method>
+        <method name="Status">
+          <arg name="status" type="s" direction="out"/>
+        </method>
+        <method name="Stopped">
+          <arg name="is_stopped" type="b" direction="out"/>
+        </method>
+        <method name="Paused">
+          <arg name="is_paused" type="b" direction="out"/>
+        </method>
+        <method name="Playing">
+          <arg name="is_playing" type="b" direction="out"/>
+        </method>
+        <method name="Stop"/>
+        <method name="Pause"/>
+        <method name="Play"/>
+        <method name="GetTupleFields">
+          <arg name="fields" type="as" direction="out"/>
+        </method>
+        <method name="ShowPlaylist">
+          <arg name="show" type="b" direction="in"/>
+        </method>
+        <method name="PlaylistVisible">
+          <arg name="is_pl_win" type="b" direction="out"/>
+        </method>
+        <method name="ShowEqualizer">
+          <arg name="show" type="b" direction="in"/>
+        </method>
+        <method name="EqualizerVisible">
+          <arg name="is_eq_win" type="b" direction="out"/>
+        </method>
+        <method name="ShowMainWin">
+          <arg name="show" type="b" direction="in"/>
+        </method>
+        <method name="MainWinVisible">
+          <arg name="is_main_win" type="b" direction="out"/>
+        </method>
+        <method name="Eject"/>
+        <method name="Quit"/>
+        <method name="Version">
+          <arg name="version" type="s" direction="out"/>
+        </method>
+      </interface>
+  </node>
+</node>

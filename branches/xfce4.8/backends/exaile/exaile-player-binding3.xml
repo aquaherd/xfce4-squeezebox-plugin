@@ -1,0 +1,47 @@
+<node name="/org/exaile/Exaile">
+  <interface name="org.exaile.Exaile">
+    <method name="StopAfterCurrent" />
+    <method name="Play" />
+    <method name="GetVolume">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="CurrentPosition">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="Stop" />
+    <method name="SetTrackAttr">
+      <arg direction="in"  type="s" name="attr" />
+      <arg direction="in"  type="v" name="value" />
+    </method>
+    <method name="Next" />
+    <method name="Enqueue">
+      <arg direction="in"  type="as" name="filenames" />
+    </method>
+    <method name="ChangeVolume">
+      <arg direction="in"  type="i" name="value" />
+    </method>
+    <method name="PlayFile">
+      <arg direction="in"  type="s" name="filename" />
+    </method>
+    <method name="PlayPause" />
+    <method name="TestService">
+      <arg direction="in"  type="s" name="arg" />
+    </method>
+    <method name="IsPlaying">
+      <arg direction="out" type="b" />
+    </method>
+    <method name="GetTrackAttr">
+      <arg direction="in"  type="s" name="attr" />
+    </method>
+    <method name="Query">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="GetVersion">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="Prev" />
+    <method name="CurrentProgress">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+</node>

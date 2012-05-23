@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires libxfce4ui 4.5 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="XfceTitledDialog" id="mpdSettings">
+    <property name="title" translatable="yes">MPD</property>
+    <property name="icon">mpd.png</property>
+    <property name="type_hint">normal</property>
+    <property name="subtitle" translatable="yes">music player daemon</property>
+    <signal name="response" handler="on_mpdSettings_response"/>    
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox1">
+        <property name="visible">True</property>
+        <property name="spacing">2</property>
+        <child>
+          <object class="GtkVBox" id="vbox1">
+            <property name="visible">True</property>
+            <property name="spacing">5</property>
+            <child>
+              <object class="GtkCheckButton" id="chkUseDefault">
+                <property name="label" translatable="yes">Use _defaults</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="draw_indicator">True</property>
+                <signal name="toggled" handler="on_chkUseDefault_toggled"/>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkTable" id="table1">
+                <property name="visible">True</property>
+                <property name="n_rows">3</property>
+                <property name="n_columns">2</property>
+                <property name="row_spacing">3</property>
+                <child>
+                  <object class="GtkEntry" id="entryHost">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">●</property>
+                    <property name="text" translatable="yes">localhost</property>
+                    <signal name="changed" handler="on_entryHost_changed"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="labelHost">
+                    <property name="visible">True</property>
+                    <property name="xalign">1</property>
+                    <property name="xpad">5</property>
+                    <property name="label" translatable="yes">_Host:</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="labelPort">
+                    <property name="visible">True</property>
+                    <property name="xalign">1</property>
+                    <property name="xpad">5</property>
+                    <property name="label" translatable="yes">_Port:</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="labelPassword">
+                    <property name="visible">True</property>
+                    <property name="xalign">1</property>
+                    <property name="xpad">5</property>
+                    <property name="label" translatable="yes">Pass_word:</property>
+                    <property name="use_underline">True</property>
+                  </object>
+                  <packing>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="entryPassword">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="visibility">False</property>
+                    <property name="invisible_char">●</property>
+                    <property name="truncate_multiline">True</property>
+                    <signal name="changed" handler="on_entryPassword_changed"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="spinPort">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">●</property>
+                    <property name="caps_lock_warning">False</property>
+                    <property name="adjustment">adjustmentPort</property>
+                    <property name="climb_rate">1</property>
+                    <signal name="value_changed" handler="on_spinPort_value_changed"/>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                    <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="padding">5</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="chkUseFolder">
+                <property name="label" translatable="yes">Use MPD Music _folder as cover source</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="draw_indicator">True</property>
+                <signal name="toggled" handler="on_chkUseFolder_toggled"/>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFileChooserButton" id="chooserDirectory">
+                <property name="visible">True</property>
+                <property name="action">select-folder</property>
+                <property name="create_folders">False</property>
+                <property name="local_only">False</property>
+                <signal name="current_folder_changed" handler="on_chooserDirectory_current_folder_changed"/>
+              </object>
+              <packing>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="chkUseListManager">
+                <property name="label" translatable="yes">Use a playlist _manager</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="draw_indicator">True</property>
+                <signal name="toggled" handler="on_chkUseListManager_toggled"/>
+              </object>
+              <packing>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBoxEntry" id="comboListManager">
+                <property name="visible">True</property>
+                <property name="model">listManagers</property>
+                <property name="text_column">0</property>
+              </object>
+              <packing>
+                <property name="position">5</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="padding">5</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="btnClose">
+                <property name="label">gtk-close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">btnClose</action-widget>
+    </action-widgets>
+  </object>
+  <object class="GtkListStore" id="listManagers">
+    <columns>
+      <!-- column-name manager -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkAdjustment" id="adjustmentPort">
+    <property name="value">6600</property>
+    <property name="lower">1</property>
+    <property name="upper">65535</property>
+    <property name="step_increment">1</property>
+  </object>
+</interface>

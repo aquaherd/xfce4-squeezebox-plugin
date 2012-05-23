@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<node name="/org/silentblade/decibel/remoteobject">
+  <interface name="org.silentblade.decibel.remoteinterface">
+    <method name="sendMsg">
+      <arg direction="in"  type="u" name="msg" />
+      <arg direction="in"  type="as" name="params" />
+      <arg direction="out" type="b" />
+    </method>
+  </interface>
+</node>
+

@@ -1,0 +1,59 @@
+Name:		xfce4-squeezebox-plugin
+Version:	@VER@
+Release:	0.@REV@%{?dist}
+Summary:	Versatile media player remote plugin for the Xfce panel
+
+Group:		User Interface/Desktops
+License:	GPLv2
+URL:		http://goodies.xfce.org/
+Source:		http://goodies.xfce.org/releases/%{name}/%{name}-%{version}.tar.gz
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+BuildRequires:	xfce4-panel-devel >= 4.6, libxfcegui4-devel >= 4.6, xfconf-devel > 4.6
+BuildRequires:	gettext
+# install libXt for modular X
+%if "%fedora" > "4"
+BuildRequires:	libXt-devel
+%endif
+Provides: xfce4-squeezebox-plugin = %{version}
+Obsoletes: xfce4-squeezebox-plugin <= %{version}
+Requires:	xfce4-panel >= 4.6
+Requires:	xfconf >= 4.6
+ 
+%description
+Media player control plugin for the Xfce panel
+Remote control rhythmbox, mpd, quodlibet and xfmedia 
+from the panel. Show album art popups and have media key
+response.
+
+%prep
+%setup -q
+
+%build
+%configure --disable-static
+make %{?_smp_mflags}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
+%find_lang %{name} || :
+
+%post
+touch --no-create %{_datadir}/icons/hicolor || :
+%{_bindir}/gtk-update-icon-cache --quiet %{_datadir}/icons/hicolor || :
+
+%postun
+touch --no-create %{_datadir}/icons/hicolor || :
+%{_bindir}/gtk-update-icon-cache --quiet %{_datadir}/icons/hicolor || :
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files -f %{name}.lang
+%defattr(-,root,root,-)
+%doc AUTHORS COPYING NEWS ChangeLog README THANKS TODO
+%{_libexecdir}/xfce4/panel-plugins/%{name}
+%{_libexecdir}/xfce4/%{name}
+%{_datadir}/xfce4/panel-plugins/*.desktop
+#%{_datadir}/icons/hicolor/*/apps/xfce*-*.png
+#%{_datadir}/icons/hicolor/*/apps/xfce*-*.svg

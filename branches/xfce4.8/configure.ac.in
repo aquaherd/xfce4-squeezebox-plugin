@@ -1,0 +1,237 @@
+dnl configure.ac
+dnl
+dnl xfce4-squeezebox-plugin - squeezebox plugin for the Xfce4 panel
+dnl
+
+
+m4_define([squeeze_version_major], [0])
+m4_define([squeeze_version_minor], [1])
+m4_define([squeeze_version_micro], [2])
+m4_define([squeeze_version_build], [r@REVISION@])
+m4_define([squeeze_version_tag], [])
+m4_define([squeeze_vers], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()])
+m4_define([squeeze_version], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()ifelse(squeeze_version_tag(), [svn], [squeeze_version_tag()-squeeze_version_build()], [squeeze_version_tag()])])
+AC_INIT([xfce4-squeezebox-plugin],[squeeze_version],[hakan@erduman.de])
+
+AM_INIT_AUTOMAKE([xfce4-squeezebox-plugin], [squeeze_version])
+
+# Use AM_SILENT_RULES if present
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
+AC_CONFIG_HEADER([config.h])
+
+AM_MAINTAINER_MODE
+dnl Check for UNIX variants
+AC_USE_SYSTEM_EXTENSIONS
+AC_SEARCH_LIBS([strerror],[cposix])
+
+dnl Check for basic programs
+AM_PROG_CC_C_O
+AC_PROG_INSTALL
+IT_PROG_INTLTOOL
+LT_INIT
+
+dnl Check for standard header files
+AC_HEADER_STDC
+
+dnl Check for X11 installed
+XDT_CHECK_LIBX11_REQUIRE()
+
+GETTEXT_PACKAGE=xfce4-squeezebox-plugin
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define to the Gettext package name])
+
+AM_GLIB_GNU_GETTEXT
+
+dnl Check for required packages
+XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.8.0])
+XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.8.0])
+XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-1], [4.8.0])
+XDT_CHECK_PACKAGE([GTK], [gtk+-2.0], [2.14.0])
+XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.22])
+XDT_CHECK_PACKAGE([DBUS], [dbus-1], [1.0.0])
+XDT_CHECK_PACKAGE([DBUS_GLIB], [dbus-glib-1], [0.73])
+XDT_CHECK_PACKAGE([LIBXFCONF], [libxfconf-0], [4.8.0])
+XDT_CHECK_PACKAGE([LIBEXO], [exo-1], [0.6.0])
+
+dnl check for gvfs presence
+PKG_CHECK_MODULES([LIBGIO], 
+	[gio-unix-2.0 >= 2.16.6],
+	have_gio=yes,
+	have_gio=no)
+if test x$have_gio = xyes ; then
+	AC_DEFINE(HAVE_GIO, 1, [Define if having gio-unix-2.0])
+	AC_SUBST([LIBGIO_CFLAGS])
+	AC_SUBST([LIBGIO_LIBS])
+fi
+
+dnl Checking for id3tag
+LIBID3TAG_FOUND="no"
+XDT_CHECK_OPTIONAL_PACKAGE([LIBID3TAG],
+                       [id3tag], [0.15],
+                       [id3tag], 
+                       [id3tag library], [yes])
+
+dnl Checking for libindicator
+LIBINDICATE_FOUND="no"
+XDT_CHECK_OPTIONAL_PACKAGE([LIBINDICATE],
+                       [indicate-0.5], [0.5.0],
+                       [indicate],
+                       [indicate library], [yes])
+
+dnl Checking for libindicator
+LIBZEITGEIST_FOUND="no"
+XDT_CHECK_OPTIONAL_PACKAGE([LIBZEITGEIST],
+                       [zeitgeist-1.0], [0.3.10],
+                       [zeitgeist],
+                       [zeitgeist library], [yes])
+
+dnl Checking for libwnck
+XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.14.3])
+AC_SUBST([LIBWNCK_CFLAGS])
+AC_SUBST([LIBWNCK_LIBS])
+
+dnl Checking for libgthread
+XDT_CHECK_PACKAGE([LIBGTHREAD], [gthread-2.0], [2.16.6])
+AC_SUBST([LIBGTHREAD_CFLAGS])
+AC_SUBST([LIBGTHERAD_LIBS])
+
+
+dnl Add backends here
+AC_ARG_ENABLE(rhythmbox,[  --disable-rhythmbox     disable rhythmbox support (default: enable)],[enable_rhythmbox=$enableval],[enable_rhythmbox=yes])
+if test x$enable_rhythmbox = xyes; then
+	AC_DEFINE(HAVE_BACKEND_RHYTHMBOX,1,[Define to use rhythmbox])
+	AC_CONFIG_FILES([backends/rhythmbox/Makefile])
+	subdirs="$subdirs rhythmbox"
+fi
+
+AC_ARG_ENABLE(MPD,[  --disable-MPD           disable MPD support (default: enable)],[enable_MPD=$enableval],[enable_MPD=yes])
+if test x$enable_MPD = xyes; then
+	AC_DEFINE(HAVE_BACKEND_MPD,1,[Define to use MPD])
+	AC_CONFIG_FILES([backends/mpd/Makefile])
+	subdirs="$subdirs mpd"
+fi
+
+AC_ARG_ENABLE(quodlibet,[  --disable-quodlibet           disable QuodLibet support (default: enable)],[enable_quodlibet=$enableval],[enable_quodlibet=yes])
+if test x$enable_quodlibet = xyes; then
+	AC_DEFINE(HAVE_BACKEND_QUODLIBET,1,[Define to use QL])
+	AC_CONFIG_FILES([backends/quodlibet/Makefile])
+	subdirs="$subdirs quodlibet"
+fi
+
+AC_ARG_ENABLE(audacious,[  --disable-audacious     disable audacious support (default: enable)],[enable_audacious=$enableval],[enable_audacious=yes])
+if test x$enable_audacious = xyes; then
+	AC_DEFINE(HAVE_BACKEND_AUDACIOUS,1,[Define to use audacious])
+	AC_CONFIG_FILES([backends/audacious/Makefile])
+	subdirs="$subdirs audacious"
+fi
+
+AC_ARG_ENABLE(exaile,[  --disable-exaile     disable exaile support (default: enable)],[enable_exaile=$enableval],[enable_exaile=yes])
+if test x$enable_exaile = xyes; then
+	AC_DEFINE(HAVE_BACKEND_EXAILE,1,[Define to use exaile])
+	AC_CONFIG_FILES([backends/exaile/Makefile])
+	subdirs="$subdirs exaile"
+fi
+
+AC_ARG_ENABLE(consonance,[  --disable-consonance     disable consonance support (default: enable)],[enable_consonance=$enableval],[enable_consonance=yes])
+if test x$enable_consonance = xyes; then
+	AC_DEFINE(HAVE_BACKEND_CONSONANCE,1,[Define to use consonance])
+	AC_CONFIG_FILES([backends/consonance/Makefile])
+	subdirs="$subdirs consonance"
+fi
+
+AC_ARG_ENABLE(pragha,[  --disable-pragha     disable pragha support (default: enable)],[enable_pragha=$enableval],[enable_pragha=yes])
+if test x$enable_pragha = xyes; then
+	AC_DEFINE(HAVE_BACKEND_PRAGHA,1,[Define to use pragha])
+	AC_CONFIG_FILES([backends/pragha/Makefile])
+	subdirs="$subdirs pragha"
+fi
+
+AC_ARG_ENABLE(muine,[  --disable-muine     disable Muine support (default: enable)],[enable_muine=$enableval],[enable_muine=yes])
+if test x$enable_muine = xyes; then
+	AC_DEFINE(HAVE_BACKEND_MUINE,1,[Define to use Muine])
+	AC_CONFIG_FILES([backends/muine/Makefile])
+	subdirs="$subdirs muine"
+fi
+
+AC_ARG_ENABLE(banshee,[  --disable-banshee     disable Banshee support (default: enable)],[enable_banshee=$enableval],[enable_banshee=yes])
+if test x$enable_banshee = xyes; then
+	AC_DEFINE(HAVE_BACKEND_BANSHEE,1,[Define to use Banshee])
+	AC_CONFIG_FILES([backends/banshee/Makefile])
+	subdirs="$subdirs banshee"
+fi
+
+dnl Check for debugging support
+XDT_FEATURE_DEBUG()
+AC_ARG_ENABLE(debug_trace,[  --enable-debug_trace     disable trace support (default: disable)],[enable_debug_trace=$enableval],[enable_debug_trace=no])
+if test x$enable_debug_trace = xyes; then
+    AC_DEFINE([DEBUG_TRACE], [1], [Set this to 1 to enable full trace debugging.])
+fi
+
+AM_PATH_GLIB_2_0(2.22.0,,AC_MSG_ERROR([
+*** GLib 2.22 is required to build xfce4-squeezebox-plugin; please make sure you have the
+*** GLib development headers installed. The latest version of GLib is always
+*** available at http://www.gtk.org/.]))
+AC_SUBST(GLIB_LIBS)
+AC_SUBST(GLIB_CFLAGS)
+
+dnl Check for xfconf
+XDT_CHECK_PACKAGE([LIBXFCONF], [libxfconf-0], [4.6.0])
+AC_SUBST([LIBXFCONF_LIBS])
+AC_SUBST([LIBXFCONF_CFLAGS])
+
+dnl Check for i18n support
+XDT_I18N([@LINGUAS@])
+
+dnl indented to fool intltool-update
+	VER=squeeze_vers
+	REV=squeeze_version_build
+	VERMAJOR=squeeze_version_major
+	VERMINOR=squeeze_version_minor
+	VERMICRO=squeeze_version_micro
+
+dnl Package build
+AC_SUBST([VER])
+AC_SUBST([REV])
+AC_SUBST([VERMAJOR])
+AC_SUBST([VERMINOR])
+AC_SUBST([VERMICRO])
+
+dnl PATH defines
+PATH_DEFINES='-DBACKENDDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/backends\"" -DGLADEDIR="\"$(libdir)/xfce4/xfce4-squeezebox-plugin/glade\""'
+AC_SUBST([PATH_DEFINES])
+AC_SUBST([subdirs])
+
+AC_CONFIG_FILES([
+	Makefile
+	glade/Makefile
+	panel-plugin/Makefile
+	po/Makefile.in
+	backends/Makefile
+	redhat/Makefile
+	redhat/xfce4-squeezebox-plugin.spec
+])
+
+AC_OUTPUT
+
+echo ""
+echo "########### SqueezeBox CONFIGURATION ############"
+echo ""
+echo " ID3 tag support ...............$LIBID3TAG_FOUND"
+echo " Sound menu support ............$LIBINDICATE_FOUND"
+echo " Zeitgeist support .............$LIBZEITGEIST_FOUND"
+echo ""
+echo "----------- SqueezeBox Backends -----------------"
+echo ""
+echo " rhythmbox support .............$enable_rhythmbox"
+echo " MPD support ...................$enable_MPD"
+echo " QuodLibet support .............$enable_quodlibet"
+echo " audacious support .............$enable_audacious"
+echo " exaile support ................$enable_exaile"
+echo " consonance support ............$enable_consonance"
+echo " Muine support .................$enable_muine"
+echo " Banshee support ...............$enable_banshee"
+echo " pragha support ................$enable_pragha"
+echo ""
+echo "Version: $VER.$REV"
+echo ""

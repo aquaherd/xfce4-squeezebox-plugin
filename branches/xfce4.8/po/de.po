@@ -1,0 +1,320 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: xfce4-squeezebox-plugin-0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-08-06 00:31+0200\n"
+"PO-Revision-Date: 2010-08-06 00:32+0100\n"
+"Last-Translator: Hakan Erduman <hakan.erduman@web.de>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: Germany\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-Basepath: /home/herd/Projects/xfce4-squeezebox-plugin/trunk/po\n"
+"X-Poedit-SearchPath-0: ../panel-plugin\n"
+
+#: ../backends/rhythmbox/squeezebox-rb.c:61
+msgid "Rhythmbox"
+msgstr "Rhythmbox"
+
+#: ../backends/quodlibet/squeezebox-ql.c:70
+msgid "QuodLibet"
+msgstr "QuodLibet"
+
+#: ../backends/quodlibet/squeezebox-ql.c:109
+msgid "[Unknown]"
+msgstr "[unbekannt]"
+
+#: ../backends/muine/squeezebox-mu.c:51
+msgid "Muine"
+msgstr "Muine"
+
+#: ../backends/mpd/squeezebox-mpd.c:83
+msgid "Music Player Daemon"
+msgstr "Music Player Daemon"
+
+#: ../backends/mpd/squeezebox-mpd.c:356
+#, c-format
+msgid "Can't find binary '%s'"
+msgstr "Kann Anwendung '%s' nicht finden"
+
+#: ../backends/mpd/settings-mpd.ui.h:1
+msgid "MPD"
+msgstr "MPD"
+
+#: ../backends/mpd/settings-mpd.ui.h:2
+msgid "Pass_word:"
+msgstr "Pass_wort:"
+
+#: ../backends/mpd/settings-mpd.ui.h:3
+msgid "Properties"
+msgstr "Eigenschaften"
+
+#: ../backends/mpd/settings-mpd.ui.h:4
+msgid "Use MPD Music _folder as cover source"
+msgstr "Verwende MPD Musik-Ordner als Cover-Quelle"
+
+#: ../backends/mpd/settings-mpd.ui.h:5
+msgid "Use _defaults"
+msgstr "Verwen_de Vorgaben"
+
+#: ../backends/mpd/settings-mpd.ui.h:6
+msgid "Use a playlist _manager"
+msgstr "Einen Widergabelisten-Manager verwenden"
+
+#: ../backends/mpd/settings-mpd.ui.h:7
+msgid "_Host:"
+msgstr "_Host:"
+
+#: ../backends/mpd/settings-mpd.ui.h:8
+msgid "_Port:"
+msgstr "_Port:"
+
+#: ../backends/mpd/settings-mpd.ui.h:9
+msgid "localhost"
+msgstr "localhost"
+
+#: ../backends/mpd/settings-mpd.ui.h:10
+msgid "music player daemon"
+msgstr "music player daemon"
+
+#: ../backends/consonance/squeezebox-cs.c:70
+msgid "Consonance"
+msgstr "Consonance"
+
+#: ../backends/exaile/squeezebox-ex.c:66
+msgid "Exaile"
+msgstr "Exaile"
+
+#: ../backends/audacious/squeezebox-au.c:53
+msgid "Audacious"
+msgstr "Audacious"
+
+#: ../backends/banshee/squeezebox-ba.c:64
+msgid "Banshee"
+msgstr "Banshee"
+
+#: ../panel-plugin/squeezebox.c:468
+#, c-format
+msgid "%s: No info"
+msgstr "%s: Keine Info"
+
+#: ../panel-plugin/squeezebox.c:700
+msgid "This backend has no configurable properties"
+msgstr "Dieses backend hat keine konfigurierbaren Eigenschaften"
+
+#: ../panel-plugin/squeezebox.c:1406
+#: ../panel-plugin/squeezebox.c:1407
+#: ../panel-plugin/squeezebox.c:1408
+msgid "(unknown)"
+msgstr "(unbekannt)"
+
+#. add menu items
+#: ../panel-plugin/squeezebox.c:1484
+msgid "Show player"
+msgstr "Player _anzeigen"
+
+#: ../panel-plugin/squeezebox.c:1492
+msgid "Show song"
+msgstr "Titel anzeigen"
+
+#: ../panel-plugin/squeezebox.c:1500
+msgid "Playlists"
+msgstr "Wiedergabelisten"
+
+#: ../panel-plugin/squeezebox.c:1507
+msgid "Shuffle"
+msgstr "Zufall"
+
+#: ../panel-plugin/squeezebox.c:1515
+msgid "Repeat"
+msgstr "Wiederholen"
+
+#: ../panel-plugin/notifications.c:58
+#, c-format
+msgid ""
+"by <b>%s</b>\n"
+"from <i>%s</i>"
+msgstr ""
+"von <b>%s</b>\n"
+"Album <i>%s</i>"
+
+#: ../panel-plugin/squeezebox.desktop.in.in.h:1
+msgid " Control various audio players; display album art"
+msgstr " Fernbedienung für verschiedene Medien-Spieler; Anzeige von Album-Covern"
+
+#: ../panel-plugin/squeezebox.desktop.in.in.h:2
+msgid " SqueezeBox"
+msgstr " SqueezeBox"
+
+#: ../panel-plugin/squeezebox.desktop.in.in.h:3
+msgid "Music Player"
+msgstr "Musik-Player"
+
+#: ../glade/settings.ui.h:1
+msgid "<b>Notifications</b>"
+msgstr "<b>Meldungen</b>"
+
+#: ../glade/settings.ui.h:2
+msgid "<b>Panel appereance</b>"
+msgstr "<b>Erscheinungsbild Leiste</b>"
+
+#: ../glade/settings.ui.h:3
+msgid "A_ppearance"
+msgstr "Erscheinungs_bild"
+
+#: ../glade/settings.ui.h:4
+msgid "Action"
+msgstr "Aktion"
+
+#: ../glade/settings.ui.h:5
+msgid "Au_tomatically attach to these players"
+msgstr "Au_tomatisch an diese Player verbinden"
+
+#: ../glade/settings.ui.h:6
+msgid "Next"
+msgstr "Nächstes"
+
+#: ../glade/settings.ui.h:7
+msgid "Notification _timeout (sec)"
+msgstr "Timeout Benachrich_tigung (Sek.)"
+
+#: ../glade/settings.ui.h:8
+msgid "Play/Pause"
+msgstr "Wiedergabe/Pause"
+
+#: ../glade/settings.ui.h:9
+msgid "Players"
+msgstr "Spieler"
+
+#: ../glade/settings.ui.h:10
+msgid "Popup notification"
+msgstr "Benachrichtigung anzeigen"
+
+#: ../glade/settings.ui.h:11
+msgid "Previous"
+msgstr "Vorheriges"
+
+#: ../glade/settings.ui.h:12
+msgid "S_hortcuts"
+msgstr "Tasten_kürzel"
+
+#: ../glade/settings.ui.h:13
+msgid "Shortcut"
+msgstr "Tastenkürzel"
+
+#: ../glade/settings.ui.h:14
+msgid "Show P_revious button"
+msgstr "Zeige Schaltfläche _Zurück"
+
+#: ../glade/settings.ui.h:15
+msgid "Show Player"
+msgstr "Player _anzeigen"
+
+#: ../glade/settings.ui.h:16
+msgid "Show _Next button"
+msgstr "Zeige Schaltfläche _weiter"
+
+#: ../glade/settings.ui.h:17
+msgid "Show _Tooltips"
+msgstr "Kurzhilfen anzeigen"
+
+#: ../glade/settings.ui.h:18
+msgid "Show noti_fications (e.g. xfce4-notifyd)"
+msgstr "Zeige Benachrichtigungen (noti_fy Dämon)"
+
+#: ../glade/settings.ui.h:19
+msgid "SqueezeBox"
+msgstr "SqueezeBox"
+
+#: ../glade/settings.ui.h:20
+msgid "Stop"
+msgstr "Stop"
+
+#: ../glade/settings.ui.h:21
+msgid "_Players"
+msgstr "Spieler"
+
+#: ../glade/settings.ui.h:22
+msgid "media player remote"
+msgstr "Medien-Spieler Fernbedienung"
+
+#: ../glade/mpris-wizard.ui.h:1
+msgid "Add Music Player"
+msgstr "Musik-Player hinzufügen"
+
+#: ../glade/mpris-wizard.ui.h:2
+msgid "Adding an MPRIS compatible player"
+msgstr "Einen MPRIS-kompatiblen Player hinzufügen"
+
+#: ../glade/mpris-wizard.ui.h:3
+msgid "New Media Player"
+msgstr "Neuen Medien-Player hinzufügen"
+
+#: ../glade/mpris-wizard.ui.h:4
+msgid ""
+"This wizard adds a MPRIS compatible media player \n"
+"to the list of SqueezeBox controllable backends.\n"
+"\n"
+"MPRIS is the 'Media Player Remote Interfacing Specification'.\n"
+"See <a herf=\"http://wiki.xmms2.xmms.se/wiki/MPRIS\" here/> for details.\n"
+"\n"
+"If your player does not support the MPRIS interfaces \n"
+"by itself, it may have a plugin that does.\n"
+msgstr ""
+"Dieser Assistent fügt einen MPRIS-kompatiblen Medien-\n"
+"Spieler zur Liste der kontrollierbaren Backends hinzu,\n"
+"\n"
+"MPRIS ist die 'Media Player Remote Interfacing Specification'.\n"
+"Siehe <a href=\"http://wiki.xmms2.xmms.se/wiki/MPRIS\" hier/> für Details.\n"
+"\n"
+"Falls Ihr Player die MPRIS-Schnittstellen nicht von selbst unterstützt,\n"
+"kann man viellecht ein MPRIS-Plug-In aktivieren.\n"
+
+#: ../glade/mpris-wizard.ui.h:13
+msgid "label"
+msgstr "label"
+
+#~ msgid "Can't connect to music player daemon."
+#~ msgstr "Kann Verbindung zum Music Player Dämon nicht herstellen."
+#~ msgid "Media buttons"
+#~ msgstr "Medien-Tasten"
+#~ msgid "Grab state of multimedia keys"
+#~ msgstr "Zustand Medien-Tasten"
+#~ msgid "Squeezebox"
+#~ msgstr "Squeezebox"
+#~ msgid "Appearance"
+#~ msgstr "Erscheinungsbild"
+#~ msgid "Show p_revious button"
+#~ msgstr "Zeige Schaltfläche _Zurück"
+#~ msgid "Show _next button"
+#~ msgstr "Zeige Schaltfläche _weiter"
+#~ msgid "Grab _media buttons, if available"
+#~ msgstr "Nutze Medien-Tasten, wenn möglich"
+#~ msgid "_Details..."
+#~ msgstr "_Details..."
+#~ msgid "No _tooltips"
+#~ msgstr "Keine Tool_tips"
+#~ msgid "_Simple tooltips"
+#~ msgstr "_Einfache Tooltips"
+#~ msgid "Show noti_fications (notify daemon)"
+#~ msgstr "Zeige Benachrichtigungen (noti_fy Dämon)"
+#~ msgid "_Backend"
+#~ msgstr "_Backend"
+#~ msgid "_Settings..."
+#~ msgstr "Ein_stellungen..."
+#~ msgid "MPRIS Media Player"
+#~ msgstr "MPRIS-Medien-Player"
+#~ msgid "Beep Media Player"
+#~ msgstr "Beep Media Player"
+#~ msgid "Select MPD music folder"
+#~ msgstr "MPD Musik-Ordner wählen"
+#~ msgid "Rhythmbox 0.9.x (via DBUS)"
+#~ msgstr "Rhythmbox 0.9.x (über DBUS)"
+#~ msgid "Music Player Daemon (libmpd)"
+#~ msgstr "Music Player Dämon (über libmpd)"
+
