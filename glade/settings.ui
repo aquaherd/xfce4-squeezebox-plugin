@@ -459,6 +459,7 @@
                         <property name="editable">True</property>
                         <signal name="accel_edited" handler="on_cellrenderShortCut_accel_edited"/>
                         <signal name="accel_cleared" handler="on_cellrenderShortCut_accel_cleared"/>
+						<signal name="editing-started" handler="on_cellrendererShortCut_editing_started"/>
                       </object>
                       <attributes>
                         <attribute name="accel-key">1</attribute>

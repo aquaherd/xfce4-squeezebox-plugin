@@ -129,6 +129,7 @@ typedef struct SqueezeBoxData{
 
 	// shortcuts
 	gboolean grabmedia;
+	gboolean inShortcutEdit;
 	XfceShortcutsGrabber *grabber;
 	GQuark shortcuts[5];
     
@@ -181,6 +182,10 @@ EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
 		guint                 accel_key,
 		GdkModifierType       accel_mods,
 		guint                 hardware_keycode,
+		SqueezeBoxData		 *sd);
+EXPORT void on_cellrendererShortCut_editing_started(GtkCellRenderer *renderer,
+		GtkCellEditable *editable,
+		gchar           *path,
 		SqueezeBoxData		 *sd);
 		
 EXPORT void on_chkAutoAttach_toggled(GtkToggleButton *button, SqueezeBoxData * sd);

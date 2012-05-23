@@ -790,7 +790,17 @@ EXPORT void on_cellrenderShortCut_accel_cleared(GtkCellRendererAccel *accel,
 		xfconf_channel_set_string(sd->channel, path1, "");		
 		g_free(path1);
 	}
+	sd->inShortcutEdit = FALSE;	
 }
+
+EXPORT void on_cellrendererShortCut_editing_started(GtkCellRenderer *renderer,
+		GtkCellEditable *editable,
+		gchar           *path,
+		SqueezeBoxData		 *sd){
+	sd->inShortcutEdit = TRUE;
+}
+		
+
 
 EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
 		gchar                *path_string,
@@ -822,6 +832,7 @@ EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
 		g_free(path1);
 		g_free(path2);
 	}
+	sd->inShortcutEdit = FALSE;	
 }
 
 static void squeezebox_connect_signals(GtkBuilder *builder,
@@ -839,6 +850,7 @@ static void squeezebox_connect_signals(GtkBuilder *builder,
 	gboolean bFound = FALSE;
 	MAP_SIG(on_dialogSettings_response)
 	MAP_SIG(on_cellrenderShortCut_accel_edited)
+	MAP_SIG(on_cellrendererShortCut_editing_started)
 	MAP_SIG(on_cellrenderShortCut_accel_cleared)
 	MAP_SIG(on_spinNotificationTimeout_change_value)
 	MAP_SIG(on_chkShowNotifications_toggled)
@@ -1207,6 +1219,8 @@ static gboolean on_query_tooltip(GtkWidget * widget, gint x, gint y,
 }
 
 static void on_shortcutActivated(XfceShortcutsGrabber *grabber, gchar *shortcut, SqueezeBoxData *sd) {
+	if(sd->inShortcutEdit)
+		return;
 	GQuark quark = g_quark_from_string(shortcut);
 	int i;
 	LOG("Enter on_shortcutActivated %s", shortcut);
@@ -1512,6 +1526,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	sd->notifyTimeout = 5;
 	sd->notifyID = 0;
 	sd->inCreate = TRUE;
+	sd->inShortcutEdit = FALSE;
 	sd->toolTipText = g_string_new("");
 	sd->wnckScreen =
 	    wnck_screen_get(gdk_screen_get_number(gdk_screen_get_default()));
