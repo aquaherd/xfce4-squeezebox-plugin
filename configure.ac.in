@@ -133,13 +133,6 @@ if test x$enable_exaile = xyes; then
 	subdirs="$subdirs exaile"
 fi
 
-AC_ARG_ENABLE(consonance,[  --disable-consonance     disable consonance support (default: enable)],[enable_consonance=$enableval],[enable_consonance=yes])
-if test x$enable_consonance = xyes; then
-	AC_DEFINE(HAVE_BACKEND_CONSONANCE,1,[Define to use consonance])
-	AC_CONFIG_FILES([backends/consonance/Makefile])
-	subdirs="$subdirs consonance"
-fi
-
 AC_ARG_ENABLE(pragha,[  --disable-pragha     disable pragha support (default: enable)],[enable_pragha=$enableval],[enable_pragha=yes])
 if test x$enable_pragha = xyes; then
 	AC_DEFINE(HAVE_BACKEND_PRAGHA,1,[Define to use pragha])
@@ -228,7 +221,6 @@ echo " MPD support ...................$enable_MPD"
 echo " QuodLibet support .............$enable_quodlibet"
 echo " audacious support .............$enable_audacious"
 echo " exaile support ................$enable_exaile"
-echo " consonance support ............$enable_consonance"
 echo " Muine support .................$enable_muine"
 echo " Banshee support ...............$enable_banshee"
 echo " pragha support ................$enable_pragha"
