@@ -1475,8 +1475,6 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin) {
 	LOG("Enter squeezebox_construct");
 	
 	// instead of init:
-	if(!g_thread_get_initialized())
-		g_thread_init(NULL);
 	gdk_threads_init();
 	gdk_threads_enter();
 	

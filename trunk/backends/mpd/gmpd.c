@@ -541,7 +541,7 @@ gboolean g_mpd_connect(GMpd *self, const gchar* host, const int port) {
 				LOG("Error %s", priv->error->message);
 			}
 			_idle_enter(priv);
-			priv->thread = g_thread_create(_idle_thread, self, TRUE, NULL);
+			priv->thread = g_thread_new("mpdIdle", _idle_thread, self);
 			return (priv->error == NULL);
 		}
 	}

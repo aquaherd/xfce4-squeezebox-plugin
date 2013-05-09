@@ -1,6 +1,7 @@
 @SET_MAKE@
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = panel-plugin glade backends po redhat
+MAKEFLAGS=--no-print-directory --silent
 
 distclean-local:
 	rm -rf *.cache *~
