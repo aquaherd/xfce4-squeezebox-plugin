@@ -72,6 +72,7 @@ gboolean g_mpd_next(GMpd *self);
 gboolean g_mpd_previous(GMpd *self);
 gboolean g_mpd_play(GMpd *self);
 gboolean g_mpd_pause(GMpd *self);
+gboolean g_mpd_stop(GMpd *self);
 gboolean g_mpd_get_random(GMpd *self);
 gboolean g_mpd_set_random(GMpd *self, gboolean newRandow);
 gboolean g_mpd_get_repeat(GMpd *self);

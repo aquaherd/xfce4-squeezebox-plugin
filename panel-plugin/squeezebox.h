@@ -69,7 +69,8 @@ typedef struct SPlayer{
 	gboolean(* PlayPause)(gpointer thsPtr, gboolean newState);
 	gboolean(* PlayPlaylist)(gpointer thsPtr, gchar *playListName);
 	gboolean(* IsPlaying)(gpointer thsPtr);
-	gboolean(* Toggle)(gpointer thsPtr, gboolean *newState);
+   gboolean(* Toggle)(gpointer thsPtr, gboolean *newState);
+   gboolean(* Stop)(gpointer thsPtr);
 	gboolean(* Detach)(gpointer thsPtr);
     gboolean(* GetRepeat)(gpointer thsPtr);
     gboolean(* SetRepeat)(gpointer thsPtr, gboolean newShuffle);

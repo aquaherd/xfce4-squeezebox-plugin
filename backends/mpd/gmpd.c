@@ -576,6 +576,13 @@ gboolean g_mpd_pause(GMpd *self){
 
 	return _send_command_simple(priv, "pause\n");
 }
+gboolean g_mpd_stop(GMpd *self){
+   GMpdPrivate *priv;
+   g_return_val_if_fail (G_IS_MPD (self), FALSE);
+   priv = G_MPD_GET_PRIVATE(self);
+
+   return _send_command_simple(priv, "stop\n");
+}
 
 GHashTable *g_mpd_get_current_track(GMpd *self) {
 	GMpdPrivate *priv;
