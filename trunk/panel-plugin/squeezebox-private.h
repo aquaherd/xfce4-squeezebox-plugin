@@ -35,6 +35,36 @@
 	(position == XFCE_SCREEN_POSITION_NE_H) || \
 	(position == XFCE_SCREEN_POSITION_SE_H) || \
 	(position == XFCE_SCREEN_POSITION_E)
+#include "notifications.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#if HAVE_LIBID3TAG
+#include <id3tag.h>
+#endif
+#if HAVE_LIBZEITGEIST
+#include <zeitgeist.h>
+#endif
+#include <libintl.h>
+typedef enum eButtons
+{
+   ebtnPrev = 0, ebtnPlay = 1, ebtnNext = 2
+} eButtons;
+
+typedef enum eTTStyle
+{
+   ettNone = 0, ettSimple = 1,
+} eTTStyle;
+
+/* some small helpers - unused for now
+ static void lose (const char *fmt, ...) G_GNUC_NORETURN G_GNUC_PRINTF (1, 2);
+ static void lose_gerror (const char *prefix, GError *error) G_GNUC_NORETURN;
+ */
+#define MKTHIS SqueezeBoxData *sd = (SqueezeBoxData *) thsPlayer
+
+/* internal functions */
+#define UNSET(t) sd->player.t = NULL
+
 
 
 static
@@ -208,6 +238,10 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin);
 const Backend* squeezebox_get_backends();
 const Backend* squeezebox_get_current_backend(SqueezeBoxData * sd);
 const Backend *squeezebox_load_backend(SqueezeBoxData * sd, const gchar *name);
+void squeezebox_write_rc_file(XfcePanelPlugin * plugin, SqueezeBoxData * sd);
+void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name);
+gboolean squeezebox_set_size(XfcePanelPlugin * plugin, int size,
+      SqueezeBoxData * sd);
 
 #endif
 
