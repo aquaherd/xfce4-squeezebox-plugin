@@ -188,14 +188,26 @@ static gboolean mpdNext(gpointer thsPtr) {
 
 static gboolean mpdPrevious(gpointer thsPtr) {
 	MKTHIS;
-	gboolean bRet = FALSE;
+	gboolean bRet;
 	LOG("Enter mpdPrevious");
 	if (!mpdAssure(thys, TRUE))
-		return FALSE;
+	   bRet = FALSE;
 	else
 		bRet = g_mpd_previous(thys->gmpd);
 	LOG("Leave mpdPrevious");
-	return TRUE;
+	return bRet;
+}
+
+static gboolean mpdStop(gpointer thsPtr) {
+   MKTHIS;
+   gboolean bRet;
+   LOG("Enter mpdStop");
+   if (!mpdAssure(thys, TRUE))
+      bRet = FALSE;
+   else
+      bRet = g_mpd_stop(thys->gmpd);
+   LOG("Leave mpdStop");
+   return bRet;
 }
 
 static gboolean mpdPlayPause(gpointer thsPtr, gboolean newState) {
@@ -567,7 +579,8 @@ gpointer MPD_attach(SPlayer * parent) {
 	MPD_MAP(PlayPlaylist);
 	MPD_MAP(IsPlaying);
 	MPD_MAP(Toggle);
-	MPD_MAP(Detach);
+   MPD_MAP(Stop);
+   MPD_MAP(Detach);
 	MPD_MAP(Persist);
 	MPD_MAP(Configure);
 	NOMAP(IsVisible);

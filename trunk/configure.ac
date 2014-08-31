@@ -9,16 +9,8 @@ dnl xfce4-squeezebox-plugin - squeezebox plugin for the Xfce4 panel
 dnl
 
 
-m4_define([squeeze_version_major], [0])
-m4_define([squeeze_version_minor], [1])
-m4_define([squeeze_version_micro], [2])
-m4_define([squeeze_version_build], [rUNKNOWN])
-m4_define([squeeze_version_tag], [])
-m4_define([squeeze_vers], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()])
-m4_define([squeeze_version], [squeeze_version_major().squeeze_version_minor().squeeze_version_micro()ifelse(squeeze_version_tag(), [svn], [squeeze_version_tag()-squeeze_version_build()], [squeeze_version_tag()])])
-AC_INIT([xfce4-squeezebox-plugin],[squeeze_version],[hakan@erduman.de])
-
-AM_INIT_AUTOMAKE([xfce4-squeezebox-plugin], [squeeze_version])
+AC_INIT([xfce4-squeezebox-plugin],[1.0.0],[hakan@erduman.de])
+AM_INIT_AUTOMAKE([silent-rules])
 
 # Use AM_SILENT_RULES if present
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
@@ -28,7 +20,6 @@ AC_CONFIG_HEADER([config.h])
 AM_MAINTAINER_MODE
 dnl Check for UNIX variants
 AC_USE_SYSTEM_EXTENSIONS
-AC_SEARCH_LIBS([strerror],[cposix])
 
 dnl Check for basic programs
 AM_PROG_CC_C_O
@@ -101,6 +92,10 @@ XDT_CHECK_PACKAGE([LIBGTHREAD], [gthread-2.0], [2.16.6])
 AC_SUBST([LIBGTHREAD_CFLAGS])
 AC_SUBST([LIBGTHERAD_LIBS])
 
+dnl Checking for keybinder
+XDT_CHECK_PACKAGE([LIBKEYBINDER], [keybinder], [0.3.0])
+AC_SUBST([LIBKEYBINDER_CFLAGS])
+AC_SUBST([LIBKEYBINDER_LIBS])
 
 dnl Add backends here
 AC_ARG_ENABLE(rhythmbox,[  --disable-rhythmbox     disable rhythmbox support (default: enable)],[enable_rhythmbox=$enableval],[enable_rhythmbox=yes])
@@ -181,13 +176,6 @@ AC_SUBST([LIBXFCONF_CFLAGS])
 dnl Check for i18n support
 XDT_I18N([de fr tr ])
 
-dnl indented to fool intltool-update
-	VER=squeeze_vers
-	REV=squeeze_version_build
-	VERMAJOR=squeeze_version_major
-	VERMINOR=squeeze_version_minor
-	VERMICRO=squeeze_version_micro
-
 dnl Package build
 AC_SUBST([VER])
 AC_SUBST([REV])
@@ -229,6 +217,4 @@ echo " exaile support ................$enable_exaile"
 echo " Muine support .................$enable_muine"
 echo " Banshee support ...............$enable_banshee"
 echo " pragha support ................$enable_pragha"
-echo ""
-echo "Version: $VER.$REV"
 echo ""

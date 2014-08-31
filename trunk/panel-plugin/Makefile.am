@@ -23,6 +23,7 @@ libxfce4_squeezebox_plugin_la_CFLAGS = \
 	$(LIBWNCK_CFLAGS) \
 	$(PATH_DEFINES) \
 	$(LIBGIO_CFLAGS) \
+	$(LIBKEYBINDER_CFLAGS) \
 	$(LIBID3TAG_CFLAGS) \
 	$(LIBZEITGEIST_CFLAGS) \
 	$(LIBXFCONF_CFLAGS)
@@ -38,6 +39,7 @@ libxfce4_squeezebox_plugin_la_LIBADD = \
 	$(LIBWNCK_LIBS) \
 	$(LIBGTHREAD_LIBS) \
 	$(LIBGIO_LIBS) \
+	$(LIBKEYBINDER_LIBS) \
 	$(LIBID3TAG_LIBS) \
 	$(LIBZEITGEIST_LIBS) \
 	$(LIBXFCONF_LIBS)
@@ -54,9 +56,7 @@ libxfce4_squeezebox_plugin_la_SOURCES = \
 	squeezebox.c \
 	notifications.c \
 	notifications.h \
-	notifications-binding.h \
-	xfce-shortcuts-grabber.c \
-	xfce-shortcuts-grabber.h
+	notifications-binding.h
 	
 
 # .desktop file

@@ -28,8 +28,7 @@
 #define EXO_API_SUBJECT_TO_CHANGE
 #include <exo/exo.h>
 #include <libxfce4ui/libxfce4ui.h>
-// have local copy until it's standardized
-#include "xfce-shortcuts-grabber.h"
+#include <keybinder.h>
 #define xfce_screen_position_is_right_ex(position) \
     (position >= XFCE_SCREEN_POSITION_NE_V && \
      position <= XFCE_SCREEN_POSITION_SE_V) || \
@@ -130,8 +129,7 @@ typedef struct SqueezeBoxData{
 	// shortcuts
 	gboolean grabmedia;
 	gboolean inShortcutEdit;
-	XfceShortcutsGrabber *grabber;
-	GQuark shortcuts[5];
+	GQuark shortcuts[7];
     
     WnckScreen *wnckScreen;
     
@@ -194,6 +192,8 @@ EXPORT void on_chkShowNext_toggled(GtkToggleButton *button, SqueezeBoxData *sd);
 EXPORT void on_chkShowToolTips_toggled(GtkToggleButton *button, SqueezeBoxData *sd);
 EXPORT void on_chkShowNotifications_toggled(GtkToggleButton *button, SqueezeBoxData *sd);
 EXPORT void on_spinNotificationTimeout_change_value(GtkSpinButton *button, SqueezeBoxData *sd);
+void on_shortcutActivated(gchar *shortcut,
+      SqueezeBoxData *sd);
 
 				
 gboolean squeezebox_grab_key(guint accel_key, guint accel_mods, SqueezeBoxData *sd);
