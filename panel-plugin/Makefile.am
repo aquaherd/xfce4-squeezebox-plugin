@@ -54,6 +54,7 @@ libxfce4_squeezebox_plugin_la_SOURCES = \
 	squeezebox.h \
 	squeezebox-private.h\
 	squeezebox.c \
+	settings.c \
 	notifications.c \
 	notifications.h \
 	notifications-binding.h
