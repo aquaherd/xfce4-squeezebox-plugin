@@ -174,7 +174,7 @@ static void _idle_cancel(GMpdPrivate *priv) {
 }
 
 static gpointer _idle_thread(gpointer user_data) {
-	GMpdPrivate *priv = g_mpd_get_instance_private((GMpd*)user_data);
+   GMpdPrivate *priv = G_MPD_GET_PRIVATE(user_data);
 	GSocket *socket = g_socket_connection_get_socket(priv->connection);
 	LOG("EnterThread");
 	while(g_socket_condition_wait(socket, G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP, NULL, NULL)) {
