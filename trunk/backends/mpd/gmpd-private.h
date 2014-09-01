@@ -26,9 +26,9 @@
 #undef G_LOG_DOMAIN
 #define G_LOG_DOMAIN "GMpd"
 #if DEBUG_TRACE
-	#define LOG g_message
+#define LOG g_message
 #else
-	#define LOG(...)
+#define LOG(...)
 #endif
 
 static GQuark G_MPD_DOMAIN;
@@ -49,7 +49,8 @@ static void _idle_enter(GMpdPrivate *priv);
 static void _idle_cancel(GMpdPrivate *priv);
 //static gboolean _idle_cb(gpointer user_data);
 static gpointer _idle_thread(gpointer user_data);
-static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...) __attribute__ ((format (printf, 2, 3)));
+static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format,
+      ...) __attribute__ ((format (printf, 2, 3)));
 static void _update_database(GMpdPrivate *priv, gchar *changeDetail);
 static void _update_player(GMpdPrivate *priv, gchar *changeDetail);
 static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail);

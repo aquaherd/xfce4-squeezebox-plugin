@@ -26,7 +26,7 @@
 #define XFCE4_SQUEEZEBOX_PLUGIN_MAIN_HEADER
 
 // stdafx.hish
-#if HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
@@ -45,96 +45,99 @@
 #define EXPORT __attribute__ ((visibility("default")))
 #define HIDDEN __attribute__ ((visibility("hidden")))
 
-typedef enum eSynoptics{
-	estPlay = 0,
-	estPause = 1,
-	estStop = 2,
-	estErr = 10
-}eSynoptics;
+typedef enum eSynoptics
+{
+   estPlay = 0, // playing
+   estPause = 1, // paused
+   estStop = 2, // stopped
+   estErr = 10 // failed
+} eSynoptics;
 
 #define NOMAP(a) parent->a = NULL
 
-typedef struct SPlayer{
-	// this is the 'API'
-	
-    // yet unused
-    gint updateRateMS;
-    gint secPos;     // Current track position in seconds
-    gint secTot;     // Current track length in seconds
-	
-	// backend implementations
-	gboolean(* Assure)(gpointer thsPtr, gboolean noCreate);
-	gboolean(* Next)(gpointer thsPtr);
-	gboolean(* Previous)(gpointer thsPtr);
-	gboolean(* PlayPause)(gpointer thsPtr, gboolean newState);
-	gboolean(* PlayPlaylist)(gpointer thsPtr, gchar *playListName);
-	gboolean(* IsPlaying)(gpointer thsPtr);
-   gboolean(* Toggle)(gpointer thsPtr, gboolean *newState);
-   gboolean(* Stop)(gpointer thsPtr);
-	gboolean(* Detach)(gpointer thsPtr);
-    gboolean(* GetRepeat)(gpointer thsPtr);
-    gboolean(* SetRepeat)(gpointer thsPtr, gboolean newShuffle);
-    gboolean(* GetShuffle)(gpointer thsPtr);
-    gboolean(* SetShuffle)(gpointer thsPtr, gboolean newShuffle);
-	gboolean(* IsVisible)(gpointer thsPtr);
-	gboolean(* Show)(gpointer thsPtr, gboolean newState);
-    gboolean(* UpdateDBUS)(gpointer thsPtr, const gchar *name, gboolean appeared);
-	void(* Persist)(gpointer thsPtr, gboolean bIsStoring);
-	void(* Configure)(gpointer thsPtr, GtkWidget *parent);
-	void(* UpdateWindow)(gpointer thsPtr, WnckWindow *window, gboolean appeared);
-	
-	// data provided by backend
-	GString *artist;
-	GString *album;
-	GString *title;
-	GString *albumArt;  	// path to image file
-	GString *path;			// full path to song (optional)
-	GHashTable *playLists; 	// Playlistname:State
-	
-	// backend "this" pointer, first param of above functions
-	gpointer db;
-	
-	
-    // frontend "this" pointer
-	gpointer sd;
+typedef struct SPlayer
+{
+   // this is the 'API'
 
-    // frontend globals
-	DBusGConnection *bus;
-    DBusGProxy		*dbService;
-	gint playerPID;
+   // yet unused
+   gint updateRateMS;
+   gint secPos; // Current track position in seconds
+   gint secTot; // Current track length in seconds
 
-	// frontend callbacks
-    gboolean(* StartService)(gpointer thsPlayer, const gchar* serviceName);
-    gboolean(* IsServiceRunning)(gpointer thsPlayer, const gchar* dbusName);
-	void(* Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State, 
-                   const gchar* playerMessage);
-    void(* UpdatePlaylists)(gpointer thsPlayer);
-    void(* UpdateRepeat)(gpointer thsPlayer, gboolean newRepeat);
-    void(* UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
-    void(* UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
-    void(* AddSubItem)(gpointer thsPlayer, gpointer newPlayer);
-    void(* FindAlbumArtByFilePath)(gpointer thsPlayer, const gchar * path);
-}SPlayer;
+   // backend implementations
+   gboolean (*Assure)(gpointer thsPtr, gboolean noCreate);
+   gboolean (*Next)(gpointer thsPtr);
+   gboolean (*Previous)(gpointer thsPtr);
+   gboolean (*PlayPause)(gpointer thsPtr, gboolean newState);
+   gboolean (*PlayPlaylist)(gpointer thsPtr, gchar *playListName);
+   gboolean (*IsPlaying)(gpointer thsPtr);
+   gboolean (*Toggle)(gpointer thsPtr, gboolean *newState);
+   gboolean (*Stop)(gpointer thsPtr);
+   gboolean (*Detach)(gpointer thsPtr);
+   gboolean (*GetRepeat)(gpointer thsPtr);
+   gboolean (*SetRepeat)(gpointer thsPtr, gboolean newShuffle);
+   gboolean (*GetShuffle)(gpointer thsPtr);
+   gboolean (*SetShuffle)(gpointer thsPtr, gboolean newShuffle);
+   gboolean (*IsVisible)(gpointer thsPtr);
+   gboolean (*Show)(gpointer thsPtr, gboolean newState);
+   gboolean (*UpdateDBUS)(gpointer thsPtr, const gchar *name, gboolean appeared);
+   void (*Persist)(gpointer thsPtr, gboolean bIsStoring);
+   void (*Configure)(gpointer thsPtr, GtkWidget *parent);
+   void (*UpdateWindow)(gpointer thsPtr, WnckWindow *window, gboolean appeared);
+
+   // data provided by backend
+   GString *artist;
+   GString *album;
+   GString *title;
+   GString *albumArt; // path to image file
+   GString *path; // full path to song (optional)
+   GHashTable *playLists; // Playlistname:State
+
+   // backend "this" pointer, first param of above functions
+   gpointer db;
+
+   // frontend "this" pointer
+   gpointer sd;
+
+   // frontend globals
+   DBusGConnection *bus;
+   DBusGProxy *dbService;
+   gint playerPID;
+
+   // frontend callbacks
+   gboolean (*StartService)(gpointer thsPlayer, const gchar* serviceName);
+   gboolean (*IsServiceRunning)(gpointer thsPlayer, const gchar* dbusName);
+   void (*Update)(gpointer thsPlayer, gboolean SongChanged, eSynoptics State,
+         const gchar* playerMessage);
+   void (*UpdatePlaylists)(gpointer thsPlayer);
+   void (*UpdateRepeat)(gpointer thsPlayer, gboolean newRepeat);
+   void (*UpdateShuffle)(gpointer thsPlayer, gboolean newShuffle);
+   void (*UpdateVisibility)(gpointer thsPlayer, gboolean newVisibility);
+   void (*AddSubItem)(gpointer thsPlayer, gpointer newPlayer);
+   void (*FindAlbumArtByFilePath)(gpointer thsPlayer, const gchar * path);
+} SPlayer;
 
 // Backend definitions
-typedef enum eBackendType{
-	noMoreBackends = 0,
-	dbusBackend,
-	networkBackend,
-	wizard,
-	otherBackend,
-	numBackendTypes
-}eBackendType;
+typedef enum eBackendType
+{
+   noMoreBackends = 0, // special case
+   dbusBackend, // D-Bus backend with fixed bus name
+   networkBackend, // networked backend, like MPD, XMMS2. TODO: check avahi, upnp
+   dbusBackendFactory, // wildcard catch of multiple bus names
+   otherBackend, // pipes and suchlike
+   numBackendTypes
+} eBackendType;
 
-typedef struct Backend{
-    const gchar* basename;
-	const eBackendType BACKEND_TYPE;
-    gpointer( *BACKEND_attach)(SPlayer *player);
-    const gchar*( *BACKEND_name)();
-    GdkPixbuf*( *BACKEND_icon)();
-    const gchar**( *BACKEND_dbusNames)();
-    const gchar*( *BACKEND_commandLine)();
-}Backend;
+typedef struct Backend
+{
+   const gchar* basename;
+   const eBackendType BACKEND_TYPE;
+   gpointer (*BACKEND_attach)(SPlayer *player);
+   const gchar*(*BACKEND_name)();
+   GdkPixbuf*(*BACKEND_icon)();
+   const gchar**(*BACKEND_dbusNames)();
+   const gchar*(*BACKEND_commandLine)();
+} Backend;
 
 #define DEFINE_DBUS_BACKEND(t,n,d,c)  \
 	const Backend *backend_info(void); \
@@ -159,7 +162,7 @@ typedef struct Backend{
 		}; \
 		return &backend[0]; \
 	}
-#define DEFINE_BACKEND(t,n) \
+#define DEFINE_NETWORK_BACKEND(t,n) \
 	const Backend *backend_info(void); \
     static const gchar* t##_name(void){ \
         return _(n); \
@@ -175,7 +178,6 @@ typedef struct Backend{
 		}; \
 		return &backend[0]; \
 	}
-    
 
 #ifdef DEBUG_TRACE
 #define LOG g_message
@@ -186,6 +188,5 @@ typedef struct Backend{
 #define LOGERR(...)
 #define LOGWARN(...)
 #endif
-	
-    
+
 #endif //defined XFCE4_SQUEEZEBOX_PLUGIN_MAIN_HEADER
