@@ -164,6 +164,10 @@ void squeezebox_init_backend(SqueezeBoxData * sd, const gchar *name)
       }
       gtk_widget_set_sensitive(sd->mnuPlayLists,
             g_hash_table_size(sd->player.playLists));
+
+      // buttons in case of radioes
+      gtk_widget_set_sensitive(sd->button[ebtnPrev], NULL != sd->player.Previous);
+      gtk_widget_set_sensitive(sd->button[ebtnNext], NULL != sd->player.Next);
    }
    LOG("Leave squeezebox_init_backend");
 }
@@ -805,6 +809,7 @@ static gboolean on_btn_clicked(GtkWidget * button, GdkEventButton * event,
          if (NULL != sd->player.IsVisible)
             squeezebox_update_visibility(sd,
                   sd->player.IsVisible(sd->player.db));
+         gtk_widget_set_sensitive(sd->mnuSong, (0 != sd->player.path->len));
          sd->noUI = FALSE;
       }
    }

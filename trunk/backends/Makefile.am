@@ -1,3 +1,3 @@
-# SUBDIRS = audacious banshee consonance exaile mpd muine pragha quodlibet rhythmbox
+# SUBDIRS = audacious banshee exaile mpd muine pragha quodlibet radiotray rhythmbox
 SUBDIRS = $(subdirs)
 
