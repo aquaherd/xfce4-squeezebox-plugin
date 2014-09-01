@@ -202,12 +202,13 @@ EXPORT void on_cellrenderertoggle1_toggled(GtkCellRendererToggle * crt,
 EXPORT void on_cellrenderShortCut_accel_cleared(GtkCellRendererAccel *accel,
       gchar *path_string, SqueezeBoxData *sd)
 {
-   LOG("Dropped key #%s", path_string);
    GtkListStore *storeShortCuts = g_object_get_data(G_OBJECT(sd->dlg),
          "liststoreShortcuts");
    GtkTreeIter iter =
    { 0 };
    gchar *path1 = NULL;
+
+   LOG("Dropped key #%s", path_string);
    if (gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(storeShortCuts),
          &iter, path_string))
    {
@@ -218,7 +219,7 @@ EXPORT void on_cellrenderShortCut_accel_cleared(GtkCellRendererAccel *accel,
       gtk_tree_model_get(GTK_TREE_MODEL(storeShortCuts), &iter, 2,
             &accelKeyMask, 1, &accelKey, -1);
       path1 = gtk_accelerator_name(accelKey, accelKeyMask);
-      keybinder_unbind(path1, (KeybinderHandler)on_shortcutActivated);
+      keybinder_unbind(path1, (KeybinderHandler) on_shortcutActivated);
       gtk_list_store_set(storeShortCuts, &iter, 1, 0, 2, 0, -1);
       path1 = g_strdup_printf("/MediaKeys/Key%s", path_string);
       xfconf_channel_set_string(sd->channel, path1, "");
@@ -254,8 +255,9 @@ EXPORT void on_cellrenderShortCut_accel_edited(GtkCellRendererAccel *accel,
             &accelKeyMask, 1, &accelKey, -1);
       path1 = gtk_accelerator_name(accelKey, accelKeyMask);
       path2 = gtk_accelerator_name(accel_key, accel_mods);
-      keybinder_unbind(path1, (KeybinderHandler)on_shortcutActivated);
-      if(!keybinder_bind_full(path1, (KeybinderHandler)on_shortcutActivated, sd, NULL))
+      keybinder_unbind(path1, (KeybinderHandler) on_shortcutActivated);
+      if (!keybinder_bind_full(path1, (KeybinderHandler) on_shortcutActivated,
+            sd, NULL))
       {
          GtkWidget *dlg = gtk_message_dialog_new(
                GTK_WINDOW(g_object_get_data (G_OBJECT(sd->plugin), "dialog")),
@@ -323,7 +325,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
    gint idx;
    GtkBuilder* builder;
    GError *error = NULL;
-   LOG("Enter squeezebox_properties_dialog "GLADEDIR"/settings.ui");
+   LOG("Enter squeezebox_properties_dialog " GLADEDIR "/settings.ui");
 
    if (xfce_titled_dialog_get_type() == 0)
    {
@@ -333,7 +335,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 
    // new
    builder = gtk_builder_new();
-   if (!gtk_builder_add_from_file(builder, GLADEDIR"/settings.ui", &error))
+   if (!gtk_builder_add_from_file(builder, GLADEDIR "/settings.ui", &error))
    {
       LOGWARN("Can't add builder: %s", error->message);
       return;

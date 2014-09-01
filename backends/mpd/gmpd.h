@@ -19,7 +19,6 @@
  *      MA 02110-1301, USA.
  */
 
-
 /* inclusion guard */
 #ifndef __G_MPD_H__
 #define __G_MPD_H__
@@ -38,29 +37,29 @@ G_BEGIN_DECLS
 #define G_IS_MPD_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), G_MPD_TYPE))
 #define G_MPD_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), G_MPD_TYPE, GMpdClass))
 
-typedef struct _GMpd        GMpd;
-typedef struct _GMpdClass   GMpdClass;
+typedef struct _GMpd GMpd;
+typedef struct _GMpdClass GMpdClass;
 typedef struct _GMpdPrivate GMpdPrivate;
 
 struct _GMpd
 {
-	GObject parent_instance;
+   GObject parent_instance;
 
-	/* instance members */
-	/*< private >*/
-	GMpdPrivate *priv;
+   /* instance members */
+   /*< private >*/
+   GMpdPrivate *priv;
 };
 
 struct _GMpdClass
 {
-	GObjectClass parent_class;
+   GObjectClass parent_class;
 
-	/* class members */
-	gint signal[4]; /* idle-changed, status-changed, song-changed, playlist-changed */
+   /* class members */
+   gint signal[4]; /* idle-changed, status-changed, song-changed, playlist-changed */
 };
 
 /* used by G_MPD_TYPE */
-GType g_mpd_get_type (void);
+GType g_mpd_get_type(void);
 
 /*
  * Method definitions.
