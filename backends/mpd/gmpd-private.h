@@ -49,7 +49,7 @@ static void _idle_enter(GMpdPrivate *priv);
 static void _idle_cancel(GMpdPrivate *priv);
 //static gboolean _idle_cb(gpointer user_data);
 static gpointer _idle_thread(gpointer user_data);
-static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...);
+static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...) __attribute__ ((format (printf, 2, 3)));
 static void _update_database(GMpdPrivate *priv, gchar *changeDetail);
 static void _update_player(GMpdPrivate *priv, gchar *changeDetail);
 static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail);

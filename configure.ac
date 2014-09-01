@@ -154,6 +154,13 @@ if test x$enable_banshee = xyes; then
 	subdirs="$subdirs banshee"
 fi
 
+AC_ARG_ENABLE(radiotray,[  --disable-radiotray     disable radiotray support (default: enable)],[enable_radiotray=$enableval],[enable_radiotray=yes])
+if test x$enable_radiotray = xyes; then
+   AC_DEFINE(HAVE_BACKEND_RADIOTRAY,1,[Define to use Banshee])
+   AC_CONFIG_FILES([backends/radiotray/Makefile])
+   subdirs="$subdirs radiotray"
+fi
+
 dnl Check for debugging support
 XDT_FEATURE_DEBUG()
 AC_ARG_ENABLE(debug_trace,[  --enable-debug_trace     disable trace support (default: disable)],[enable_debug_trace=$enableval],[enable_debug_trace=no])
@@ -217,4 +224,5 @@ echo " exaile support ................$enable_exaile"
 echo " Muine support .................$enable_muine"
 echo " Banshee support ...............$enable_banshee"
 echo " pragha support ................$enable_pragha"
+echo " radiotray support .. ..........$enable_radiotray"
 echo ""

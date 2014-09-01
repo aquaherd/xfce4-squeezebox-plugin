@@ -1,0 +1,27 @@
+<node name="/net/sourceforge/radiotray">
+  <interface name="net.sourceforge.radiotray">
+    <method name="listRadios">
+      <arg direction="out" type="as" />
+    </method>
+    <method name="turnOff">
+    </method>
+    <method name="volumeDown">
+    </method>
+    <method name="playRadio">
+      <arg direction="in"  type="v" name="radioName" />
+    </method>
+    <method name="getCurrentMetaData">
+      <arg direction="out" type="s" />
+    </method>
+    <method name="togglePlay">
+    </method>
+    <method name="volumeUp">
+    </method>
+    <method name="playUrl">
+      <arg direction="in"  type="v" name="url" />
+    </method>
+    <method name="getCurrentRadio">
+      <arg direction="out" type="s" />
+    </method>
+  </interface>
+</node>

@@ -174,7 +174,7 @@ static void _idle_cancel(GMpdPrivate *priv) {
 }
 
 static gpointer _idle_thread(gpointer user_data) {
-	GMpdPrivate *priv = G_MPD_GET_PRIVATE(user_data);
+	GMpdPrivate *priv = g_mpd_get_instance_private((GMpd*)user_data);
 	GSocket *socket = g_socket_connection_get_socket(priv->connection);
 	LOG("EnterThread");
 	while(g_socket_condition_wait(socket, G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP, NULL, NULL)) {
@@ -206,7 +206,8 @@ static gpointer _idle_thread(gpointer user_data) {
 	return NULL;
 }
 
-static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...) {
+static gboolean _send_command_simple(GMpdPrivate *priv, const gchar* format, ...)
+{
 	va_list args;
 	gchar *command;
 	if (NULL == priv->connection)
@@ -247,7 +248,7 @@ static void _update_playlists(GMpdPrivate *priv, gchar *changeDetail) {
 			if(g_str_has_prefix(line, "playlist: ")) {
 				gchar *newList = g_strdup(line + 10);
 				g_hash_table_insert(priv->playlists, 
-					newList, g_strdup("stock_playlist"));
+					newList, g_strdup("playlist"));
 			}
 			g_free(line);
 			line = _read_response_line(priv);

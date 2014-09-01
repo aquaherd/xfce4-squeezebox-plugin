@@ -56,7 +56,7 @@ typedef struct qlData {
 	FILE *fp;
 	gchar *fifo;
 	gchar *cover;
-    gchar *bin;
+   gchar *bin;
 	gboolean isPlaying;
 	gboolean isVisible;
 	gboolean isShuffle;

@@ -208,6 +208,7 @@ static void exCallbackTrackChange(DBusGProxy * proxy, gpointer thsPtr) {
 		    g_string_truncate(db->parent->album, 0);
 		    g_string_truncate(db->parent->title, 0);
 		    act = TRUE;
+		    break;
 	}
 	if (act) {
 		db->parent->Update(db->parent->sd, TRUE, eStat, NULL);
