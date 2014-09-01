@@ -205,7 +205,7 @@ static gboolean rtPlayPlaylist(gpointer thsPtr, gchar *playlistName)
    LOG("Enter rtPlayPlaylist");
    if (rtAssure(this, FALSE))
    {
-      GValue val;
+      GValue val = G_VALUE_INIT;
       g_value_init(&val, G_TYPE_STRING);
       g_value_set_string(&val, playlistName);
       bRet = radiotray_play_radio(this->rtPlayer, &val, NULL);
