@@ -4,9 +4,9 @@
  *  Copyright  2006-2014  Hakan Erduman
  *  Email hakan@erduman.de
  ****************************************************************************
- *  $Rev::             $: Revision of last commit
- *	$Author::          $: Author of last commit
- *	$Date::            $: Date of last commit
+ *  $Rev:: 230         $: Revision of last commit
+ *	$Author:: herd     $: Author of last commit
+ *	$Date:: 2014-09-14#$: Date of last commit
  ****************************************************************************/
 
 /*
@@ -470,10 +470,22 @@ static void squeezebox_update_zeitgeist(SqueezeBoxData *sd)
       ZeitgeistLog *log = zeitgeist_log_new();
       ZeitgeistEvent *event = zeitgeist_event_new();
       GFile *file = g_file_new_for_path(sd->player.path->str);
+      g_return_if_fail(G_IS_FILE(file));
       gchar *uri = g_file_get_uri(file);
       gchar *baseName = g_file_get_basename(file);
       gchar *parent = g_file_get_path(file);
-      GMount *mount = g_file_find_enclosing_mount(file, NULL, NULL);
+      GError *err = NULL;
+      GMount *mount = g_file_find_enclosing_mount(file, NULL, &err);
+      if(err)
+      {
+         LOG("'%s': %s", __FILE__, __LINE__,
+               sd->player.path->str, err->message);
+         g_object_unref(file);
+         g_free(baseName);
+         g_free(parent);
+         g_error_free(err);
+         return;
+      }
       gchar *uuid = g_mount_get_uuid(mount);
       ZeitgeistSubject *subject = zeitgeist_subject_new_full(uri,
             ZEITGEIST_NFO_AUDIO,
@@ -484,13 +496,13 @@ static void squeezebox_update_zeitgeist(SqueezeBoxData *sd)
       zeitgeist_event_set_timestamp(event, g_date_time_to_unix(gtime));
       zeitgeist_event_add_subject(event, subject);
       zeitgeist_log_insert_events_no_reply(log, event, NULL);
-      g_date_time_unref(gtime);
       g_object_unref(file);
-      g_free(uri);
       g_free(baseName);
       g_free(parent);
       g_free(uuid);
       g_object_unref(mount);
+      g_free(uri);
+      g_date_time_unref(gtime);
       zeitgeist_log_quit(log, NULL, NULL, NULL);
    }
 }
