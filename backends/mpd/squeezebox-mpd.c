@@ -65,6 +65,7 @@ typedef struct mpdData
    eSynoptics state;
    GtkWidget *wHost, *wPass, *wPort, *wDlg, *wPath, *wPMgr;
    XfconfChannel *xfconfChannel;
+   guint timeOut;
 } mpdData;
 
 #define MKTHIS mpdData *thys = (mpdData *)thsPtr
@@ -289,6 +290,11 @@ static gboolean mpdDetach(gpointer thsPtr)
    {
       g_object_unref(thys->gmpd);
       thys->gmpd = NULL;
+   }
+   if(thys->timeOut)
+   {
+      g_source_remove(thys->timeOut);
+      thys->timeOut = 0;
    }
    LOG("Leave mpdDetach");
    return TRUE;
@@ -567,6 +573,16 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent)
    LOG("Leave mpdConfigure");
 }
 
+gboolean on_TimeOut(gpointer thsPtr)
+{
+   MKTHIS;
+   if(!g_mpd_is_online(thys->gmpd))
+   {
+      mpdAssure(thys, FALSE);
+   }
+   return TRUE;
+}
+
 gpointer MPD_attach(SPlayer * parent)
 {
    mpdData *thys = g_new0(mpdData, 1);
@@ -637,6 +653,8 @@ gpointer MPD_attach(SPlayer * parent)
          thys->path->str,
          thys->bUsePManager,
          thys->pmanager->str);
+
+   thys->timeOut = g_timeout_add_seconds(5, on_TimeOut, thys);
    return thys;
 }
 #endif
