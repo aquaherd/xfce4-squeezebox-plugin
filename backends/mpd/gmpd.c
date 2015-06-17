@@ -558,6 +558,7 @@ gboolean g_mpd_connect(GMpd *self, const gchar* host, const int port)
       priv->address = g_network_address_new(host, port);
       connectable = priv->address;
       priv->client = g_socket_client_new();
+      g_socket_client_set_enable_proxy(priv->client, FALSE);
       _error_clear(priv);
 
       priv->connection = g_socket_client_connect(priv->client, connectable,
