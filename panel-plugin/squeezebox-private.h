@@ -23,9 +23,7 @@
 #ifndef SQUEEZEBOX_PRIVATE_H
 #define SQUEEZEBOX_PRIVATE_H
 
-#include <libxfce4panel/xfce-panel-plugin.h>
-#include <libxfce4panel/xfce-panel-convenience.h>
-#define EXO_API_SUBJECT_TO_CHANGE
+#include <libxfce4panel/libxfce4panel.h>
 #include <exo/exo.h>
 #include <libxfce4ui/libxfce4ui.h>
 #include <keybinder.h>
@@ -161,7 +159,7 @@ typedef struct SqueezeBoxData{
 	gboolean inShortcutEdit;
 	GQuark shortcuts[7];
     
-    WnckScreen *wnckScreen;
+    XfwScreen *xfwScreen;
     
     // settings dialog
     XfconfChannel *channel;

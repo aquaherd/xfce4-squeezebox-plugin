@@ -518,7 +518,7 @@ static gboolean exUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appear
 	return TRUE;
 }
 
-static void exUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
+static void exUpdateWindow(gpointer thsPtr, XfwWindow *window, gboolean appeared) {
 	MKTHIS;
 	LOG("exaile is %s", (appeared)?"visible":"invisible");
 	db->Visibility = appeared;

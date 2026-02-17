@@ -376,7 +376,7 @@ void squeezebox_properties_dialog(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
        */
       LOG("Have %s", ptr->basename);
       gtk_list_store_append(store, &iter);
-      pix = exo_gdk_pixbuf_scale_down(ptr->icon, TRUE, 24, 32);
+      pix = gdk_pixbuf_scale_simple(ptr->icon, 24, 24, GDK_INTERP_BILINEAR);
       gtk_list_store_set(store, &iter, PIXBUF_COLUMN, pix, TEXT_COLUMN,
             ptr->name, INDEX_COLUMN, ptr->basename, AVAIL_COLUMN,
             ptr->autoAttach, -1);

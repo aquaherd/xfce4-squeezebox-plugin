@@ -39,8 +39,8 @@
 #include <xfconf/xfconf.h>
 #include <libxfce4util/libxfce4util.h>
 
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE
-#include <libwnck/libwnck.h>
+#include <libxfce4windowing/libxfce4windowing.h>
+#include <keybinder.h>
 
 #define EXPORT __attribute__ ((visibility("default")))
 #define HIDDEN __attribute__ ((visibility("hidden")))
@@ -83,7 +83,7 @@ typedef struct SPlayer
    gboolean (*UpdateDBUS)(gpointer thsPtr, const gchar *name, gboolean appeared);
    void (*Persist)(gpointer thsPtr, gboolean bIsStoring);
    void (*Configure)(gpointer thsPtr, GtkWidget *parent);
-   void (*UpdateWindow)(gpointer thsPtr, WnckWindow *window, gboolean appeared);
+   void (*UpdateWindow)(gpointer thsPtr, XfwWindow *window, gboolean appeared);
 
    // data provided by backend
    GString *artist;

@@ -381,7 +381,7 @@ static gboolean qlUpdateDBUS(gpointer thsPtr, const gchar *name, gboolean appear
 	return TRUE;
 }
 
-static void qlUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
+static void qlUpdateWindow(gpointer thsPtr, XfwWindow *window, gboolean appeared) {
 	MKTHIS;
 	LOG("QuodLibet is %s", (appeared)?"visible":"invisible");
 	this->isVisible = appeared;
