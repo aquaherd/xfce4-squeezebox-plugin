@@ -37,6 +37,11 @@ const Backend *squeezebox_load_backend(SqueezeBoxData * sd, const gchar *name)
 {
    const Backend *backend = NULL;
    GList *list = g_list_first(sd->list);
+   if (!list)
+   {
+      LOGERR("No backends available when trying to load '%s'", name);
+      return NULL;
+   }
    do
    {
       BackendCache *cache = list->data;
@@ -206,20 +211,30 @@ static void squeezebox_update_playbtn(SqueezeBoxData * sd)
    LOG("Leave squeezebox_update_playbtn");
 }
 
-static void on_window_opened(WnckScreen * screen, WnckWindow * window,
+static void on_window_opened(XfwScreen *screen, XfwWindow *window,
       SqueezeBoxData *sd)
 {
-   if (sd->player.playerPID && sd->player.UpdateWindow)
-      if (sd->player.playerPID == wnck_window_get_pid(window))
-         sd->player.UpdateWindow(sd->player.db, window, TRUE);
+   if (sd->player.playerPID && sd->player.UpdateWindow) {
+      XfwApplication *app = xfw_window_get_application(window);
+      if (app) {
+         XfwApplicationInstance *instance = xfw_application_get_instance(app, window);
+         if (instance && sd->player.playerPID == xfw_application_instance_get_pid(instance))
+            sd->player.UpdateWindow(sd->player.db, window, TRUE);
+      }
+   }
 }
 
-static void on_window_closed(WnckScreen * screen, WnckWindow * window,
+static void on_window_closed(XfwScreen *screen, XfwWindow *window,
       SqueezeBoxData *sd)
 {
-   if (sd->player.playerPID && sd->player.UpdateWindow)
-      if (sd->player.playerPID == wnck_window_get_pid(window))
-         sd->player.UpdateWindow(sd->player.db, window, FALSE);
+   if (sd->player.playerPID && sd->player.UpdateWindow) {
+      XfwApplication *app = xfw_window_get_application(window);
+      if (app) {
+         XfwApplicationInstance *instance = xfw_application_get_instance(app, window);
+         if (instance && sd->player.playerPID == xfw_application_instance_get_pid(instance))
+            sd->player.UpdateWindow(sd->player.db, window, FALSE);
+      }
+   }
 }
 
 static void on_mnuPlaylistItemActivated(GtkMenuItem *menuItem,
@@ -550,13 +565,17 @@ gboolean squeezebox_set_size(XfcePanelPlugin * plugin, int size,
 {
    int items = 1;
 
-   if (sd->show[ebtnPrev])
+   /* Guard against early signal before UI is initialized */
+   if (!sd || !sd->button[ebtnPlay] || !sd->table)
+      return TRUE;
+
+   if (sd->show[ebtnPrev] && sd->button[ebtnPrev])
    {
       gtk_widget_set_size_request(GTK_WIDGET(sd->button[ebtnPrev]), size, size);
       items++;
    }
 
-   if (sd->show[ebtnNext])
+   if (sd->show[ebtnNext] && sd->button[ebtnNext])
    {
       gtk_widget_set_size_request(GTK_WIDGET(sd->button[ebtnNext]), size, size);
       items++;
@@ -568,8 +587,7 @@ gboolean squeezebox_set_size(XfcePanelPlugin * plugin, int size,
    return TRUE;
 }
 
-static void squeezebox_style_set(XfcePanelPlugin * plugin, gpointer ignored,
-      SqueezeBoxData * sd)
+static void squeezebox_style_set(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
 {
    squeezebox_set_size(plugin, xfce_panel_plugin_get_size(plugin), sd);
 }
@@ -622,6 +640,10 @@ static void squeezebox_free_data(XfcePanelPlugin * plugin, SqueezeBoxData * sd)
    {
       g_list_foreach(sd->list, squeezebox_free_cache, sd);
       g_list_free(sd->list);
+   }
+   if (sd->xfwScreen)
+   {
+      g_object_unref(sd->xfwScreen);
    }
    xfconf_shutdown();
    g_free(sd);
@@ -1217,6 +1239,11 @@ static void squeezebox_read_backends(SqueezeBoxData *sd)
    GDir *dir = g_dir_open(backends, 0, NULL);
    const gchar *fnam = NULL;
    LOG("Enter squeezebox_read_backends: '%s'", backends);
+   if (!dir)
+   {
+      LOGWARN("Failed to open backends directory: %s", backends);
+      return;
+   }
    while ((fnam = g_dir_read_name(dir)))
    {
       gchar *fpath = g_strdup_printf("%s%c%s%c%s.%s", backends, G_DIR_SEPARATOR,
@@ -1224,7 +1251,7 @@ static void squeezebox_read_backends(SqueezeBoxData *sd)
       if (g_file_test(fpath, G_FILE_TEST_EXISTS))
       {
          GModule *module;
-         LOG("\tTrying %s.%s", fnam, G_MODULE_SUFFIX);
+         LOG("Trying to load backend: %s", fpath);
          module = g_module_open(fpath, G_MODULE_BIND_LAZY);
          if (module)
          {
@@ -1237,7 +1264,7 @@ static void squeezebox_read_backends(SqueezeBoxData *sd)
                   BackendCache *cache = g_new0(BackendCache, 1);
                   gchar *propAuto = g_strconcat("/AutoConnects/",
                         backend->basename, NULL);
-                  LOG("\t\tFound:%s", backend->BACKEND_name());
+                  LOG("Found backend: %s", backend->BACKEND_name());
                   cache->path = fpath;
                   cache->type = backend->BACKEND_TYPE;
                   cache->name = g_strdup(backend->BACKEND_name());
@@ -1256,12 +1283,24 @@ static void squeezebox_read_backends(SqueezeBoxData *sd)
                   g_free(propAuto);
                }
             }
+            else
+            {
+               LOGWARN("No backend_info symbol in %s", fpath);
+            }
             g_module_close(module);
          }
+         else
+         {
+            LOGWARN("Failed to open module %s: %s", fpath, g_module_error());
+         }
+      }
+      else
+      {
+         g_free(fpath);
       }
    }
    g_dir_close(dir);
-   LOG("Leave squeezebox_read_backends");
+   LOG("Leave squeezebox_read_backends, found %d backends", g_list_length(sd->list));
 }
 EXPORT void squeezebox_construct(XfcePanelPlugin * plugin)
 {
@@ -1320,13 +1359,13 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin)
    sd->inCreate = TRUE;
    sd->inShortcutEdit = FALSE;
    sd->toolTipText = g_string_new("");
-   sd->wnckScreen = wnck_screen_get_default();
+   sd->xfwScreen = xfw_screen_get_default();
 
-   /* wnck */
-   g_signal_connect(sd->wnckScreen, "window_opened",
+   /* xfce4windowing */
+   g_signal_connect(sd->xfwScreen, "window-opened",
          G_CALLBACK(on_window_opened), sd);
 
-   g_signal_connect(sd->wnckScreen, "window_closed",
+   g_signal_connect(sd->xfwScreen, "window-closed",
          G_CALLBACK(on_window_closed), sd);
 
    squeezebox_create(sd);

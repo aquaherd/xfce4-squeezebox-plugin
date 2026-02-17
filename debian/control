@@ -2,15 +2,41 @@ Source: xfce4-squeezebox-plugin
 Section: x11
 Priority: optional
 Maintainer: Hakan Erduman <Hakan@Erduman.de>
-Build-Depends: cdbs, debhelper (>= 5), autotools-dev, libgtk2.0-dev, libxfce4util-dev, xfce4-panel-dev (>= 4.7), libxfconf-0-dev, libexo-1-dev, libid3tag0-dev, libwnck-dev, libxfce4ui-1-dev 
-Standards-Version: 3.7.2
+Build-Depends: debhelper-compat (= 13),
+               cmake,
+               pkg-config,
+               libgtk-3-dev (>= 3.20.0),
+               libxfce4panel-2.0-dev (>= 4.12.0),
+               libxfce4util-dev (>= 4.12.0),
+               libxfce4ui-2-dev (>= 4.12.0),
+               libxfce4windowing-0-dev (>= 4.19.3),
+               libxfconf-0-dev (>= 4.12.0),
+               exo-utils | libexo-2-dev (>= 0.11.0),
+               libdbus-1-dev (>= 1.0.0),
+               libdbus-glib-1-dev (>= 0.73),
+               libglib2.0-dev (>= 2.40.0),
+               libid3tag0-dev (>= 0.15),
+               libkeybinder-3.0-dev (>= 0.3.0)
+Standards-Version: 4.6.2
+Homepage: https://github.com/hakanerduman/xfce4-squeezebox-plugin
 
 Package: xfce4-squeezebox-plugin
 Architecture: any
-Depends: ${shlibs:Depends}
-Recommends: 
-Suggests: rhythmbox, mpd, gmpc, quodlibet, audacious, exaile, muine
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: rhythmbox | mpd | audacious | exaile | quodlibet
+Suggests: mpd, gmpc, muine, banshee, pragha, radiotray
 Description: Media player control plugin for the Xfce panel
- Remote control various media players from the panel. 
+ Remote control various media players from the panel.
  Show album art popups and have media key response.
+ .
+ Supports multiple backends including Rhythmbox, MPD,
+ Audacious, Exaile, QuodLibet, Muine, Banshee, Pragha,
+ and RadioTray.
+ .
+ Features:
+  - Control playback (play/pause, next, previous)
+  - Album art display in tooltips
+  - Desktop notifications on track changes
+  - Global media key support
+  - Wayland and X11 compatible via libxfce4windowing
 

@@ -15,7 +15,7 @@
 to the list of SqueezeBox controllable backends.
 
 MPRIS is the 'Media Player Remote Interfacing Specification'.
-See &lt;a herf="http://wiki.xmms2.xmms.se/wiki/MPRIS" here/&gt; for details.
+See &lt;a href="https://specifications.freedesktop.org/mpris-spec/latest/"&gt;here&lt;/a&gt; for details.
 
 If your player does not support the MPRIS interfaces
 by itself, it may have a plugin that does.

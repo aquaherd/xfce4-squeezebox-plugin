@@ -7,10 +7,7 @@ G_BEGIN_DECLS
 
 #ifndef _DBUS_GLIB_ASYNC_DATA_FREE
 #define _DBUS_GLIB_ASYNC_DATA_FREE
-static
-#ifdef G_HAVE_INLINE
-inline
-void
+static inline void
 _dbus_glib_async_data_free (gpointer stuff)
 {
 	g_slice_free (DBusGAsyncData, stuff);
@@ -177,5 +174,3 @@ notifications_notify_async (DBusGProxy *proxy, const char * IN_app_name, const g
 #endif /* defined DBUS_GLIB_CLIENT_WRAPPERS_notifications */
 
 G_END_DECLS
-
-#endif

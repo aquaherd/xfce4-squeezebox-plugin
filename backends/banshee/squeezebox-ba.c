@@ -323,7 +323,7 @@ static gboolean baShow(gpointer thsPtr, gboolean newState) {
 	return FALSE;
 }
 
-static void baUpdateWindow(gpointer thsPtr, WnckWindow *window, gboolean appeared) {
+static void baUpdateWindow(gpointer thsPtr, XfwWindow *window, gboolean appeared) {
 	MKTHIS;
 	LOG("banshee is %s", (appeared)?"visible":"invisible");
 	db->Visibility = appeared;

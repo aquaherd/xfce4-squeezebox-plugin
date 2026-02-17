@@ -159,7 +159,7 @@ typedef struct SqueezeBoxData{
 	gboolean inShortcutEdit;
 	GQuark shortcuts[7];
     
-    WnckScreen *wnckScreen;
+    XfwScreen *xfwScreen;
     
     // settings dialog
     XfconfChannel *channel;

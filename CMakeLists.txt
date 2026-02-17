@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(xfce4-squeezebox-plugin VERSION 1.0.0 LANGUAGES C)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(GNUInstallDirs)
 include(FindPkgConfig)
 
@@ -21,7 +22,7 @@ pkg_check_modules(GTK3 REQUIRED gtk+-3.0>=3.20.0)
 pkg_check_modules(LIBXFCE4PANEL REQUIRED libxfce4panel-2.0>=4.12.0)
 pkg_check_modules(LIBXFCE4UTIL REQUIRED libxfce4util-1.0>=4.12.0)
 pkg_check_modules(LIBXFCE4UI REQUIRED libxfce4ui-2>=4.12.0)
-pkg_check_modules(LIBWNCK REQUIRED libwnck-3.0>=3.4.0)
+pkg_check_modules(LIBXFCE4WINDOWING REQUIRED libxfce4windowing-0>=4.19.3)
 pkg_check_modules(DBUS REQUIRED dbus-1>=1.0.0)
 pkg_check_modules(DBUS_GLIB REQUIRED dbus-glib-1>=0.73)
 pkg_check_modules(LIBXFCONF REQUIRED libxfconf-0>=4.12.0)
@@ -40,6 +41,52 @@ pkg_check_modules(LIBZEITGEIST zeitgeist-2.0>=0.9.0)
 # X11
 find_package(X11 REQUIRED)
 
+# Map ENABLE_* options to HAVE_BACKEND_* for config.h
+if(ENABLE_RHYTHMBOX)
+    set(HAVE_BACKEND_RHYTHMBOX 1)
+endif()
+if(ENABLE_MPD)
+    set(HAVE_BACKEND_MPD 1)
+endif()
+if(ENABLE_QUODLIBET)
+    set(HAVE_BACKEND_QUODLIBET 1)
+endif()
+if(ENABLE_AUDACIOUS)
+    set(HAVE_BACKEND_AUDACIOUS 1)
+endif()
+if(ENABLE_EXAILE)
+    set(HAVE_BACKEND_EXAILE 1)
+endif()
+if(ENABLE_PRAGHA)
+    set(HAVE_BACKEND_PRAGHA 1)
+endif()
+if(ENABLE_MUINE)
+    set(HAVE_BACKEND_MUINE 1)
+endif()
+if(ENABLE_BANSHEE)
+    set(HAVE_BACKEND_BANSHEE 1)
+endif()
+if(ENABLE_RADIOTRAY)
+    set(HAVE_BACKEND_RADIOTRAY 1)
+endif()
+
+# Map optional library findings
+if(LIBGIO_FOUND)
+    set(HAVE_GIO 1)
+endif()
+if(LIBID3TAG_FOUND)
+    set(HAVE_LIBID3TAG 1)
+endif()
+if(LIBINDICATE_FOUND)
+    set(HAVE_LIBINDICATE 1)
+endif()
+if(LIBZEITGEIST_FOUND)
+    set(HAVE_LIBZEITGEIST 1)
+endif()
+if(ENABLE_DEBUG_TRACE)
+    set(DEBUG_TRACE 1)
+endif()
+
 # Generate config.h
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
@@ -54,14 +101,15 @@ add_definitions(-DGETTEXT_PACKAGE="${GETTEXT_PACKAGE}")
 set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/xfce4/panel/plugins")
 set(BACKEND_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/xfce4/xfce4-squeezebox-plugin/backends")
 set(GLADE_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/xfce4/xfce4-squeezebox-plugin/glade")
-set(DESKTOP_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/xfce4/panel-plugins")
+set(DESKTOP_INSTALL_DIR "${CMAKE_INSTALL_DATADIR}/xfce4/panel/plugins")
 
 add_definitions(
-    -DBACKENDDIR="${BACKEND_INSTALL_DIR}"
-    -DGLADEDIR="${GLADE_INSTALL_DIR}"
+    -DBACKENDDIR="${CMAKE_INSTALL_FULL_LIBDIR}/xfce4/xfce4-squeezebox-plugin/backends"
+    -DGLADEDIR="${CMAKE_INSTALL_FULL_LIBDIR}/xfce4/xfce4-squeezebox-plugin/glade"
     -DLOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}"
     -DDATA_DIR="${CMAKE_INSTALL_FULL_DATADIR}/xfce4/xfce4-squeezebox-plugin"
     -DG_LOG_DOMAIN="SBP"
+    -DLIBXFCE4WINDOWING_COMPILATION
 )
 
 if(ENABLE_DEBUG_TRACE)
@@ -74,7 +122,7 @@ set(COMMON_INCLUDE_DIRS
     ${LIBXFCE4PANEL_INCLUDE_DIRS}
     ${LIBXFCE4UTIL_INCLUDE_DIRS}
     ${LIBXFCE4UI_INCLUDE_DIRS}
-    ${LIBWNCK_INCLUDE_DIRS}
+    ${LIBXFCE4WINDOWING_INCLUDE_DIRS}
     ${DBUS_INCLUDE_DIRS}
     ${DBUS_GLIB_INCLUDE_DIRS}
     ${LIBXFCONF_INCLUDE_DIRS}
@@ -90,7 +138,7 @@ set(COMMON_LINK_LIBS
     ${GTK3_LIBRARIES}
     ${LIBXFCE4UTIL_LIBRARIES}
     ${LIBXFCE4UI_LIBRARIES}
-    ${LIBWNCK_LIBRARIES}
+    ${LIBXFCE4WINDOWING_LIBRARIES}
     ${LIBXFCONF_LIBRARIES}
     ${GLIB_LIBRARIES}
     ${GMODULE_LIBRARIES}
@@ -108,7 +156,7 @@ set(BACKEND_LINK_LIBS
     ${GTK3_LIBRARIES}
     ${LIBXFCE4UTIL_LIBRARIES}
     ${LIBXFCE4UI_LIBRARIES}
-    ${LIBWNCK_LIBRARIES}
+    ${LIBXFCE4WINDOWING_LIBRARIES}
     ${LIBXFCONF_LIBRARIES}
     ${DBUS_LIBRARIES}
     ${DBUS_GLIB_LIBRARIES}
@@ -171,3 +219,17 @@ message(STATUS " Banshee support ...............${ENABLE_BANSHEE}")
 message(STATUS " pragha support ................${ENABLE_PRAGHA}")
 message(STATUS " radiotray support .............${ENABLE_RADIOTRAY}")
 message(STATUS "")
+
+# Debian package target
+add_custom_target(deb
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_SOURCE_DIR}/debian/compat
+    COMMAND dpkg-buildpackage -us -uc -b
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Building Debian package"
+)
+
+add_custom_target(deb-clean
+    COMMAND dh_clean
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Cleaning Debian build artifacts"
+)

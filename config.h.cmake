@@ -5,7 +5,7 @@
 #define PACKAGE_VERSION "${PROJECT_VERSION}"
 #define VERSION "${PROJECT_VERSION}"
 
-#define GETTEXT_PACKAGE "${GETTEXT_PACKAGE}"
+/* GETTEXT_PACKAGE is defined on the command line */
 
 #cmakedefine HAVE_GIO 1
 #cmakedefine HAVE_LIBID3TAG 1

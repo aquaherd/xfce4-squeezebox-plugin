@@ -1,21 +1,29 @@
-This package was debianized by Hakan Erduman <Hakan@Erduman.de> on
-Wed, 14 Nov 2007 22:26:56 +0100.
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: xfce4-squeezebox-plugin
+Upstream-Contact: Hakan Erduman <Hakan@Erduman.de>
+Source: https://github.com/aquaherd/xfce4-squeezebox-plugin
 
-It was downloaded from <http://erduman.de>
+Files: *
+Copyright: 2006-2025 Hakan Erduman <Hakan@Erduman.de>
+License: GPL-2+
 
-Upstream Author(s): 
+Files: debian/*
+Copyright: 2007-2025 Hakan Erduman <Hakan@Erduman.de>
+License: GPL-2+
 
-    Hakan Erduman <Hakan@Erduman.de>
-
-Copyright: 
-
-    Copyright (C) 2006-2009 Hakan Erduman
-
-License:
-
-    GPL
-
-The Debian packaging is (C) 2007, Hakan Erduman <Hakan@Erduman.de> and
-is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
-
-
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
