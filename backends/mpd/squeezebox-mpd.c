@@ -395,7 +395,7 @@ EXPORT void on_mpdSettings_response(GtkDialog * dlg, int reponse,
    }
 
    // don't allow bogus playlist manager
-   manager = gtk_combo_box_get_active_text(GTK_COMBO_BOX(thys->wPMgr));
+   manager = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(thys->wPMgr));
    g_string_assign(thys->pmanager, manager);
    g_free(manager);
    if (thys->bUsePManager && thys->pmanager->len)
@@ -531,7 +531,7 @@ static void mpdConfigure(gpointer thsPtr, GtkWidget * parent)
    xfconf_g_property_bind(thys->xfconfChannel, "/ListManager", G_TYPE_STRING,
          gtk_bin_get_child(
                GTK_BIN(
-                     GTK_COMBO_BOX_ENTRY( gtk_builder_get_object(builder, "comboListManager")))),
+                     GTK_COMBO_BOX_TEXT( gtk_builder_get_object(builder, "comboListManager")))),
          "text");
    store = GTK_LIST_STORE(gtk_builder_get_object(builder, "listManagers"));
 

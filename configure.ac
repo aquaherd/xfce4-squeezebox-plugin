@@ -40,15 +40,15 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [Define to the Gettext p
 AM_GLIB_GNU_GETTEXT
 
 dnl Check for required packages
-XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-1.0], [4.8.0])
-XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.8.0])
-XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-1], [4.8.0])
-XDT_CHECK_PACKAGE([GTK], [gtk+-2.0], [2.14.0])
-XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.22])
+XDT_CHECK_PACKAGE([LIBXFCE4PANEL], [libxfce4panel-2.0], [4.12.0])
+XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.12.0])
+XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-2], [4.12.0])
+XDT_CHECK_PACKAGE([GTK], [gtk+-3.0], [3.20.0])
+XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-3.0], [3.4.0])
 XDT_CHECK_PACKAGE([DBUS], [dbus-1], [1.0.0])
 XDT_CHECK_PACKAGE([DBUS_GLIB], [dbus-glib-1], [0.73])
-XDT_CHECK_PACKAGE([LIBXFCONF], [libxfconf-0], [4.8.0])
-XDT_CHECK_PACKAGE([LIBEXO], [exo-1], [0.6.0])
+XDT_CHECK_PACKAGE([LIBXFCONF], [libxfconf-0], [4.12.0])
+XDT_CHECK_PACKAGE([LIBEXO], [exo-2], [0.11.0])
 
 dnl check for gvfs presence
 PKG_CHECK_MODULES([LIBGIO], 
@@ -75,15 +75,15 @@ XDT_CHECK_OPTIONAL_PACKAGE([LIBINDICATE],
                        [indicate],
                        [indicate library], [yes])
 
-dnl Checking for libindicator
+dnl Checking for zeitgeist
 LIBZEITGEIST_FOUND="no"
 XDT_CHECK_OPTIONAL_PACKAGE([LIBZEITGEIST],
-                       [zeitgeist-1.0], [0.3.10],
+                       [zeitgeist-2.0], [0.9.0],
                        [zeitgeist],
                        [zeitgeist library], [yes])
 
 dnl Checking for libwnck
-XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-1.0], [2.14.3])
+XDT_CHECK_PACKAGE([LIBWNCK], [libwnck-3.0], [3.4.0])
 AC_SUBST([LIBWNCK_CFLAGS])
 AC_SUBST([LIBWNCK_LIBS])
 
@@ -93,7 +93,7 @@ AC_SUBST([LIBGTHREAD_CFLAGS])
 AC_SUBST([LIBGTHERAD_LIBS])
 
 dnl Checking for keybinder
-XDT_CHECK_PACKAGE([LIBKEYBINDER], [keybinder], [0.3.0])
+XDT_CHECK_PACKAGE([LIBKEYBINDER], [keybinder-3.0], [0.3.0])
 AC_SUBST([LIBKEYBINDER_CFLAGS])
 AC_SUBST([LIBKEYBINDER_LIBS])
 
@@ -168,15 +168,15 @@ if test x$enable_debug_trace = xyes; then
     AC_DEFINE([DEBUG_TRACE], [1], [Set this to 1 to enable full trace debugging.])
 fi
 
-AM_PATH_GLIB_2_0(2.22.0,,AC_MSG_ERROR([
-*** GLib 2.22 is required to build xfce4-squeezebox-plugin; please make sure you have the
+AM_PATH_GLIB_2_0(2.40.0,,AC_MSG_ERROR([
+*** GLib 2.40 is required to build xfce4-squeezebox-plugin; please make sure you have the
 *** GLib development headers installed. The latest version of GLib is always
 *** available at http://www.gtk.org/.]))
 AC_SUBST(GLIB_LIBS)
 AC_SUBST(GLIB_CFLAGS)
 
 dnl Check for xfconf
-XDT_CHECK_PACKAGE([LIBXFCONF], [libxfconf-0], [4.6.0])
+XDT_CHECK_PACKAGE([LIBXFCONF], [libxfconf-0], [4.12.0])
 AC_SUBST([LIBXFCONF_LIBS])
 AC_SUBST([LIBXFCONF_CFLAGS])
 

@@ -185,19 +185,19 @@ static void squeezebox_update_playbtn(SqueezeBoxData * sd)
    switch (sd->state)
    {
       case estPlay:
-      sd->image[ebtnPlay] = gtk_image_new_from_stock(GTK_STOCK_MEDIA_PLAY,
+      sd->image[ebtnPlay] = gtk_image_new_from_icon_name("media-playback-start",
             GTK_ICON_SIZE_MENU);
       break;
       case estPause:
-      sd->image[ebtnPlay] = gtk_image_new_from_stock(GTK_STOCK_MEDIA_PAUSE,
+      sd->image[ebtnPlay] = gtk_image_new_from_icon_name("media-playback-pause",
             GTK_ICON_SIZE_MENU);
       break;
       case estStop:
-      sd->image[ebtnPlay] = gtk_image_new_from_stock(GTK_STOCK_MEDIA_STOP,
+      sd->image[ebtnPlay] = gtk_image_new_from_icon_name("media-playback-stop",
             GTK_ICON_SIZE_MENU);
       break;
       default:
-      sd->image[ebtnPlay] = gtk_image_new_from_stock(GTK_STOCK_DIALOG_ERROR,
+      sd->image[ebtnPlay] = gtk_image_new_from_icon_name("dialog-error",
             GTK_ICON_SIZE_MENU);
       break;
    }
@@ -225,7 +225,7 @@ static void on_window_closed(WnckScreen * screen, WnckWindow * window,
 static void on_mnuPlaylistItemActivated(GtkMenuItem *menuItem,
       SqueezeBoxData *sd)
 {
-   gchar *playlistName = (gchar*) gtk_object_get_data(GTK_OBJECT(menuItem),
+   gchar *playlistName = (gchar*) g_object_get_data(G_OBJECT(menuItem),
          "listname");
    LOG("Switch to playlist '%s'", playlistName);
    if (sd->player.PlayPlaylist)
@@ -233,21 +233,14 @@ static void on_mnuPlaylistItemActivated(GtkMenuItem *menuItem,
 }
 static void addMenu(gchar *key, gchar *value, SqueezeBoxData *sd)
 {
-   GtkWidget *menu, *subMenuItem, *image;
+   GtkWidget *menu, *subMenuItem;
    LOG("Adding submenu '%s' with icon '%s'", key, value);
    menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(sd->mnuPlayLists));
-   subMenuItem = gtk_image_menu_item_new_with_label(key);
-   /*
-    GtkPixmap *pixbuf = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
-    value, GTK_ICON_SIZE_MENU, 0, NULL);
-    */
-   image = gtk_image_new_from_icon_name(value, GTK_ICON_SIZE_MENU);
-   if (image)
-      gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subMenuItem), image);
+   subMenuItem = gtk_menu_item_new_with_label(key);
    gtk_widget_show(subMenuItem);
    gtk_menu_shell_append(GTK_MENU_SHELL(menu), subMenuItem);
    g_object_ref(subMenuItem);
-   gtk_object_set_data(GTK_OBJECT(subMenuItem), "listname", g_strdup(key));
+   g_object_set_data_full(G_OBJECT(subMenuItem), "listname", g_strdup(key), g_free);
    g_signal_connect(G_OBJECT(subMenuItem), "activate",
          G_CALLBACK(on_mnuPlaylistItemActivated), sd);
 }
@@ -1032,18 +1025,17 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd)
       LOGERR("xfconf_init failed %s", error->message)
       ;
    }
-   sd->table = gtk_table_new(1, 3, FALSE);
+   sd->table = gtk_grid_new();
    gtk_widget_show(sd->table);
    gtk_container_add(GTK_CONTAINER(window1), sd->table);
 
    sd->button[ebtnPrev] = gtk_button_new();
    gtk_button_set_relief(GTK_BUTTON(sd->button[ebtnPrev]), GTK_RELIEF_NONE);
    gtk_widget_show(sd->button[ebtnPrev]);
-   gtk_table_attach(GTK_TABLE(sd->table), sd->button[ebtnPrev], 0, 1, 0, 1,
-         (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-   gtk_button_set_focus_on_click(GTK_BUTTON(sd->button[ebtnPrev]), FALSE);
+   gtk_grid_attach(GTK_GRID(sd->table), sd->button[ebtnPrev], 0, 0, 1, 1);
+   gtk_widget_set_focus_on_click(sd->button[ebtnPrev], FALSE);
 
-   sd->image[ebtnPrev] = gtk_image_new_from_stock("gtk-media-rewind",
+   sd->image[ebtnPrev] = gtk_image_new_from_icon_name("media-seek-backward",
          GTK_ICON_SIZE_MENU);
    gtk_widget_show(sd->image[ebtnPrev]);
    gtk_container_add(GTK_CONTAINER(sd->button[ebtnPrev]), sd->image[ebtnPrev]);
@@ -1051,11 +1043,10 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd)
    sd->button[ebtnPlay] = gtk_button_new();
    gtk_button_set_relief(GTK_BUTTON(sd->button[ebtnPlay]), GTK_RELIEF_NONE);
    gtk_widget_show(sd->button[ebtnPlay]);
-   gtk_table_attach(GTK_TABLE(sd->table), sd->button[ebtnPlay], 1, 2, 0, 1,
-         (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-   gtk_button_set_focus_on_click(GTK_BUTTON(sd->button[ebtnPlay]), FALSE);
+   gtk_grid_attach(GTK_GRID(sd->table), sd->button[ebtnPlay], 1, 0, 1, 1);
+   gtk_widget_set_focus_on_click(sd->button[ebtnPlay], FALSE);
 
-   sd->image[ebtnPlay] = gtk_image_new_from_stock("gtk-media-play",
+   sd->image[ebtnPlay] = gtk_image_new_from_icon_name("media-playback-start",
          GTK_ICON_SIZE_MENU);
    gtk_widget_show(sd->image[ebtnPlay]);
    gtk_container_add(GTK_CONTAINER(sd->button[ebtnPlay]), sd->image[ebtnPlay]);
@@ -1063,11 +1054,10 @@ static GtkContainer *squeezebox_create(SqueezeBoxData * sd)
    sd->button[ebtnNext] = gtk_button_new();
    gtk_button_set_relief(GTK_BUTTON(sd->button[ebtnNext]), GTK_RELIEF_NONE);
    gtk_widget_show(sd->button[ebtnNext]);
-   gtk_table_attach(GTK_TABLE(sd->table), sd->button[ebtnNext], 2, 3, 0, 1,
-         (GtkAttachOptions) (GTK_FILL), (GtkAttachOptions) (0), 0, 0);
-   gtk_button_set_focus_on_click(GTK_BUTTON(sd->button[ebtnNext]), FALSE);
+   gtk_grid_attach(GTK_GRID(sd->table), sd->button[ebtnNext], 2, 0, 1, 1);
+   gtk_widget_set_focus_on_click(sd->button[ebtnNext], FALSE);
 
-   sd->image[ebtnNext] = gtk_image_new_from_stock("gtk-media-forward",
+   sd->image[ebtnNext] = gtk_image_new_from_icon_name("media-seek-forward",
          GTK_ICON_SIZE_MENU);
    gtk_widget_show(sd->image[ebtnNext]);
    gtk_container_add(GTK_CONTAINER(sd->button[ebtnNext]), sd->image[ebtnNext]);
@@ -1281,10 +1271,6 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin)
    xfce_textdomain(GETTEXT_PACKAGE, LOCALEDIR, "UTF-8");
    LOG("Enter squeezebox_construct");
 
-   // instead of init:
-   gdk_threads_init();
-   gdk_threads_enter();
-
    sd->plugin = plugin;
    sd->player.artist = g_string_new(_("(unknown)"));
    sd->player.album = g_string_new(_("(unknown)"));
@@ -1334,8 +1320,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin)
    sd->inCreate = TRUE;
    sd->inShortcutEdit = FALSE;
    sd->toolTipText = g_string_new("");
-   sd->wnckScreen = wnck_screen_get(
-         gdk_screen_get_number(gdk_screen_get_default()));
+   sd->wnckScreen = wnck_screen_get_default();
 
    /* wnck */
    g_signal_connect(sd->wnckScreen, "window_opened",
@@ -1356,7 +1341,7 @@ EXPORT void squeezebox_construct(XfcePanelPlugin * plugin)
    g_signal_connect(plugin, "size-changed", G_CALLBACK(squeezebox_set_size),
          sd);
 
-   sd->style_id = g_signal_connect(plugin, "style-set",
+   sd->style_id = g_signal_connect(plugin, "style-updated",
          G_CALLBACK(squeezebox_style_set), sd);
 
    xfce_panel_plugin_menu_show_configure(plugin);

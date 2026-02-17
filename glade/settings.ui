@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-requires libxfce4ui 4.5 -->
+  <requires lib="gtk+" version="3.20"/>
+  <!-- interface-requires libxfce4ui 4.12 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkListStore" id="datastore">
     <columns>
@@ -69,16 +69,18 @@
     <property name="subtitle" translatable="yes">media player remote</property>
     <signal name="response" handler="on_dialogSettings_response"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkNotebook" id="notebook1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkVBox" id="vbox2">
+              <object class="GtkBox" id="vbox2">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <property name="border_width">4</property>
                 <child>
                   <object class="GtkCheckButton" id="chkAutoAttach">
@@ -100,8 +102,9 @@
                     <property name="visible">True</property>
                     <property name="label_xalign">0</property>
                     <child>
-                      <object class="GtkHBox" id="hbox3">
+                      <object class="GtkBox" id="hbox3">
                         <property name="visible">True</property>
+                        <property name="orientation">horizontal</property>
                         <child>
                           <object class="GtkTreeView" id="tvPlayers">
                             <property name="visible">True</property>
@@ -109,7 +112,6 @@
                             <property name="model">datastore</property>
                             <property name="headers_visible">False</property>
                             <property name="headers_clickable">False</property>
-                            <property name="rules_hint">True</property>
                             <property name="search_column">1</property>
                             <property name="level_indentation">4</property>
                             <property name="tooltip_column">1</property>
@@ -124,7 +126,6 @@
                                   <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf1"/>
                                   <attributes>
                                     <attribute name="pixbuf">0</attribute>
-                                    <attribute name="stock-detail">1</attribute>
                                   </attributes>
                                 </child>
                                 <child>
@@ -169,7 +170,7 @@
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
                                 <property name="use_underline">True</property>
-                                <property name="stock_id">gtk-add</property>
+                                <property name="icon_name">list-add</property>
                                 <signal name="clicked" handler="on_btnAdd_clicked"/>
                               </object>
                               <packing>
@@ -182,7 +183,7 @@
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
                                 <property name="use_underline">True</property>
-                                <property name="stock_id">gtk-remove</property>
+                                <property name="icon_name">list-remove</property>
                                 <signal name="clicked" handler="on_btnRemove_clicked"/>
                               </object>
                               <packing>
@@ -195,7 +196,7 @@
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
                                 <property name="use_underline">True</property>
-                                <property name="stock_id">gtk-preferences</property>
+                                <property name="icon_name">preferences-system</property>
                                 <signal name="clicked" handler="on_btnEdit_clicked"/>
                               </object>
                               <packing>
@@ -208,22 +209,12 @@
                                 <property name="visible">True</property>
                                 <property name="sensitive">False</property>
                                 <property name="use_underline">True</property>
-                                <property name="stock_id">gtk-about</property>
+                                <property name="icon_name">help-about</property>
                                 <signal name="clicked" handler="on_btnAbout_clicked"/>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="homogeneous">True</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkMenuToolButton" id="filtermenu">
-                                <property name="visible">True</property>
-                                <property name="use_underline">True</property>
-                                <property name="menu">menu_filter</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
                               </packing>
                             </child>
                           </object>
@@ -257,160 +248,158 @@
               </packing>
             </child>
             <child>
-              <object class="GtkAlignment" id="alignment1">
+              <object class="GtkBox" id="vbox3">
                 <property name="visible">True</property>
-                <property name="left_padding">5</property>
-                <property name="right_padding">5</property>
+                <property name="orientation">vertical</property>
+                <property name="margin_start">5</property>
+                <property name="margin_end">5</property>
                 <child>
-                  <object class="GtkVBox" id="vbox3">
+                  <object class="GtkLabel" id="label5">
                     <property name="visible">True</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Panel appereance&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="padding">5</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chkShowPrevious">
+                    <property name="label" translatable="yes">Show P_revious button</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="on_chkShowPrevious_toggled"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chkShowNext">
+                    <property name="label" translatable="yes">Show _Next button</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="on_chkShowNext_toggled"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chkShowToolTips">
+                    <property name="label" translatable="yes">Show _Tooltips</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="on_chkShowToolTips_toggled"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="hseparator2">
+                    <property name="visible">True</property>
+                    <property name="orientation">horizontal</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="padding">5</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label6">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Notifications&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="padding">5</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="chkShowNotifications">
+                    <property name="label" translatable="yes">Show noti_fications (e.g. xfce4-notifyd)</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="on_chkShowNotifications_toggled"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="hbox1">
+                    <property name="visible">True</property>
+                    <property name="orientation">horizontal</property>
                     <child>
-                      <object class="GtkLabel" id="label5">
+                      <object class="GtkLabel" id="label1">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Panel appereance&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Notification _timeout (sec)</property>
+                        <property name="use_underline">True</property>
+                        <property name="mnemonic_widget">spinNotificationTimeout</property>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="padding">5</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="chkShowPrevious">
-                        <property name="label" translatable="yes">Show P_revious button</property>
+                      <object class="GtkSpinButton" id="spinNotificationTimeout">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="draw_indicator">True</property>
-                        <signal name="toggled" handler="on_chkShowPrevious_toggled"/>
+                        <property name="adjustment">adjustmentTimeout</property>
+                        <signal name="change_value" handler="on_spinNotificationTimeout_change_value"/>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
                         <property name="fill">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
-                    <child>
-                      <object class="GtkCheckButton" id="chkShowNext">
-                        <property name="label" translatable="yes">Show _Next button</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="draw_indicator">True</property>
-                        <signal name="toggled" handler="on_chkShowNext_toggled"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="chkShowToolTips">
-                        <property name="label" translatable="yes">Show _Tooltips</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="draw_indicator">True</property>
-                        <signal name="toggled" handler="on_chkShowToolTips_toggled"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">3</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHSeparator" id="hseparator2">
-                        <property name="visible">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="padding">5</property>
-                        <property name="position">4</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label6">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Notifications&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="padding">5</property>
-                        <property name="position">5</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="chkShowNotifications">
-                        <property name="label" translatable="yes">Show noti_fications (e.g. xfce4-notifyd)</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="draw_indicator">True</property>
-                        <signal name="toggled" handler="on_chkShowNotifications_toggled"/>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">6</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHBox" id="hbox1">
-                        <property name="visible">True</property>
-                        <child>
-                          <object class="GtkLabel" id="label1">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">Notification _timeout (sec)</property>
-                            <property name="use_underline">True</property>
-                            <property name="mnemonic_widget">spinNotificationTimeout</property>
-                          </object>
-                          <packing>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkSpinButton" id="spinNotificationTimeout">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">●</property>
-                            <property name="adjustment">adjustmentTimeout</property>
-                            <signal name="change_value" handler="on_spinNotificationTimeout_change_value"/>
-                          </object>
-                          <packing>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">7</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHSeparator" id="hseparator1">
-                        <property name="visible">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="padding">5</property>
-                        <property name="position">8</property>
-                      </packing>
-                    </child>
                   </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSeparator" id="hseparator1">
+                    <property name="visible">True</property>
+                    <property name="orientation">horizontal</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="padding">5</property>
+                    <property name="position">8</property>
+                  </packing>
                 </child>
               </object>
               <packing>
@@ -459,7 +448,7 @@
                         <property name="editable">True</property>
                         <signal name="accel_edited" handler="on_cellrenderShortCut_accel_edited"/>
                         <signal name="accel_cleared" handler="on_cellrenderShortCut_accel_cleared"/>
-						<signal name="editing-started" handler="on_cellrendererShortCut_editing_started"/>
+                        <signal name="editing-started" handler="on_cellrendererShortCut_editing_started"/>
                       </object>
                       <attributes>
                         <attribute name="accel-key">1</attribute>
@@ -491,7 +480,7 @@
           </packing>
         </child>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
+          <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>
@@ -530,35 +519,5 @@
     <property name="upper">100</property>
     <property name="step_increment">1</property>
     <property name="page_increment">5</property>
-  </object>
-  <object class="GtkMenu" id="menu_filter">
-    <property name="visible">True</property>
-    <property name="ubuntu_local">True</property>
-    <child>
-      <object class="GtkRadioMenuItem" id="menu_all">
-        <property name="visible">True</property>
-        <property name="label" translatable="yes">All known</property>
-        <property name="use_underline">True</property>
-        <property name="active">True</property>
-        <property name="draw_as_radio">True</property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkRadioMenuItem" id="menu_installed">
-        <property name="visible">True</property>
-        <property name="label" translatable="yes">All installed</property>
-        <property name="use_underline">True</property>
-        <property name="draw_as_radio">True</property>
-        <property name="group">menu_all</property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkRadioMenuItem" id="menu_remotable">
-        <property name="visible">True</property>
-        <property name="label" translatable="yes">Network remotes</property>
-        <property name="use_underline">True</property>
-        <property name="group">menu_all</property>
-      </object>
-    </child>
   </object>
 </interface>

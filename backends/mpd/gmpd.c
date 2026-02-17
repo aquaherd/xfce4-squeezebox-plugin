@@ -121,7 +121,6 @@ static void _update_dispatch(GMpdPrivate *priv, gchar *changeDetail)
       gchar **changes = g_strsplit(changeDetail, ",", 0);
       void (*update_func)(GMpdPrivate *priv, gchar *changeDetail);
       gchar **change = changes;
-      gdk_threads_enter();
       g_signal_emit(priv->self, klass->signal[SIGNAL_IDLE], 0, changeDetail);
 
       while (*change)
@@ -133,7 +132,6 @@ static void _update_dispatch(GMpdPrivate *priv, gchar *changeDetail)
          change++;
       }
       g_strfreev(changes);
-      gdk_threads_leave();
    }
 }
 
@@ -146,13 +144,11 @@ static void _disconnect(GMpdPrivate *priv, gboolean threaded)
    {
       if (priv->thread)
       {
-         gdk_threads_leave();
          _idle_cancel(priv);
          _idle_enter(priv);
          _send_command_raw(priv, "close\n");
          g_thread_join(priv->thread);
          priv->thread = NULL;
-         gdk_threads_enter();
       }
    }
    _clear_object((gpointer*) &priv->istm);
@@ -501,8 +497,7 @@ static void g_mpd_class_init(GMpdClass *klass)
          G_PARAM_READWRITE);
    g_object_class_install_property(gobject_class, PROP_PASS, pspec);
 
-   /* private data */
-   g_type_class_add_private(klass, sizeof(GMpdPrivate));
+   /* private data is handled by G_DEFINE_TYPE_WITH_PRIVATE */
 }
 
 static void g_mpd_init(GMpd *self)

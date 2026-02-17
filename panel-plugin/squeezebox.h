@@ -39,7 +39,6 @@
 #include <xfconf/xfconf.h>
 #include <libxfce4util/libxfce4util.h>
 
-#define WNCK_I_KNOW_THIS_IS_UNSTABLE
 #include <libwnck/libwnck.h>
 
 #define EXPORT __attribute__ ((visibility("default")))
