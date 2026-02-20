@@ -8,10 +8,7 @@ G_BEGIN_DECLS
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_DBusInterface
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_DBusInterface
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_get_cover_path (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -19,20 +16,14 @@ org_exaile_DBusInterface_get_cover_path (DBusGProxy *proxy, char ** OUT_arg0, GE
   return dbus_g_proxy_call (proxy, "get_cover_path", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_decrease_volume (DBusGProxy *proxy, const guchar IN_vol, GError **error)
 
 {
   return dbus_g_proxy_call (proxy, "decrease_volume", error, G_TYPE_UCHAR, IN_vol, G_TYPE_INVALID, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_get_volume (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -40,10 +31,7 @@ org_exaile_DBusInterface_get_volume (DBusGProxy *proxy, char ** OUT_arg0, GError
   return dbus_g_proxy_call (proxy, "get_volume", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_prev_track (DBusGProxy *proxy, GError **error)
 
@@ -51,10 +39,7 @@ org_exaile_DBusInterface_prev_track (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "prev_track", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_get_title (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -62,10 +47,7 @@ org_exaile_DBusInterface_get_title (DBusGProxy *proxy, char ** OUT_arg0, GError 
   return dbus_g_proxy_call (proxy, "get_title", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_popup (DBusGProxy *proxy, GError **error)
 
@@ -73,10 +55,7 @@ org_exaile_DBusInterface_popup (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "popup", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_query (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -84,10 +63,7 @@ org_exaile_DBusInterface_query (DBusGProxy *proxy, char ** OUT_arg0, GError **er
   return dbus_g_proxy_call (proxy, "query", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_play_file (DBusGProxy *proxy, const char * IN_filename, GError **error)
 
@@ -95,10 +71,7 @@ org_exaile_DBusInterface_play_file (DBusGProxy *proxy, const char * IN_filename,
   return dbus_g_proxy_call (proxy, "play_file", error, G_TYPE_STRING, IN_filename, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_set_rating (DBusGProxy *proxy, const guchar IN_rating, GError **error)
 
@@ -106,10 +79,7 @@ org_exaile_DBusInterface_set_rating (DBusGProxy *proxy, const guchar IN_rating, 
   return dbus_g_proxy_call (proxy, "set_rating", error, G_TYPE_UCHAR, IN_rating, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_get_version (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -117,10 +87,7 @@ org_exaile_DBusInterface_get_version (DBusGProxy *proxy, char ** OUT_arg0, GErro
   return dbus_g_proxy_call (proxy, "get_version", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_get_album (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -128,10 +95,7 @@ org_exaile_DBusInterface_get_album (DBusGProxy *proxy, char ** OUT_arg0, GError 
   return dbus_g_proxy_call (proxy, "get_album", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_get_rating (DBusGProxy *proxy, gint* OUT_arg0, GError **error)
 
@@ -139,10 +103,7 @@ org_exaile_DBusInterface_get_rating (DBusGProxy *proxy, gint* OUT_arg0, GError *
   return dbus_g_proxy_call (proxy, "get_rating", error, G_TYPE_INVALID, G_TYPE_INT, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_status (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -150,10 +111,7 @@ org_exaile_DBusInterface_status (DBusGProxy *proxy, char ** OUT_arg0, GError **e
   return dbus_g_proxy_call (proxy, "status", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_get_length (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -161,10 +119,7 @@ org_exaile_DBusInterface_get_length (DBusGProxy *proxy, char ** OUT_arg0, GError
   return dbus_g_proxy_call (proxy, "get_length", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_play (DBusGProxy *proxy, GError **error)
 
@@ -172,10 +127,7 @@ org_exaile_DBusInterface_play (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "play", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_current_position (DBusGProxy *proxy, guchar* OUT_arg0, GError **error)
 
@@ -183,10 +135,7 @@ org_exaile_DBusInterface_current_position (DBusGProxy *proxy, guchar* OUT_arg0, 
   return dbus_g_proxy_call (proxy, "current_position", error, G_TYPE_INVALID, G_TYPE_UCHAR, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_play_pause (DBusGProxy *proxy, GError **error)
 
@@ -194,10 +143,7 @@ org_exaile_DBusInterface_play_pause (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "play_pause", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_next_track (DBusGProxy *proxy, GError **error)
 
@@ -205,10 +151,7 @@ org_exaile_DBusInterface_next_track (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "next_track", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_stop (DBusGProxy *proxy, GError **error)
 
@@ -216,10 +159,7 @@ org_exaile_DBusInterface_stop (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "stop", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_increase_volume (DBusGProxy *proxy, const guchar IN_vol, GError **error)
 
@@ -227,10 +167,7 @@ org_exaile_DBusInterface_increase_volume (DBusGProxy *proxy, const guchar IN_vol
   return dbus_g_proxy_call (proxy, "increase_volume", error, G_TYPE_UCHAR, IN_vol, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_get_track_attr (DBusGProxy *proxy, const char * IN_attr, char ** OUT_arg1, GError **error)
 
@@ -238,10 +175,7 @@ org_exaile_DBusInterface_get_track_attr (DBusGProxy *proxy, const char * IN_attr
   return dbus_g_proxy_call (proxy, "get_track_attr", error, G_TYPE_STRING, IN_attr, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg1, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_get_artist (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -249,10 +183,7 @@ org_exaile_DBusInterface_get_artist (DBusGProxy *proxy, char ** OUT_arg0, GError
   return dbus_g_proxy_call (proxy, "get_artist", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_play_cd (DBusGProxy *proxy, GError **error)
 
@@ -260,10 +191,7 @@ org_exaile_DBusInterface_play_cd (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "play_cd", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_toggle_visibility (DBusGProxy *proxy, GError **error)
 
@@ -271,10 +199,7 @@ org_exaile_DBusInterface_toggle_visibility (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "toggle_visibility", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_popup_text (DBusGProxy *proxy, const GValue* IN_text, GError **error)
 
@@ -282,10 +207,7 @@ org_exaile_DBusInterface_popup_text (DBusGProxy *proxy, const GValue* IN_text, G
   return dbus_g_proxy_call (proxy, "popup_text", error, G_TYPE_VALUE, IN_text, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_DBusInterface_test_service (DBusGProxy *proxy, const char * IN_arg, GError **error)
 
@@ -298,10 +220,7 @@ org_exaile_DBusInterface_test_service (DBusGProxy *proxy, const char * IN_arg, G
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_Exaile
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_exaile_Exaile
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_stop_after_current (DBusGProxy *proxy, GError **error)
 
@@ -309,10 +228,7 @@ org_exaile_Exaile_stop_after_current (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "StopAfterCurrent", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_play (DBusGProxy *proxy, GError **error)
 
@@ -320,10 +236,7 @@ org_exaile_Exaile_play (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "Play", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_get_volume (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -331,10 +244,7 @@ org_exaile_Exaile_get_volume (DBusGProxy *proxy, char ** OUT_arg0, GError **erro
   return dbus_g_proxy_call (proxy, "GetVolume", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_current_position (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -342,10 +252,7 @@ org_exaile_Exaile_current_position (DBusGProxy *proxy, char ** OUT_arg0, GError 
   return dbus_g_proxy_call (proxy, "CurrentPosition", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_stop (DBusGProxy *proxy, GError **error)
 
@@ -353,10 +260,7 @@ org_exaile_Exaile_stop (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "Stop", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_set_track_attr (DBusGProxy *proxy, const char * IN_attr, const GValue* IN_value, GError **error)
 
@@ -364,10 +268,7 @@ org_exaile_Exaile_set_track_attr (DBusGProxy *proxy, const char * IN_attr, const
   return dbus_g_proxy_call (proxy, "SetTrackAttr", error, G_TYPE_STRING, IN_attr, G_TYPE_VALUE, IN_value, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_next (DBusGProxy *proxy, GError **error)
 
@@ -375,10 +276,7 @@ org_exaile_Exaile_next (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "Next", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_enqueue (DBusGProxy *proxy, const char ** IN_filenames, GError **error)
 
@@ -386,10 +284,7 @@ org_exaile_Exaile_enqueue (DBusGProxy *proxy, const char ** IN_filenames, GError
   return dbus_g_proxy_call (proxy, "Enqueue", error, G_TYPE_STRV, IN_filenames, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_change_volume (DBusGProxy *proxy, const gint IN_value, GError **error)
 
@@ -397,10 +292,7 @@ org_exaile_Exaile_change_volume (DBusGProxy *proxy, const gint IN_value, GError 
   return dbus_g_proxy_call (proxy, "ChangeVolume", error, G_TYPE_INT, IN_value, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_play_file (DBusGProxy *proxy, const char * IN_filename, GError **error)
 
@@ -408,10 +300,7 @@ org_exaile_Exaile_play_file (DBusGProxy *proxy, const char * IN_filename, GError
   return dbus_g_proxy_call (proxy, "PlayFile", error, G_TYPE_STRING, IN_filename, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_play_pause (DBusGProxy *proxy, GError **error)
 
@@ -419,10 +308,7 @@ org_exaile_Exaile_play_pause (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "PlayPause", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_test_service (DBusGProxy *proxy, const char * IN_arg, GError **error)
 
@@ -430,10 +316,7 @@ org_exaile_Exaile_test_service (DBusGProxy *proxy, const char * IN_arg, GError *
   return dbus_g_proxy_call (proxy, "TestService", error, G_TYPE_STRING, IN_arg, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_gui_toggle_visible (DBusGProxy *proxy, GError **error)
 
@@ -441,10 +324,7 @@ org_exaile_Exaile_gui_toggle_visible (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "GuiToggleVisible", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_is_playing (DBusGProxy *proxy, gboolean* OUT_arg0, GError **error)
 
@@ -452,10 +332,7 @@ org_exaile_Exaile_is_playing (DBusGProxy *proxy, gboolean* OUT_arg0, GError **er
   return dbus_g_proxy_call (proxy, "IsPlaying", error, G_TYPE_INVALID, G_TYPE_BOOLEAN, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_get_state (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -463,10 +340,7 @@ org_exaile_Exaile_get_state (DBusGProxy *proxy, char ** OUT_arg0, GError **error
   return dbus_g_proxy_call (proxy, "GetState", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_get_track_attr (DBusGProxy *proxy, const char * IN_attr, char ** OUT_retval, GError **error)
 
@@ -474,10 +348,7 @@ org_exaile_Exaile_get_track_attr (DBusGProxy *proxy, const char * IN_attr, char 
   return dbus_g_proxy_call (proxy, "GetTrackAttr", error, G_TYPE_STRING, IN_attr, G_TYPE_INVALID, G_TYPE_STRING, OUT_retval, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_query (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -485,10 +356,7 @@ org_exaile_Exaile_query (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
   return dbus_g_proxy_call (proxy, "Query", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_get_version (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -496,10 +364,7 @@ org_exaile_Exaile_get_version (DBusGProxy *proxy, char ** OUT_arg0, GError **err
   return dbus_g_proxy_call (proxy, "GetVersion", error, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg0, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_prev (DBusGProxy *proxy, GError **error)
 
@@ -507,10 +372,7 @@ org_exaile_Exaile_prev (DBusGProxy *proxy, GError **error)
   return dbus_g_proxy_call (proxy, "Prev", error, G_TYPE_INVALID, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_exaile_Exaile_current_progress (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 

@@ -65,10 +65,7 @@ typedef enum eTTStyle
 
 
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_DBus_get_connection_unix_process_id (DBusGProxy *proxy, const char * IN_arg0, guint* OUT_arg1, GError **error)
 
@@ -76,10 +73,7 @@ org_freedesktop_DBus_get_connection_unix_process_id (DBusGProxy *proxy, const ch
   return dbus_g_proxy_call (proxy, "GetConnectionUnixProcessID", error, G_TYPE_STRING, IN_arg0, G_TYPE_INVALID, G_TYPE_UINT, OUT_arg1, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_DBus_get_name_owner (DBusGProxy *proxy, const char * IN_arg0, char ** OUT_arg1, GError **error)
 
@@ -87,10 +81,7 @@ org_freedesktop_DBus_get_name_owner (DBusGProxy *proxy, const char * IN_arg0, ch
   return dbus_g_proxy_call (proxy, "GetNameOwner", error, G_TYPE_STRING, IN_arg0, G_TYPE_INVALID, G_TYPE_STRING, OUT_arg1, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_DBus_start_service_by_name (DBusGProxy *proxy, const char * IN_arg0, const guint IN_arg1, guint* OUT_arg2, GError **error)
 
@@ -98,10 +89,7 @@ org_freedesktop_DBus_start_service_by_name (DBusGProxy *proxy, const char * IN_a
   return dbus_g_proxy_call (proxy, "StartServiceByName", error, G_TYPE_STRING, IN_arg0, G_TYPE_UINT, IN_arg1, G_TYPE_INVALID, G_TYPE_UINT, OUT_arg2, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_DBus_name_has_owner (DBusGProxy *proxy, const char * IN_arg0, gboolean* OUT_arg1, GError **error)
 

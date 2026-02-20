@@ -7,10 +7,7 @@ G_BEGIN_DECLS
 
 #ifndef _DBUS_GLIB_ASYNC_DATA_FREE
 #define _DBUS_GLIB_ASYNC_DATA_FREE
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 void
 _dbus_glib_async_data_free (gpointer stuff)
 {
@@ -21,10 +18,7 @@ _dbus_glib_async_data_free (gpointer stuff)
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_radiotray
 #define DBUS_GLIB_CLIENT_WRAPPERS_radiotray
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 radiotray_list_radios (DBusGProxy *proxy, char *** OUT_arg0, GError **error)
 
@@ -45,10 +39,7 @@ radiotray_list_radios_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, v
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 radiotray_list_radios_async (DBusGProxy *proxy, radiotray_list_radios_reply callback, gpointer userdata)
 
@@ -59,10 +50,7 @@ radiotray_list_radios_async (DBusGProxy *proxy, radiotray_list_radios_reply call
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "listRadios", radiotray_list_radios_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 radiotray_turn_off (DBusGProxy *proxy, GError **error)
 
@@ -82,10 +70,7 @@ radiotray_turn_off_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 radiotray_turn_off_async (DBusGProxy *proxy, radiotray_turn_off_reply callback, gpointer userdata)
 
@@ -96,10 +81,7 @@ radiotray_turn_off_async (DBusGProxy *proxy, radiotray_turn_off_reply callback, 
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "turnOff", radiotray_turn_off_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 radiotray_volume_down (DBusGProxy *proxy, GError **error)
 
@@ -119,10 +101,7 @@ radiotray_volume_down_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, v
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 radiotray_volume_down_async (DBusGProxy *proxy, radiotray_volume_down_reply callback, gpointer userdata)
 
@@ -133,10 +112,7 @@ radiotray_volume_down_async (DBusGProxy *proxy, radiotray_volume_down_reply call
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "volumeDown", radiotray_volume_down_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 radiotray_play_radio (DBusGProxy *proxy, const GValue* IN_radioName, GError **error)
 
@@ -156,10 +132,7 @@ radiotray_play_radio_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, vo
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 radiotray_play_radio_async (DBusGProxy *proxy, const GValue* IN_radioName, radiotray_play_radio_reply callback, gpointer userdata)
 
@@ -170,10 +143,7 @@ radiotray_play_radio_async (DBusGProxy *proxy, const GValue* IN_radioName, radio
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "playRadio", radiotray_play_radio_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_VALUE, IN_radioName, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 radiotray_get_current_meta_data (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -194,10 +164,7 @@ radiotray_get_current_meta_data_async_callback (DBusGProxy *proxy, DBusGProxyCal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 radiotray_get_current_meta_data_async (DBusGProxy *proxy, radiotray_get_current_meta_data_reply callback, gpointer userdata)
 
@@ -208,10 +175,7 @@ radiotray_get_current_meta_data_async (DBusGProxy *proxy, radiotray_get_current_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "getCurrentMetaData", radiotray_get_current_meta_data_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 radiotray_toggle_play (DBusGProxy *proxy, GError **error)
 
@@ -231,10 +195,7 @@ radiotray_toggle_play_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, v
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 radiotray_toggle_play_async (DBusGProxy *proxy, radiotray_toggle_play_reply callback, gpointer userdata)
 
@@ -245,10 +206,7 @@ radiotray_toggle_play_async (DBusGProxy *proxy, radiotray_toggle_play_reply call
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "togglePlay", radiotray_toggle_play_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 radiotray_volume_up (DBusGProxy *proxy, GError **error)
 
@@ -268,10 +226,7 @@ radiotray_volume_up_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, voi
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 radiotray_volume_up_async (DBusGProxy *proxy, radiotray_volume_up_reply callback, gpointer userdata)
 
@@ -282,10 +237,7 @@ radiotray_volume_up_async (DBusGProxy *proxy, radiotray_volume_up_reply callback
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "volumeUp", radiotray_volume_up_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 radiotray_play_url (DBusGProxy *proxy, const GValue* IN_url, GError **error)
 
@@ -305,10 +257,7 @@ radiotray_play_url_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, void
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 radiotray_play_url_async (DBusGProxy *proxy, const GValue* IN_url, radiotray_play_url_reply callback, gpointer userdata)
 
@@ -319,10 +268,7 @@ radiotray_play_url_async (DBusGProxy *proxy, const GValue* IN_url, radiotray_pla
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "playUrl", radiotray_play_url_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_VALUE, IN_url, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 radiotray_get_current_radio (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -343,10 +289,7 @@ radiotray_get_current_radio_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 radiotray_get_current_radio_async (DBusGProxy *proxy, radiotray_get_current_radio_reply callback, gpointer userdata)
 

@@ -9,10 +9,7 @@ G_BEGIN_DECLS
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_net_sacredchao_QuodLibet
 #define DBUS_GLIB_CLIENT_WRAPPERS_net_sacredchao_QuodLibet
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 net_sacredchao_QuodLibet_get_position (DBusGProxy *proxy, guint* OUT_actPos, GError **error)
 
@@ -33,10 +30,7 @@ net_sacredchao_QuodLibet_get_position_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 net_sacredchao_QuodLibet_get_position_async (DBusGProxy *proxy, net_sacredchao_QuodLibet_get_position_reply callback, gpointer userdata)
 
@@ -47,10 +41,7 @@ net_sacredchao_QuodLibet_get_position_async (DBusGProxy *proxy, net_sacredchao_Q
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetPosition", net_sacredchao_QuodLibet_get_position_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 net_sacredchao_QuodLibet_is_playing (DBusGProxy *proxy, gboolean* OUT_bRet, GError **error)
 
@@ -71,10 +62,7 @@ net_sacredchao_QuodLibet_is_playing_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 net_sacredchao_QuodLibet_is_playing_async (DBusGProxy *proxy, net_sacredchao_QuodLibet_is_playing_reply callback, gpointer userdata)
 
@@ -85,10 +73,7 @@ net_sacredchao_QuodLibet_is_playing_async (DBusGProxy *proxy, net_sacredchao_Quo
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "IsPlaying", net_sacredchao_QuodLibet_is_playing_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 net_sacredchao_QuodLibet_current_song (DBusGProxy *proxy, GHashTable** OUT_songProps, GError **error)
 
@@ -109,10 +94,7 @@ net_sacredchao_QuodLibet_current_song_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 net_sacredchao_QuodLibet_current_song_async (DBusGProxy *proxy, net_sacredchao_QuodLibet_current_song_reply callback, gpointer userdata)
 
@@ -123,10 +105,7 @@ net_sacredchao_QuodLibet_current_song_async (DBusGProxy *proxy, net_sacredchao_Q
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "CurrentSong", net_sacredchao_QuodLibet_current_song_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 net_sacredchao_QuodLibet_next (DBusGProxy *proxy, GError **error)
 
@@ -146,10 +125,7 @@ net_sacredchao_QuodLibet_next_async_callback (DBusGProxy *proxy, DBusGProxyCall 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 net_sacredchao_QuodLibet_next_async (DBusGProxy *proxy, net_sacredchao_QuodLibet_next_reply callback, gpointer userdata)
 
@@ -160,10 +136,7 @@ net_sacredchao_QuodLibet_next_async (DBusGProxy *proxy, net_sacredchao_QuodLibet
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Next", net_sacredchao_QuodLibet_next_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 net_sacredchao_QuodLibet_previous (DBusGProxy *proxy, GError **error)
 
@@ -183,10 +156,7 @@ net_sacredchao_QuodLibet_previous_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 net_sacredchao_QuodLibet_previous_async (DBusGProxy *proxy, net_sacredchao_QuodLibet_previous_reply callback, gpointer userdata)
 
@@ -197,10 +167,7 @@ net_sacredchao_QuodLibet_previous_async (DBusGProxy *proxy, net_sacredchao_QuodL
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Previous", net_sacredchao_QuodLibet_previous_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 net_sacredchao_QuodLibet_is_playing (DBusGProxy *proxy, gboolean* OUT_bIsPlaying, GError **error)
 
@@ -221,10 +188,7 @@ net_sacredchao_QuodLibet_is_playing_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 net_sacredchao_QuodLibet_is_playing_async (DBusGProxy *proxy, net_sacredchao_QuodLibet_is_playing_reply callback, gpointer userdata)
 
@@ -235,10 +199,7 @@ net_sacredchao_QuodLibet_is_playing_async (DBusGProxy *proxy, net_sacredchao_Quo
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "IsPlaying", net_sacredchao_QuodLibet_is_playing_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 net_sacredchao_QuodLibet_pause (DBusGProxy *proxy, gboolean* OUT_bIsPaused, GError **error)
 
@@ -259,10 +220,7 @@ net_sacredchao_QuodLibet_pause_async_callback (DBusGProxy *proxy, DBusGProxyCall
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 net_sacredchao_QuodLibet_pause_async (DBusGProxy *proxy, net_sacredchao_QuodLibet_pause_reply callback, gpointer userdata)
 
@@ -273,10 +231,7 @@ net_sacredchao_QuodLibet_pause_async (DBusGProxy *proxy, net_sacredchao_QuodLibe
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Pause", net_sacredchao_QuodLibet_pause_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 net_sacredchao_QuodLibet_play (DBusGProxy *proxy, GError **error)
 
@@ -296,10 +251,7 @@ net_sacredchao_QuodLibet_play_async_callback (DBusGProxy *proxy, DBusGProxyCall 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 net_sacredchao_QuodLibet_play_async (DBusGProxy *proxy, net_sacredchao_QuodLibet_play_reply callback, gpointer userdata)
 
@@ -310,10 +262,7 @@ net_sacredchao_QuodLibet_play_async (DBusGProxy *proxy, net_sacredchao_QuodLibet
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Play", net_sacredchao_QuodLibet_play_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 net_sacredchao_QuodLibet_play_pause (DBusGProxy *proxy, gboolean* OUT_bIsPaused, GError **error)
 
@@ -334,10 +283,7 @@ net_sacredchao_QuodLibet_play_pause_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 net_sacredchao_QuodLibet_play_pause_async (DBusGProxy *proxy, net_sacredchao_QuodLibet_play_pause_reply callback, gpointer userdata)
 

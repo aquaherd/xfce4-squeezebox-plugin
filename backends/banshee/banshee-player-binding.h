@@ -11,10 +11,7 @@ G_BEGIN_DECLS
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_bansheeproject_Banshee_ClientWindow
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_bansheeproject_Banshee_ClientWindow
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_ClientWindow_present (DBusGProxy *proxy, GError **error)
 
@@ -34,10 +31,7 @@ org_bansheeproject_Banshee_ClientWindow_present_async_callback (DBusGProxy *prox
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_ClientWindow_present_async (DBusGProxy *proxy, org_bansheeproject_Banshee_ClientWindow_present_reply callback, gpointer userdata)
 
@@ -48,10 +42,7 @@ org_bansheeproject_Banshee_ClientWindow_present_async (DBusGProxy *proxy, org_ba
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Present", org_bansheeproject_Banshee_ClientWindow_present_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_ClientWindow_hide (DBusGProxy *proxy, GError **error)
 
@@ -71,10 +62,7 @@ org_bansheeproject_Banshee_ClientWindow_hide_async_callback (DBusGProxy *proxy, 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_ClientWindow_hide_async (DBusGProxy *proxy, org_bansheeproject_Banshee_ClientWindow_hide_reply callback, gpointer userdata)
 
@@ -90,10 +78,7 @@ org_bansheeproject_Banshee_ClientWindow_hide_async (DBusGProxy *proxy, org_bansh
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_bansheeproject_Banshee_PlaybackController
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_bansheeproject_Banshee_PlaybackController
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlaybackController_first (DBusGProxy *proxy, GError **error)
 
@@ -113,10 +98,7 @@ org_bansheeproject_Banshee_PlaybackController_first_async_callback (DBusGProxy *
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_PlaybackController_first_async (DBusGProxy *proxy, org_bansheeproject_Banshee_PlaybackController_first_reply callback, gpointer userdata)
 
@@ -127,10 +109,7 @@ org_bansheeproject_Banshee_PlaybackController_first_async (DBusGProxy *proxy, or
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "First", org_bansheeproject_Banshee_PlaybackController_first_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlaybackController_next (DBusGProxy *proxy, const gboolean IN_restart, GError **error)
 
@@ -150,10 +129,7 @@ org_bansheeproject_Banshee_PlaybackController_next_async_callback (DBusGProxy *p
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_PlaybackController_next_async (DBusGProxy *proxy, const gboolean IN_restart, org_bansheeproject_Banshee_PlaybackController_next_reply callback, gpointer userdata)
 
@@ -164,10 +140,7 @@ org_bansheeproject_Banshee_PlaybackController_next_async (DBusGProxy *proxy, con
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Next", org_bansheeproject_Banshee_PlaybackController_next_async_callback, stuff, g_free, G_TYPE_BOOLEAN, IN_restart, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlaybackController_previous (DBusGProxy *proxy, const gboolean IN_restart, GError **error)
 
@@ -187,10 +160,7 @@ org_bansheeproject_Banshee_PlaybackController_previous_async_callback (DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_PlaybackController_previous_async (DBusGProxy *proxy, const gboolean IN_restart, org_bansheeproject_Banshee_PlaybackController_previous_reply callback, gpointer userdata)
 
@@ -206,10 +176,7 @@ org_bansheeproject_Banshee_PlaybackController_previous_async (DBusGProxy *proxy,
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_bansheeproject_Banshee_PlayerEngine
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_bansheeproject_Banshee_PlayerEngine
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlayerEngine_open (DBusGProxy *proxy, const char * IN_uri, GError **error)
 
@@ -229,10 +196,7 @@ org_bansheeproject_Banshee_PlayerEngine_open_async_callback (DBusGProxy *proxy, 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_PlayerEngine_open_async (DBusGProxy *proxy, const char * IN_uri, org_bansheeproject_Banshee_PlayerEngine_open_reply callback, gpointer userdata)
 
@@ -243,10 +207,7 @@ org_bansheeproject_Banshee_PlayerEngine_open_async (DBusGProxy *proxy, const cha
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Open", org_bansheeproject_Banshee_PlayerEngine_open_async_callback, stuff, g_free, G_TYPE_STRING, IN_uri, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlayerEngine_close (DBusGProxy *proxy, GError **error)
 
@@ -266,10 +227,7 @@ org_bansheeproject_Banshee_PlayerEngine_close_async_callback (DBusGProxy *proxy,
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_PlayerEngine_close_async (DBusGProxy *proxy, org_bansheeproject_Banshee_PlayerEngine_close_reply callback, gpointer userdata)
 
@@ -280,10 +238,7 @@ org_bansheeproject_Banshee_PlayerEngine_close_async (DBusGProxy *proxy, org_bans
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Close", org_bansheeproject_Banshee_PlayerEngine_close_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlayerEngine_pause (DBusGProxy *proxy, GError **error)
 
@@ -303,10 +258,7 @@ org_bansheeproject_Banshee_PlayerEngine_pause_async_callback (DBusGProxy *proxy,
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_PlayerEngine_pause_async (DBusGProxy *proxy, org_bansheeproject_Banshee_PlayerEngine_pause_reply callback, gpointer userdata)
 
@@ -317,10 +269,7 @@ org_bansheeproject_Banshee_PlayerEngine_pause_async (DBusGProxy *proxy, org_bans
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Pause", org_bansheeproject_Banshee_PlayerEngine_pause_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlayerEngine_play (DBusGProxy *proxy, GError **error)
 
@@ -340,10 +289,7 @@ org_bansheeproject_Banshee_PlayerEngine_play_async_callback (DBusGProxy *proxy, 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_PlayerEngine_play_async (DBusGProxy *proxy, org_bansheeproject_Banshee_PlayerEngine_play_reply callback, gpointer userdata)
 
@@ -355,10 +301,7 @@ org_bansheeproject_Banshee_PlayerEngine_play_async (DBusGProxy *proxy, org_bansh
   return dbus_g_proxy_begin_call (proxy, "Play", org_bansheeproject_Banshee_PlayerEngine_play_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlayerEngine_get_currentstate (DBusGProxy *proxy, gchar** currentState, GError **error)
 
@@ -366,10 +309,7 @@ org_bansheeproject_Banshee_PlayerEngine_get_currentstate (DBusGProxy *proxy, gch
   return dbus_g_proxy_call (proxy, "GetCurrentState", error, G_TYPE_INVALID, G_TYPE_STRING, currentState, G_TYPE_INVALID);
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlayerEngine_get_currenttrack (DBusGProxy *proxy, GHashTable** currentState, GError **error)
 
@@ -378,10 +318,7 @@ org_bansheeproject_Banshee_PlayerEngine_get_currenttrack (DBusGProxy *proxy, GHa
 }
 
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_bansheeproject_Banshee_PlayerEngine_toggle_playing (DBusGProxy *proxy, GError **error)
 
@@ -401,10 +338,7 @@ org_bansheeproject_Banshee_PlayerEngine_toggle_playing_async_callback (DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_bansheeproject_Banshee_PlayerEngine_toggle_playing_async (DBusGProxy *proxy, org_bansheeproject_Banshee_PlayerEngine_toggle_playing_reply callback, gpointer userdata)
 

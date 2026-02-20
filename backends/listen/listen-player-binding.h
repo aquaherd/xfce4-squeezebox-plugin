@@ -9,10 +9,7 @@ G_BEGIN_DECLS
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_gnome_Listen
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_gnome_Listen
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Listen_quit (DBusGProxy *proxy, GError **error)
 
@@ -32,10 +29,7 @@ org_gnome_Listen_quit_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, v
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Listen_quit_async (DBusGProxy *proxy, org_gnome_Listen_quit_reply callback, gpointer userdata)
 
@@ -46,10 +40,7 @@ org_gnome_Listen_quit_async (DBusGProxy *proxy, org_gnome_Listen_quit_reply call
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "quit", org_gnome_Listen_quit_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Listen_play (DBusGProxy *proxy, const GValue* IN_uris, GError **error)
 
@@ -69,10 +60,7 @@ org_gnome_Listen_play_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, v
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Listen_play_async (DBusGProxy *proxy, const GValue* IN_uris, org_gnome_Listen_play_reply callback, gpointer userdata)
 
@@ -83,10 +71,7 @@ org_gnome_Listen_play_async (DBusGProxy *proxy, const GValue* IN_uris, org_gnome
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "play", org_gnome_Listen_play_async_callback, stuff, g_free, G_TYPE_VALUE, IN_uris, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Listen_current_playing (DBusGProxy *proxy, GError **error)
 
@@ -106,10 +91,7 @@ org_gnome_Listen_current_playing_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Listen_current_playing_async (DBusGProxy *proxy, org_gnome_Listen_current_playing_reply callback, gpointer userdata)
 
@@ -120,10 +102,7 @@ org_gnome_Listen_current_playing_async (DBusGProxy *proxy, org_gnome_Listen_curr
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "current_playing", org_gnome_Listen_current_playing_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Listen_play_pause (DBusGProxy *proxy, GError **error)
 
@@ -143,10 +122,7 @@ org_gnome_Listen_play_pause_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Listen_play_pause_async (DBusGProxy *proxy, org_gnome_Listen_play_pause_reply callback, gpointer userdata)
 
@@ -157,10 +133,7 @@ org_gnome_Listen_play_pause_async (DBusGProxy *proxy, org_gnome_Listen_play_paus
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "play_pause", org_gnome_Listen_play_pause_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Listen_next (DBusGProxy *proxy, GError **error)
 
@@ -180,10 +153,7 @@ org_gnome_Listen_next_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, v
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Listen_next_async (DBusGProxy *proxy, org_gnome_Listen_next_reply callback, gpointer userdata)
 
@@ -194,10 +164,7 @@ org_gnome_Listen_next_async (DBusGProxy *proxy, org_gnome_Listen_next_reply call
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "next", org_gnome_Listen_next_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Listen_enqueue (DBusGProxy *proxy, const GValue* IN_uris, GError **error)
 
@@ -217,10 +184,7 @@ org_gnome_Listen_enqueue_async_callback (DBusGProxy *proxy, DBusGProxyCall *call
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Listen_enqueue_async (DBusGProxy *proxy, const GValue* IN_uris, org_gnome_Listen_enqueue_reply callback, gpointer userdata)
 
@@ -231,10 +195,7 @@ org_gnome_Listen_enqueue_async (DBusGProxy *proxy, const GValue* IN_uris, org_gn
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "enqueue", org_gnome_Listen_enqueue_async_callback, stuff, g_free, G_TYPE_VALUE, IN_uris, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Listen_hello (DBusGProxy *proxy, GError **error)
 
@@ -254,10 +215,7 @@ org_gnome_Listen_hello_async_callback (DBusGProxy *proxy, DBusGProxyCall *call, 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Listen_hello_async (DBusGProxy *proxy, org_gnome_Listen_hello_reply callback, gpointer userdata)
 
@@ -268,10 +226,7 @@ org_gnome_Listen_hello_async (DBusGProxy *proxy, org_gnome_Listen_hello_reply ca
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "hello", org_gnome_Listen_hello_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Listen_previous (DBusGProxy *proxy, GError **error)
 
@@ -291,10 +246,7 @@ org_gnome_Listen_previous_async_callback (DBusGProxy *proxy, DBusGProxyCall *cal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Listen_previous_async (DBusGProxy *proxy, org_gnome_Listen_previous_reply callback, gpointer userdata)
 

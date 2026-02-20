@@ -8,10 +8,7 @@ G_BEGIN_DECLS
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_gnome_Muine_Player
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_gnome_Muine_Player
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_get_playing (DBusGProxy *proxy, gboolean* OUT_ret, GError **error)
 
@@ -32,10 +29,7 @@ org_gnome_Muine_Player_get_playing_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_get_playing_async (DBusGProxy *proxy, org_gnome_Muine_Player_get_playing_reply callback, gpointer userdata)
 
@@ -46,10 +40,7 @@ org_gnome_Muine_Player_get_playing_async (DBusGProxy *proxy, org_gnome_Muine_Pla
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetPlaying", org_gnome_Muine_Player_get_playing_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_set_playing (DBusGProxy *proxy, const gboolean IN_playing, GError **error)
 
@@ -69,10 +60,7 @@ org_gnome_Muine_Player_set_playing_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_set_playing_async (DBusGProxy *proxy, const gboolean IN_playing, org_gnome_Muine_Player_set_playing_reply callback, gpointer userdata)
 
@@ -83,10 +71,7 @@ org_gnome_Muine_Player_set_playing_async (DBusGProxy *proxy, const gboolean IN_p
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SetPlaying", org_gnome_Muine_Player_set_playing_async_callback, stuff, g_free, G_TYPE_BOOLEAN, IN_playing, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_has_next (DBusGProxy *proxy, gboolean* OUT_ret, GError **error)
 
@@ -107,10 +92,7 @@ org_gnome_Muine_Player_has_next_async_callback (DBusGProxy *proxy, DBusGProxyCal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_has_next_async (DBusGProxy *proxy, org_gnome_Muine_Player_has_next_reply callback, gpointer userdata)
 
@@ -121,10 +103,7 @@ org_gnome_Muine_Player_has_next_async (DBusGProxy *proxy, org_gnome_Muine_Player
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "HasNext", org_gnome_Muine_Player_has_next_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_next (DBusGProxy *proxy, GError **error)
 
@@ -144,10 +123,7 @@ org_gnome_Muine_Player_next_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_next_async (DBusGProxy *proxy, org_gnome_Muine_Player_next_reply callback, gpointer userdata)
 
@@ -158,10 +134,7 @@ org_gnome_Muine_Player_next_async (DBusGProxy *proxy, org_gnome_Muine_Player_nex
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Next", org_gnome_Muine_Player_next_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_has_previous (DBusGProxy *proxy, gboolean* OUT_ret, GError **error)
 
@@ -182,10 +155,7 @@ org_gnome_Muine_Player_has_previous_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_has_previous_async (DBusGProxy *proxy, org_gnome_Muine_Player_has_previous_reply callback, gpointer userdata)
 
@@ -196,10 +166,7 @@ org_gnome_Muine_Player_has_previous_async (DBusGProxy *proxy, org_gnome_Muine_Pl
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "HasPrevious", org_gnome_Muine_Player_has_previous_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_previous (DBusGProxy *proxy, GError **error)
 
@@ -219,10 +186,7 @@ org_gnome_Muine_Player_previous_async_callback (DBusGProxy *proxy, DBusGProxyCal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_previous_async (DBusGProxy *proxy, org_gnome_Muine_Player_previous_reply callback, gpointer userdata)
 
@@ -233,10 +197,7 @@ org_gnome_Muine_Player_previous_async (DBusGProxy *proxy, org_gnome_Muine_Player
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Previous", org_gnome_Muine_Player_previous_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_get_current_song (DBusGProxy *proxy, char ** OUT_ret, GError **error)
 
@@ -257,10 +218,7 @@ org_gnome_Muine_Player_get_current_song_async_callback (DBusGProxy *proxy, DBusG
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_get_current_song_async (DBusGProxy *proxy, org_gnome_Muine_Player_get_current_song_reply callback, gpointer userdata)
 
@@ -271,10 +229,7 @@ org_gnome_Muine_Player_get_current_song_async (DBusGProxy *proxy, org_gnome_Muin
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetCurrentSong", org_gnome_Muine_Player_get_current_song_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_get_window_visible (DBusGProxy *proxy, gboolean* OUT_ret, GError **error)
 
@@ -295,10 +250,7 @@ org_gnome_Muine_Player_get_window_visible_async_callback (DBusGProxy *proxy, DBu
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_get_window_visible_async (DBusGProxy *proxy, org_gnome_Muine_Player_get_window_visible_reply callback, gpointer userdata)
 
@@ -309,10 +261,7 @@ org_gnome_Muine_Player_get_window_visible_async (DBusGProxy *proxy, org_gnome_Mu
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetWindowVisible", org_gnome_Muine_Player_get_window_visible_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_set_window_visible (DBusGProxy *proxy, const gboolean IN_visible, const guint IN_time, GError **error)
 
@@ -332,10 +281,7 @@ org_gnome_Muine_Player_set_window_visible_async_callback (DBusGProxy *proxy, DBu
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_set_window_visible_async (DBusGProxy *proxy, const gboolean IN_visible, const guint IN_time, org_gnome_Muine_Player_set_window_visible_reply callback, gpointer userdata)
 
@@ -346,10 +292,7 @@ org_gnome_Muine_Player_set_window_visible_async (DBusGProxy *proxy, const gboole
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SetWindowVisible", org_gnome_Muine_Player_set_window_visible_async_callback, stuff, g_free, G_TYPE_BOOLEAN, IN_visible, G_TYPE_UINT, IN_time, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_get_volume (DBusGProxy *proxy, gint* OUT_ret, GError **error)
 
@@ -370,10 +313,7 @@ org_gnome_Muine_Player_get_volume_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_get_volume_async (DBusGProxy *proxy, org_gnome_Muine_Player_get_volume_reply callback, gpointer userdata)
 
@@ -384,10 +324,7 @@ org_gnome_Muine_Player_get_volume_async (DBusGProxy *proxy, org_gnome_Muine_Play
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetVolume", org_gnome_Muine_Player_get_volume_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_set_volume (DBusGProxy *proxy, const gint IN_volume, GError **error)
 
@@ -407,10 +344,7 @@ org_gnome_Muine_Player_set_volume_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_set_volume_async (DBusGProxy *proxy, const gint IN_volume, org_gnome_Muine_Player_set_volume_reply callback, gpointer userdata)
 
@@ -421,10 +355,7 @@ org_gnome_Muine_Player_set_volume_async (DBusGProxy *proxy, const gint IN_volume
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SetVolume", org_gnome_Muine_Player_set_volume_async_callback, stuff, g_free, G_TYPE_INT, IN_volume, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_get_position (DBusGProxy *proxy, gint* OUT_ret, GError **error)
 
@@ -445,10 +376,7 @@ org_gnome_Muine_Player_get_position_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_get_position_async (DBusGProxy *proxy, org_gnome_Muine_Player_get_position_reply callback, gpointer userdata)
 
@@ -459,10 +387,7 @@ org_gnome_Muine_Player_get_position_async (DBusGProxy *proxy, org_gnome_Muine_Pl
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetPosition", org_gnome_Muine_Player_get_position_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_set_position (DBusGProxy *proxy, const gint IN_pos, GError **error)
 
@@ -482,10 +407,7 @@ org_gnome_Muine_Player_set_position_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_set_position_async (DBusGProxy *proxy, const gint IN_pos, org_gnome_Muine_Player_set_position_reply callback, gpointer userdata)
 
@@ -496,10 +418,7 @@ org_gnome_Muine_Player_set_position_async (DBusGProxy *proxy, const gint IN_pos,
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SetPosition", org_gnome_Muine_Player_set_position_async_callback, stuff, g_free, G_TYPE_INT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_play_album (DBusGProxy *proxy, const guint IN_time, GError **error)
 
@@ -519,10 +438,7 @@ org_gnome_Muine_Player_play_album_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_play_album_async (DBusGProxy *proxy, const guint IN_time, org_gnome_Muine_Player_play_album_reply callback, gpointer userdata)
 
@@ -533,10 +449,7 @@ org_gnome_Muine_Player_play_album_async (DBusGProxy *proxy, const guint IN_time,
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlayAlbum", org_gnome_Muine_Player_play_album_async_callback, stuff, g_free, G_TYPE_UINT, IN_time, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_play_song (DBusGProxy *proxy, const guint IN_time, GError **error)
 
@@ -556,10 +469,7 @@ org_gnome_Muine_Player_play_song_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_play_song_async (DBusGProxy *proxy, const guint IN_time, org_gnome_Muine_Player_play_song_reply callback, gpointer userdata)
 
@@ -570,10 +480,7 @@ org_gnome_Muine_Player_play_song_async (DBusGProxy *proxy, const guint IN_time, 
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlaySong", org_gnome_Muine_Player_play_song_async_callback, stuff, g_free, G_TYPE_UINT, IN_time, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_open_playlist (DBusGProxy *proxy, const char * IN_uri, GError **error)
 
@@ -593,10 +500,7 @@ org_gnome_Muine_Player_open_playlist_async_callback (DBusGProxy *proxy, DBusGPro
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_open_playlist_async (DBusGProxy *proxy, const char * IN_uri, org_gnome_Muine_Player_open_playlist_reply callback, gpointer userdata)
 
@@ -607,10 +511,7 @@ org_gnome_Muine_Player_open_playlist_async (DBusGProxy *proxy, const char * IN_u
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "OpenPlaylist", org_gnome_Muine_Player_open_playlist_async_callback, stuff, g_free, G_TYPE_STRING, IN_uri, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_play_file (DBusGProxy *proxy, const char * IN_uri, GError **error)
 
@@ -630,10 +531,7 @@ org_gnome_Muine_Player_play_file_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_play_file_async (DBusGProxy *proxy, const char * IN_uri, org_gnome_Muine_Player_play_file_reply callback, gpointer userdata)
 
@@ -644,10 +542,7 @@ org_gnome_Muine_Player_play_file_async (DBusGProxy *proxy, const char * IN_uri, 
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlayFile", org_gnome_Muine_Player_play_file_async_callback, stuff, g_free, G_TYPE_STRING, IN_uri, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_queue_file (DBusGProxy *proxy, const char * IN_uri, GError **error)
 
@@ -667,10 +562,7 @@ org_gnome_Muine_Player_queue_file_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_queue_file_async (DBusGProxy *proxy, const char * IN_uri, org_gnome_Muine_Player_queue_file_reply callback, gpointer userdata)
 
@@ -681,10 +573,7 @@ org_gnome_Muine_Player_queue_file_async (DBusGProxy *proxy, const char * IN_uri,
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "QueueFile", org_gnome_Muine_Player_queue_file_async_callback, stuff, g_free, G_TYPE_STRING, IN_uri, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_write_album_cover_to_file (DBusGProxy *proxy, const char * IN_file, gboolean* OUT_ret, GError **error)
 
@@ -705,10 +594,7 @@ org_gnome_Muine_Player_write_album_cover_to_file_async_callback (DBusGProxy *pro
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_write_album_cover_to_file_async (DBusGProxy *proxy, const char * IN_file, org_gnome_Muine_Player_write_album_cover_to_file_reply callback, gpointer userdata)
 
@@ -719,10 +605,7 @@ org_gnome_Muine_Player_write_album_cover_to_file_async (DBusGProxy *proxy, const
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "WriteAlbumCoverToFile", org_gnome_Muine_Player_write_album_cover_to_file_async_callback, stuff, g_free, G_TYPE_STRING, IN_file, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_get_album_cover (DBusGProxy *proxy, GArray** OUT_ret, GError **error)
 
@@ -743,10 +626,7 @@ org_gnome_Muine_Player_get_album_cover_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_get_album_cover_async (DBusGProxy *proxy, org_gnome_Muine_Player_get_album_cover_reply callback, gpointer userdata)
 
@@ -757,10 +637,7 @@ org_gnome_Muine_Player_get_album_cover_async (DBusGProxy *proxy, org_gnome_Muine
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetAlbumCover", org_gnome_Muine_Player_get_album_cover_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Muine_Player_quit (DBusGProxy *proxy, GError **error)
 
@@ -780,10 +657,7 @@ org_gnome_Muine_Player_quit_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Muine_Player_quit_async (DBusGProxy *proxy, org_gnome_Muine_Player_quit_reply callback, gpointer userdata)
 

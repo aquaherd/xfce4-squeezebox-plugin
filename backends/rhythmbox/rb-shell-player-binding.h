@@ -8,10 +8,7 @@ G_BEGIN_DECLS
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_gnome_Rhythmbox_Player
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_gnome_Rhythmbox_Player
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_play_pause (DBusGProxy *proxy, const gboolean IN_arg0, GError **error)
 
@@ -31,10 +28,7 @@ org_gnome_Rhythmbox_Player_play_pause_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_play_pause_async (DBusGProxy *proxy, const gboolean IN_arg0, org_gnome_Rhythmbox_Player_play_pause_reply callback, gpointer userdata)
 
@@ -45,10 +39,7 @@ org_gnome_Rhythmbox_Player_play_pause_async (DBusGProxy *proxy, const gboolean I
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "playPause", org_gnome_Rhythmbox_Player_play_pause_async_callback, stuff, g_free, G_TYPE_BOOLEAN, IN_arg0, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_previous (DBusGProxy *proxy, GError **error)
 
@@ -68,10 +59,7 @@ org_gnome_Rhythmbox_Player_previous_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_previous_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Player_previous_reply callback, gpointer userdata)
 
@@ -82,10 +70,7 @@ org_gnome_Rhythmbox_Player_previous_async (DBusGProxy *proxy, org_gnome_Rhythmbo
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "previous", org_gnome_Rhythmbox_Player_previous_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_next (DBusGProxy *proxy, GError **error)
 
@@ -105,10 +90,7 @@ org_gnome_Rhythmbox_Player_next_async_callback (DBusGProxy *proxy, DBusGProxyCal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_next_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Player_next_reply callback, gpointer userdata)
 
@@ -119,10 +101,7 @@ org_gnome_Rhythmbox_Player_next_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Pl
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "next", org_gnome_Rhythmbox_Player_next_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_get_playing (DBusGProxy *proxy, gboolean* OUT_playing, GError **error)
 
@@ -143,10 +122,7 @@ org_gnome_Rhythmbox_Player_get_playing_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_get_playing_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Player_get_playing_reply callback, gpointer userdata)
 
@@ -157,10 +133,7 @@ org_gnome_Rhythmbox_Player_get_playing_async (DBusGProxy *proxy, org_gnome_Rhyth
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "getPlaying", org_gnome_Rhythmbox_Player_get_playing_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_get_playing_uri (DBusGProxy *proxy, char ** OUT_uri, GError **error)
 
@@ -181,10 +154,7 @@ org_gnome_Rhythmbox_Player_get_playing_uri_async_callback (DBusGProxy *proxy, DB
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_get_playing_uri_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Player_get_playing_uri_reply callback, gpointer userdata)
 
@@ -195,10 +165,7 @@ org_gnome_Rhythmbox_Player_get_playing_uri_async (DBusGProxy *proxy, org_gnome_R
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "getPlayingUri", org_gnome_Rhythmbox_Player_get_playing_uri_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_get_elapsed (DBusGProxy *proxy, guint* OUT_elapsed, GError **error)
 
@@ -219,10 +186,7 @@ org_gnome_Rhythmbox_Player_get_elapsed_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_get_elapsed_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Player_get_elapsed_reply callback, gpointer userdata)
 
@@ -233,10 +197,7 @@ org_gnome_Rhythmbox_Player_get_elapsed_async (DBusGProxy *proxy, org_gnome_Rhyth
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "getElapsed", org_gnome_Rhythmbox_Player_get_elapsed_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_set_elapsed (DBusGProxy *proxy, const guint IN_elapsed, GError **error)
 
@@ -256,10 +217,7 @@ org_gnome_Rhythmbox_Player_set_elapsed_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_set_elapsed_async (DBusGProxy *proxy, const guint IN_elapsed, org_gnome_Rhythmbox_Player_set_elapsed_reply callback, gpointer userdata)
 
@@ -270,10 +228,7 @@ org_gnome_Rhythmbox_Player_set_elapsed_async (DBusGProxy *proxy, const guint IN_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "setElapsed", org_gnome_Rhythmbox_Player_set_elapsed_async_callback, stuff, g_free, G_TYPE_UINT, IN_elapsed, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_get_volume (DBusGProxy *proxy, gdouble* OUT_volume, GError **error)
 
@@ -294,10 +249,7 @@ org_gnome_Rhythmbox_Player_get_volume_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_get_volume_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Player_get_volume_reply callback, gpointer userdata)
 
@@ -308,10 +260,7 @@ org_gnome_Rhythmbox_Player_get_volume_async (DBusGProxy *proxy, org_gnome_Rhythm
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "getVolume", org_gnome_Rhythmbox_Player_get_volume_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_set_volume (DBusGProxy *proxy, const gdouble IN_volume, GError **error)
 
@@ -331,10 +280,7 @@ org_gnome_Rhythmbox_Player_set_volume_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_set_volume_async (DBusGProxy *proxy, const gdouble IN_volume, org_gnome_Rhythmbox_Player_set_volume_reply callback, gpointer userdata)
 
@@ -345,10 +291,7 @@ org_gnome_Rhythmbox_Player_set_volume_async (DBusGProxy *proxy, const gdouble IN
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "setVolume", org_gnome_Rhythmbox_Player_set_volume_async_callback, stuff, g_free, G_TYPE_DOUBLE, IN_volume, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_set_volume_relative (DBusGProxy *proxy, const gdouble IN_volume, GError **error)
 
@@ -368,10 +311,7 @@ org_gnome_Rhythmbox_Player_set_volume_relative_async_callback (DBusGProxy *proxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_set_volume_relative_async (DBusGProxy *proxy, const gdouble IN_volume, org_gnome_Rhythmbox_Player_set_volume_relative_reply callback, gpointer userdata)
 
@@ -382,10 +322,7 @@ org_gnome_Rhythmbox_Player_set_volume_relative_async (DBusGProxy *proxy, const g
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "setVolumeRelative", org_gnome_Rhythmbox_Player_set_volume_relative_async_callback, stuff, g_free, G_TYPE_DOUBLE, IN_volume, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_set_mute (DBusGProxy *proxy, const gboolean IN_mute, GError **error)
 
@@ -405,10 +342,7 @@ org_gnome_Rhythmbox_Player_set_mute_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_set_mute_async (DBusGProxy *proxy, const gboolean IN_mute, org_gnome_Rhythmbox_Player_set_mute_reply callback, gpointer userdata)
 
@@ -419,10 +353,7 @@ org_gnome_Rhythmbox_Player_set_mute_async (DBusGProxy *proxy, const gboolean IN_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "setMute", org_gnome_Rhythmbox_Player_set_mute_async_callback, stuff, g_free, G_TYPE_BOOLEAN, IN_mute, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Player_get_mute (DBusGProxy *proxy, gboolean* OUT_mute, GError **error)
 
@@ -443,10 +374,7 @@ org_gnome_Rhythmbox_Player_get_mute_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Player_get_mute_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Player_get_mute_reply callback, gpointer userdata)
 

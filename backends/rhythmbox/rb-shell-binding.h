@@ -8,10 +8,7 @@ G_BEGIN_DECLS
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_gnome_Rhythmbox_Shell
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_gnome_Rhythmbox_Shell
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_load_ur_i (DBusGProxy *proxy, const char * IN_arg0, const gboolean IN_arg1, GError **error)
 
@@ -31,10 +28,7 @@ org_gnome_Rhythmbox_Shell_load_ur_i_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_load_ur_i_async (DBusGProxy *proxy, const char * IN_arg0, const gboolean IN_arg1, org_gnome_Rhythmbox_Shell_load_ur_i_reply callback, gpointer userdata)
 
@@ -45,10 +39,7 @@ org_gnome_Rhythmbox_Shell_load_ur_i_async (DBusGProxy *proxy, const char * IN_ar
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "loadURI", org_gnome_Rhythmbox_Shell_load_ur_i_async_callback, stuff, g_free, G_TYPE_STRING, IN_arg0, G_TYPE_BOOLEAN, IN_arg1, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_get_player (DBusGProxy *proxy, char** OUT_arg0, GError **error)
 
@@ -69,10 +60,7 @@ org_gnome_Rhythmbox_Shell_get_player_async_callback (DBusGProxy *proxy, DBusGPro
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_get_player_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Shell_get_player_reply callback, gpointer userdata)
 
@@ -83,10 +71,7 @@ org_gnome_Rhythmbox_Shell_get_player_async (DBusGProxy *proxy, org_gnome_Rhythmb
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "getPlayer", org_gnome_Rhythmbox_Shell_get_player_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_get_playlist_manager (DBusGProxy *proxy, char** OUT_arg0, GError **error)
 
@@ -107,10 +92,7 @@ org_gnome_Rhythmbox_Shell_get_playlist_manager_async_callback (DBusGProxy *proxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_get_playlist_manager_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Shell_get_playlist_manager_reply callback, gpointer userdata)
 
@@ -121,10 +103,7 @@ org_gnome_Rhythmbox_Shell_get_playlist_manager_async (DBusGProxy *proxy, org_gno
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "getPlaylistManager", org_gnome_Rhythmbox_Shell_get_playlist_manager_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_present (DBusGProxy *proxy, const guint IN_arg0, GError **error)
 
@@ -144,10 +123,7 @@ org_gnome_Rhythmbox_Shell_present_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_present_async (DBusGProxy *proxy, const guint IN_arg0, org_gnome_Rhythmbox_Shell_present_reply callback, gpointer userdata)
 
@@ -158,10 +134,7 @@ org_gnome_Rhythmbox_Shell_present_async (DBusGProxy *proxy, const guint IN_arg0,
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "present", org_gnome_Rhythmbox_Shell_present_async_callback, stuff, g_free, G_TYPE_UINT, IN_arg0, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_get_song_properties (DBusGProxy *proxy, const char * IN_uri, GHashTable** OUT_arg1, GError **error)
 
@@ -182,10 +155,7 @@ org_gnome_Rhythmbox_Shell_get_song_properties_async_callback (DBusGProxy *proxy,
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_get_song_properties_async (DBusGProxy *proxy, const char * IN_uri, org_gnome_Rhythmbox_Shell_get_song_properties_reply callback, gpointer userdata)
 
@@ -196,10 +166,7 @@ org_gnome_Rhythmbox_Shell_get_song_properties_async (DBusGProxy *proxy, const ch
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "getSongProperties", org_gnome_Rhythmbox_Shell_get_song_properties_async_callback, stuff, g_free, G_TYPE_STRING, IN_uri, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_set_song_property (DBusGProxy *proxy, const char * IN_uri, const char * IN_propname, const GValue* IN_value, GError **error)
 
@@ -219,10 +186,7 @@ org_gnome_Rhythmbox_Shell_set_song_property_async_callback (DBusGProxy *proxy, D
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_set_song_property_async (DBusGProxy *proxy, const char * IN_uri, const char * IN_propname, const GValue* IN_value, org_gnome_Rhythmbox_Shell_set_song_property_reply callback, gpointer userdata)
 
@@ -233,10 +197,7 @@ org_gnome_Rhythmbox_Shell_set_song_property_async (DBusGProxy *proxy, const char
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "setSongProperty", org_gnome_Rhythmbox_Shell_set_song_property_async_callback, stuff, g_free, G_TYPE_STRING, IN_uri, G_TYPE_STRING, IN_propname, G_TYPE_VALUE, IN_value, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_add_to_queue (DBusGProxy *proxy, const char * IN_uri, GError **error)
 
@@ -256,10 +217,7 @@ org_gnome_Rhythmbox_Shell_add_to_queue_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_add_to_queue_async (DBusGProxy *proxy, const char * IN_uri, org_gnome_Rhythmbox_Shell_add_to_queue_reply callback, gpointer userdata)
 
@@ -270,10 +228,7 @@ org_gnome_Rhythmbox_Shell_add_to_queue_async (DBusGProxy *proxy, const char * IN
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "addToQueue", org_gnome_Rhythmbox_Shell_add_to_queue_async_callback, stuff, g_free, G_TYPE_STRING, IN_uri, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_quit (DBusGProxy *proxy, GError **error)
 
@@ -293,10 +248,7 @@ org_gnome_Rhythmbox_Shell_quit_async_callback (DBusGProxy *proxy, DBusGProxyCall
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_quit_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Shell_quit_reply callback, gpointer userdata)
 
@@ -307,10 +259,7 @@ org_gnome_Rhythmbox_Shell_quit_async (DBusGProxy *proxy, org_gnome_Rhythmbox_She
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "quit", org_gnome_Rhythmbox_Shell_quit_async_callback, stuff, g_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_remove_from_queue (DBusGProxy *proxy, const char * IN_uri, GError **error)
 
@@ -330,10 +279,7 @@ org_gnome_Rhythmbox_Shell_remove_from_queue_async_callback (DBusGProxy *proxy, D
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_remove_from_queue_async (DBusGProxy *proxy, const char * IN_uri, org_gnome_Rhythmbox_Shell_remove_from_queue_reply callback, gpointer userdata)
 
@@ -344,10 +290,7 @@ org_gnome_Rhythmbox_Shell_remove_from_queue_async (DBusGProxy *proxy, const char
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "removeFromQueue", org_gnome_Rhythmbox_Shell_remove_from_queue_async_callback, stuff, g_free, G_TYPE_STRING, IN_uri, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_gnome_Rhythmbox_Shell_clear_queue (DBusGProxy *proxy, GError **error)
 
@@ -367,10 +310,7 @@ org_gnome_Rhythmbox_Shell_clear_queue_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_gnome_Rhythmbox_Shell_clear_queue_async (DBusGProxy *proxy, org_gnome_Rhythmbox_Shell_clear_queue_reply callback, gpointer userdata)
 

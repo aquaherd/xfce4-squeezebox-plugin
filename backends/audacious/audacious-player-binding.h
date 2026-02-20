@@ -7,10 +7,7 @@ G_BEGIN_DECLS
 
 #ifndef _DBUS_GLIB_ASYNC_DATA_FREE
 #define _DBUS_GLIB_ASYNC_DATA_FREE
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 void
 _dbus_glib_async_data_free (gpointer stuff)
 {
@@ -21,10 +18,7 @@ _dbus_glib_async_data_free (gpointer stuff)
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_MediaPlayer
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_MediaPlayer
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_position_get (DBusGProxy *proxy, gint* OUT_arg0, GError **error)
 
@@ -45,10 +39,7 @@ org_freedesktop_MediaPlayer_position_get_async_callback (DBusGProxy *proxy, DBus
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_position_get_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_position_get_reply callback, gpointer userdata)
 
@@ -59,10 +50,7 @@ org_freedesktop_MediaPlayer_position_get_async (DBusGProxy *proxy, org_freedeskt
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PositionGet", org_freedesktop_MediaPlayer_position_get_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_position_set (DBusGProxy *proxy, const gint IN_arg0, GError **error)
 
@@ -82,10 +70,7 @@ org_freedesktop_MediaPlayer_position_set_async_callback (DBusGProxy *proxy, DBus
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_position_set_async (DBusGProxy *proxy, const gint IN_arg0, org_freedesktop_MediaPlayer_position_set_reply callback, gpointer userdata)
 
@@ -96,10 +81,7 @@ org_freedesktop_MediaPlayer_position_set_async (DBusGProxy *proxy, const gint IN
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PositionSet", org_freedesktop_MediaPlayer_position_set_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_arg0, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_volume_get (DBusGProxy *proxy, gint* OUT_arg0, GError **error)
 
@@ -120,10 +102,7 @@ org_freedesktop_MediaPlayer_volume_get_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_volume_get_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_volume_get_reply callback, gpointer userdata)
 
@@ -134,10 +113,7 @@ org_freedesktop_MediaPlayer_volume_get_async (DBusGProxy *proxy, org_freedesktop
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "VolumeGet", org_freedesktop_MediaPlayer_volume_get_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_volume_set (DBusGProxy *proxy, const gint IN_arg0, GError **error)
 
@@ -157,10 +133,7 @@ org_freedesktop_MediaPlayer_volume_set_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_volume_set_async (DBusGProxy *proxy, const gint IN_arg0, org_freedesktop_MediaPlayer_volume_set_reply callback, gpointer userdata)
 
@@ -171,10 +144,7 @@ org_freedesktop_MediaPlayer_volume_set_async (DBusGProxy *proxy, const gint IN_a
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "VolumeSet", org_freedesktop_MediaPlayer_volume_set_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_arg0, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_get_caps (DBusGProxy *proxy, gint* OUT_arg0, GError **error)
 
@@ -195,10 +165,7 @@ org_freedesktop_MediaPlayer_get_caps_async_callback (DBusGProxy *proxy, DBusGPro
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_get_caps_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_get_caps_reply callback, gpointer userdata)
 
@@ -209,10 +176,7 @@ org_freedesktop_MediaPlayer_get_caps_async (DBusGProxy *proxy, org_freedesktop_M
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetCaps", org_freedesktop_MediaPlayer_get_caps_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_get_metadata (DBusGProxy *proxy, GHashTable** OUT_arg0, GError **error)
 
@@ -233,10 +197,7 @@ org_freedesktop_MediaPlayer_get_metadata_async_callback (DBusGProxy *proxy, DBus
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_get_metadata_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_get_metadata_reply callback, gpointer userdata)
 
@@ -247,10 +208,7 @@ org_freedesktop_MediaPlayer_get_metadata_async (DBusGProxy *proxy, org_freedeskt
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetMetadata", org_freedesktop_MediaPlayer_get_metadata_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_get_status (DBusGProxy *proxy, GValueArray** OUT_arg0, GError **error)
 
@@ -271,10 +229,7 @@ org_freedesktop_MediaPlayer_get_status_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_get_status_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_get_status_reply callback, gpointer userdata)
 
@@ -285,10 +240,7 @@ org_freedesktop_MediaPlayer_get_status_async (DBusGProxy *proxy, org_freedesktop
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetStatus", org_freedesktop_MediaPlayer_get_status_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_repeat (DBusGProxy *proxy, const gboolean IN_arg0, GError **error)
 
@@ -308,10 +260,7 @@ org_freedesktop_MediaPlayer_repeat_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_repeat_async (DBusGProxy *proxy, const gboolean IN_arg0, org_freedesktop_MediaPlayer_repeat_reply callback, gpointer userdata)
 
@@ -322,10 +271,7 @@ org_freedesktop_MediaPlayer_repeat_async (DBusGProxy *proxy, const gboolean IN_a
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Repeat", org_freedesktop_MediaPlayer_repeat_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_arg0, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_play (DBusGProxy *proxy, GError **error)
 
@@ -345,10 +291,7 @@ org_freedesktop_MediaPlayer_play_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_play_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_play_reply callback, gpointer userdata)
 
@@ -359,10 +302,7 @@ org_freedesktop_MediaPlayer_play_async (DBusGProxy *proxy, org_freedesktop_Media
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Play", org_freedesktop_MediaPlayer_play_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_stop (DBusGProxy *proxy, GError **error)
 
@@ -382,10 +322,7 @@ org_freedesktop_MediaPlayer_stop_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_stop_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_stop_reply callback, gpointer userdata)
 
@@ -396,10 +333,7 @@ org_freedesktop_MediaPlayer_stop_async (DBusGProxy *proxy, org_freedesktop_Media
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Stop", org_freedesktop_MediaPlayer_stop_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_pause (DBusGProxy *proxy, GError **error)
 
@@ -419,10 +353,7 @@ org_freedesktop_MediaPlayer_pause_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_pause_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_pause_reply callback, gpointer userdata)
 
@@ -433,10 +364,7 @@ org_freedesktop_MediaPlayer_pause_async (DBusGProxy *proxy, org_freedesktop_Medi
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Pause", org_freedesktop_MediaPlayer_pause_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_prev (DBusGProxy *proxy, GError **error)
 
@@ -456,10 +384,7 @@ org_freedesktop_MediaPlayer_prev_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_prev_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_prev_reply callback, gpointer userdata)
 
@@ -470,10 +395,7 @@ org_freedesktop_MediaPlayer_prev_async (DBusGProxy *proxy, org_freedesktop_Media
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Prev", org_freedesktop_MediaPlayer_prev_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_next (DBusGProxy *proxy, GError **error)
 
@@ -493,10 +415,7 @@ org_freedesktop_MediaPlayer_next_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_next_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_next_reply callback, gpointer userdata)
 
@@ -512,10 +431,7 @@ org_freedesktop_MediaPlayer_next_async (DBusGProxy *proxy, org_freedesktop_Media
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_MediaPlayer
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_MediaPlayer
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_random (DBusGProxy *proxy, const gboolean IN_arg0, GError **error)
 
@@ -535,10 +451,7 @@ org_freedesktop_MediaPlayer_random_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_random_async (DBusGProxy *proxy, const gboolean IN_arg0, org_freedesktop_MediaPlayer_random_reply callback, gpointer userdata)
 
@@ -549,10 +462,7 @@ org_freedesktop_MediaPlayer_random_async (DBusGProxy *proxy, const gboolean IN_a
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Random", org_freedesktop_MediaPlayer_random_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_arg0, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_loop (DBusGProxy *proxy, const gboolean IN_arg0, GError **error)
 
@@ -572,10 +482,7 @@ org_freedesktop_MediaPlayer_loop_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_loop_async (DBusGProxy *proxy, const gboolean IN_arg0, org_freedesktop_MediaPlayer_loop_reply callback, gpointer userdata)
 
@@ -586,10 +493,7 @@ org_freedesktop_MediaPlayer_loop_async (DBusGProxy *proxy, const gboolean IN_arg
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Loop", org_freedesktop_MediaPlayer_loop_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_arg0, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_del_track (DBusGProxy *proxy, const gint IN_arg0, GError **error)
 
@@ -609,10 +513,7 @@ org_freedesktop_MediaPlayer_del_track_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_del_track_async (DBusGProxy *proxy, const gint IN_arg0, org_freedesktop_MediaPlayer_del_track_reply callback, gpointer userdata)
 
@@ -623,10 +524,7 @@ org_freedesktop_MediaPlayer_del_track_async (DBusGProxy *proxy, const gint IN_ar
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "DelTrack", org_freedesktop_MediaPlayer_del_track_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_arg0, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_add_track (DBusGProxy *proxy, const char * IN_arg0, const gboolean IN_arg1, GError **error)
 
@@ -646,10 +544,7 @@ org_freedesktop_MediaPlayer_add_track_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_add_track_async (DBusGProxy *proxy, const char * IN_arg0, const gboolean IN_arg1, org_freedesktop_MediaPlayer_add_track_reply callback, gpointer userdata)
 
@@ -660,10 +555,7 @@ org_freedesktop_MediaPlayer_add_track_async (DBusGProxy *proxy, const char * IN_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "AddTrack", org_freedesktop_MediaPlayer_add_track_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_arg0, G_TYPE_BOOLEAN, IN_arg1, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_get_length (DBusGProxy *proxy, gint* OUT_arg0, GError **error)
 
@@ -684,10 +576,7 @@ org_freedesktop_MediaPlayer_get_length_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_get_length_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_get_length_reply callback, gpointer userdata)
 
@@ -698,10 +587,7 @@ org_freedesktop_MediaPlayer_get_length_async (DBusGProxy *proxy, org_freedesktop
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetLength", org_freedesktop_MediaPlayer_get_length_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_get_current_track (DBusGProxy *proxy, gint* OUT_arg0, GError **error)
 
@@ -722,10 +608,7 @@ org_freedesktop_MediaPlayer_get_current_track_async_callback (DBusGProxy *proxy,
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_get_current_track_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_get_current_track_reply callback, gpointer userdata)
 
@@ -736,10 +619,7 @@ org_freedesktop_MediaPlayer_get_current_track_async (DBusGProxy *proxy, org_free
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetCurrentTrack", org_freedesktop_MediaPlayer_get_current_track_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_get_metadata (DBusGProxy *proxy, const gint IN_arg0, GHashTable** OUT_arg1, GError **error)
 
@@ -760,10 +640,7 @@ org_freedesktop_MediaPlayer_get_metadata_async_callback (DBusGProxy *proxy, DBus
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_get_metadata_async (DBusGProxy *proxy, const gint IN_arg0, org_freedesktop_MediaPlayer_get_metadata_reply callback, gpointer userdata)
 
@@ -779,10 +656,7 @@ org_freedesktop_MediaPlayer_get_metadata_async (DBusGProxy *proxy, const gint IN
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_atheme_audacious
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_atheme_audacious
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_equalizer_activate (DBusGProxy *proxy, const gboolean IN_active, GError **error)
 
@@ -802,10 +676,7 @@ org_atheme_audacious_equalizer_activate_async_callback (DBusGProxy *proxy, DBusG
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_equalizer_activate_async (DBusGProxy *proxy, const gboolean IN_active, org_atheme_audacious_equalizer_activate_reply callback, gpointer userdata)
 
@@ -816,10 +687,7 @@ org_atheme_audacious_equalizer_activate_async (DBusGProxy *proxy, const gboolean
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "EqualizerActivate", org_atheme_audacious_equalizer_activate_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_active, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_set_eq_band (DBusGProxy *proxy, const gint IN_band, const gdouble IN_value, GError **error)
 
@@ -839,10 +707,7 @@ org_atheme_audacious_set_eq_band_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_set_eq_band_async (DBusGProxy *proxy, const gint IN_band, const gdouble IN_value, org_atheme_audacious_set_eq_band_reply callback, gpointer userdata)
 
@@ -853,10 +718,7 @@ org_atheme_audacious_set_eq_band_async (DBusGProxy *proxy, const gint IN_band, c
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SetEqBand", org_atheme_audacious_set_eq_band_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_band, G_TYPE_DOUBLE, IN_value, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_set_eq_preamp (DBusGProxy *proxy, const gdouble IN_preamp, GError **error)
 
@@ -876,10 +738,7 @@ org_atheme_audacious_set_eq_preamp_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_set_eq_preamp_async (DBusGProxy *proxy, const gdouble IN_preamp, org_atheme_audacious_set_eq_preamp_reply callback, gpointer userdata)
 
@@ -890,10 +749,7 @@ org_atheme_audacious_set_eq_preamp_async (DBusGProxy *proxy, const gdouble IN_pr
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SetEqPreamp", org_atheme_audacious_set_eq_preamp_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_DOUBLE, IN_preamp, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_set_eq (DBusGProxy *proxy, const gdouble IN_preamp, const GArray* IN_bands, GError **error)
 
@@ -913,10 +769,7 @@ org_atheme_audacious_set_eq_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_set_eq_async (DBusGProxy *proxy, const gdouble IN_preamp, const GArray* IN_bands, org_atheme_audacious_set_eq_reply callback, gpointer userdata)
 
@@ -927,10 +780,7 @@ org_atheme_audacious_set_eq_async (DBusGProxy *proxy, const gdouble IN_preamp, c
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SetEq", org_atheme_audacious_set_eq_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_DOUBLE, IN_preamp, dbus_g_type_get_collection ("GArray", G_TYPE_DOUBLE), IN_bands, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_get_eq_band (DBusGProxy *proxy, const gint IN_band, gdouble* OUT_value, GError **error)
 
@@ -951,10 +801,7 @@ org_atheme_audacious_get_eq_band_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_get_eq_band_async (DBusGProxy *proxy, const gint IN_band, org_atheme_audacious_get_eq_band_reply callback, gpointer userdata)
 
@@ -965,10 +812,7 @@ org_atheme_audacious_get_eq_band_async (DBusGProxy *proxy, const gint IN_band, o
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetEqBand", org_atheme_audacious_get_eq_band_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_band, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_get_eq_preamp (DBusGProxy *proxy, gdouble* OUT_preamp, GError **error)
 
@@ -989,10 +833,7 @@ org_atheme_audacious_get_eq_preamp_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_get_eq_preamp_async (DBusGProxy *proxy, org_atheme_audacious_get_eq_preamp_reply callback, gpointer userdata)
 
@@ -1003,10 +844,7 @@ org_atheme_audacious_get_eq_preamp_async (DBusGProxy *proxy, org_atheme_audaciou
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetEqPreamp", org_atheme_audacious_get_eq_preamp_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_get_eq (DBusGProxy *proxy, gdouble* OUT_preamp, GArray** OUT_bands, GError **error)
 
@@ -1028,10 +866,7 @@ org_atheme_audacious_get_eq_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_get_eq_async (DBusGProxy *proxy, org_atheme_audacious_get_eq_reply callback, gpointer userdata)
 
@@ -1042,10 +877,7 @@ org_atheme_audacious_get_eq_async (DBusGProxy *proxy, org_atheme_audacious_get_e
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetEq", org_atheme_audacious_get_eq_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_playlist_enqueue_to_temp (DBusGProxy *proxy, const char * IN_url, GError **error)
 
@@ -1065,10 +897,7 @@ org_atheme_audacious_playlist_enqueue_to_temp_async_callback (DBusGProxy *proxy,
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_playlist_enqueue_to_temp_async (DBusGProxy *proxy, const char * IN_url, org_atheme_audacious_playlist_enqueue_to_temp_reply callback, gpointer userdata)
 
@@ -1079,10 +908,7 @@ org_atheme_audacious_playlist_enqueue_to_temp_async (DBusGProxy *proxy, const ch
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlaylistEnqueueToTemp", org_atheme_audacious_playlist_enqueue_to_temp_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_url, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_playqueue_is_queued (DBusGProxy *proxy, const gint IN_pos, gboolean* OUT_is_queued, GError **error)
 
@@ -1103,10 +929,7 @@ org_atheme_audacious_playqueue_is_queued_async_callback (DBusGProxy *proxy, DBus
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_playqueue_is_queued_async (DBusGProxy *proxy, const gint IN_pos, org_atheme_audacious_playqueue_is_queued_reply callback, gpointer userdata)
 
@@ -1117,10 +940,7 @@ org_atheme_audacious_playqueue_is_queued_async (DBusGProxy *proxy, const gint IN
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlayqueueIsQueued", org_atheme_audacious_playqueue_is_queued_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_playqueue_clear (DBusGProxy *proxy, GError **error)
 
@@ -1140,10 +960,7 @@ org_atheme_audacious_playqueue_clear_async_callback (DBusGProxy *proxy, DBusGPro
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_playqueue_clear_async (DBusGProxy *proxy, org_atheme_audacious_playqueue_clear_reply callback, gpointer userdata)
 
@@ -1154,10 +971,7 @@ org_atheme_audacious_playqueue_clear_async (DBusGProxy *proxy, org_atheme_audaci
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlayqueueClear", org_atheme_audacious_playqueue_clear_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_playqueue_remove (DBusGProxy *proxy, const gint IN_pos, GError **error)
 
@@ -1177,10 +991,7 @@ org_atheme_audacious_playqueue_remove_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_playqueue_remove_async (DBusGProxy *proxy, const gint IN_pos, org_atheme_audacious_playqueue_remove_reply callback, gpointer userdata)
 
@@ -1191,10 +1002,7 @@ org_atheme_audacious_playqueue_remove_async (DBusGProxy *proxy, const gint IN_po
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlayqueueRemove", org_atheme_audacious_playqueue_remove_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_playqueue_add (DBusGProxy *proxy, const gint IN_pos, GError **error)
 
@@ -1214,10 +1022,7 @@ org_atheme_audacious_playqueue_add_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_playqueue_add_async (DBusGProxy *proxy, const gint IN_pos, org_atheme_audacious_playqueue_add_reply callback, gpointer userdata)
 
@@ -1228,10 +1033,7 @@ org_atheme_audacious_playqueue_add_async (DBusGProxy *proxy, const gint IN_pos, 
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlayqueueAdd", org_atheme_audacious_playqueue_add_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_playlist_add (DBusGProxy *proxy, const char * IN_list, GError **error)
 
@@ -1251,10 +1053,7 @@ org_atheme_audacious_playlist_add_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_playlist_add_async (DBusGProxy *proxy, const char * IN_list, org_atheme_audacious_playlist_add_reply callback, gpointer userdata)
 
@@ -1265,10 +1064,7 @@ org_atheme_audacious_playlist_add_async (DBusGProxy *proxy, const char * IN_list
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlaylistAdd", org_atheme_audacious_playlist_add_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_list, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_playlist_ins_url_string (DBusGProxy *proxy, const char * IN_url, const gint IN_pos, GError **error)
 
@@ -1288,10 +1084,7 @@ org_atheme_audacious_playlist_ins_url_string_async_callback (DBusGProxy *proxy, 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_playlist_ins_url_string_async (DBusGProxy *proxy, const char * IN_url, const gint IN_pos, org_atheme_audacious_playlist_ins_url_string_reply callback, gpointer userdata)
 
@@ -1302,10 +1095,7 @@ org_atheme_audacious_playlist_ins_url_string_async (DBusGProxy *proxy, const cha
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlaylistInsUrlString", org_atheme_audacious_playlist_ins_url_string_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_url, G_TYPE_INT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_get_playqueue_length (DBusGProxy *proxy, gint* OUT_length, GError **error)
 
@@ -1326,10 +1116,7 @@ org_atheme_audacious_get_playqueue_length_async_callback (DBusGProxy *proxy, DBu
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_get_playqueue_length_async (DBusGProxy *proxy, org_atheme_audacious_get_playqueue_length_reply callback, gpointer userdata)
 
@@ -1340,10 +1127,7 @@ org_atheme_audacious_get_playqueue_length_async (DBusGProxy *proxy, org_atheme_a
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetPlayqueueLength", org_atheme_audacious_get_playqueue_length_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_toggle_aot (DBusGProxy *proxy, const gboolean IN_ontop, GError **error)
 
@@ -1363,10 +1147,7 @@ org_atheme_audacious_toggle_aot_async_callback (DBusGProxy *proxy, DBusGProxyCal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_toggle_aot_async (DBusGProxy *proxy, const gboolean IN_ontop, org_atheme_audacious_toggle_aot_reply callback, gpointer userdata)
 
@@ -1377,10 +1158,7 @@ org_atheme_audacious_toggle_aot_async (DBusGProxy *proxy, const gboolean IN_onto
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ToggleAot", org_atheme_audacious_toggle_aot_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_ontop, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_get_info (DBusGProxy *proxy, gint* OUT_rate, gint* OUT_freq, gint* OUT_nch, GError **error)
 
@@ -1403,10 +1181,7 @@ org_atheme_audacious_get_info_async_callback (DBusGProxy *proxy, DBusGProxyCall 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_get_info_async (DBusGProxy *proxy, org_atheme_audacious_get_info_reply callback, gpointer userdata)
 
@@ -1417,10 +1192,7 @@ org_atheme_audacious_get_info_async (DBusGProxy *proxy, org_atheme_audacious_get
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetInfo", org_atheme_audacious_get_info_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_queue_get_queue_pos (DBusGProxy *proxy, const guint IN_pos, guint* OUT_qpos, GError **error)
 
@@ -1441,10 +1213,7 @@ org_atheme_audacious_queue_get_queue_pos_async_callback (DBusGProxy *proxy, DBus
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_queue_get_queue_pos_async (DBusGProxy *proxy, const guint IN_pos, org_atheme_audacious_queue_get_queue_pos_reply callback, gpointer userdata)
 
@@ -1455,10 +1224,7 @@ org_atheme_audacious_queue_get_queue_pos_async (DBusGProxy *proxy, const guint I
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "QueueGetQueuePos", org_atheme_audacious_queue_get_queue_pos_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_queue_get_list_pos (DBusGProxy *proxy, const guint IN_qpos, guint* OUT_pos, GError **error)
 
@@ -1479,10 +1245,7 @@ org_atheme_audacious_queue_get_list_pos_async_callback (DBusGProxy *proxy, DBusG
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_queue_get_list_pos_async (DBusGProxy *proxy, const guint IN_qpos, org_atheme_audacious_queue_get_list_pos_reply callback, gpointer userdata)
 
@@ -1493,10 +1256,7 @@ org_atheme_audacious_queue_get_list_pos_async (DBusGProxy *proxy, const guint IN
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "QueueGetListPos", org_atheme_audacious_queue_get_list_pos_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_qpos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_activate (DBusGProxy *proxy, GError **error)
 
@@ -1516,10 +1276,7 @@ org_atheme_audacious_activate_async_callback (DBusGProxy *proxy, DBusGProxyCall 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_activate_async (DBusGProxy *proxy, org_atheme_audacious_activate_reply callback, gpointer userdata)
 
@@ -1530,10 +1287,7 @@ org_atheme_audacious_activate_async (DBusGProxy *proxy, org_atheme_audacious_act
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Activate", org_atheme_audacious_activate_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_play_pause (DBusGProxy *proxy, GError **error)
 
@@ -1553,10 +1307,7 @@ org_atheme_audacious_play_pause_async_callback (DBusGProxy *proxy, DBusGProxyCal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_play_pause_async (DBusGProxy *proxy, org_atheme_audacious_play_pause_reply callback, gpointer userdata)
 
@@ -1567,10 +1318,7 @@ org_atheme_audacious_play_pause_async (DBusGProxy *proxy, org_atheme_audacious_p
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlayPause", org_atheme_audacious_play_pause_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_show_filebrowser (DBusGProxy *proxy, const gboolean IN_show, GError **error)
 
@@ -1590,10 +1338,7 @@ org_atheme_audacious_show_filebrowser_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_show_filebrowser_async (DBusGProxy *proxy, const gboolean IN_show, org_atheme_audacious_show_filebrowser_reply callback, gpointer userdata)
 
@@ -1604,10 +1349,7 @@ org_atheme_audacious_show_filebrowser_async (DBusGProxy *proxy, const gboolean I
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ShowFilebrowser", org_atheme_audacious_show_filebrowser_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_show, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_show_jtf_box (DBusGProxy *proxy, const gboolean IN_show, GError **error)
 
@@ -1627,10 +1369,7 @@ org_atheme_audacious_show_jtf_box_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_show_jtf_box_async (DBusGProxy *proxy, const gboolean IN_show, org_atheme_audacious_show_jtf_box_reply callback, gpointer userdata)
 
@@ -1641,10 +1380,7 @@ org_atheme_audacious_show_jtf_box_async (DBusGProxy *proxy, const gboolean IN_sh
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ShowJtfBox", org_atheme_audacious_show_jtf_box_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_show, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_show_about_box (DBusGProxy *proxy, const gboolean IN_show, GError **error)
 
@@ -1664,10 +1400,7 @@ org_atheme_audacious_show_about_box_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_show_about_box_async (DBusGProxy *proxy, const gboolean IN_show, org_atheme_audacious_show_about_box_reply callback, gpointer userdata)
 
@@ -1678,10 +1411,7 @@ org_atheme_audacious_show_about_box_async (DBusGProxy *proxy, const gboolean IN_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ShowAboutBox", org_atheme_audacious_show_about_box_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_show, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_show_prefs_box (DBusGProxy *proxy, const gboolean IN_show, GError **error)
 
@@ -1701,10 +1431,7 @@ org_atheme_audacious_show_prefs_box_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_show_prefs_box_async (DBusGProxy *proxy, const gboolean IN_show, org_atheme_audacious_show_prefs_box_reply callback, gpointer userdata)
 
@@ -1715,10 +1442,7 @@ org_atheme_audacious_show_prefs_box_async (DBusGProxy *proxy, const gboolean IN_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ShowPrefsBox", org_atheme_audacious_show_prefs_box_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_show, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_toggle_shuffle (DBusGProxy *proxy, GError **error)
 
@@ -1738,10 +1462,7 @@ org_atheme_audacious_toggle_shuffle_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_toggle_shuffle_async (DBusGProxy *proxy, org_atheme_audacious_toggle_shuffle_reply callback, gpointer userdata)
 
@@ -1752,10 +1473,7 @@ org_atheme_audacious_toggle_shuffle_async (DBusGProxy *proxy, org_atheme_audacio
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ToggleShuffle", org_atheme_audacious_toggle_shuffle_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_shuffle (DBusGProxy *proxy, gboolean* OUT_is_shuffle, GError **error)
 
@@ -1776,10 +1494,7 @@ org_atheme_audacious_shuffle_async_callback (DBusGProxy *proxy, DBusGProxyCall *
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_shuffle_async (DBusGProxy *proxy, org_atheme_audacious_shuffle_reply callback, gpointer userdata)
 
@@ -1790,10 +1505,7 @@ org_atheme_audacious_shuffle_async (DBusGProxy *proxy, org_atheme_audacious_shuf
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Shuffle", org_atheme_audacious_shuffle_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_toggle_repeat (DBusGProxy *proxy, GError **error)
 
@@ -1813,10 +1525,7 @@ org_atheme_audacious_toggle_repeat_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_toggle_repeat_async (DBusGProxy *proxy, org_atheme_audacious_toggle_repeat_reply callback, gpointer userdata)
 
@@ -1827,10 +1536,7 @@ org_atheme_audacious_toggle_repeat_async (DBusGProxy *proxy, org_atheme_audaciou
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ToggleRepeat", org_atheme_audacious_toggle_repeat_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_repeat (DBusGProxy *proxy, gboolean* OUT_is_repeat, GError **error)
 
@@ -1851,10 +1557,7 @@ org_atheme_audacious_repeat_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_repeat_async (DBusGProxy *proxy, org_atheme_audacious_repeat_reply callback, gpointer userdata)
 
@@ -1865,10 +1568,7 @@ org_atheme_audacious_repeat_async (DBusGProxy *proxy, org_atheme_audacious_repea
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Repeat", org_atheme_audacious_repeat_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_toggle_auto_advance (DBusGProxy *proxy, GError **error)
 
@@ -1888,10 +1588,7 @@ org_atheme_audacious_toggle_auto_advance_async_callback (DBusGProxy *proxy, DBus
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_toggle_auto_advance_async (DBusGProxy *proxy, org_atheme_audacious_toggle_auto_advance_reply callback, gpointer userdata)
 
@@ -1902,10 +1599,7 @@ org_atheme_audacious_toggle_auto_advance_async (DBusGProxy *proxy, org_atheme_au
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ToggleAutoAdvance", org_atheme_audacious_toggle_auto_advance_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_auto_advance (DBusGProxy *proxy, gboolean* OUT_is_advance, GError **error)
 
@@ -1926,10 +1620,7 @@ org_atheme_audacious_auto_advance_async_callback (DBusGProxy *proxy, DBusGProxyC
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_auto_advance_async (DBusGProxy *proxy, org_atheme_audacious_auto_advance_reply callback, gpointer userdata)
 
@@ -1940,10 +1631,7 @@ org_atheme_audacious_auto_advance_async (DBusGProxy *proxy, org_atheme_audacious
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "AutoAdvance", org_atheme_audacious_auto_advance_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_clear (DBusGProxy *proxy, GError **error)
 
@@ -1963,10 +1651,7 @@ org_atheme_audacious_clear_async_callback (DBusGProxy *proxy, DBusGProxyCall *ca
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_clear_async (DBusGProxy *proxy, org_atheme_audacious_clear_reply callback, gpointer userdata)
 
@@ -1977,10 +1662,7 @@ org_atheme_audacious_clear_async (DBusGProxy *proxy, org_atheme_audacious_clear_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Clear", org_atheme_audacious_clear_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_delete (DBusGProxy *proxy, const guint IN_pos, GError **error)
 
@@ -2000,10 +1682,7 @@ org_atheme_audacious_delete_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_delete_async (DBusGProxy *proxy, const guint IN_pos, org_atheme_audacious_delete_reply callback, gpointer userdata)
 
@@ -2014,10 +1693,7 @@ org_atheme_audacious_delete_async (DBusGProxy *proxy, const guint IN_pos, org_at
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Delete", org_atheme_audacious_delete_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_add_url (DBusGProxy *proxy, const char * IN_url, GError **error)
 
@@ -2037,10 +1713,7 @@ org_atheme_audacious_add_url_async_callback (DBusGProxy *proxy, DBusGProxyCall *
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_add_url_async (DBusGProxy *proxy, const char * IN_url, org_atheme_audacious_add_url_reply callback, gpointer userdata)
 
@@ -2051,10 +1724,7 @@ org_atheme_audacious_add_url_async (DBusGProxy *proxy, const char * IN_url, org_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "AddUrl", org_atheme_audacious_add_url_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_url, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_add (DBusGProxy *proxy, const char * IN_file, GError **error)
 
@@ -2074,10 +1744,7 @@ org_atheme_audacious_add_async_callback (DBusGProxy *proxy, DBusGProxyCall *call
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_add_async (DBusGProxy *proxy, const char * IN_file, org_atheme_audacious_add_reply callback, gpointer userdata)
 
@@ -2088,10 +1755,7 @@ org_atheme_audacious_add_async (DBusGProxy *proxy, const char * IN_file, org_ath
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Add", org_atheme_audacious_add_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_STRING, IN_file, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_jump (DBusGProxy *proxy, const guint IN_pos, GError **error)
 
@@ -2111,10 +1775,7 @@ org_atheme_audacious_jump_async_callback (DBusGProxy *proxy, DBusGProxyCall *cal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_jump_async (DBusGProxy *proxy, const guint IN_pos, org_atheme_audacious_jump_reply callback, gpointer userdata)
 
@@ -2125,10 +1786,7 @@ org_atheme_audacious_jump_async (DBusGProxy *proxy, const guint IN_pos, org_athe
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Jump", org_atheme_audacious_jump_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_song_tuple (DBusGProxy *proxy, const guint IN_pos, const char * IN_tuple, GValue* OUT_value, GError **error)
 
@@ -2149,10 +1807,7 @@ org_atheme_audacious_song_tuple_async_callback (DBusGProxy *proxy, DBusGProxyCal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_song_tuple_async (DBusGProxy *proxy, const guint IN_pos, const char * IN_tuple, org_atheme_audacious_song_tuple_reply callback, gpointer userdata)
 
@@ -2163,10 +1818,7 @@ org_atheme_audacious_song_tuple_async (DBusGProxy *proxy, const guint IN_pos, co
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SongTuple", org_atheme_audacious_song_tuple_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_pos, G_TYPE_STRING, IN_tuple, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_song_frames (DBusGProxy *proxy, const guint IN_pos, gint* OUT_length, GError **error)
 
@@ -2187,10 +1839,7 @@ org_atheme_audacious_song_frames_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_song_frames_async (DBusGProxy *proxy, const guint IN_pos, org_atheme_audacious_song_frames_reply callback, gpointer userdata)
 
@@ -2201,10 +1850,7 @@ org_atheme_audacious_song_frames_async (DBusGProxy *proxy, const guint IN_pos, o
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SongFrames", org_atheme_audacious_song_frames_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_song_length (DBusGProxy *proxy, const guint IN_pos, gint* OUT_length, GError **error)
 
@@ -2225,10 +1871,7 @@ org_atheme_audacious_song_length_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_song_length_async (DBusGProxy *proxy, const guint IN_pos, org_atheme_audacious_song_length_reply callback, gpointer userdata)
 
@@ -2239,10 +1882,7 @@ org_atheme_audacious_song_length_async (DBusGProxy *proxy, const guint IN_pos, o
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SongLength", org_atheme_audacious_song_length_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_song_filename (DBusGProxy *proxy, const guint IN_pos, char ** OUT_filename, GError **error)
 
@@ -2263,10 +1903,7 @@ org_atheme_audacious_song_filename_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_song_filename_async (DBusGProxy *proxy, const guint IN_pos, org_atheme_audacious_song_filename_reply callback, gpointer userdata)
 
@@ -2277,10 +1914,7 @@ org_atheme_audacious_song_filename_async (DBusGProxy *proxy, const guint IN_pos,
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SongFilename", org_atheme_audacious_song_filename_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_song_title (DBusGProxy *proxy, const guint IN_pos, char ** OUT_title, GError **error)
 
@@ -2301,10 +1935,7 @@ org_atheme_audacious_song_title_async_callback (DBusGProxy *proxy, DBusGProxyCal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_song_title_async (DBusGProxy *proxy, const guint IN_pos, org_atheme_audacious_song_title_reply callback, gpointer userdata)
 
@@ -2315,10 +1946,7 @@ org_atheme_audacious_song_title_async (DBusGProxy *proxy, const guint IN_pos, or
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SongTitle", org_atheme_audacious_song_title_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_length (DBusGProxy *proxy, gint* OUT_length, GError **error)
 
@@ -2339,10 +1967,7 @@ org_atheme_audacious_length_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_length_async (DBusGProxy *proxy, org_atheme_audacious_length_reply callback, gpointer userdata)
 
@@ -2353,10 +1978,7 @@ org_atheme_audacious_length_async (DBusGProxy *proxy, org_atheme_audacious_lengt
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Length", org_atheme_audacious_length_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_reverse (DBusGProxy *proxy, GError **error)
 
@@ -2376,10 +1998,7 @@ org_atheme_audacious_reverse_async_callback (DBusGProxy *proxy, DBusGProxyCall *
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_reverse_async (DBusGProxy *proxy, org_atheme_audacious_reverse_reply callback, gpointer userdata)
 
@@ -2390,10 +2009,7 @@ org_atheme_audacious_reverse_async (DBusGProxy *proxy, org_atheme_audacious_reve
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Reverse", org_atheme_audacious_reverse_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_advance (DBusGProxy *proxy, GError **error)
 
@@ -2413,10 +2029,7 @@ org_atheme_audacious_advance_async_callback (DBusGProxy *proxy, DBusGProxyCall *
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_advance_async (DBusGProxy *proxy, org_atheme_audacious_advance_reply callback, gpointer userdata)
 
@@ -2427,10 +2040,7 @@ org_atheme_audacious_advance_async (DBusGProxy *proxy, org_atheme_audacious_adva
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Advance", org_atheme_audacious_advance_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_position (DBusGProxy *proxy, guint* OUT_pos, GError **error)
 
@@ -2451,10 +2061,7 @@ org_atheme_audacious_position_async_callback (DBusGProxy *proxy, DBusGProxyCall 
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_position_async (DBusGProxy *proxy, org_atheme_audacious_position_reply callback, gpointer userdata)
 
@@ -2465,10 +2072,7 @@ org_atheme_audacious_position_async (DBusGProxy *proxy, org_atheme_audacious_pos
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Position", org_atheme_audacious_position_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_balance (DBusGProxy *proxy, gint* OUT_balance, GError **error)
 
@@ -2489,10 +2093,7 @@ org_atheme_audacious_balance_async_callback (DBusGProxy *proxy, DBusGProxyCall *
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_balance_async (DBusGProxy *proxy, org_atheme_audacious_balance_reply callback, gpointer userdata)
 
@@ -2503,10 +2104,7 @@ org_atheme_audacious_balance_async (DBusGProxy *proxy, org_atheme_audacious_bala
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Balance", org_atheme_audacious_balance_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_set_volume (DBusGProxy *proxy, const gint IN_vl, const gint IN_vr, GError **error)
 
@@ -2526,10 +2124,7 @@ org_atheme_audacious_set_volume_async_callback (DBusGProxy *proxy, DBusGProxyCal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_set_volume_async (DBusGProxy *proxy, const gint IN_vl, const gint IN_vr, org_atheme_audacious_set_volume_reply callback, gpointer userdata)
 
@@ -2540,10 +2135,7 @@ org_atheme_audacious_set_volume_async (DBusGProxy *proxy, const gint IN_vl, cons
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "SetVolume", org_atheme_audacious_set_volume_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INT, IN_vl, G_TYPE_INT, IN_vr, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_volume (DBusGProxy *proxy, gint* OUT_vl, gint* OUT_vr, GError **error)
 
@@ -2565,10 +2157,7 @@ org_atheme_audacious_volume_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_volume_async (DBusGProxy *proxy, org_atheme_audacious_volume_reply callback, gpointer userdata)
 
@@ -2579,10 +2168,7 @@ org_atheme_audacious_volume_async (DBusGProxy *proxy, org_atheme_audacious_volum
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Volume", org_atheme_audacious_volume_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_seek (DBusGProxy *proxy, const guint IN_pos, GError **error)
 
@@ -2602,10 +2188,7 @@ org_atheme_audacious_seek_async_callback (DBusGProxy *proxy, DBusGProxyCall *cal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_seek_async (DBusGProxy *proxy, const guint IN_pos, org_atheme_audacious_seek_reply callback, gpointer userdata)
 
@@ -2616,10 +2199,7 @@ org_atheme_audacious_seek_async (DBusGProxy *proxy, const guint IN_pos, org_athe
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Seek", org_atheme_audacious_seek_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_UINT, IN_pos, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_time (DBusGProxy *proxy, guint* OUT_time, GError **error)
 
@@ -2640,10 +2220,7 @@ org_atheme_audacious_time_async_callback (DBusGProxy *proxy, DBusGProxyCall *cal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_time_async (DBusGProxy *proxy, org_atheme_audacious_time_reply callback, gpointer userdata)
 
@@ -2654,10 +2231,7 @@ org_atheme_audacious_time_async (DBusGProxy *proxy, org_atheme_audacious_time_re
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Time", org_atheme_audacious_time_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_info (DBusGProxy *proxy, gint* OUT_rate, gint* OUT_freq, gint* OUT_nch, GError **error)
 
@@ -2680,10 +2254,7 @@ org_atheme_audacious_info_async_callback (DBusGProxy *proxy, DBusGProxyCall *cal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_info_async (DBusGProxy *proxy, org_atheme_audacious_info_reply callback, gpointer userdata)
 
@@ -2694,10 +2265,7 @@ org_atheme_audacious_info_async (DBusGProxy *proxy, org_atheme_audacious_info_re
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Info", org_atheme_audacious_info_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_status (DBusGProxy *proxy, char ** OUT_status, GError **error)
 
@@ -2718,10 +2286,7 @@ org_atheme_audacious_status_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_status_async (DBusGProxy *proxy, org_atheme_audacious_status_reply callback, gpointer userdata)
 
@@ -2732,10 +2297,7 @@ org_atheme_audacious_status_async (DBusGProxy *proxy, org_atheme_audacious_statu
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Status", org_atheme_audacious_status_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_stopped (DBusGProxy *proxy, gboolean* OUT_is_stopped, GError **error)
 
@@ -2756,10 +2318,7 @@ org_atheme_audacious_stopped_async_callback (DBusGProxy *proxy, DBusGProxyCall *
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_stopped_async (DBusGProxy *proxy, org_atheme_audacious_stopped_reply callback, gpointer userdata)
 
@@ -2770,10 +2329,7 @@ org_atheme_audacious_stopped_async (DBusGProxy *proxy, org_atheme_audacious_stop
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Stopped", org_atheme_audacious_stopped_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_paused (DBusGProxy *proxy, gboolean* OUT_is_paused, GError **error)
 
@@ -2794,10 +2350,7 @@ org_atheme_audacious_paused_async_callback (DBusGProxy *proxy, DBusGProxyCall *c
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_paused_async (DBusGProxy *proxy, org_atheme_audacious_paused_reply callback, gpointer userdata)
 
@@ -2808,10 +2361,7 @@ org_atheme_audacious_paused_async (DBusGProxy *proxy, org_atheme_audacious_pause
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Paused", org_atheme_audacious_paused_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_playing (DBusGProxy *proxy, gboolean* OUT_is_playing, GError **error)
 
@@ -2832,10 +2382,7 @@ org_atheme_audacious_playing_async_callback (DBusGProxy *proxy, DBusGProxyCall *
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_playing_async (DBusGProxy *proxy, org_atheme_audacious_playing_reply callback, gpointer userdata)
 
@@ -2846,10 +2393,7 @@ org_atheme_audacious_playing_async (DBusGProxy *proxy, org_atheme_audacious_play
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Playing", org_atheme_audacious_playing_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_stop (DBusGProxy *proxy, GError **error)
 
@@ -2869,10 +2413,7 @@ org_atheme_audacious_stop_async_callback (DBusGProxy *proxy, DBusGProxyCall *cal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_stop_async (DBusGProxy *proxy, org_atheme_audacious_stop_reply callback, gpointer userdata)
 
@@ -2883,10 +2424,7 @@ org_atheme_audacious_stop_async (DBusGProxy *proxy, org_atheme_audacious_stop_re
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Stop", org_atheme_audacious_stop_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_pause (DBusGProxy *proxy, GError **error)
 
@@ -2906,10 +2444,7 @@ org_atheme_audacious_pause_async_callback (DBusGProxy *proxy, DBusGProxyCall *ca
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_pause_async (DBusGProxy *proxy, org_atheme_audacious_pause_reply callback, gpointer userdata)
 
@@ -2920,10 +2455,7 @@ org_atheme_audacious_pause_async (DBusGProxy *proxy, org_atheme_audacious_pause_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Pause", org_atheme_audacious_pause_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_play (DBusGProxy *proxy, GError **error)
 
@@ -2943,10 +2475,7 @@ org_atheme_audacious_play_async_callback (DBusGProxy *proxy, DBusGProxyCall *cal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_play_async (DBusGProxy *proxy, org_atheme_audacious_play_reply callback, gpointer userdata)
 
@@ -2957,10 +2486,7 @@ org_atheme_audacious_play_async (DBusGProxy *proxy, org_atheme_audacious_play_re
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Play", org_atheme_audacious_play_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_get_tuple_fields (DBusGProxy *proxy, char *** OUT_fields, GError **error)
 
@@ -2981,10 +2507,7 @@ org_atheme_audacious_get_tuple_fields_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_get_tuple_fields_async (DBusGProxy *proxy, org_atheme_audacious_get_tuple_fields_reply callback, gpointer userdata)
 
@@ -2995,10 +2518,7 @@ org_atheme_audacious_get_tuple_fields_async (DBusGProxy *proxy, org_atheme_audac
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "GetTupleFields", org_atheme_audacious_get_tuple_fields_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_show_playlist (DBusGProxy *proxy, const gboolean IN_show, GError **error)
 
@@ -3018,10 +2538,7 @@ org_atheme_audacious_show_playlist_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_show_playlist_async (DBusGProxy *proxy, const gboolean IN_show, org_atheme_audacious_show_playlist_reply callback, gpointer userdata)
 
@@ -3032,10 +2549,7 @@ org_atheme_audacious_show_playlist_async (DBusGProxy *proxy, const gboolean IN_s
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ShowPlaylist", org_atheme_audacious_show_playlist_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_show, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_playlist_visible (DBusGProxy *proxy, gboolean* OUT_is_pl_win, GError **error)
 
@@ -3056,10 +2570,7 @@ org_atheme_audacious_playlist_visible_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_playlist_visible_async (DBusGProxy *proxy, org_atheme_audacious_playlist_visible_reply callback, gpointer userdata)
 
@@ -3070,10 +2581,7 @@ org_atheme_audacious_playlist_visible_async (DBusGProxy *proxy, org_atheme_audac
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "PlaylistVisible", org_atheme_audacious_playlist_visible_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_show_equalizer (DBusGProxy *proxy, const gboolean IN_show, GError **error)
 
@@ -3093,10 +2601,7 @@ org_atheme_audacious_show_equalizer_async_callback (DBusGProxy *proxy, DBusGProx
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_show_equalizer_async (DBusGProxy *proxy, const gboolean IN_show, org_atheme_audacious_show_equalizer_reply callback, gpointer userdata)
 
@@ -3107,10 +2612,7 @@ org_atheme_audacious_show_equalizer_async (DBusGProxy *proxy, const gboolean IN_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ShowEqualizer", org_atheme_audacious_show_equalizer_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_show, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_equalizer_visible (DBusGProxy *proxy, gboolean* OUT_is_eq_win, GError **error)
 
@@ -3131,10 +2633,7 @@ org_atheme_audacious_equalizer_visible_async_callback (DBusGProxy *proxy, DBusGP
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_equalizer_visible_async (DBusGProxy *proxy, org_atheme_audacious_equalizer_visible_reply callback, gpointer userdata)
 
@@ -3145,10 +2644,7 @@ org_atheme_audacious_equalizer_visible_async (DBusGProxy *proxy, org_atheme_auda
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "EqualizerVisible", org_atheme_audacious_equalizer_visible_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_show_main_win (DBusGProxy *proxy, const gboolean IN_show, GError **error)
 
@@ -3168,10 +2664,7 @@ org_atheme_audacious_show_main_win_async_callback (DBusGProxy *proxy, DBusGProxy
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_show_main_win_async (DBusGProxy *proxy, const gboolean IN_show, org_atheme_audacious_show_main_win_reply callback, gpointer userdata)
 
@@ -3182,10 +2675,7 @@ org_atheme_audacious_show_main_win_async (DBusGProxy *proxy, const gboolean IN_s
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "ShowMainWin", org_atheme_audacious_show_main_win_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_BOOLEAN, IN_show, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_main_win_visible (DBusGProxy *proxy, gboolean* OUT_is_main_win, GError **error)
 
@@ -3206,10 +2696,7 @@ org_atheme_audacious_main_win_visible_async_callback (DBusGProxy *proxy, DBusGPr
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_main_win_visible_async (DBusGProxy *proxy, org_atheme_audacious_main_win_visible_reply callback, gpointer userdata)
 
@@ -3220,10 +2707,7 @@ org_atheme_audacious_main_win_visible_async (DBusGProxy *proxy, org_atheme_audac
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "MainWinVisible", org_atheme_audacious_main_win_visible_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_eject (DBusGProxy *proxy, GError **error)
 
@@ -3243,10 +2727,7 @@ org_atheme_audacious_eject_async_callback (DBusGProxy *proxy, DBusGProxyCall *ca
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_eject_async (DBusGProxy *proxy, org_atheme_audacious_eject_reply callback, gpointer userdata)
 
@@ -3257,10 +2738,7 @@ org_atheme_audacious_eject_async (DBusGProxy *proxy, org_atheme_audacious_eject_
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Eject", org_atheme_audacious_eject_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_quit (DBusGProxy *proxy, GError **error)
 
@@ -3280,10 +2758,7 @@ org_atheme_audacious_quit_async_callback (DBusGProxy *proxy, DBusGProxyCall *cal
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_quit_async (DBusGProxy *proxy, org_atheme_audacious_quit_reply callback, gpointer userdata)
 
@@ -3294,10 +2769,7 @@ org_atheme_audacious_quit_async (DBusGProxy *proxy, org_atheme_audacious_quit_re
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Quit", org_atheme_audacious_quit_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_atheme_audacious_version (DBusGProxy *proxy, char ** OUT_version, GError **error)
 
@@ -3318,10 +2790,7 @@ org_atheme_audacious_version_async_callback (DBusGProxy *proxy, DBusGProxyCall *
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_atheme_audacious_version_async (DBusGProxy *proxy, org_atheme_audacious_version_reply callback, gpointer userdata)
 
@@ -3337,10 +2806,7 @@ org_atheme_audacious_version_async (DBusGProxy *proxy, org_atheme_audacious_vers
 #ifndef DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_MediaPlayer
 #define DBUS_GLIB_CLIENT_WRAPPERS_org_freedesktop_MediaPlayer
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_quit (DBusGProxy *proxy, GError **error)
 
@@ -3360,10 +2826,7 @@ org_freedesktop_MediaPlayer_quit_async_callback (DBusGProxy *proxy, DBusGProxyCa
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_quit_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_quit_reply callback, gpointer userdata)
 
@@ -3374,10 +2837,7 @@ org_freedesktop_MediaPlayer_quit_async (DBusGProxy *proxy, org_freedesktop_Media
   stuff->userdata = userdata;
   return dbus_g_proxy_begin_call (proxy, "Quit", org_freedesktop_MediaPlayer_quit_async_callback, stuff, _dbus_glib_async_data_free, G_TYPE_INVALID);
 }
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 gboolean
 org_freedesktop_MediaPlayer_identity (DBusGProxy *proxy, char ** OUT_arg0, GError **error)
 
@@ -3398,10 +2858,7 @@ org_freedesktop_MediaPlayer_identity_async_callback (DBusGProxy *proxy, DBusGPro
   return;
 }
 
-static
-#ifdef G_HAVE_INLINE
-inline
-#endif
+static inline
 DBusGProxyCall*
 org_freedesktop_MediaPlayer_identity_async (DBusGProxy *proxy, org_freedesktop_MediaPlayer_identity_reply callback, gpointer userdata)
 
